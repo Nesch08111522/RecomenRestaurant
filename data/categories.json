@@ -1,0 +1,72 @@
+[
+    {
+        "id": 1,
+        "slug": "cevicheria",
+        "name": "Cevichería",
+        "icon": "waves",
+        "image_url": "https://images.unsplash.com/photo-1535450710542-3756993a6240?q=80&w=500"
+    },
+    {
+        "id": 2,
+        "slug": "polleria",
+        "name": "Pollería",
+        "icon": "restaurant",
+        "image_url": "https://images.unsplash.com/photo-1626645738196-c2a7c87a8f58?q=80&w=500"
+    },
+    {
+        "id": 3,
+        "slug": "italiana",
+        "name": "Italiana",
+        "icon": "local_pizza",
+        "image_url": "https://images.unsplash.com/photo-1574071318508-1cdbad80ad38?q=80&w=500"
+    },
+    {
+        "id": 4,
+        "slug": "chifa",
+        "name": "Chifa",
+        "icon": "rice_bowl",
+        "image_url": "https://images.unsplash.com/photo-1512058560366-cd24270083cd?q=80&w=500"
+    },
+    {
+        "id": 5,
+        "slug": "criolla",
+        "name": "Criolla",
+        "icon": "soup_kitchen",
+        "image_url": "https://images.unsplash.com/photo-1589113103553-4958034060ee?q=80&w=500"
+    },
+    {
+        "id": 6,
+        "slug": "parrillas",
+        "name": "Parrillas",
+        "icon": "outdoor_grill",
+        "image_url": "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?q=80&w=500"
+    },
+    {
+        "id": 7,
+        "slug": "cafe",
+        "name": "Café",
+        "icon": "local_cafe",
+        "image_url": "https://images.unsplash.com/photo-1509042239860-f550ce710b93?q=80&w=500"
+    },
+    {
+        "id": 8,
+        "slug": "saludable",
+        "name": "Saludable",
+        "icon": "eco",
+        "image_url": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=500"
+    },
+    {
+        "id": 9,
+        "slug": "japonesa",
+        "name": "Japonesa",
+        "icon": "set_meal",
+        "image_url": "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?q=80&w=500"
+    },
+    {
+        "id": 10,
+        "slug": "mexicana",
+        "name": "Mexicana",
+        "icon": "taco",
+        "image_url": "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?q=80&w=500"
+    }
+]

@@ -1,0 +1,48 @@
+[
+    {
+        "id": 1,
+        "username": "admin",
+        "password": "scrypt:32768:8:1$hq0c66Q1eYFVnpWb$a738b8128d3410125ae1d328d71808cf36869cded890460f3cdecff30c816ab75888ee7a998f9d25a748cacf1d3be769b1e084341023286808f17c3eaf149d6e",
+        "role": "admin",
+        "profile": {
+            "name": "Admin",
+            "email": "admin@smartresto.com",
+            "preferences": [],
+            "restrictions": [],
+            "history": []
+        }
+    },
+    {
+        "id": 2,
+        "username": "nesch0811",
+        "password": "scrypt:32768:8:1$Cw85oXuJI9xGxISl$5c811bc1436814ad6a2bbf23f480cf46fb10844a8cb96b34476e3d066a09544972f4e589eee8e0bb827dc1e9ecd6f3d598e6ef65b641f03e50afe9e56efdabf9",
+        "role": "user",
+        "profile": {
+            "name": "Nancy Elizabeth Sandoval Chacón",
+            "email": "liza08111522@gmail.com",
+            "preferences": [
+                "tradicional",
+                "mariscos",
+                "criolla",
+                "italiana",
+                "japonesa",
+                "saludable"
+            ],
+            "restrictions": [],
+            "history": []
+        }
+    },
+    {
+        "id": 3,
+        "username": "empresario",
+        "password": "scrypt:32768:8:1$hq0c66Q1eYFVnpWb$a738b8128d3410125ae1d328d71808cf36869cded890460f3cdecff30c816ab75888ee7a998f9d25a748cacf1d3be769b1e084341023286808f17c3eaf149d6e",
+        "role": "business_owner",
+        "profile": {
+            "name": "Juan Empresario",
+            "email": "juan@restaurante.com",
+            "preferences": [],
+            "restrictions": [],
+            "history": []
+        }
+    }
+]

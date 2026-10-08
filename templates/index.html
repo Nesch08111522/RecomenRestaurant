@@ -1,0 +1,174 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- Filtros dinámicos -->
+<div class="filter-section">
+    <div class="filter-scroll">
+        <button class="filter-chip active" data-filter="all">Todos</button>
+        <button class="filter-chip" data-filter="open">Abiertos ahora</button>
+        <button class="filter-chip" data-filter="promo">Con promociones</button>
+        <button class="filter-chip" data-filter="top-rated">Mejor valorados</button>
+        <button class="filter-chip" data-filter="nearby">Cerca de mí</button>
+
+        <div class="filter-divider"></div>
+
+        <!-- Chips de categorías -->
+        {% for cat in categories %}
+            <button class="filter-chip category-chip" data-category="{{ cat.id }}">
+                <i class="fas fa-{{ cat.icon }}"></i>
+                {{ cat.name }}
+            </button>
+        {% endfor %}
+
+        <div class="filter-divider"></div>
+
+        <button class="filter-chip" data-filter="price-low">💰 Económico</button>
+        <button class="filter-chip" data-filter="price-mid">💰💰 Moderado</button>
+        <button class="filter-chip" data-filter="price-high">💰💰💰 Premium</button>
+    </div>
+</div>
+
+<!-- Layout principal -->
+<div class="main-layout">
+    <!-- Columna izquierda: Resultados -->
+    <div class="results-column" id="resultsColumn">
+        <div class="results-header">
+            <h2 id="resultsCount">{{ restaurants|length }} restaurantes encontrados</h2>
+            <div class="view-controls">
+                <button class="view-btn active" data-view="grid"><i class="fas fa-th"></i></button>
+                <button class="view-btn" data-view="list"><i class="fas fa-list"></i></button>
+            </div>
+        </div>
+
+        <div class="results-grid" id="resultsGrid">
+            {% for r in restaurants %}
+                {% include 'partials/restaurant_card.html' %}
+            {% endfor %}
+        </div>
+
+        <!-- Carga infinita -->
+        <div class="load-more-container" id="loadMoreContainer" style="display: none;">
+            <button class="load-more-btn" id="loadMoreBtn">Ver más restaurantes</button>
+        </div>
+    </div>
+
+    <!-- Columna derecha: Mapa -->
+    <div class="map-column">
+        <div id="main-map" class="map-container"></div>
+        <button class="location-btn" id="locationBtn">
+            <i class="fas fa-crosshairs"></i>
+            Usar mi ubicación
+        </button>
+
+        <!-- Mini panel de control del mapa -->
+        <div class="map-controls">
+            <button class="map-control-btn" id="zoomInBtn" title="Acercar"><i class="fas fa-plus"></i></button>
+            <button class="map-control-btn" id="zoomOutBtn" title="Alejar"><i class="fas fa-minus"></i></button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de recomendación IA -->
+<div class="modal" id="recommendationModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2><i class="fas fa-robot"></i> Recomendación Inteligente</h2>
+            <span class="close-modal">&times;</span>
+        </div>
+        <div class="modal-body">
+            <form id="recommendationForm">
+                <div class="form-group">
+                    <label>Ubicación actual</label>
+                    <input type="text" id="userLocation" placeholder="Ej: Trujillo, Centro" class="form-input" />
+                    <button type="button" id="detectLocationBtn" class="btn-small"><i class="fas fa-crosshairs"></i> Detectar</button>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Presupuesto ({{ MONEDA }})</label>
+                        <input type="number" id="userBudget" placeholder="50" min="0" class="form-input" />
+                    </div>
+                    <div class="form-group">
+                        <label>Hora de visita</label>
+                        <input type="time" id="visitTime" class="form-input" />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Tipo de comida preferido</label>
+                    <select id="userFoodPreference" class="form-input">
+                        <option value="">Selecciona...</option>
+                        {% for cat in categories %}
+                            <option value="{{ cat.id }}">{{ cat.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Restricciones alimenticias</label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-label"><input type="checkbox" value="vegano" />Vegano</label>
+                        <label class="checkbox-label"><input type="checkbox" value="vegetariano" />Vegetariano</label>
+                        <label class="checkbox-label"><input type="checkbox" value="celiaco" />Celíaco</label>
+                        <label class="checkbox-label"><input type="checkbox" value="sin gluten" />Sin gluten</label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Objetivo de la salida</label>
+                    <select id="outingGoal" class="form-input">
+                        <option value="almuerzo">Almuerzo</option>
+                        <option value="cena">Cena</option>
+                        <option value="romantica">Cena romántica</option>
+                        <option value="negocios">Reunión de negocios</option>
+                        <option value="familia">Familia</option>
+                        <option value="amigos">Amigos</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn-primary btn-block"><i class="fas fa-magic"></i> Obtener recomendaciones</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Panel de notificaciones -->
+<div class="notification-panel" id="notificationPanel" style="display: none;">
+    <div class="notification-header">
+        <h3>Notificaciones</h3>
+        <button class="close-notifications">&times;</button>
+    </div>
+    <div class="notification-list" id="notificationList">
+        <div class="notification-empty">No hay notificaciones</div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // ✅ Datos iniciales para el mapa y la búsqueda - Corregido
+    // Usar JSON.parse para asegurar que los datos se conviertan correctamente
+    const INITIAL_COORDS = {{ CENTER_COORDS | tojson | safe }};
+    const RESTAURANTS_DATA = {{ restaurants | tojson | safe }};
+    const CATEGORIES_DATA = {{ categories | tojson | safe }};
+    const USER_PROFILE = {{ user_profile | tojson | safe }};
+    
+    // ✅ Agregar MONEDA a las variables globales
+    const MONEDA = '{{ MONEDA }}';
+    
+    // Configuración de la aplicación
+    const APP_CONFIG = {
+        city: '{{ CIUDAD }}',
+        currency: '{{ MONEDA }}',
+        primaryColor: '{{ PRIMARY_COLOR }}',
+        secondaryColor: '{{ SECONDARY_COLOR }}',
+        maxRadius: {{ RADIO_MAXIMO_KM }}
+    };
+    
+    // ✅ Para depuración - verificar que los datos se cargaron correctamente
+    console.log('✅ INITIAL_COORDS:', INITIAL_COORDS);
+    console.log('✅ RESTAURANTS_DATA:', RESTAURANTS_DATA.length, 'restaurantes');
+    console.log('✅ CATEGORIES_DATA:', CATEGORIES_DATA.length, 'categorías');
+    console.log('✅ MONEDA:', MONEDA);
+</script>
+{% endblock %}

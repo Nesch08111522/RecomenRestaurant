@@ -1,0 +1,808 @@
+[
+    {
+        "id": 1,
+        "name": "El Mochica",
+        "category_id": 5,
+        "district": "Centro Histórico",
+        "lat": -8.1127,
+        "lng": -79.0285,
+        "avg_price": 45,
+        "rating": 4.7,
+        "open_time": "12:00",
+        "close_time": "23:00",
+        "tags": [
+            "tradicional",
+            "turístico",
+            "familiar"
+        ],
+        "features": [
+            "wifi",
+            "parking",
+            "reservas"
+        ],
+        "image": "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=800",
+        "description": "Restaurante emblemático de Trujillo con lo mejor de la comida criolla y norteña.",
+        "address": "Jr. Independencia 462",
+        "phone": "044-243434",
+        "promo": "10% de descuento en Cabrito",
+        "reviews": 1250,
+        "dietary_restrictions": [
+            "opción vegetariana"
+        ],
+        "owner_id": 1,
+        "owner_name": "Administrador",
+        "verified": true,
+        "moderation_notes": "Aprobado"
+    },
+    {
+        "id": 2,
+        "name": "Big Ben",
+        "category_id": 1,
+        "district": "Huanchaco",
+        "lat": -8.0772,
+        "lng": -79.1192,
+        "avg_price": 60.0,
+        "rating": 4.8,
+        "open_time": "11:00",
+        "close_time": "18:00",
+        "tags": [
+            "mariscos",
+            "vista al mar",
+            "premium"
+        ],
+        "features": [
+            "terraza",
+            "parking",
+            "reservas"
+        ],
+        "image": "https://images.unsplash.com/photo-1551731359-2b3c0597222f?q=80&w=800",
+        "description": "El mejor ceviche de Huanchaco con una vista espectacular al muelle.",
+        "address": "Av. Larco 836, Huanchaco",
+        "phone": "044-461310",
+        "promo": "5% si vienes con tu pareja",
+        "reviews": 890,
+        "dietary_restrictions": [
+            "sin gluten"
+        ],
+        "owner_id": 3,
+        "owner_name": "Juan Empresario",
+        "verified": false,
+        "moderation_notes": ""
+    },
+    {
+        "id": 3,
+        "name": "Sabor Norteño",
+        "category_id": 5,
+        "district": "Victor Larco",
+        "lat": -8.1345,
+        "lng": -79.0432,
+        "avg_price": 35,
+        "rating": 4.5,
+        "open_time": "12:00",
+        "close_time": "17:00",
+        "tags": [
+            "criollo",
+            "económico",
+            "familiar"
+        ],
+        "features": [
+            "delivery",
+            "mesas al aire libre"
+        ],
+        "image": "https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=800",
+        "description": "Auténtico sabor de la libertad en el corazón de California.",
+        "address": "Av. Larco 1250",
+        "phone": "044-321456",
+        "promo": "2x1 en refrescos",
+        "reviews": 450,
+        "dietary_restrictions": [],
+        "owner_id": 1,
+        "owner_name": "Administrador",
+        "verified": true,
+        "moderation_notes": "Agregar mas detalles",
+        "moderated_at": "2026-06-30T18:20:14.219089"
+    },
+    {
+        "id": 4,
+        "name": "Pizzería San Remo",
+        "category_id": 3,
+        "district": "Centro Histórico",
+        "lat": -8.1105,
+        "lng": -79.031,
+        "avg_price": 30,
+        "rating": 4.4,
+        "open_time": "17:00",
+        "close_time": "23:30",
+        "tags": [
+            "pizza",
+            "artesanal",
+            "italiana"
+        ],
+        "features": [
+            "delivery",
+            "wifi"
+        ],
+        "image": "https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=800",
+        "description": "Pizzas a la leña con la receta tradicional italiana.",
+        "address": "Jr. Pizarro 712",
+        "phone": "044-201589",
+        "promo": null,
+        "reviews": 620,
+        "dietary_restrictions": [
+            "opción vegetariana"
+        ],
+        "owner_id": 1,
+        "owner_name": "Administrador",
+        "verified": true,
+        "moderation_notes": "Mejorar informacion",
+        "moderated_at": "2026-06-30T18:37:23.843196"
+    },
+    {
+        "id": 5,
+        "name": "Chifa El Sol",
+        "category_id": 4,
+        "district": "Trujillo",
+        "lat": -8.114,
+        "lng": -79.026,
+        "avg_price": 25,
+        "rating": 4.2,
+        "open_time": "12:00",
+        "close_time": "22:00",
+        "tags": [
+            "chifa",
+            "rápido",
+            "abundante"
+        ],
+        "features": [
+            "delivery",
+            "llevar"
+        ],
+        "image": "https://images.unsplash.com/photo-1525755662778-989d0524087e?q=80&w=800",
+        "description": "Fusión peruano-china con los mejores ingredientes de la región.",
+        "address": "Av. España 1540",
+        "phone": "044-223344",
+        "promo": "Chaufa familiar a S/.35",
+        "reviews": 310,
+        "dietary_restrictions": [],
+        "owner_id": 1,
+        "owner_name": "Administrador",
+        "verified": false,
+        "moderation_notes": ""
+    },
+    {
+        "id": 6,
+        "name": "Nori Sushi Bar",
+        "category_id": 9,
+        "district": "Victor Larco",
+        "lat": -8.131,
+        "lng": -79.0415,
+        "avg_price": 55,
+        "rating": 4.6,
+        "open_time": "12:30",
+        "close_time": "23:00",
+        "tags": [
+            "sushi",
+            "japonés",
+            "moderno"
+        ],
+        "features": [
+            "reservas",
+            "wifi",
+            "barra"
+        ],
+        "image": "https://images.unsplash.com/photo-1553621042-f6e147245754?q=80&w=800",
+        "description": "Experiencia única de sushi y cocina nikkei.",
+        "address": "Av. California 450",
+        "phone": "044-456789",
+        "promo": "All you can eat los martes",
+        "reviews": 540,
+        "dietary_restrictions": [
+            "opción vegana",
+            "sin gluten"
+        ],
+        "owner_id": 3,
+        "owner_name": "Juan Empresario",
+        "verified": false,
+        "moderation_notes": ""
+    },
+    {
+        "id": 7,
+        "name": "La Estancia",
+        "category_id": 6,
+        "district": "Trujillo",
+        "lat": -8.105,
+        "lng": -79.035,
+        "avg_price": 70,
+        "rating": 4.7,
+        "open_time": "13:00",
+        "close_time": "23:00",
+        "tags": [
+            "carnes",
+            "parrilla",
+            "vinos"
+        ],
+        "features": [
+            "parking",
+            "reservas",
+            "aire acondicionado"
+        ],
+        "image": "https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800",
+        "description": "Los mejores cortes de carne nacional e importada.",
+        "address": "Av. Mansiche 1200",
+        "phone": "044-789456",
+        "promo": null,
+        "reviews": 420,
+        "dietary_restrictions": [],
+        "owner_id": 1,
+        "owner_name": "Administrador",
+        "verified": true,
+        "moderation_notes": "Aprobado",
+        "approval_status": "APROBADO_AUTOMATICAMENTE",
+        "moderated_at": "2026-08-18T21:34:00.061923+00:00",
+        "rejected": false,
+        "suspended": false,
+        "publication_status": "published"
+    },
+    {
+        "id": 8,
+        "name": "Garden Café",
+        "category_id": 7,
+        "district": "Centro Histórico",
+        "lat": -8.1115,
+        "lng": -79.0295,
+        "avg_price": 20,
+        "rating": 4.5,
+        "open_time": "08:00",
+        "close_time": "21:00",
+        "tags": [
+            "café",
+            "postres",
+            "tranquilo"
+        ],
+        "features": [
+            "wifi",
+            "terraza",
+            "pet friendly"
+        ],
+        "image": "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?q=80&w=800",
+        "description": "Un oasis en el centro de la ciudad para disfrutar de un buen café.",
+        "address": "Jr. San Martín 560",
+        "phone": "044-123789",
+        "promo": "Combo desayuno S/.15",
+        "reviews": 380,
+        "dietary_restrictions": [
+            "opción vegana",
+            "leche de almendras"
+        ],
+        "owner_id": 1,
+        "owner_name": "Administrador",
+        "verified": false,
+        "moderation_notes": ""
+    },
+    {
+        "id": 9,
+        "name": "Verde & Sano",
+        "category_id": 8,
+        "district": "Victor Larco",
+        "lat": -8.1325,
+        "lng": -79.0425,
+        "avg_price": 28,
+        "rating": 4.3,
+        "open_time": "09:00",
+        "close_time": "20:00",
+        "tags": [
+            "saludable",
+            "ensaladas",
+            "jugos"
+        ],
+        "features": [
+            "delivery",
+            "llevar"
+        ],
+        "image": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=800",
+        "description": "Comida saludable y deliciosa para cuidar tu cuerpo.",
+        "address": "Av. Fátima 320",
+        "phone": "044-987654",
+        "promo": "15% off en ensaladas del día",
+        "reviews": 290,
+        "dietary_restrictions": [
+            "vegano",
+            "vegetariano",
+            "sin gluten"
+        ],
+        "owner_id": 3,
+        "owner_name": "Juan Empresario",
+        "verified": false,
+        "moderation_notes": ""
+    },
+    {
+        "id": 10,
+        "name": "Tacos & Tequila",
+        "category_id": 10,
+        "district": "Victor Larco",
+        "lat": -8.136,
+        "lng": -79.045,
+        "avg_price": 35,
+        "rating": 4.4,
+        "open_time": "18:00",
+        "close_time": "01:00",
+        "tags": [
+            "mexicano",
+            "tacos",
+            "tragos"
+        ],
+        "features": [
+            "música en vivo",
+            "barra"
+        ],
+        "image": "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?q=80&w=800",
+        "description": "El verdadero sabor de México en Trujillo.",
+        "address": "Av. Larco 1500",
+        "phone": "044-654321",
+        "promo": "Margaritas 2x1 los jueves",
+        "reviews": 410,
+        "dietary_restrictions": [
+            "opción vegetariana"
+        ],
+        "owner_id": 1,
+        "owner_name": "Administrador",
+        "verified": false,
+        "moderation_notes": ""
+    },
+    {
+        "id": 11,
+        "name": "Mar Picante",
+        "category_id": 1,
+        "district": "Trujillo",
+        "lat": -8.102,
+        "lng": -79.022,
+        "avg_price": 40,
+        "rating": 4.6,
+        "open_time": "11:30",
+        "close_time": "17:00",
+        "tags": [
+            "cevichería",
+            "picante",
+            "popular"
+        ],
+        "features": [
+            "parking"
+        ],
+        "image": "https://images.unsplash.com/photo-1535450710542-3756993a6240?q=80&w=800",
+        "description": "Especialistas en ceviches y arroces marineros.",
+        "address": "Av. América Norte 2345",
+        "phone": "044-112233",
+        "promo": null,
+        "reviews": 670,
+        "dietary_restrictions": [],
+        "owner_id": 1,
+        "owner_name": "Administrador",
+        "verified": false,
+        "moderation_notes": ""
+    },
+    {
+        "id": 12,
+        "name": "Pollo Real",
+        "category_id": 2,
+        "district": "Centro Histórico",
+        "lat": -8.1135,
+        "lng": -79.0275,
+        "avg_price": 22,
+        "rating": 4.1,
+        "open_time": "12:00",
+        "close_time": "23:00",
+        "tags": [
+            "pollería",
+            "brasas",
+            "tradicional"
+        ],
+        "features": [
+            "delivery",
+            "juegos para niños"
+        ],
+        "image": "https://images.unsplash.com/photo-1626645738196-c2a7c87a8f58?q=80&w=800",
+        "description": "El mejor pollo a la brasa con papas nativas.",
+        "address": "Jr. Gamarra 450",
+        "phone": "044-445566",
+        "promo": "1/4 pollo + bebida S/.18",
+        "reviews": 920,
+        "dietary_restrictions": [],
+        "owner_id": 1,
+        "owner_name": "Administrador",
+        "verified": false,
+        "moderation_notes": ""
+    },
+    {
+        "id": 13,
+        "name": "Pasta & Vino",
+        "category_id": 3,
+        "district": "Victor Larco",
+        "lat": -8.138,
+        "lng": -79.047,
+        "avg_price": 50,
+        "rating": 4.7,
+        "open_time": "18:30",
+        "close_time": "23:30",
+        "tags": [
+            "italiana",
+            "romántico",
+            "vinos"
+        ],
+        "features": [
+            "reservas",
+            "música suave"
+        ],
+        "image": "https://images.unsplash.com/photo-1574071318508-1cdbad80ad38?q=80&w=800",
+        "description": "Cenas elegantes con pastas hechas en casa.",
+        "address": "Calle Los Laureles 123",
+        "phone": "044-778899",
+        "promo": "Copa de vino de cortesía",
+        "reviews": 280,
+        "dietary_restrictions": [
+            "opción vegetariana"
+        ],
+        "owner_id": 3,
+        "owner_name": "Juan Empresario",
+        "verified": false,
+        "moderation_notes": ""
+    },
+    {
+        "id": 14,
+        "name": "Chifa Lung Fung",
+        "category_id": 4,
+        "district": "Victor Larco",
+        "lat": -8.1305,
+        "lng": -79.0405,
+        "avg_price": 40,
+        "rating": 4.5,
+        "open_time": "12:00",
+        "close_time": "22:30",
+        "tags": [
+            "chifa",
+            "familiar",
+            "premium"
+        ],
+        "features": [
+            "reservas",
+            "parking"
+        ],
+        "image": "https://images.unsplash.com/photo-1512058560366-cd24270083cd?q=80&w=800",
+        "description": "Tradición oriental con un toque moderno.",
+        "address": "Av. Larco 1100",
+        "phone": "044-334455",
+        "promo": null,
+        "reviews": 510,
+        "dietary_restrictions": [],
+        "owner_id": 1,
+        "owner_name": "Administrador",
+        "verified": false,
+        "moderation_notes": ""
+    },
+    {
+        "id": 15,
+        "name": "La Parrilla del Gordo",
+        "category_id": 6,
+        "district": "Trujillo",
+        "lat": -8.098,
+        "lng": -79.032,
+        "avg_price": 45,
+        "rating": 4.4,
+        "open_time": "13:00",
+        "close_time": "22:00",
+        "tags": [
+            "parrilla",
+            "carnes",
+            "informal"
+        ],
+        "features": [
+            "delivery",
+            "mesas grandes"
+        ],
+        "image": "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?q=80&w=800",
+        "description": "Grandes porciones para los amantes de la carne.",
+        "address": "Av. Nicolás de Piérola 450",
+        "phone": "044-667788",
+        "promo": "Parrilla para dos S/.80",
+        "reviews": 340,
+        "dietary_restrictions": [],
+        "owner_id": 1,
+        "owner_name": "Administrador",
+        "verified": false,
+        "moderation_notes": ""
+    },
+    {
+        "id": 16,
+        "name": "Coffee Break",
+        "category_id": 7,
+        "district": "Victor Larco",
+        "lat": -8.135,
+        "lng": -79.044,
+        "avg_price": 15,
+        "rating": 4.3,
+        "open_time": "07:30",
+        "close_time": "20:00",
+        "tags": [
+            "café",
+            "rápido",
+            "estudiantes"
+        ],
+        "features": [
+            "wifi",
+            "enchufes"
+        ],
+        "image": "https://images.unsplash.com/photo-1509042239860-f550ce710b93?q=80&w=800",
+        "description": "El lugar perfecto para trabajar o estudiar con un buen café.",
+        "address": "Av. Larco 1340",
+        "phone": "044-990011",
+        "promo": "Refill de café americano",
+        "reviews": 210,
+        "dietary_restrictions": [
+            "leche vegetal"
+        ],
+        "owner_id": 3,
+        "owner_name": "Juan Empresario",
+        "verified": false,
+        "moderation_notes": ""
+    },
+    {
+        "id": 17,
+        "name": "Sushimanía",
+        "category_id": 9,
+        "district": "Centro Histórico",
+        "lat": -8.111,
+        "lng": -79.029,
+        "avg_price": 35,
+        "rating": 4.2,
+        "open_time": "12:00",
+        "close_time": "22:00",
+        "tags": [
+            "sushi",
+            "delivery",
+            "económico"
+        ],
+        "features": [
+            "delivery",
+            "llevar"
+        ],
+        "image": "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?q=80&w=800",
+        "description": "Sushi fresco y rápido en el centro de Trujillo.",
+        "address": "Jr. Bolognesi 320",
+        "phone": "044-114477",
+        "promo": "3x2 en rolls clásicos",
+        "reviews": 180,
+        "dietary_restrictions": [
+            "opción vegetariana"
+        ],
+        "owner_id": 1,
+        "owner_name": "Administrador",
+        "verified": false,
+        "moderation_notes": ""
+    },
+    {
+        "id": 18,
+        "name": "El Rocoto",
+        "category_id": 5,
+        "district": "Trujillo",
+        "lat": -8.108,
+        "lng": -79.038,
+        "avg_price": 30,
+        "rating": 4.5,
+        "open_time": "12:00",
+        "close_time": "17:00",
+        "tags": [
+            "picantería",
+            "criollo",
+            "tradicional"
+        ],
+        "features": [
+            "patio"
+        ],
+        "image": "https://images.unsplash.com/photo-1589113103553-4958034060ee?q=80&w=800",
+        "description": "Sabor de antaño con los mejores picantes.",
+        "address": "Av. Húsares de Junín 890",
+        "phone": "044-225588",
+        "promo": null,
+        "reviews": 460,
+        "dietary_restrictions": [],
+        "owner_id": 1,
+        "owner_name": "Administrador",
+        "verified": false,
+        "moderation_notes": ""
+    },
+    {
+        "id": 19,
+        "name": "Pizza Planet",
+        "category_id": 3,
+        "district": "Victor Larco",
+        "lat": -8.133,
+        "lng": -79.0435,
+        "avg_price": 25,
+        "rating": 4.0,
+        "open_time": "16:00",
+        "close_time": "00:00",
+        "tags": [
+            "pizza",
+            "delivery",
+            "rápido"
+        ],
+        "features": [
+            "delivery",
+            "app"
+        ],
+        "image": "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?q=80&w=800",
+        "description": "Pizzas rápidas y calientes directo a tu casa.",
+        "address": "Av. Fátima 560",
+        "phone": "044-336699",
+        "promo": "Pizza grande S/.29.90",
+        "reviews": 320,
+        "dietary_restrictions": [],
+        "owner_id": 3,
+        "owner_name": "Juan Empresario",
+        "verified": false,
+        "moderation_notes": ""
+    },
+    {
+        "id": 20,
+        "name": "Bio Market & Café",
+        "category_id": 8,
+        "district": "Victor Larco",
+        "lat": -8.137,
+        "lng": -79.046,
+        "avg_price": 32,
+        "rating": 4.6,
+        "open_time": "08:30",
+        "close_time": "21:00",
+        "tags": [
+            "orgánico",
+            "saludable",
+            "tienda"
+        ],
+        "features": [
+            "wifi",
+            "pet friendly"
+        ],
+        "image": "https://images.unsplash.com/photo-1543332164-6e82f355badc?q=80&w=800",
+        "description": "Productos orgánicos y platos saludables preparados al momento.",
+        "address": "Calle Las Hortensias 450",
+        "phone": "044-448800",
+        "promo": "10% de descuento para clientes frecuentes",
+        "reviews": 240,
+        "dietary_restrictions": [
+            "vegano",
+            "sin gluten",
+            "keto"
+        ],
+        "owner_id": 3,
+        "owner_name": "Juan Empresario",
+        "verified": false,
+        "moderation_notes": ""
+    },
+    {
+        "name": "La sazón de Daniela y su Frente",
+        "category_id": 3,
+        "district": "Trujillo",
+        "lat": -8.099512,
+        "lng": -79.037728,
+        "avg_price": 20.0,
+        "rating": 4.0,
+        "open_time": "12:00",
+        "close_time": "22:00",
+        "tags": [
+            "moderno",
+            "familiar",
+            "innovador"
+        ],
+        "features": [
+            "wifi",
+            "reservas",
+            "estacionamiento"
+        ],
+        "image": "https://hips.hearstapps.com/hmg-prod/images/restaurante-italiano-baldoria-madrid-elle-gourmet-64c2408c4bfbd.jpg",
+        "description": "Ven y prueba la sazón y ricura de nuestros platillos italianos, donde el ambiente y la comida serán como en Italia, Mamma mia.",
+        "address": "626, Calle las Gemas, Urbanización Santa Inés, Trujillo, Province of Trujillo, La Libertad, 13011, Peru",
+        "phone": "932246778",
+        "promo": "10% de descuento por comentar",
+        "dietary_restrictions": [
+            "vegano",
+            "sin glutén",
+            "dietético"
+        ],
+        "owner_id": 3,
+        "owner_name": "Juan Empresario",
+        "id": 21,
+        "verified": false,
+        "moderation_notes": ""
+    },
+    {
+        "name": "Alessita La Malcriada",
+        "category_id": 5,
+        "district": "La Esperanza",
+        "lat": -8.072195,
+        "lng": -79.040265,
+        "avg_price": 25.0,
+        "rating": 4.0,
+        "open_time": "12:00",
+        "close_time": "22:00",
+        "tags": [
+            "criolla",
+            "familiar"
+        ],
+        "features": [
+            "wifi",
+            "estacionamiento",
+            "promociones"
+        ],
+        "image": "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/0c/92/2f/49/la-esperanza-restaurant.jpg?w=900&h=500&s=1",
+        "description": "Restaurante con deliciosa comida criolla",
+        "address": "av nicolas de pierola 1221",
+        "phone": "941432384",
+        "promo": "5% si vienes con tu pareja",
+        "dietary_restrictions": [
+            "sin gluten"
+        ],
+        "owner_id": 3,
+        "owner_name": "Juan Empresario",
+        "id": 22,
+        "verified": false,
+        "moderation_notes": ""
+    },
+    {
+        "name": "La Patita del Ratón",
+        "category_id": 4,
+        "district": "Trujillo",
+        "lat": -8.096523,
+        "lng": -79.012405,
+        "avg_price": 5.0,
+        "rating": 4.0,
+        "open_time": "12:00",
+        "close_time": "22:00",
+        "tags": [
+            "familiar",
+            "ratonil"
+        ],
+        "features": [
+            "ratas",
+            "perros",
+            "gatos"
+        ],
+        "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT5npbLL4n8xsbEN8TjqAG0DV4ij0oYYnYMMUqntzW0A20MpTYMA1GB8Sb2&s=10",
+        "description": "Ven prueba tu comida con las 3 B, búlimica, bismuto y barata",
+        "address": "244, Calle Albert Einstein, Trujillo, Province of Trujillo, La Libertad, 13006, Peru",
+        "phone": "990332596",
+        "promo": "90% si traes a tu mascota",
+        "dietary_restrictions": [],
+        "owner_id": 3,
+        "owner_name": "Juan Empresario",
+        "id": 23,
+        "verified": false,
+        "moderation_notes": ""
+    },
+    {
+        "name": "La tia Veneno",
+        "category_id": 8,
+        "district": "Trujillo",
+        "lat": -8.100688,
+        "lng": -79.038575,
+        "avg_price": 10.0,
+        "rating": 4.0,
+        "open_time": "12:00",
+        "close_time": "22:00",
+        "tags": [
+            "fascinante"
+        ],
+        "features": [
+            "wifi",
+            "reservas",
+            "estacionamiento"
+        ],
+        "image": "",
+        "description": "Comida saludable al paso",
+        "address": "Calle las Gemas, Urbanización Santa Inés, Trujillo, Province of Trujillo, La Libertad, 13011, Peru",
+        "phone": "999999999",
+        "promo": "90% si traes a tu mascota",
+        "dietary_restrictions": [],
+        "owner_id": 3,
+        "owner_name": "Juan Empresario",
+        "id": 24
+    }
+]

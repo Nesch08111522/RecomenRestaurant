@@ -1,0 +1,668 @@
+{% extends 'owner/base.html' %}
+
+{% block owner_content %}
+<div class="menu-management">
+    <div class="header">
+        <h1><i class="fas fa-utensils"></i> Gestión de Menú</h1>
+        <p>{{ restaurant.name }}</p>
+        <div class="actions">
+            <button class="btn-primary" onclick="generateRandomMenu()">
+                <i class="fas fa-dice"></i> Generar Menú Aleatorio
+            </button>
+            <button class="btn-primary" onclick="openAddDishModal()">
+                <i class="fas fa-plus"></i> Agregar Plato
+            </button>
+        </div>
+    </div>
+
+    <!-- Tipo de menú -->
+    <div class="menu-type-selector">
+        <label>Tipo de menú:</label>
+        <select id="menuType" onchange="changeMenuType(this.value)">
+            <option value="fixed" {% if restaurant.menu_type == 'fixed' %}selected{% endif %}>
+                📋 Menú Fijo
+            </option>
+            <option value="daily" {% if restaurant.menu_type == 'daily' %}selected{% endif %}>
+                📅 Menú del Día
+            </option>
+            <option value="mixed" {% if restaurant.menu_type == 'mixed' %}selected{% endif %}>
+                🔄 Mixto
+            </option>
+        </select>
+        <span class="menu-info">
+            {% if restaurant.menu_type == 'fixed' %}
+                El menú es fijo y no cambia diariamente
+            {% elif restaurant.menu_type == 'daily' %}
+                El menú cambia cada día según la selección
+            {% else %}
+                Combinación de menú fijo y especiales del día
+            {% endif %}
+        </span>
+    </div>
+
+    <!-- Menú del Día -->
+    {% if today_menu %}
+    <div class="today-menu">
+        <h3><i class="fas fa-calendar-day"></i> Menú de Hoy</h3>
+        <div class="today-dishes">
+            {% for dish in today_menu.dishes %}
+                <span class="today-dish">{{ dish.name }} ({{ MONEDA }}{{ dish.price }})</span>
+            {% endfor %}
+        </div>
+        {% if today_menu.specials %}
+        <div class="today-specials">
+            <strong>Especiales:</strong> {{ today_menu.specials|join(', ') }}
+        </div>
+        {% endif %}
+        <div class="today-price">
+            Precio: {{ MONEDA }}{{ today_menu.price }}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Carta por categorías -->
+    <div class="menu-sections">
+        <div class="menu-section">
+            <h3>🥗 Entradas</h3>
+            <div class="dish-list" id="entries-list">
+                {% for dish in dishes if dish.category == 'Entrada' %}
+                    {% include 'partials/dish_item.html' %}
+                {% else %}
+                    <div class="empty-message">No hay entradas registradas</div>
+                {% endfor %}
+            </div>
+            <button class="btn-add-dish" onclick="addDishToCategory('Entrada')">
+                + Agregar entrada
+            </button>
+        </div>
+
+        <div class="menu-section">
+            <h3>🍛 Platos de Fondo</h3>
+            <div class="dish-list" id="mains-list">
+                {% for dish in dishes if dish.category == 'Fondo' %}
+                    {% include 'partials/dish_item.html' %}
+                {% else %}
+                    <div class="empty-message">No hay platos de fondo registrados</div>
+                {% endfor %}
+            </div>
+            <button class="btn-add-dish" onclick="addDishToCategory('Fondo')">
+                + Agregar plato de fondo
+            </button>
+        </div>
+
+        <div class="menu-section">
+            <h3>🍰 Postres</h3>
+            <div class="dish-list" id="desserts-list">
+                {% for dish in dishes if dish.category == 'Postre' %}
+                    {% include 'partials/dish_item.html' %}
+                {% else %}
+                    <div class="empty-message">No hay postres registrados</div>
+                {% endfor %}
+            </div>
+            <button class="btn-add-dish" onclick="addDishToCategory('Postre')">
+                + Agregar postre
+            </button>
+        </div>
+
+        <div class="menu-section">
+            <h3>🥤 Bebidas</h3>
+            <div class="dish-list" id="drinks-list">
+                {% for dish in dishes if dish.category == 'Bebida' %}
+                    {% include 'partials/dish_item.html' %}
+                {% else %}
+                    <div class="empty-message">No hay bebidas registradas</div>
+                {% endfor %}
+            </div>
+            <button class="btn-add-dish" onclick="addDishToCategory('Bebida')">
+                + Agregar bebida
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para agregar plato -->
+<div class="modal" id="addDishModal">
+    <div class="modal-content modal-large">
+        <div class="modal-header">
+            <h2>Agregar Nuevo Plato</h2>
+            <span class="close-modal" onclick="closeAddDishModal()">&times;</span>
+        </div>
+        <div class="modal-body">
+            <form id="addDishForm">
+                <input type="hidden" id="dishCategory" name="category">
+                <input type="hidden" id="restaurantId" name="restaurant_id" value="{{ restaurant.id }}">
+                
+                <div class="form-group">
+                    <label>Nombre del Plato *</label>
+                    <input type="text" id="dishName" name="name" class="form-input" required>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Precio ({{ MONEDA }}) *</label>
+                        <input type="number" id="dishPrice" name="price" class="form-input" step="0.5" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Tiempo de preparación (min)</label>
+                        <input type="number" id="dishPrepTime" name="preparation_time" class="form-input" value="20" min="0">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Descripción</label>
+                    <textarea id="dishDescription" name="description" class="form-input" rows="2"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Ingredientes (separados por coma)</label>
+                    <input type="text" id="dishIngredients" name="ingredients" class="form-input" placeholder="cebolla, tomate, cilantro">
+                </div>
+                
+                <div class="form-group">
+                    <label>Información dietética</label>
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" value="sin gluten"> Sin gluten</label>
+                        <label><input type="checkbox" value="vegano"> Vegano</label>
+                        <label><input type="checkbox" value="vegetariano"> Vegetariano</label>
+                        <label><input type="checkbox" value="sin lactosa"> Sin lactosa</label>
+                        <label><input type="checkbox" value="keto"> Keto</label>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Tags (separados por coma)</label>
+                    <input type="text" id="dishTags" name="tags" class="form-input" placeholder="tradicional, moderno, fusión">
+                </div>
+                
+                <div class="form-group">
+                    <label>Nivel de picante</label>
+                    <input type="range" id="dishSpiciness" name="spiciness" min="0" max="5" value="0">
+                    <span id="spicinessDisplay">0</span>
+                </div>
+                
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="dishRecommended" name="is_recommended" value="true">
+                        Recomendar este plato
+                    </label>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" onclick="closeAddDishModal()">Cancelar</button>
+                    <button type="submit" class="btn-primary">Agregar Plato</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .menu-management {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+    
+    .header h1 {
+        font-size: 24px;
+        font-weight: 700;
+        margin-bottom: 4px;
+    }
+    
+    .header p {
+        color: var(--gray);
+        font-size: 14px;
+    }
+    
+    .actions {
+        display: flex;
+        gap: 12px;
+    }
+    
+    .btn-primary {
+        padding: 10px 20px;
+        background: var(--primary);
+        color: var(--white);
+        border: none;
+        border-radius: var(--radius-sm);
+        cursor: pointer;
+        transition: var(--transition);
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .btn-primary:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(255, 56, 92, 0.3);
+    }
+    
+    .menu-type-selector {
+        background: var(--white);
+        padding: 16px 20px;
+        border-radius: var(--radius);
+        margin-bottom: 24px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+        box-shadow: var(--shadow);
+    }
+    
+    .menu-type-selector select {
+        padding: 8px 16px;
+        border: 1px solid var(--light-gray);
+        border-radius: var(--radius-sm);
+        font-size: 14px;
+        background: var(--white);
+    }
+    
+    .menu-info {
+        font-size: 13px;
+        color: var(--gray);
+        font-style: italic;
+    }
+    
+    .today-menu {
+        background: #f0f9ff;
+        border: 1px solid #bae6fd;
+        border-radius: var(--radius);
+        padding: 16px 20px;
+        margin-bottom: 24px;
+    }
+    
+    .today-menu h3 {
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #0369a1;
+    }
+    
+    .today-dishes {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 8px;
+    }
+    
+    .today-dish {
+        background: var(--white);
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 13px;
+        border: 1px solid #bae6fd;
+    }
+    
+    .today-specials {
+        font-size: 14px;
+        color: #075985;
+    }
+    
+    .today-price {
+        font-weight: 600;
+        margin-top: 8px;
+        color: #0369a1;
+    }
+    
+    .menu-sections {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+    }
+    
+    .menu-section {
+        background: var(--white);
+        border-radius: var(--radius);
+        padding: 20px;
+        box-shadow: var(--shadow);
+    }
+    
+    .menu-section h3 {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 16px;
+        padding-bottom: 8px;
+        border-bottom: 2px solid var(--primary-light);
+    }
+    
+    .empty-message {
+        color: var(--gray);
+        font-size: 14px;
+        text-align: center;
+        padding: 20px 0;
+    }
+    
+    .dish-list {
+        min-height: 50px;
+    }
+    
+    .dish-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px solid var(--light-gray);
+    }
+    
+    .dish-item:last-child {
+        border-bottom: none;
+    }
+    
+    .dish-info {
+        flex: 1;
+    }
+    
+    .dish-info .dish-name {
+        font-weight: 500;
+        font-size: 15px;
+    }
+    
+    .dish-info .dish-details {
+        font-size: 13px;
+        color: var(--gray);
+    }
+    
+    .dish-actions {
+        display: flex;
+        gap: 6px;
+    }
+    
+    .btn-add-dish {
+        margin-top: 12px;
+        padding: 8px 16px;
+        background: transparent;
+        border: 2px dashed var(--light-gray);
+        border-radius: var(--radius-sm);
+        color: var(--gray);
+        cursor: pointer;
+        width: 100%;
+        transition: var(--transition);
+    }
+    
+    .btn-add-dish:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+        background: var(--primary-light);
+    }
+    
+    .modal-large {
+        max-width: 600px;
+    }
+    
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+    }
+    
+    .form-group {
+        margin-bottom: 16px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 6px;
+        font-weight: 500;
+        font-size: 14px;
+    }
+    
+    .form-input {
+        width: 100%;
+        padding: 10px 14px;
+        border: 1px solid var(--light-gray);
+        border-radius: var(--radius-sm);
+        font-size: 14px;
+        transition: var(--transition);
+        font-family: var(--font-main);
+    }
+    
+    .form-input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px var(--primary-light);
+    }
+    
+    .checkbox-group {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
+    
+    .checkbox-group label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+        font-weight: 400;
+        cursor: pointer;
+    }
+    
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        margin-top: 24px;
+        padding-top: 16px;
+        border-top: 1px solid var(--light-gray);
+    }
+    
+    .btn-secondary {
+        padding: 10px 24px;
+        background: var(--light-gray);
+        border: none;
+        border-radius: var(--radius-sm);
+        cursor: pointer;
+        transition: var(--transition);
+        font-weight: 500;
+    }
+    
+    .btn-secondary:hover {
+        background: #d5d5d5;
+    }
+    
+    @media (max-width: 768px) {
+        .menu-sections {
+            grid-template-columns: 1fr;
+        }
+        
+        .header {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .actions {
+            flex-direction: column;
+        }
+        
+        .actions .btn-primary {
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .menu-type-selector {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+        
+        .checkbox-group {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<script>
+    const restaurantId = {{ restaurant.id }};
+    
+    function generateRandomMenu() {
+        if (confirm('¿Generar un menú aleatorio sugerido?')) {
+            fetch('/owner/generate_menu', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({restaurant_id: restaurantId})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    let message = 'Menú sugerido:\n\n';
+                    if (data.menu.entradas) {
+                        message += '🥗 Entradas:\n';
+                        data.menu.entradas.forEach(d => {
+                            message += `  - ${d.name} ({{ MONEDA }}${d.price})\n`;
+                        });
+                        message += '\n';
+                    }
+                    if (data.menu.fondos) {
+                        message += '🍛 Fondos:\n';
+                        data.menu.fondos.forEach(d => {
+                            message += `  - ${d.name} ({{ MONEDA }}${d.price})\n`;
+                        });
+                        message += '\n';
+                    }
+                    if (data.menu.postres) {
+                        message += '🍰 Postres:\n';
+                        data.menu.postres.forEach(d => {
+                            message += `  - ${d.name} ({{ MONEDA }}${d.price})\n`;
+                        });
+                        message += '\n';
+                    }
+                    if (data.menu.bebidas) {
+                        message += '🥤 Bebidas:\n';
+                        data.menu.bebidas.forEach(d => {
+                            message += `  - ${d.name} ({{ MONEDA }}${d.price})\n`;
+                        });
+                    }
+                    
+                    if (confirm(message + '\n\n¿Guardar este menú como el menú de hoy?')) {
+                        const dishIds = [];
+                        ['entradas', 'fondos', 'postres', 'bebidas'].forEach(cat => {
+                            if (data.menu[cat]) {
+                                data.menu[cat].forEach(d => {
+                                    if (d.id) dishIds.push(d.id);
+                                });
+                            }
+                        });
+                        
+                        fetch('/owner/save_daily_menu', {
+                            method: 'POST',
+                            headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify({
+                                restaurant_id: restaurantId,
+                                dish_ids: dishIds,
+                                specials: ['Recomendación del chef'],
+                                price: 0
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                alert('✅ Menú guardado exitosamente');
+                                location.reload();
+                            }
+                        });
+                    }
+                }
+            });
+        }
+    }
+
+    function openAddDishModal() {
+        document.getElementById('addDishModal').classList.add('show');
+    }
+
+    function closeAddDishModal() {
+        document.getElementById('addDishModal').classList.remove('show');
+    }
+
+    function addDishToCategory(category) {
+        document.getElementById('dishCategory').value = category;
+        openAddDishModal();
+    }
+
+    document.getElementById('dishSpiciness').addEventListener('input', function() {
+        document.getElementById('spicinessDisplay').textContent = this.value;
+    });
+
+    document.getElementById('addDishForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        const data = {
+            restaurant_id: parseInt(formData.get('restaurant_id')),
+            name: formData.get('name'),
+            price: parseFloat(formData.get('price')),
+            category: formData.get('category'),
+            description: formData.get('description'),
+            ingredients: formData.get('ingredients').split(',').map(i => i.trim()).filter(i => i),
+            tags: formData.get('tags').split(',').map(t => t.trim()).filter(t => t),
+            dietary_info: document.querySelectorAll('#addDishForm input[type="checkbox"]:checked'),
+            preparation_time: parseInt(formData.get('preparation_time')) || 20,
+            spiciness: parseInt(formData.get('spiciness')) || 0,
+            is_recommended: document.getElementById('dishRecommended').checked
+        };
+        
+        data.dietary_info = Array.from(data.dietary_info).map(cb => cb.value);
+        
+        fetch('/owner/dish/add', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('✅ Plato agregado exitosamente');
+                location.reload();
+            } else {
+                alert(data.error || 'Error al agregar el plato');
+            }
+        });
+    });
+
+    function deleteDish(dishId) {
+        if (confirm('¿Estás seguro de eliminar este plato?')) {
+            fetch(`/owner/dish/${dishId}/delete`, {
+                method: 'DELETE'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('✅ Plato eliminado exitosamente');
+                    location.reload();
+                }
+            });
+        }
+    }
+
+    function changeMenuType(type) {
+        if (confirm('¿Cambiar el tipo de menú a "' + type + '"?')) {
+            fetch(`/owner/restaurant/${restaurantId}/menu_type`, {
+                method: 'PUT',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ menu_type: type })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('✅ Tipo de menú actualizado');
+                    location.reload();
+                }
+            });
+        }
+    }
+</script>
+{% endblock %}

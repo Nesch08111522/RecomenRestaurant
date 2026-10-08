@@ -1,0 +1,8 @@
+.........                                                                [100%]
+=============================== warnings summary ===============================
+../../../usr/local/lib/python3.12/dist-packages/pyDatalog/pyParser.py:771
+  /usr/local/lib/python3.12/dist-packages/pyDatalog/pyParser.py:771: SyntaxWarning: invalid escape sequence '\s'
+    r = re.compile('^\s*')
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+9 passed, 1 warning in 1.46s

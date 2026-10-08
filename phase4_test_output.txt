@@ -1,0 +1,24 @@
+F.....                                                                   [100%]
+=================================== FAILURES ===================================
+__________________________ SmokeTest.test_api_search ___________________________
+
+self = <smoke_test.SmokeTest testMethod=test_api_search>
+
+    def test_api_search(self):
+        """Verificar que el API de búsqueda funciona"""
+        response = self.client.post('/api/search', json={'district': 'Huanchaco'})
+        self.assertEqual(response.status_code, 200)
+        data = response.get_json()
+>       self.assertIsInstance(data, list)
+E       AssertionError: {'filters': {'district': 'Huanchaco'}, 'results': [], 'stats': {}, 'total': 0} is not an instance of <class 'list'>
+
+test/smoke_test.py:30: AssertionError
+=============================== warnings summary ===============================
+../../../usr/local/lib/python3.12/dist-packages/pyDatalog/pyParser.py:771
+  /usr/local/lib/python3.12/dist-packages/pyDatalog/pyParser.py:771: SyntaxWarning: invalid escape sequence '\s'
+    r = re.compile('^\s*')
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED test/smoke_test.py::SmokeTest::test_api_search - AssertionError: {'fil...
+1 failed, 5 passed, 1 warning in 1.38s

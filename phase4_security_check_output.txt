@@ -1,0 +1,5 @@
+csrf_and_headers=ok
+read_only_search_exemption=ok
+profile_mutation_without_csrf=400
+login_without_csrf=400
+security_headers=ok

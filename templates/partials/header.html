@@ -1,0 +1,202 @@
+<header class="main-header">
+  <div class="header-container">
+    <!-- Logo -->
+    <div class="header-left">
+      <a href="{{ url_for('main.index') }}" class="logo">
+        <i class="fas fa-utensils"></i>
+        <span>{{ APP_NAME }}</span>
+      </a>
+    </div>
+
+    <!-- Barra de búsqueda -->
+    <div class="header-center">
+      <form id="search-form" class="search-bar" action="{{ url_for('main.index') }}" method="get">
+        <div class="search-group">
+          <i class="fas fa-map-marker-alt"></i>
+          <select name="district" id="district-select" class="search-input">
+            <option value="">Todos los distritos</option>
+            <option value="Centro Histórico">Centro Histórico</option>
+            <option value="Huanchaco">Huanchaco</option>
+            <option value="Victor Larco">Victor Larco</option>
+            <option value="Trujillo">Trujillo</option>
+          </select>
+        </div>
+
+        <div class="search-group">
+          <i class="fas fa-utensils"></i>
+          <select name="category" id="category-select" class="search-input">
+            <option value="">Tipo de comida</option>
+            {% for cat in categories %}
+              <option value="{{ cat.id }}">{{ cat.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="search-group">
+          <i class="fas fa-search"></i>
+          <input type="text" name="q" placeholder="Buscar restaurante..." class="search-input" />
+        </div>
+
+        <div class="search-group">
+          <i class="fas fa-money-bill-wave"></i>
+          <input type="number" name="max_price" placeholder="Presupuesto máx." min="0" step="5" class="search-input" />
+        </div>
+
+        <button type="submit" class="search-btn"><i class="fas fa-search"></i></button>
+      </form>
+    </div>
+
+    <!-- Menú de usuario -->
+    <div class="header-right">
+      <button class="icon-btn notifications-btn" id="notificationsBtn" title="Notificaciones" onclick="toggleNotifications()">
+        <i class="fas fa-bell"></i>
+        <span class="badge" id="notificationBadge">0</span>
+      </button>
+
+      {% if session.user %}
+        <div class="user-dropdown">
+          <button class="user-btn" id="userMenuBtn">
+            <i class="fas fa-user-circle"></i>
+            <span>{{ session.user.username }}</span>
+            <i class="fas fa-chevron-down"></i>
+          </button>
+          <div class="dropdown-menu" id="userDropdown">
+            <!-- Opciones generales -->
+            <a href="{{ url_for('auth.profile') }}"><i class="fas fa-user"></i> Mi perfil</a>
+            <a href="{{ url_for('auth.favorites') }}"><i class="fas fa-heart"></i> Favoritos</a>
+            <a href="#" id="recommendationBtn" onclick="openRecommendationModal()"><i class="fas fa-robot"></i> Recomendación IA</a>
+            
+            <!-- Panel Admin -->
+            {% if session.user.role == 'admin' %}
+              <hr />
+              <div class="dropdown-submenu">
+                <div class="dropdown-submenu-title">
+                  <i class="fas fa-tachometer-alt"></i> Administración
+                  <i class="fas fa-chevron-right" style="margin-left: auto; font-size: 12px;"></i>
+                </div>
+                <div class="dropdown-submenu-items">
+                  <a href="{{ url_for('admin.dashboard') }}"><i class="fas fa-chart-pie"></i> Dashboard</a>
+                  <a href="{{ url_for('admin.restaurants') }}"><i class="fas fa-utensils"></i> Restaurantes</a>
+                  <a href="{{ url_for('admin.users') }}"><i class="fas fa-users"></i> Usuarios</a>
+                  <a href="{{ url_for('admin.categories') }}"><i class="fas fa-tags"></i> Categorías</a>
+                  <a href="{{ url_for('admin.analytics_page') }}"><i class="fas fa-chart-line"></i> Analíticas</a>
+                  <a href="{{ url_for('admin.moderation_dashboard') }}"><i class="fas fa-shield-alt"></i> Moderación</a>
+                </div>
+              </div>
+            
+            <!-- Panel Empresario -->
+            {% elif session.user.role == 'business_owner' %}
+              <hr />
+              <a href="{{ url_for('admin.dashboard') }}"><i class="fas fa-store"></i> Mis Restaurantes</a>
+              <a href="{{ url_for('admin.new_restaurant') }}"><i class="fas fa-plus-circle"></i> Agregar Restaurante</a>
+              <a href="{{ url_for('owner.menu_management', restaurant_id=session.user.restaurant_id or 1) }}">
+                <i class="fas fa-utensils"></i> Gestionar Menú
+              </a>
+            {% endif %}
+            
+            <hr />
+            <a href="{{ url_for('auth.logout') }}"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</a>
+          </div>
+        </div>
+      {% else %}
+        <a href="{{ url_for('auth.login') }}" class="btn-outline">Iniciar sesión</a>
+        <a href="{{ url_for('auth.register') }}" class="btn-primary">Registrarse</a>
+      {% endif %}
+    </div>
+  </div>
+</header>
+
+<!-- Panel de notificaciones -->
+<div class="notification-panel" id="notificationPanel" style="display: none;">
+  <div class="notification-header">
+    <h3>Notificaciones</h3>
+    <div class="actions">
+      <button onclick="markAllNotificationsRead()" title="Marcar todas como leídas">
+        <i class="fas fa-check-double"></i>
+      </button>
+      <button class="close-notifications" onclick="toggleNotifications()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+  </div>
+  <div class="notification-list" id="notificationList">
+    <div class="notification-empty">
+      <i class="fas fa-bell"></i>
+      No hay notificaciones
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Submenú en el dropdown */
+  .dropdown-submenu {
+    position: relative;
+  }
+  
+  .dropdown-submenu-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 20px;
+    color: var(--dark);
+    transition: var(--transition);
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+  }
+  
+  .dropdown-submenu-title:hover {
+    background: var(--light-gray);
+  }
+  
+  .dropdown-submenu-items {
+    display: none;
+    background: var(--white);
+    border-radius: var(--radius-sm);
+    padding: 4px 0;
+    margin: 4px 0;
+  }
+  
+  .dropdown-submenu-items a {
+    padding-left: 36px !important;
+    font-size: 13px !important;
+    color: var(--gray) !important;
+  }
+  
+  .dropdown-submenu-items a i {
+    font-size: 14px;
+  }
+  
+  .dropdown-submenu-items a:hover {
+    background: var(--light-gray) !important;
+    color: var(--dark) !important;
+  }
+  
+  .dropdown-submenu:hover .dropdown-submenu-items {
+    display: block;
+  }
+  
+  .dropdown-submenu:hover .dropdown-submenu-title {
+    background: var(--light-gray);
+  }
+  
+  .dropdown-submenu:hover .fa-chevron-right {
+    transform: rotate(90deg);
+  }
+  
+  .fa-chevron-right {
+    transition: transform 0.3s ease;
+  }
+  
+  /* Responsive */
+  @media (max-width: 768px) {
+    .dropdown-submenu-items {
+      position: static;
+      box-shadow: none;
+    }
+    
+    .dropdown-submenu-items a {
+      padding-left: 48px !important;
+    }
+  }
+</style>

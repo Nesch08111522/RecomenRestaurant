@@ -1,0 +1,70 @@
+{
+  "manifest": {
+    "data_dir": "data",
+    "files": {
+      "categories.json": {
+        "sha256": "d07cea5b3f6dcdfe33c33e8a3694eb0b6a883cd13dee9767033451bed2062073",
+        "bytes": 2090
+      },
+      "users.json": {
+        "sha256": "636e83ee957a3df141bd0d6f991920b9b981af5a85c146b1053ae5f99e420a3c",
+        "bytes": 1531
+      },
+      "restaurants.json": {
+        "sha256": "cb30dd62ffc569c517239c5d014308f6be31954ee77aa73df3f4a8c465ab559f",
+        "bytes": 23432
+      },
+      "dishes.json": {
+        "sha256": "9dacf5fedc39b185b7d382483dd3baea6721eb51fd0d3fc0a0596613df38b198",
+        "bytes": 67657
+      },
+      "daily_menu.json": {
+        "sha256": "0a1b21555f261cf0616fee9849309f613bb580f2b363a09679bd0835706d2b1a",
+        "bytes": 12925
+      },
+      "favorites.json": {
+        "sha256": "18b235340f89c3158df6a8273361a9025f786f440f8e47e4534aff71ac67aea5",
+        "bytes": 442
+      },
+      "history.json": {
+        "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+        "bytes": 3
+      },
+      "moderation.json": {
+        "sha256": "f95823ee7aaece4aab9a5bcead4a14981ed27d462f0d11635a8eb11e413931fa",
+        "bytes": 20861
+      },
+      "notifications.json": {
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "bytes": 2
+      },
+      "promotions.json": {
+        "sha256": "df4365b03caa6449e8ad7603616e23c6af32ec9c30a1bafb0cd4ce654e07b58a",
+        "bytes": 270
+      },
+      "reviews.json": {
+        "sha256": "baf64e41ca1ae240734e64ec3e4a7fa48aacb68ebf29ac7e01a212edb4263b33",
+        "bytes": 560
+      }
+    },
+    "counts": {
+      "categories": 10,
+      "users": 3,
+      "restaurants": 24,
+      "dishes": 84,
+      "daily_menu": 12,
+      "favorites": 4,
+      "history": 0,
+      "moderation": 14,
+      "notifications": 0,
+      "promotions": 2,
+      "reviews": 2
+    }
+  },
+  "validation": {
+    "errors": [],
+    "warnings": [],
+    "valid": true
+  }
+}
+dry_run=ok; no se modificaron archivos fuente ni se abrió conexión PostgreSQL

@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="error-container">
+    <div class="error-content">
+        <h1>404</h1>
+        <h2>Página no encontrada</h2>
+        <p>Lo sentimos, la página que buscas no existe.</p>
+        <a href="{{ url_for('main.index') }}" class="btn-primary">Volver al inicio</a>
+    </div>
+</div>
+
+<style>
+    .error-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 60vh;
+        padding: 40px 20px;
+    }
+    
+    .error-content {
+        text-align: center;
+    }
+    
+    .error-content h1 {
+        font-size: 80px;
+        font-weight: 700;
+        color: var(--primary);
+        margin-bottom: 16px;
+    }
+    
+    .error-content h2 {
+        font-size: 32px;
+        margin-bottom: 16px;
+    }
+    
+    .error-content p {
+        color: var(--gray);
+        margin-bottom: 24px;
+    }
+</style>
+{% endblock %}

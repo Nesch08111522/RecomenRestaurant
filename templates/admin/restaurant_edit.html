@@ -1,0 +1,454 @@
+{% extends 'owner/base.html' %}
+
+{% block owner_content %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+    #location-map {
+        height: 300px;
+        width: 100%;
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--light-gray);
+        margin-top: 8px;
+    }
+    .location-input-group {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 8px;
+        flex-wrap: wrap;
+    }
+    .location-input-group input {
+        flex: 1;
+        min-width: 150px;
+    }
+    .btn-location {
+        padding: 10px 16px;
+        background: var(--primary);
+        color: white;
+        border: none;
+        border-radius: var(--radius-sm);
+        cursor: pointer;
+        font-size: 14px;
+        transition: var(--transition);
+        white-space: nowrap;
+    }
+    .btn-location:hover {
+        background: var(--primary-dark);
+    }
+    .btn-location i {
+        margin-right: 6px;
+    }
+    .btn-location-success {
+        background: #10B981;
+    }
+    .btn-location-success:hover {
+        background: #059669;
+    }
+    .coord-info {
+        font-size: 13px;
+        color: var(--gray);
+        margin-top: 4px;
+    }
+    .coord-info span {
+        font-weight: 600;
+        color: var(--dark);
+    }
+    .coord-info .hint {
+        color: #6b7280;
+        font-size: 12px;
+        margin-left: 16px;
+    }
+</style>
+{% endblock %}
+
+<div class="admin-container">
+    <div class="admin-header">
+        <h1><i class="fas fa-edit"></i> Editar Restaurante</h1>
+        <p>Actualiza la información del restaurante</p>
+    </div>
+
+    <form method="POST" class="admin-form" action="{{ url_for('admin.update_restaurant', id=restaurant.id) }}" id="restaurantForm">
+        <div class="form-row">
+            <div class="form-group">
+                <label>Nombre del Restaurante *</label>
+                <input type="text" name="name" class="form-input" value="{{ restaurant.name }}" required>
+            </div>
+            <div class="form-group">
+                <label>Categoría *</label>
+                <select name="category_id" class="form-input" required>
+                    <option value="">Seleccionar...</option>
+                    {% for cat in categories %}
+                        <option value="{{ cat.id }}" {% if cat.id == restaurant.category_id %}selected{% endif %}>{{ cat.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>Distrito *</label>
+                <select name="district" class="form-input" required>
+                    <option value="">Seleccionar...</option>
+                    {% for district in districts %}
+                        <option value="{{ district }}" {% if district == restaurant.district %}selected{% endif %}>{{ district }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Precio Promedio ({{ MONEDA }}) *</label>
+                <input type="number" name="avg_price" class="form-input" step="0.5" min="0" value="{{ restaurant.avg_price }}" required>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>Rating</label>
+                <input type="number" name="rating" class="form-input" step="0.1" min="0" max="5" value="{{ restaurant.rating }}">
+            </div>
+            <div class="form-group">
+                <label>Horario *</label>
+                <div class="time-group">
+                    <input type="time" name="open_time" class="form-input" value="{{ restaurant.open_time }}" required>
+                    <span>a</span>
+                    <input type="time" name="close_time" class="form-input" value="{{ restaurant.close_time }}" required>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Dirección *</label>
+            <input type="text" name="address" class="form-input" id="addressInput" value="{{ restaurant.address }}" required>
+        </div>
+
+        <div class="form-group">
+            <label>Ubicación en el mapa</label>
+            <div class="location-input-group">
+                <input type="text" id="searchLocation" placeholder="Buscar ubicación (ej: Plaza de Armas Trujillo)" class="form-input">
+                <button type="button" class="btn-location" id="searchLocationBtn">
+                    <i class="fas fa-search"></i> Buscar
+                </button>
+                <button type="button" class="btn-location btn-location-success" id="getCurrentLocationBtn">
+                    <i class="fas fa-crosshairs"></i> Mi ubicación
+                </button>
+            </div>
+            <div id="location-map"></div>
+            <div class="coord-info">
+                📍 Latitud: <span id="latDisplay">{{ restaurant.lat }}</span> | 
+                Longitud: <span id="lngDisplay">{{ restaurant.lng }}</span>
+                <span class="hint">(Haz clic en el mapa para seleccionar la ubicación)</span>
+            </div>
+            <input type="hidden" name="lat" id="latInput" value="{{ restaurant.lat }}">
+            <input type="hidden" name="lng" id="lngInput" value="{{ restaurant.lng }}">
+        </div>
+
+        <div class="form-group">
+            <label>Teléfono</label>
+            <input type="text" name="phone" class="form-input" value="{{ restaurant.phone or '' }}" placeholder="044-123456">
+        </div>
+
+        <div class="form-group">
+            <label>Imagen (URL)</label>
+            <input type="url" name="image" class="form-input" value="{{ restaurant.image or '' }}" placeholder="https://images.unsplash.com/photo-...">
+        </div>
+
+        <div class="form-group">
+            <label>Descripción</label>
+            <textarea name="description" class="form-input" rows="3">{{ restaurant.description or '' }}</textarea>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>Tags (separados por coma)</label>
+                <input type="text" name="tags" class="form-input" value="{{ restaurant.tags|join(', ') if restaurant.tags else '' }}" placeholder="tradicional, mariscos, familiar">
+            </div>
+            <div class="form-group">
+                <label>Características (separadas por coma)</label>
+                <input type="text" name="features" class="form-input" value="{{ restaurant.features|join(', ') if restaurant.features else '' }}" placeholder="wifi, estacionamiento, reservas">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>Restricciones dietéticas (separadas por coma)</label>
+                <input type="text" name="dietary_restrictions" class="form-input" value="{{ restaurant.dietary_restrictions|join(', ') if restaurant.dietary_restrictions else '' }}" placeholder="vegano, sin gluten">
+            </div>
+            <div class="form-group">
+                <label>Promoción (opcional)</label>
+                <input type="text" name="promo" class="form-input" value="{{ restaurant.promo or '' }}" placeholder="10% de descuento en almuerzos">
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <a href="{{ url_for('admin.restaurants') }}" class="btn-secondary">Cancelar</a>
+            <button type="submit" class="btn-primary">Actualizar Restaurante</button>
+        </div>
+    </form>
+</div>
+
+<style>
+    .admin-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    .admin-header {
+        margin-bottom: 32px;
+    }
+
+    .admin-header h1 {
+        font-size: 28px;
+        font-weight: 700;
+    }
+
+    .admin-header p {
+        color: var(--gray);
+    }
+
+    .admin-form {
+        background: var(--white);
+        border-radius: var(--radius);
+        padding: 32px;
+        box-shadow: var(--shadow);
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 6px;
+        font-weight: 500;
+        font-size: 14px;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 10px 14px;
+        border: 1px solid var(--light-gray);
+        border-radius: var(--radius-sm);
+        font-size: 14px;
+        transition: var(--transition);
+        font-family: var(--font-main);
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px var(--primary-light);
+    }
+
+    textarea.form-input {
+        resize: vertical;
+        min-height: 80px;
+    }
+
+    .time-group {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .time-group input {
+        flex: 1;
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        margin-top: 24px;
+        padding-top: 16px;
+        border-top: 1px solid var(--light-gray);
+    }
+
+    .btn-secondary {
+        padding: 10px 24px;
+        background: var(--light-gray);
+        border: none;
+        border-radius: var(--radius-sm);
+        cursor: pointer;
+        transition: var(--transition);
+        font-weight: 500;
+        text-decoration: none;
+        color: var(--dark);
+    }
+
+    .btn-secondary:hover {
+        background: #d5d5d5;
+    }
+
+    .btn-primary {
+        padding: 10px 24px;
+        background: var(--primary);
+        color: var(--white);
+        border: none;
+        border-radius: var(--radius-sm);
+        cursor: pointer;
+        transition: var(--transition);
+        font-weight: 500;
+    }
+
+    .btn-primary:hover {
+        background: var(--primary-dark);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(255, 56, 92, 0.3);
+    }
+
+    @media (max-width: 768px) {
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+
+        .admin-form {
+            padding: 20px;
+        }
+        
+        .location-input-group {
+            flex-direction: column;
+        }
+        
+        .location-input-group input {
+            width: 100%;
+        }
+        
+        .location-input-group .btn-location {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        let map;
+        let marker;
+        
+        let initialLat = parseFloat(document.getElementById('latInput').value) || -8.1118;
+        let initialLng = parseFloat(document.getElementById('lngInput').value) || -79.0287;
+        
+        function initMap(lat, lng) {
+            if (map) {
+                map.remove();
+            }
+            
+            map = L.map('location-map').setView([lat, lng], 15);
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+            
+            marker = L.marker([lat, lng], {
+                draggable: true
+            }).addTo(map);
+            
+            marker.on('dragend', function(e) {
+                const pos = marker.getLatLng();
+                updateCoords(pos.lat, pos.lng);
+            });
+            
+            map.on('click', function(e) {
+                const pos = e.latlng;
+                marker.setLatLng(pos);
+                updateCoords(pos.lat, pos.lng);
+            });
+            
+            document.getElementById('searchLocationBtn').addEventListener('click', function() {
+                const query = document.getElementById('searchLocation').value.trim();
+                if (query) {
+                    searchLocation(query);
+                } else {
+                    alert('Por favor ingresa una dirección para buscar');
+                }
+            });
+            
+            document.getElementById('searchLocation').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    document.getElementById('searchLocationBtn').click();
+                }
+            });
+            
+            document.getElementById('getCurrentLocationBtn').addEventListener('click', function() {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        function(position) {
+                            const lat = position.coords.latitude;
+                            const lng = position.coords.longitude;
+                            map.setView([lat, lng], 16);
+                            marker.setLatLng([lat, lng]);
+                            updateCoords(lat, lng);
+                            reverseGeocode(lat, lng);
+                        },
+                        function(error) {
+                            alert('Error al obtener ubicación: ' + error.message);
+                        }
+                    );
+                } else {
+                    alert('Tu navegador no soporta geolocalización');
+                }
+            });
+        }
+        
+        function updateCoords(lat, lng) {
+            document.getElementById('latInput').value = lat.toFixed(6);
+            document.getElementById('lngInput').value = lng.toFixed(6);
+            document.getElementById('latDisplay').textContent = lat.toFixed(6);
+            document.getElementById('lngDisplay').textContent = lng.toFixed(6);
+        }
+        
+        function searchLocation(query) {
+            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`;
+            
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.length > 0) {
+                        const lat = parseFloat(data[0].lat);
+                        const lng = parseFloat(data[0].lon);
+                        map.setView([lat, lng], 16);
+                        marker.setLatLng([lat, lng]);
+                        updateCoords(lat, lng);
+                        if (data[0].display_name) {
+                            document.getElementById('addressInput').value = data[0].display_name;
+                        }
+                    } else {
+                        alert('No se encontró la ubicación. Intenta con otra búsqueda.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error buscando ubicación:', error);
+                    alert('Error al buscar la ubicación. Por favor intenta de nuevo.');
+                });
+        }
+        
+        function reverseGeocode(lat, lng) {
+            const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`;
+            
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.display_name) {
+                        document.getElementById('addressInput').value = data.display_name;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error en reverse geocoding:', error);
+                });
+        }
+        
+        initMap(initialLat, initialLng);
+    });
+</script>
+
+{% endblock %}

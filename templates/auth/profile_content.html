@@ -1,0 +1,236 @@
+<div class="profile-container">
+    <div class="profile-header">
+        <h1>Mi Perfil</h1>
+        <p>Gestiona tu información personal y preferencias</p>
+    </div>
+    
+    <div class="profile-content">
+        <div class="profile-sidebar">
+            <div class="profile-avatar">
+                <i class="fas fa-user-circle" style="font-size: 80px; color: var(--primary);"></i>
+                <h3>{{ user.profile.name }}</h3>
+                <p>@{{ user.username }}</p>
+            </div>
+            <div class="profile-stats">
+                <div class="stat-item">
+                    <span class="stat-value">{{ user.profile.preferences|length }}</span>
+                    <span class="stat-label">Preferencias</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value">{{ user.profile.restrictions|length }}</span>
+                    <span class="stat-label">Restricciones</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="profile-form-container">
+            <form method="POST" action="{{ url_for('auth.update_profile') }}" class="profile-form">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="form-group">
+                    <label>Nombre completo</label>
+                    <input type="text" name="name" value="{{ user.profile.name }}" class="form-input" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" name="email" value="{{ user.profile.email }}" class="form-input" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Preferencias culinarias</label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="preferences" value="tradicional" 
+                                   {% if 'tradicional' in user.profile.preferences %}checked{% endif %}>
+                            Tradicional
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="preferences" value="mariscos" 
+                                   {% if 'mariscos' in user.profile.preferences %}checked{% endif %}>
+                            Mariscos
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="preferences" value="criolla" 
+                                   {% if 'criolla' in user.profile.preferences %}checked{% endif %}>
+                            Criolla
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="preferences" value="italiana" 
+                                   {% if 'italiana' in user.profile.preferences %}checked{% endif %}>
+                            Italiana
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="preferences" value="japonesa" 
+                                   {% if 'japonesa' in user.profile.preferences %}checked{% endif %}>
+                            Japonesa
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="preferences" value="saludable" 
+                                   {% if 'saludable' in user.profile.preferences %}checked{% endif %}>
+                            Saludable
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Restricciones alimenticias</label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="restrictions" value="vegano" 
+                                   {% if 'vegano' in user.profile.restrictions %}checked{% endif %}>
+                            Vegano
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="restrictions" value="vegetariano" 
+                                   {% if 'vegetariano' in user.profile.restrictions %}checked{% endif %}>
+                            Vegetariano
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="restrictions" value="celiaco" 
+                                   {% if 'celiaco' in user.profile.restrictions %}checked{% endif %}>
+                            Celíaco
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="restrictions" value="sin gluten" 
+                                   {% if 'sin gluten' in user.profile.restrictions %}checked{% endif %}>
+                            Sin gluten
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="restrictions" value="alergia mariscos" 
+                                   {% if 'alergia mariscos' in user.profile.restrictions %}checked{% endif %}>
+                            Alergia a mariscos
+                        </label>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn-primary btn-block">
+                    <i class="fas fa-save"></i> Guardar cambios
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .profile-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+    
+    .profile-header {
+        margin-bottom: 32px;
+    }
+    
+    .profile-header h1 {
+        font-size: 28px;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+    
+    .profile-header p {
+        color: var(--gray);
+    }
+    
+    .profile-content {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 40px;
+    }
+    
+    .profile-sidebar {
+        background: var(--white);
+        border-radius: var(--radius);
+        padding: 32px;
+        box-shadow: var(--shadow);
+        text-align: center;
+    }
+    
+    .profile-avatar {
+        margin-bottom: 24px;
+    }
+    
+    .profile-avatar h3 {
+        margin-top: 12px;
+        font-size: 18px;
+    }
+    
+    .profile-avatar p {
+        color: var(--gray);
+        font-size: 14px;
+    }
+    
+    .profile-stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        border-top: 1px solid var(--light-gray);
+        padding-top: 24px;
+    }
+    
+    .stat-item {
+        text-align: center;
+    }
+    
+    .stat-value {
+        display: block;
+        font-size: 24px;
+        font-weight: 700;
+        color: var(--primary);
+    }
+    
+    .stat-label {
+        font-size: 12px;
+        color: var(--gray);
+    }
+    
+    .profile-form-container {
+        background: var(--white);
+        border-radius: var(--radius);
+        padding: 32px;
+        box-shadow: var(--shadow);
+    }
+    
+    .profile-form .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .profile-form .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+    }
+    
+    .profile-form .checkbox-group {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
+    
+    .profile-form .checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+        padding: 6px 10px;
+        border: 1px solid var(--light-gray);
+        border-radius: var(--radius-sm);
+        cursor: pointer;
+        transition: var(--transition);
+    }
+    
+    .profile-form .checkbox-label:hover {
+        border-color: var(--primary);
+        background: var(--primary-light);
+    }
+    
+    @media (max-width: 768px) {
+        .profile-content {
+            grid-template-columns: 1fr;
+        }
+        
+        .profile-form .checkbox-group {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>

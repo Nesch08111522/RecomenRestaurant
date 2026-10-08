@@ -1,0 +1,1032 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="detail-container">
+    <!-- Encabezado -->
+    <div class="detail-header">
+        <h1>{{ restaurant.name }}</h1>
+        <div class="detail-meta">
+            <span class="rating"><i class="fas fa-star" style="color: #FFB800;"></i> {{ restaurant.rating }}</span>
+            <span class="dot">•</span>
+            <span class="address"><i class="fas fa-map-marker-alt"></i> {{ restaurant.address }}, {{ restaurant.district }}</span>
+            {% if restaurant.distance_km %}
+                <span class="dot">•</span>
+                <span class="distance"><i class="fas fa-route"></i> {{ restaurant.distance_km|round(1) }} km</span>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Galería -->
+    <div class="image-gallery">
+        <div class="main-image">
+            <img src="{{ restaurant.image }}" alt="{{ restaurant.name }}" />
+            {% if restaurant.promo %}
+                <div class="promo-badge-gallery"><i class="fas fa-tag"></i> {{ restaurant.promo }}</div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="detail-content">
+        <div class="info-column">
+            <!-- Descripción -->
+            <section class="description">
+                <h2><i class="fas fa-info-circle"></i> Descripción</h2>
+                <p>{{ restaurant.description }}</p>
+                
+                <!-- Tags y características -->
+                <div class="restaurant-tags">
+                    {% if restaurant.tags %}
+                        {% for tag in restaurant.tags %}
+                            <span class="tag-category">{{ tag }}</span>
+                        {% endfor %}
+                    {% endif %}
+                    {% if restaurant.features %}
+                        {% for feature in restaurant.features %}
+                            <span class="tag-feature"><i class="fas fa-check-circle"></i> {{ feature }}</span>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </section>
+
+            <!-- Análisis de SmartResto MEJORADO -->
+            <section class="ai-recommendation">
+                <div class="ia-box">
+                    <div class="ia-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="ia-content">
+                        <h3>🧠 Análisis de SmartResto</h3>
+                        
+                        {% if explanation %}
+                            {% if explanation is string %}
+                                <p>{{ explanation }}</p>
+                            {% else %}
+                                <div class="ia-details">
+                                    {% if explanation.compatible %}
+                                        <div class="ia-status compatible">
+                                            <i class="fas fa-check-circle"></i> 
+                                            <span>✅ Restaurante compatible con tus preferencias</span>
+                                        </div>
+                                    {% else %}
+                                        <div class="ia-status incompatible">
+                                            <i class="fas fa-times-circle"></i> 
+                                            <span>❌ No compatible con tus preferencias</span>
+                                        </div>
+                                    {% endif %}
+                                    
+                                    {% if explanation.reasons and explanation.reasons|length > 0 %}
+                                        <div class="ia-reasons">
+                                            <strong>📌 Recomendado porque:</strong>
+                                            <ul>
+                                                {% for reason in explanation.reasons %}
+                                                    <li><i class="fas fa-star" style="color: #FFB800;"></i> {{ reason }}</li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                    {% endif %}
+                                    
+                                    {% if explanation.exclusions and explanation.exclusions|length > 0 %}
+                                        <div class="ia-exclusions">
+                                            <strong>⚠️ Consideraciones:</strong>
+                                            <ul>
+                                                {% for exclusion in explanation.exclusions %}
+                                                    <li><i class="fas fa-exclamation-triangle" style="color: #dc2626;"></i> {{ exclusion }}</li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                    {% endif %}
+                                    
+                                    <div class="ia-dietary">
+                                        <strong>🥗 Opciones dietéticas:</strong>
+                                        <div class="dietary-tags">
+                                            {% if explanation.dietary_options.vegan %}
+                                                <span class="dietary-tag vegan">🌱 Vegano</span>
+                                            {% endif %}
+                                            {% if explanation.dietary_options.vegetarian %}
+                                                <span class="dietary-tag vegetarian">🥬 Vegetariano</span>
+                                            {% endif %}
+                                            {% if explanation.dietary_options.gluten_free %}
+                                                <span class="dietary-tag gluten-free">🌾 Sin gluten</span>
+                                            {% endif %}
+                                            {% if not explanation.dietary_options.vegan and not explanation.dietary_options.vegetarian and not explanation.dietary_options.gluten_free %}
+                                                <span class="dietary-tag none">Sin restricciones específicas</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% else %}
+                            <p>No hay análisis disponible para este restaurante.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </section>
+
+            <!-- CARTA DIGITAL MEJORADA -->
+            <section class="menu-section">
+                <div class="menu-header">
+                    <h2><i class="fas fa-utensils"></i> Carta Digital</h2>
+                    <div class="menu-badge">
+                        <span class="badge-count">{{ dishes|length }} platos</span>
+                    </div>
+                </div>
+
+                {% if dishes and dishes|length > 0 %}
+                    <!-- Agrupar platos por categoría -->
+                    {% set categories = {} %}
+                    {% for dish in dishes %}
+                        {% set cat = dish.category or 'Otros' %}
+                        {% if categories[cat] %}
+                            {% set _ = categories[cat].append(dish) %}
+                        {% else %}
+                            {% set _ = categories.update({cat: [dish]}) %}
+                        {% endif %}
+                    {% endfor %}
+
+                    <div class="menu-categories">
+                        {% for category, category_dishes in categories.items() %}
+                            <div class="menu-category">
+                                <div class="category-header">
+                                    <h3>{{ category }}</h3>
+                                    <span class="category-count">{{ category_dishes|length }} platos</span>
+                                </div>
+                                <div class="category-dishes">
+                                    {% for dish in category_dishes %}
+                                        <div class="dish-item">
+                                            <div class="dish-info">
+                                                <div class="dish-name-wrapper">
+                                                    <h4>{{ dish.name }}</h4>
+                                                    {% if dish.is_recommended %}
+                                                        <span class="chef-recommendation">👨‍🍳 Recomendado</span>
+                                                    {% endif %}
+                                                    {% if dish.spiciness and dish.spiciness > 0 %}
+                                                        <span class="spiciness">
+                                                            {% for i in range(dish.spiciness) %}
+                                                                🌶️
+                                                            {% endfor %}
+                                                        </span>
+                                                    {% endif %}
+                                                </div>
+                                                {% if dish.description %}
+                                                    <p class="dish-description">{{ dish.description }}</p>
+                                                {% endif %}
+                                                <div class="dish-meta">
+                                                    {% if dish.ingredients %}
+                                                        <span class="dish-ingredients">
+                                                            <i class="fas fa-utensil-spoon"></i> {{ dish.ingredients|join(', ') }}
+                                                        </span>
+                                                    {% endif %}
+                                                    {% if dish.dietary_info %}
+                                                        <span class="dish-dietary">
+                                                            {% for diet in dish.dietary_info %}
+                                                                <span class="diet-tag">{{ diet }}</span>
+                                                            {% endfor %}
+                                                        </span>
+                                                    {% endif %}
+                                                    {% if dish.preparation_time %}
+                                                        <span class="dish-time">
+                                                            <i class="far fa-clock"></i> {{ dish.preparation_time }} min
+                                                        </span>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                            <div class="dish-price">
+                                                <span class="price-amount">{{ MONEDA }}{{ dish.price }}</span>
+                                                {% if dish.is_available %}
+                                                    <span class="available-badge">Disponible</span>
+                                                {% else %}
+                                                    <span class="unavailable-badge">No disponible</span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="empty-menu">
+                        <i class="fas fa-utensils" style="font-size: 48px; color: var(--light-gray);"></i>
+                        <p>Este restaurante aún no tiene carta digital.</p>
+                    </div>
+                {% endif %}
+            </section>
+        </div>
+
+        <!-- Sidebar MEJORADO -->
+        <div class="sticky-sidebar">
+            <div class="booking-card">
+                <div class="booking-header">
+                    <h3>Precio Promedio</h3>
+                    <p class="price-val">{{ MONEDA }}{{ restaurant.avg_price }}</p>
+                    <span class="price-per-person">por persona</span>
+                </div>
+                
+                <div class="booking-info">
+                    <div class="info-row">
+                        <i class="fas fa-star"></i>
+                        <span>Calificación</span>
+                        <strong>{{ restaurant.rating }}</strong>
+                    </div>
+                    <div class="info-row">
+                        <i class="fas fa-utensils"></i>
+                        <span>Platos en carta</span>
+                        <strong>{{ dishes|length }}</strong>
+                    </div>
+                    {% if restaurant.promo %}
+                        <div class="info-row promo-row">
+                            <i class="fas fa-tag"></i>
+                            <span>Promoción</span>
+                            <strong style="color: var(--primary);">{{ restaurant.promo }}</strong>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <button class="reserve-btn">
+                    <i class="fas fa-calendar-check"></i> Reservar ahora
+                </button>
+                
+                <div class="contact-info">
+                    <div class="contact-item">
+                        <i class="fas fa-phone"></i>
+                        <span>{{ restaurant.phone }}</span>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-clock"></i>
+                        <span>{{ restaurant.open_time }} - {{ restaurant.close_time }}</span>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>{{ restaurant.district }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .detail-container {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 24px 40px 60px;
+    }
+    
+    /* Header */
+    .detail-header {
+        margin-bottom: 24px;
+    }
+    
+    .detail-header h1 {
+        font-family: var(--font-heading);
+        font-size: 32px;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+    
+    .detail-meta {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+        color: var(--gray);
+        font-size: 14px;
+    }
+    
+    .detail-meta .dot {
+        color: var(--light-gray);
+    }
+    
+    .detail-meta .rating {
+        color: var(--dark);
+        font-weight: 600;
+    }
+    
+    .detail-meta i {
+        margin-right: 4px;
+    }
+    
+    /* Galería */
+    .image-gallery {
+        border-radius: 16px;
+        overflow: hidden;
+        margin-bottom: 40px;
+        position: relative;
+    }
+    
+    .main-image {
+        position: relative;
+    }
+    
+    .main-image img {
+        width: 100%;
+        height: 450px;
+        object-fit: cover;
+    }
+    
+    .promo-badge-gallery {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        background: var(--primary);
+        color: white;
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 14px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    
+    .promo-badge-gallery i {
+        margin-right: 6px;
+    }
+    
+    /* Content */
+    .detail-content {
+        display: flex;
+        gap: 60px;
+    }
+    
+    .info-column {
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .sticky-sidebar {
+        flex: 0 0 340px;
+    }
+    
+    /* Description */
+    .description {
+        margin-bottom: 32px;
+    }
+    
+    .description h2 {
+        font-size: 20px;
+        font-weight: 600;
+        margin-bottom: 12px;
+    }
+    
+    .description h2 i {
+        color: var(--primary);
+        margin-right: 8px;
+    }
+    
+    .description p {
+        color: var(--gray);
+        line-height: 1.7;
+        margin-bottom: 16px;
+    }
+    
+    .restaurant-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    
+    .tag-category {
+        padding: 4px 14px;
+        background: var(--primary-light);
+        color: var(--primary);
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 500;
+    }
+    
+    .tag-feature {
+        padding: 4px 14px;
+        background: #e5e7eb;
+        color: var(--gray);
+        border-radius: 20px;
+        font-size: 13px;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+    
+    .tag-feature i {
+        color: #10B981;
+        font-size: 12px;
+    }
+    
+    /* IA Box */
+    .ia-box {
+        background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+        border: 1px solid #bae6fd;
+        border-radius: 16px;
+        padding: 24px;
+        display: flex;
+        gap: 20px;
+        margin: 32px 0;
+        transition: all 0.3s ease;
+    }
+    
+    .ia-box:hover {
+        box-shadow: 0 4px 20px rgba(56, 189, 248, 0.15);
+    }
+    
+    .ia-icon {
+        flex-shrink: 0;
+        width: 56px;
+        height: 56px;
+        background: #0369a1;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 28px;
+    }
+    
+    .ia-content {
+        flex: 1;
+    }
+    
+    .ia-content h3 {
+        font-size: 18px;
+        font-weight: 600;
+        color: #0369a1;
+        margin-bottom: 8px;
+    }
+    
+    .ia-status {
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-weight: 500;
+        margin-bottom: 12px;
+    }
+    
+    .ia-status.compatible {
+        background: #dcfce7;
+        color: #166534;
+    }
+    
+    .ia-status.incompatible {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+    
+    .ia-reasons {
+        margin-bottom: 12px;
+    }
+    
+    .ia-reasons strong {
+        display: block;
+        margin-bottom: 4px;
+        font-size: 14px;
+        color: var(--dark);
+    }
+    
+    .ia-reasons ul {
+        list-style: none;
+        padding: 0;
+    }
+    
+    .ia-reasons ul li {
+        padding: 4px 0;
+        font-size: 14px;
+        color: var(--gray);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    
+    .ia-exclusions {
+        margin-bottom: 12px;
+    }
+    
+    .ia-exclusions strong {
+        display: block;
+        margin-bottom: 4px;
+        font-size: 14px;
+        color: #991b1b;
+    }
+    
+    .ia-exclusions ul {
+        list-style: none;
+        padding: 0;
+    }
+    
+    .ia-exclusions ul li {
+        padding: 4px 0;
+        font-size: 14px;
+        color: #dc2626;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    
+    .ia-dietary strong {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 14px;
+        color: var(--dark);
+    }
+    
+    .dietary-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+    
+    .dietary-tag {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 500;
+    }
+    
+    .dietary-tag.vegan {
+        background: #dcfce7;
+        color: #166534;
+    }
+    
+    .dietary-tag.vegetarian {
+        background: #fef3c7;
+        color: #92400e;
+    }
+    
+    .dietary-tag.gluten-free {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+    
+    .dietary-tag.none {
+        background: #f3f4f6;
+        color: #6b7280;
+    }
+    
+    /* Menu Digital */
+    .menu-section {
+        margin-top: 32px;
+    }
+    
+    .menu-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        padding-bottom: 16px;
+        border-bottom: 2px solid var(--light-gray);
+    }
+    
+    .menu-header h2 {
+        font-size: 24px;
+        font-weight: 700;
+    }
+    
+    .menu-header h2 i {
+        color: var(--primary);
+        margin-right: 8px;
+    }
+    
+    .badge-count {
+        background: var(--primary-light);
+        color: var(--primary);
+        padding: 4px 16px;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: 600;
+    }
+    
+    .menu-categories {
+        display: flex;
+        flex-direction: column;
+        gap: 32px;
+    }
+    
+    .menu-category {
+        background: var(--white);
+        border-radius: 16px;
+        border: 1px solid var(--light-gray);
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .menu-category:hover {
+        box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    }
+    
+    .category-header {
+        background: #f8fafc;
+        padding: 16px 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid var(--light-gray);
+    }
+    
+    .category-header h3 {
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--dark);
+    }
+    
+    .category-header h3::before {
+        content: "";
+        display: inline-block;
+        width: 4px;
+        height: 20px;
+        background: var(--primary);
+        border-radius: 4px;
+        margin-right: 12px;
+        vertical-align: middle;
+    }
+    
+    .category-count {
+        font-size: 13px;
+        color: var(--gray);
+        background: var(--white);
+        padding: 2px 12px;
+        border-radius: 12px;
+        border: 1px solid var(--light-gray);
+    }
+    
+    .category-dishes {
+        padding: 8px 0;
+    }
+    
+    .dish-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 16px 24px;
+        border-bottom: 1px solid #f1f5f9;
+        transition: background 0.2s ease;
+    }
+    
+    .dish-item:last-child {
+        border-bottom: none;
+    }
+    
+    .dish-item:hover {
+        background: #fafbfc;
+    }
+    
+    .dish-info {
+        flex: 1;
+        padding-right: 20px;
+    }
+    
+    .dish-name-wrapper {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 4px;
+    }
+    
+    .dish-name-wrapper h4 {
+        font-size: 16px;
+        font-weight: 500;
+        color: var(--dark);
+        margin: 0;
+    }
+    
+    .chef-recommendation {
+        font-size: 12px;
+        background: #fef3c7;
+        color: #92400e;
+        padding: 2px 10px;
+        border-radius: 12px;
+        font-weight: 500;
+    }
+    
+    .spiciness {
+        font-size: 14px;
+        letter-spacing: -2px;
+    }
+    
+    .dish-description {
+        font-size: 14px;
+        color: var(--gray);
+        margin: 4px 0 8px;
+        line-height: 1.5;
+    }
+    
+    .dish-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        font-size: 13px;
+        color: var(--gray);
+    }
+    
+    .dish-ingredients {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+    
+    .dish-ingredients i {
+        font-size: 12px;
+        color: #10B981;
+    }
+    
+    .dish-dietary {
+        display: flex;
+        gap: 4px;
+    }
+    
+    .diet-tag {
+        padding: 1px 8px;
+        background: #e5e7eb;
+        border-radius: 10px;
+        font-size: 11px;
+        color: var(--gray);
+    }
+    
+    .dish-time {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+    
+    .dish-price {
+        text-align: right;
+        flex-shrink: 0;
+        min-width: 100px;
+    }
+    
+    .price-amount {
+        display: block;
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--dark);
+    }
+    
+    .available-badge {
+        font-size: 12px;
+        color: #10B981;
+        font-weight: 500;
+    }
+    
+    .unavailable-badge {
+        font-size: 12px;
+        color: #dc2626;
+        font-weight: 500;
+    }
+    
+    /* Sidebar */
+    .booking-card {
+        background: var(--white);
+        border: 1px solid var(--light-gray);
+        border-radius: 16px;
+        padding: 28px;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+        position: sticky;
+        top: 100px;
+    }
+    
+    .booking-header {
+        text-align: center;
+        padding-bottom: 20px;
+        border-bottom: 1px solid var(--light-gray);
+        margin-bottom: 20px;
+    }
+    
+    .booking-header h3 {
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--gray);
+        margin-bottom: 4px;
+    }
+    
+    .price-val {
+        font-size: 32px;
+        font-weight: 700;
+        color: var(--dark);
+        margin: 0;
+    }
+    
+    .price-per-person {
+        font-size: 13px;
+        color: var(--gray);
+    }
+    
+    .booking-info {
+        margin-bottom: 20px;
+    }
+    
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 14px;
+    }
+    
+    .info-row:last-child {
+        border-bottom: none;
+    }
+    
+    .info-row i {
+        color: var(--primary);
+        width: 20px;
+    }
+    
+    .info-row span {
+        flex: 1;
+        margin-left: 12px;
+        color: var(--gray);
+    }
+    
+    .info-row strong {
+        font-weight: 600;
+        color: var(--dark);
+    }
+    
+    .info-row.promo-row {
+        background: #fef3c7;
+        padding: 8px 12px;
+        border-radius: 8px;
+        margin-top: 8px;
+        border-bottom: none;
+    }
+    
+    .info-row.promo-row i {
+        color: #92400e;
+    }
+    
+    .info-row.promo-row span {
+        color: #92400e;
+    }
+    
+    .reserve-btn {
+        width: 100%;
+        padding: 14px;
+        background: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        margin-bottom: 20px;
+    }
+    
+    .reserve-btn:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 20px rgba(255, 56, 92, 0.3);
+    }
+    
+    .contact-info {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding-top: 16px;
+        border-top: 1px solid var(--light-gray);
+    }
+    
+    .contact-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 14px;
+        color: var(--gray);
+    }
+    
+    .contact-item i {
+        width: 20px;
+        color: var(--dark);
+    }
+    
+    .empty-menu {
+        text-align: center;
+        padding: 48px 20px;
+        background: var(--white);
+        border-radius: 16px;
+        border: 1px solid var(--light-gray);
+    }
+    
+    .empty-menu p {
+        color: var(--gray);
+        margin-top: 12px;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .detail-container {
+            padding: 16px;
+        }
+        
+        .detail-content {
+            flex-direction: column;
+            gap: 32px;
+        }
+        
+        .sticky-sidebar {
+            flex: 1;
+        }
+        
+        .booking-card {
+            position: static;
+        }
+        
+        .main-image img {
+            height: 250px;
+        }
+        
+        .detail-header h1 {
+            font-size: 24px;
+        }
+        
+        .ia-box {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        
+        .ia-icon {
+            width: 48px;
+            height: 48px;
+            font-size: 22px;
+        }
+        
+        .dish-item {
+            flex-direction: column;
+            padding: 16px;
+        }
+        
+        .dish-price {
+            text-align: left;
+            min-width: auto;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid var(--light-gray);
+        }
+        
+        .price-amount {
+            display: inline;
+            margin-right: 12px;
+        }
+        
+        .category-header {
+            flex-direction: column;
+            gap: 4px;
+            text-align: center;
+        }
+        
+        .category-header h3::before {
+            display: none;
+        }
+        
+        .dish-name-wrapper {
+            flex-wrap: wrap;
+        }
+        
+        .dish-meta {
+            flex-direction: column;
+            gap: 4px;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .detail-meta {
+            font-size: 13px;
+        }
+        
+        .restaurant-tags {
+            gap: 4px;
+        }
+        
+        .tag-category,
+        .tag-feature {
+            font-size: 12px;
+            padding: 2px 10px;
+        }
+        
+        .menu-header {
+            flex-direction: column;
+            gap: 8px;
+            text-align: center;
+        }
+        
+        .price-val {
+            font-size: 24px;
+        }
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Agregar efecto de scroll en la carta
+    const menuCategories = document.querySelectorAll('.menu-category');
+    menuCategories.forEach((category, index) => {
+        category.style.opacity = '0';
+        category.style.transform = 'translateY(20px)';
+        setTimeout(() => {
+            category.style.transition = 'all 0.5s ease';
+            category.style.opacity = '1';
+            category.style.transform = 'translateY(0)';
+        }, 100 + (index * 150));
+    });
+});
+</script>
+{% endblock %}

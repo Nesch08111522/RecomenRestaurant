@@ -1,0 +1,202 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="admin-container">
+    <div class="admin-header">
+        <h1><i class="fas fa-users"></i> Gestión de Usuarios</h1>
+        <p>Administra los usuarios del sistema</p>
+    </div>
+
+    <div class="table-container">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Usuario</th>
+                    <th>Nombre</th>
+                    <th>Email</th>
+                    <th>Rol</th>
+                    <th>Preferencias</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                    <tr>
+                        <td>{{ user.id }}</td>
+                        <td><strong>{{ user.username }}</strong></td>
+                        <td>{{ user.profile.name }}</td>
+                        <td>{{ user.profile.email }}</td>
+                        <td>
+                            <span class="role-badge {% if user.role == 'admin' %}role-admin{% else %}role-user{% endif %}">
+                                {{ user.role }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if user.profile.preferences %}
+                                {{ user.profile.preferences|join(', ') }}
+                            {% else %}
+                                <span class="no-data">Sin preferencias</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <button class="action-btn edit-btn" onclick="editUser({{ user.id }})" title="Editar">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            {% if user.role != 'admin' %}
+                                <button class="action-btn delete-btn" onclick="deleteUser({{ user.id }})" title="Eliminar">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+    .admin-container {
+        max-width: 1200px;
+        margin: 40px auto;
+        padding: 0 20px;
+    }
+
+    .admin-header {
+        margin-bottom: 32px;
+    }
+
+    .admin-header h1 {
+        font-size: 28px;
+        font-weight: 700;
+    }
+
+    .admin-header p {
+        color: var(--gray);
+    }
+
+    .table-container {
+        background: var(--white);
+        border-radius: var(--radius);
+        overflow: hidden;
+        box-shadow: var(--shadow);
+        overflow-x: auto;
+    }
+
+    .admin-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+    }
+
+    .admin-table th {
+        background: #f8f9fa;
+        padding: 12px 16px;
+        text-align: left;
+        font-weight: 600;
+        border-bottom: 2px solid var(--light-gray);
+    }
+
+    .admin-table td {
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--light-gray);
+    }
+
+    .admin-table tr:hover {
+        background: #f8f9fa;
+    }
+
+    .role-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .role-admin {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .role-user {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+    .no-data {
+        color: var(--gray);
+        font-size: 13px;
+    }
+
+    .action-btn {
+        width: 32px;
+        height: 32px;
+        border: none;
+        border-radius: var(--radius-sm);
+        cursor: pointer;
+        transition: var(--transition);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 2px;
+    }
+
+    .edit-btn {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+    .edit-btn:hover {
+        background: #bfdbfe;
+    }
+
+    .delete-btn {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .delete-btn:hover {
+        background: #fca5a5;
+    }
+
+    @media (max-width: 768px) {
+        .admin-table {
+            font-size: 12px;
+        }
+
+        .admin-table th,
+        .admin-table td {
+            padding: 8px 10px;
+        }
+    }
+</style>
+
+<script>
+    function editUser(id) {
+        // Implementar edición de usuario
+        alert('Editar usuario ' + id + ' (próximamente)');
+    }
+
+    function deleteUser(id) {
+        if (!confirm('¿Estás seguro de eliminar este usuario?')) return;
+
+        fetch(`/admin/user/${id}`, {
+            method: 'DELETE'
+        })
+        .then(response => {
+            if (response.ok) {
+                location.reload();
+            } else {
+                alert('Error al eliminar el usuario');
+            }
+        })
+        .catch(error => {
+            alert('Error al eliminar el usuario');
+            console.error(error);
+        });
+    }
+</script>
+{% endblock %}

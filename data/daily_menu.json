@@ -1,0 +1,519 @@
+[
+    {
+        "id": 1,
+        "restaurant_id": 1,
+        "date": "2026-06-30",
+        "day_of_week": "lunes",
+        "type": "daily",
+        "dishes": [
+            {
+                "dish_id": 2,
+                "name": "Ceviche de Pescado",
+                "price": 32
+            },
+            {
+                "dish_id": 5,
+                "name": "Arroz con Pato",
+                "price": 40
+            },
+            {
+                "dish_id": 1,
+                "name": "Cabrito a la Norteña",
+                "price": 35
+            },
+            {
+                "dish_id": 6,
+                "name": "Papa a la Huancaína",
+                "price": 22
+            },
+            {
+                "dish_id": 9,
+                "name": "Suspiro a la Limeña",
+                "price": 15
+            }
+        ],
+        "specials": [
+            "Pescado del día",
+            "Sopa del día"
+        ],
+        "price": 45,
+        "is_active": true,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 2,
+        "restaurant_id": 1,
+        "date": "2026-07-01",
+        "day_of_week": "martes",
+        "type": "daily",
+        "dishes": [
+            {
+                "dish_id": 3,
+                "name": "Seco de Cabrito",
+                "price": 38
+            },
+            {
+                "dish_id": 4,
+                "name": "Sopa Criolla",
+                "price": 18
+            },
+            {
+                "dish_id": 8,
+                "name": "Lomo Saltado",
+                "price": 35
+            },
+            {
+                "dish_id": 7,
+                "name": "Causa Rellena",
+                "price": 25
+            },
+            {
+                "dish_id": 12,
+                "name": "Arroz con Leche",
+                "price": 12
+            }
+        ],
+        "specials": [
+            "Cabrito al horno",
+            "Crema de espárragos"
+        ],
+        "price": 42,
+        "is_active": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 3,
+        "restaurant_id": 2,
+        "date": "2026-06-30",
+        "day_of_week": "tuesday",
+        "type": "daily",
+        "dishes": [
+            {
+                "dish_id": 19,
+                "name": "Pulpo al Olivo",
+                "price": 38
+            },
+            {
+                "dish_id": 18,
+                "name": "Chilcano de Pescado",
+                "price": 35
+            },
+            {
+                "dish_id": 20,
+                "name": "Tortilla de Mariscos",
+                "price": 30
+            },
+            {
+                "dish_id": 17,
+                "name": "Sudado de Pescado",
+                "price": 42
+            },
+            {
+                "dish_id": 16,
+                "name": "Ceviche Mixto",
+                "price": 48
+            },
+            {
+                "dish_id": 14,
+                "name": "Arroz con Mariscos",
+                "price": 50
+            },
+            {
+                "dish_id": 21,
+                "name": "Camarones al Ajo",
+                "price": 35
+            },
+            {
+                "dish_id": 13,
+                "name": "Ceviche de Pescado",
+                "price": 45
+            },
+            {
+                "dish_id": 25,
+                "name": "Torta de Chocolate",
+                "price": 15
+            },
+            {
+                "dish_id": 24,
+                "name": "Chicha de Jora",
+                "price": 8
+            },
+            {
+                "dish_id": 23,
+                "name": "Pisco Sour de Maracuyá",
+                "price": 18
+            }
+        ],
+        "specials": [
+            "Recomendación del chef"
+        ],
+        "price": 0,
+        "is_active": true,
+        "created_at": "2026-06-01T10:00:00",
+        "updated_at": "2026-06-30T17:16:29.685478"
+    },
+    {
+        "id": 4,
+        "restaurant_id": 2,
+        "date": "2026-07-02",
+        "day_of_week": "jueves",
+        "type": "daily",
+        "dishes": [
+            {
+                "dish_id": 17,
+                "name": "Sudado de Pescado",
+                "price": 42
+            },
+            {
+                "dish_id": 18,
+                "name": "Chilcano de Pescado",
+                "price": 35
+            },
+            {
+                "dish_id": 21,
+                "name": "Camarones al Ajo",
+                "price": 35
+            },
+            {
+                "dish_id": 19,
+                "name": "Pulpo al Olivo",
+                "price": 38
+            },
+            {
+                "dish_id": 20,
+                "name": "Tortilla de Mariscos",
+                "price": 30
+            }
+        ],
+        "specials": [
+            "Ceviche de conchas negras",
+            "Arroz con pato"
+        ],
+        "price": 50,
+        "is_active": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 5,
+        "restaurant_id": 3,
+        "date": "2026-06-30",
+        "day_of_week": "lunes",
+        "type": "daily",
+        "dishes": [
+            {
+                "dish_id": 26,
+                "name": "Seco de Res",
+                "price": 30
+            },
+            {
+                "dish_id": 27,
+                "name": "Tallarín Saltado",
+                "price": 25
+            },
+            {
+                "dish_id": 29,
+                "name": "Rocoto Relleno",
+                "price": 28
+            },
+            {
+                "dish_id": 30,
+                "name": "Sopa de Pollo",
+                "price": 18
+            },
+            {
+                "dish_id": 31,
+                "name": "Ensalada Mixta",
+                "price": 15
+            }
+        ],
+        "specials": [
+            "Guiso de quinua",
+            "Jugo de frutas"
+        ],
+        "price": 35,
+        "is_active": true,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 6,
+        "restaurant_id": 4,
+        "date": "2026-06-30",
+        "day_of_week": "lunes",
+        "type": "daily",
+        "dishes": [
+            {
+                "dish_id": 35,
+                "name": "Pizza Margherita",
+                "price": 25
+            },
+            {
+                "dish_id": 36,
+                "name": "Pizza Pepperoni",
+                "price": 28
+            },
+            {
+                "dish_id": 38,
+                "name": "Pizza 4 Quesos",
+                "price": 30
+            },
+            {
+                "dish_id": 39,
+                "name": "Pizza Vegetariana",
+                "price": 26
+            },
+            {
+                "dish_id": 43,
+                "name": "Tiramisú",
+                "price": 14
+            }
+        ],
+        "specials": [
+            "Pizza del día",
+            "Lasagna"
+        ],
+        "price": 30,
+        "is_active": true,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 7,
+        "restaurant_id": 5,
+        "date": "2026-06-30",
+        "day_of_week": "lunes",
+        "type": "daily",
+        "dishes": [
+            {
+                "dish_id": 45,
+                "name": "Chaufa de Pollo",
+                "price": 20
+            },
+            {
+                "dish_id": 46,
+                "name": "Chaufa de Carne",
+                "price": 22
+            },
+            {
+                "dish_id": 47,
+                "name": "Chaufa de Mariscos",
+                "price": 25
+            },
+            {
+                "dish_id": 48,
+                "name": "Wantán Frito",
+                "price": 15
+            },
+            {
+                "dish_id": 49,
+                "name": "Sopa Wantán",
+                "price": 16
+            }
+        ],
+        "specials": [
+            "Arroz chifa",
+            "Té de jengibre"
+        ],
+        "price": 28,
+        "is_active": true,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 8,
+        "restaurant_id": 6,
+        "date": "2026-06-30",
+        "day_of_week": "tuesday",
+        "type": "daily",
+        "dishes": [
+            {
+                "dish_id": 59,
+                "name": "Miso Soup",
+                "price": 12
+            },
+            {
+                "dish_id": 55,
+                "name": "Tempura de Camarón",
+                "price": 32
+            },
+            {
+                "dish_id": 58,
+                "name": "Gyoza",
+                "price": 18
+            },
+            {
+                "dish_id": 56,
+                "name": "Ramen Tradicional",
+                "price": 35
+            },
+            {
+                "dish_id": 60,
+                "name": "Sake",
+                "price": 25
+            },
+            {
+                "dish_id": 61,
+                "name": "Té Verde",
+                "price": 8
+            }
+        ],
+        "specials": [
+            "Recomendación del chef"
+        ],
+        "price": 0,
+        "is_active": true,
+        "created_at": "2026-06-01T10:00:00",
+        "updated_at": "2026-06-30T17:50:33.289715"
+    },
+    {
+        "id": 9,
+        "restaurant_id": 7,
+        "date": "2026-06-30",
+        "day_of_week": "lunes",
+        "type": "daily",
+        "dishes": [
+            {
+                "dish_id": 62,
+                "name": "Lomo Fino a la Parrilla",
+                "price": 60
+            },
+            {
+                "dish_id": 63,
+                "name": "Costillar de Cerdo",
+                "price": 55
+            },
+            {
+                "dish_id": 64,
+                "name": "Parrilla Mixta",
+                "price": 65
+            },
+            {
+                "dish_id": 65,
+                "name": "Ensalada César",
+                "price": 20
+            },
+            {
+                "dish_id": 66,
+                "name": "Puré de Papas",
+                "price": 12
+            }
+        ],
+        "specials": [
+            "Torta de queso",
+            "Vino tinto"
+        ],
+        "price": 50,
+        "is_active": true,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 10,
+        "restaurant_id": 8,
+        "date": "2026-06-30",
+        "day_of_week": "lunes",
+        "type": "daily",
+        "dishes": [
+            {
+                "dish_id": 70,
+                "name": "Café Americano",
+                "price": 8
+            },
+            {
+                "dish_id": 71,
+                "name": "Café Latte",
+                "price": 12
+            },
+            {
+                "dish_id": 72,
+                "name": "Capuchino",
+                "price": 14
+            },
+            {
+                "dish_id": 73,
+                "name": "Torta de Zanahoria",
+                "price": 14
+            },
+            {
+                "dish_id": 75,
+                "name": "Sándwich de Pollo",
+                "price": 16
+            }
+        ],
+        "specials": [
+            "Alfajores",
+            "Sándwich del día"
+        ],
+        "price": 20,
+        "is_active": true,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 11,
+        "restaurant_id": 9,
+        "date": "2026-06-30",
+        "day_of_week": "lunes",
+        "type": "daily",
+        "dishes": [
+            {
+                "dish_id": 76,
+                "name": "Ensalada Quinoa",
+                "price": 22
+            },
+            {
+                "dish_id": 77,
+                "name": "Bowl de Frutas",
+                "price": 18
+            },
+            {
+                "dish_id": 78,
+                "name": "Smoothie Verde",
+                "price": 15
+            },
+            {
+                "dish_id": 79,
+                "name": "Jugo de Naranja",
+                "price": 8
+            }
+        ],
+        "specials": [
+            "Ensalada del día",
+            "Smoothie especial"
+        ],
+        "price": 25,
+        "is_active": true,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 12,
+        "restaurant_id": 10,
+        "date": "2026-06-30",
+        "day_of_week": "lunes",
+        "type": "daily",
+        "dishes": [
+            {
+                "dish_id": 80,
+                "name": "Tacos de Asada",
+                "price": 28
+            },
+            {
+                "dish_id": 81,
+                "name": "Quesadilla de Pollo",
+                "price": 25
+            },
+            {
+                "dish_id": 82,
+                "name": "Guacamole con Totopos",
+                "price": 18
+            },
+            {
+                "dish_id": 83,
+                "name": "Margarita Clásica",
+                "price": 20
+            }
+        ],
+        "specials": [
+            "Tacos al pastor",
+            "Margarita de frutas"
+        ],
+        "price": 30,
+        "is_active": true,
+        "created_at": "2026-06-01T10:00:00"
+    }
+]

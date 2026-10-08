@@ -1,0 +1,210 @@
+Name: Flask
+Version: 3.0.0
+Summary: A simple framework for building complex web applications.
+Home-page: 
+Author: 
+Author-email: 
+License: 
+Location: /usr/local/lib/python3.12/dist-packages
+Requires: blinker, click, itsdangerous, Jinja2, Werkzeug
+Required-by: Flask-Limiter, Flask-Login, Flask-SQLAlchemy, Flask-WTF
+---
+Name: Flask-Login
+Version: 0.6.3
+Summary: User authentication and session management for Flask.
+Home-page: https://github.com/maxcountryman/flask-login
+Author: Matthew Frazier
+Author-email: leafstormrush@gmail.com
+License: MIT
+Location: /usr/local/lib/python3.12/dist-packages
+Requires: Flask, Werkzeug
+Required-by: 
+---
+Name: Werkzeug
+Version: 3.0.1
+Summary: The comprehensive WSGI web application library.
+Home-page: 
+Author: 
+Author-email: 
+License: 
+Location: /usr/local/lib/python3.12/dist-packages
+Requires: MarkupSafe
+Required-by: Flask, Flask-Login
+---
+Name: pyDatalog
+Version: 0.17.4
+Summary: A pure-python implementation of Datalog, a truly declarative language derived from Prolog.
+Home-page: https://sites.google.com/site/pydatalog/
+Author: Pierre Carbonnelle
+Author-email: pierre.carbonnelle@gmail.com
+License: 
+Location: /usr/local/lib/python3.12/dist-packages
+Requires: 
+Required-by: 
+---
+Name: geopy
+Version: 2.4.1
+Summary: Python Geocoding Toolbox
+Home-page: https://github.com/geopy/geopy
+Author: 
+Author-email: 
+License: MIT
+Location: /usr/local/lib/python3.12/dist-packages
+Requires: geographiclib
+Required-by: 
+---
+Name: haversine
+Version: 2.8.0
+Summary: Calculate the distance between 2 points on Earth.
+Home-page: https://github.com/mapado/haversine
+Author: Balthazar Rouberol
+Author-email: 
+License: MIT
+Location: /usr/local/lib/python3.12/dist-packages
+Requires: 
+Required-by: 
+---
+Name: pandas
+Version: 2.1.3
+Summary: Powerful data structures for data analysis, time series, and statistics
+Home-page: https://pandas.pydata.org
+Author: 
+Author-email: The Pandas Development Team <pandas-dev@python.org>
+License: BSD 3-Clause License
+
+Copyright (c) 2008-2011, AQR Capital Management, LLC, Lambda Foundry, Inc. and PyData Development Team
+All rights reserved.
+
+Copyright (c) 2011-2023, Open source contributors.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+* Redistributions of source code must retain the above copyright notice, this
+  list of conditions and the following disclaimer.
+
+* Redistributions in binary form must reproduce the above copyright notice,
+  this list of conditions and the following disclaimer in the documentation
+  and/or other materials provided with the distribution.
+
+* Neither the name of the copyright holder nor the names of its
+  contributors may be used to endorse or promote products derived from
+  this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+Location: /usr/local/lib/python3.12/dist-packages
+Requires: numpy, python-dateutil, pytz, tzdata
+Required-by: seaborn
+---
+Name: python-dotenv
+Version: 1.0.0
+Summary: Read key-value pairs from a .env file and set them as environment variables
+Home-page: https://github.com/theskumar/python-dotenv
+Author: Saurabh Kumar
+Author-email: me+github@saurabh-kumar.com
+License: BSD-3-Clause
+Location: /usr/local/lib/python3.12/dist-packages
+Requires: 
+Required-by: 
+---
+Name: pytest
+Version: 9.1.1
+Summary: pytest: simple powerful testing with Python
+Home-page: 
+Author: Brianna Laugher, Bruno Oliveira, Floris Bruynooghe, Freya Bruhin, Holger Krekel, Others (See AUTHORS), Ronny Pfannschmidt
+Author-email: 
+License: 
+Location: /usr/local/lib/python3.12/dist-packages
+Requires: iniconfig, packaging, pluggy, pygments
+Required-by: pytest-cov
+---
+Name: Flask-WTF
+Version: 1.3.0
+Summary: Form rendering, validation, and CSRF protection for Flask with WTForms.
+Home-page: 
+Author: 
+Author-email: 
+License: Copyright 2010 WTForms
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+1.  Redistributions of source code must retain the above copyright
+    notice, this list of conditions and the following disclaimer.
+
+2.  Redistributions in binary form must reproduce the above copyright
+    notice, this list of conditions and the following disclaimer in the
+    documentation and/or other materials provided with the distribution.
+
+3.  Neither the name of the copyright holder nor the names of its
+    contributors may be used to endorse or promote products derived from
+    this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED
+TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+Location: /usr/local/lib/python3.12/dist-packages
+Requires: flask, itsdangerous, wtforms
+Required-by: 
+---
+Name: Flask-Limiter
+Version: 4.1.1
+Summary: Rate limiting for flask applications
+Home-page: 
+Author: 
+Author-email: Ali-Akber Saifee <ali@indydevs.org>
+License: 
+Location: /usr/local/lib/python3.12/dist-packages
+Requires: flask, limits, ordered-set, typing-extensions
+Required-by: 
+---
+Name: psycopg
+Version: 3.3.4
+Summary: PostgreSQL database adapter for Python
+Home-page: 
+Author: 
+Author-email: Daniele Varrazzo <daniele.varrazzo@gmail.com>
+License: 
+Location: /usr/local/lib/python3.12/dist-packages
+Requires: typing-extensions
+Required-by: 
+---
+Name: SQLAlchemy
+Version: 2.0.52
+Summary: Database Abstraction Library
+Home-page: https://www.sqlalchemy.org
+Author: Mike Bayer
+Author-email: mike_mp@zzzcomputing.com
+License: MIT
+Location: /usr/local/lib/python3.12/dist-packages
+Requires: greenlet, typing-extensions
+Required-by: Flask-SQLAlchemy
+---
+Name: Flask-SQLAlchemy
+Version: 3.1.1
+Summary: Add SQLAlchemy support to your Flask application.
+Home-page: 
+Author: 
+Author-email: 
+License: 
+Location: /usr/local/lib/python3.12/dist-packages
+Requires: flask, sqlalchemy
+Required-by: 

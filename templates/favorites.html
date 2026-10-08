@@ -1,0 +1,353 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="favorites-container">
+    <div class="favorites-header">
+        <h1><i class="fas fa-heart" style="color: var(--primary);"></i> Mis Favoritos</h1>
+        <p>{{ total }} restaurantes guardados</p>
+    </div>
+    
+    {% if restaurants and restaurants|length > 0 %}
+        <div class="favorites-grid">
+            {% for r in restaurants %}
+                <div class="restaurant-card" data-id="{{ r.id }}">
+                    <div class="card-image">
+                        <img src="{{ r.image }}" alt="{{ r.name }}" loading="lazy">
+                        <button class="fav-btn active" onclick="toggleFavorite({{ r.id }}, event)" title="Quitar de favoritos">
+                            <i class="fas fa-heart"></i>
+                        </button>
+                        {% if r.promo %}
+                            <div class="promo-badge"><i class="fas fa-tag"></i> Promoción</div>
+                        {% endif %}
+                        {% if r.rating >= 4.5 %}
+                            <div class="top-rated-badge"><i class="fas fa-star"></i> Top</div>
+                        {% endif %}
+                    </div>
+                    <div class="card-content">
+                        <div class="card-header">
+                            <h3>{{ r.name }}</h3>
+                            <div class="rating">
+                                <i class="fas fa-star"></i>
+                                <span>{{ r.rating }}</span>
+                            </div>
+                        </div>
+                        <div class="card-location">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>{{ r.district }}</span>
+                            {% if r.distance_km %}
+                                <span class="dot">•</span>
+                                <span class="distance">{{ r.distance_km|round(1) }} km</span>
+                            {% endif %}
+                        </div>
+                        <div class="card-price">
+                            <span class="price">{{ MONEDA }}{{ r.avg_price }}</span>
+                            <span class="price-label">por persona</span>
+                        </div>
+                        <div class="card-tags">
+                            {% for tag in r.tags[:3] %}
+                                <span class="tag">{{ tag }}</span>
+                            {% endfor %}
+                        </div>
+                        <a href="{{ url_for('main.detail', restaurant_id=r.id) }}" class="card-link">
+                            Ver detalles <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <i class="fas fa-heart" style="font-size: 64px; color: var(--light-gray);"></i>
+            <h3>No tienes favoritos aún</h3>
+            <p>Explora restaurantes y guarda tus favoritos haciendo clic en el corazón ❤️</p>
+            <a href="{{ url_for('main.index') }}" class="btn-primary" style="margin-top: 16px; display: inline-block;">
+                <i class="fas fa-search"></i> Explorar restaurantes
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+    .favorites-container {
+        max-width: 1200px;
+        margin: 40px auto;
+        padding: 0 20px;
+    }
+    
+    .favorites-header {
+        margin-bottom: 32px;
+    }
+    
+    .favorites-header h1 {
+        font-size: 28px;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+    
+    .favorites-header p {
+        color: var(--gray);
+        font-size: 16px;
+    }
+    
+    .favorites-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 24px;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        background: var(--white);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+    }
+    
+    .empty-state i {
+        font-size: 64px;
+        color: var(--light-gray);
+    }
+    
+    .empty-state h3 {
+        margin-top: 16px;
+        font-size: 20px;
+    }
+    
+    .empty-state p {
+        color: var(--gray);
+        margin-top: 8px;
+    }
+    
+    .empty-state .btn-primary {
+        display: inline-block;
+        margin-top: 16px;
+        padding: 12px 24px;
+        background: var(--primary);
+        color: white;
+        border-radius: var(--radius-sm);
+        text-decoration: none;
+        font-weight: 600;
+        transition: var(--transition);
+        border: none;
+        cursor: pointer;
+    }
+    
+    .empty-state .btn-primary:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(255, 56, 92, 0.3);
+    }
+    
+    .fav-btn.active {
+        background: var(--primary);
+        color: white;
+    }
+    
+    .fav-btn.active i {
+        color: white;
+    }
+    
+    /* Estilos para las tarjetas en favoritos */
+    .restaurant-card {
+        background: var(--white);
+        border-radius: var(--radius);
+        overflow: hidden;
+        box-shadow: var(--shadow);
+        transition: var(--transition);
+        position: relative;
+    }
+    
+    .restaurant-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-hover);
+    }
+    
+    .card-image {
+        position: relative;
+        width: 100%;
+        padding-top: 75%;
+        overflow: hidden;
+        background: var(--light-gray);
+    }
+    
+    .card-image img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: var(--transition);
+    }
+    
+    .restaurant-card:hover .card-image img {
+        transform: scale(1.05);
+    }
+    
+    .promo-badge {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        background: var(--primary);
+        color: var(--white);
+        padding: 4px 12px;
+        border-radius: var(--radius-sm);
+        font-size: 12px;
+        font-weight: 600;
+        z-index: 2;
+    }
+    
+    .top-rated-badge {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        background: #FFB800;
+        color: var(--dark);
+        padding: 4px 12px;
+        border-radius: var(--radius-sm);
+        font-size: 12px;
+        font-weight: 600;
+        z-index: 2;
+    }
+    
+    .card-content {
+        padding: 16px;
+    }
+    
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 8px;
+    }
+    
+    .card-header h3 {
+        font-size: 16px;
+        font-weight: 600;
+        line-height: 1.3;
+        flex: 1;
+        margin-right: 12px;
+    }
+    
+    .rating {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 14px;
+        font-weight: 600;
+        flex-shrink: 0;
+    }
+    
+    .rating i {
+        color: #FFB800;
+        font-size: 14px;
+    }
+    
+    .card-location {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 14px;
+        color: var(--gray);
+        margin-bottom: 8px;
+    }
+    
+    .card-location .dot {
+        color: var(--light-gray);
+    }
+    
+    .card-location .distance {
+        font-weight: 500;
+    }
+    
+    .card-price {
+        display: flex;
+        align-items: baseline;
+        gap: 6px;
+        margin-bottom: 12px;
+    }
+    
+    .card-price .price {
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--dark);
+    }
+    
+    .card-price .price-label {
+        font-size: 13px;
+        color: var(--gray);
+    }
+    
+    .card-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-bottom: 12px;
+    }
+    
+    .card-tags .tag {
+        padding: 2px 10px;
+        background: var(--light-gray);
+        border-radius: 12px;
+        font-size: 12px;
+        color: var(--gray);
+    }
+    
+    .card-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--primary);
+        transition: var(--transition);
+        text-decoration: none;
+    }
+    
+    .card-link:hover {
+        gap: 10px;
+        color: var(--primary-dark);
+    }
+</style>
+
+<script>
+// Función para eliminar de favoritos desde la página de favoritos
+function removeFromFavorites(restaurantId, event) {
+    if (event) event.stopPropagation();
+    
+    if (confirm('¿Quieres eliminar este restaurante de tus favoritos?')) {
+        if (window.app) {
+            window.app.toggleFavorite(restaurantId, event);
+        } else {
+            // Fallback: enviar directamente la solicitud
+            fetch('/auth/api/favorites/toggle', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ restaurant_id: restaurantId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    }
+}
+
+// Sobrescribir toggleFavorite en la página de favoritos para confirmar
+document.addEventListener('DOMContentLoaded', function() {
+    const originalToggle = window.toggleFavorite;
+    if (window.location.pathname === '/auth/favorites') {
+        window.toggleFavorite = function(restaurantId, event) {
+            if (confirm('¿Quieres eliminar este restaurante de tus favoritos?')) {
+                originalToggle(restaurantId, event);
+            }
+        };
+    }
+});
+</script>
+{% endblock %}

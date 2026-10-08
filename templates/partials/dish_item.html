@@ -1,0 +1,40 @@
+<div class="dish-item" data-id="{{ dish.id }}">
+    <div class="dish-info">
+        <div class="dish-name">
+            {{ dish.name }}
+            {% if dish.is_recommended %}
+                <span class="recommended-badge">⭐ Recomendado</span>
+            {% endif %}
+            {% if not dish.is_available %}
+                <span class="unavailable-badge">❌ No disponible</span>
+            {% endif %}
+        </div>
+        <div class="dish-details">
+            {{ MONEDA }}{{ dish.price }}
+            {% if dish.dietary_info %}
+                • {% for diet in dish.dietary_info %}
+                    <span class="diet-tag">{{ diet }}</span>
+                {% endfor %}
+            {% endif %}
+            {% if dish.spiciness > 0 %}
+                • 🌶️ {{ dish.spiciness }}/5
+            {% endif %}
+            {% if dish.preparation_time %}
+                • ⏱️ {{ dish.preparation_time }} min
+            {% endif %}
+        </div>
+        {% if dish.ingredients %}
+            <div class="dish-ingredients">
+                <small>🧑‍🍳 {{ dish.ingredients|join(', ') }}</small>
+            </div>
+        {% endif %}
+    </div>
+    <div class="dish-actions">
+        <button class="action-btn edit-btn" onclick="editDish({{ dish.id }})" title="Editar">
+            <i class="fas fa-edit"></i>
+        </button>
+        <button class="action-btn delete-btn" onclick="deleteDish({{ dish.id }})" title="Eliminar">
+            <i class="fas fa-trash"></i>
+        </button>
+    </div>
+</div>

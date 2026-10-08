@@ -1,0 +1,183 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-box">
+        <h2>Crear Cuenta</h2>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash-message {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <form method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-group">
+                <label>Nombre Completo</label>
+                <input type="text" name="name" required>
+            </div>
+            <div class="form-group">
+                <label>Usuario</label>
+                <input type="text" name="username" required>
+            </div>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label>Contraseña</label>
+                <input type="password" name="password" required>
+            </div>
+            
+            <!-- ✅ Nuevo: Selector de rol -->
+            <div class="form-group">
+                <label>Tipo de cuenta</label>
+                <select name="role" class="form-input" required>
+                    <option value="user">👤 Usuario normal</option>
+                    <option value="business_owner">🏪 Empresario (dueño de restaurante)</option>
+                </select>
+                <small style="color: var(--gray); font-size: 12px;">
+                    💡 Como empresario podrás agregar y gestionar tus propios restaurantes.
+                </small>
+            </div>
+            
+            <button type="submit" class="auth-btn">Registrarse</button>
+        </form>
+        <p class="auth-switch">¿Ya tienes cuenta? <a href="{{ url_for('auth.login') }}">Inicia sesión</a></p>
+    </div>
+</div>
+
+<style>
+    .auth-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: calc(100vh - 200px);
+        padding: 40px 20px;
+        background: #F7F7F7;
+    }
+    
+    .auth-box {
+        background: var(--white);
+        padding: 40px;
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow);
+        width: 100%;
+        max-width: 420px;
+    }
+    
+    .auth-box h2 {
+        font-size: 28px;
+        font-weight: 700;
+        text-align: center;
+        margin-bottom: 32px;
+    }
+    
+    .auth-box .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .auth-box .form-group label {
+        display: block;
+        margin-bottom: 6px;
+        font-weight: 500;
+        font-size: 14px;
+    }
+    
+    .auth-box .form-group input,
+    .auth-box .form-group select {
+        width: 100%;
+        padding: 12px 16px;
+        border: 1px solid var(--light-gray);
+        border-radius: var(--radius-sm);
+        font-size: 14px;
+        transition: var(--transition);
+        font-family: var(--font-main);
+    }
+    
+    .auth-box .form-group input:focus,
+    .auth-box .form-group select:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px var(--primary-light);
+    }
+    
+    .auth-box .form-group small {
+        display: block;
+        margin-top: 4px;
+        color: var(--gray);
+        font-size: 12px;
+    }
+    
+    .auth-btn {
+        width: 100%;
+        padding: 14px;
+        background: var(--primary);
+        color: var(--white);
+        border: none;
+        border-radius: var(--radius-sm);
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: var(--transition);
+        margin-top: 8px;
+    }
+    
+    .auth-btn:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(255, 56, 92, 0.3);
+    }
+    
+    .auth-switch {
+        text-align: center;
+        margin-top: 24px;
+        font-size: 14px;
+        color: var(--gray);
+    }
+    
+    .auth-switch a {
+        color: var(--primary);
+        font-weight: 600;
+        text-decoration: none;
+    }
+    
+    .auth-switch a:hover {
+        text-decoration: underline;
+    }
+    
+    .flash-message {
+        padding: 12px 16px;
+        border-radius: var(--radius-sm);
+        margin-bottom: 16px;
+        font-size: 14px;
+    }
+    
+    .flash-message.success {
+        background: #dcfce7;
+        color: #166534;
+        border: 1px solid #86efac;
+    }
+    
+    .flash-message.error {
+        background: #fee2e2;
+        color: #991b1b;
+        border: 1px solid #fca5a5;
+    }
+    
+    .flash-message.warning {
+        background: #fef3c7;
+        color: #92400e;
+        border: 1px solid #fcd34d;
+    }
+    
+    .flash-message.info {
+        background: #dbeafe;
+        color: #1e40af;
+        border: 1px solid #93c5fd;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,20 @@
+[
+    {
+        "id": 1,
+        "user_id": 1,
+        "restaurant_id": 2,
+        "rating": 5,
+        "comment": "Excelente ceviche, el mejor de Huanchaco. La vista al mar es espectacular.",
+        "created_at": "2026-06-28T14:30:00",
+        "updated_at": "2026-06-28T14:30:00"
+    },
+    {
+        "id": 2,
+        "user_id": 2,
+        "restaurant_id": 1,
+        "rating": 4,
+        "comment": "Muy buena comida tradicional. El cabrito estaba delicioso.",
+        "created_at": "2026-06-27T12:15:00",
+        "updated_at": "2026-06-27T12:15:00"
+    }
+]

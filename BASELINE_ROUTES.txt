@@ -1,0 +1,27 @@
+/usr/local/lib/python3.12/dist-packages/pyDatalog/pyParser.py:771: SyntaxWarning: invalid escape sequence '\s'
+  r = re.compile('^\s*')
+INFO:logic.recommender:✅ pyDatalog inicializado correctamente
+INFO:views.main:RecommenderEngine inicializado correctamente
+=== VERIFICANDO RUTAS DE AUTH ===
+
+✅ auth.login: /auth/login
+✅ auth.register: /auth/register
+✅ auth.profile: /auth/profile
+✅ auth.favorites: /auth/favorites
+✅ auth.logout: /auth/logout
+✅ auth.update_profile: /auth/profile/update
+✅ auth.toggle_favorite: /auth/api/favorites/toggle
+✅ auth.get_favorites_api: /auth/api/favorites
+
+=== VERIFICANDO RUTAS DE MAIN ===
+
+✅ main.index: /
+✅ main.detail: /restaurant/1
+
+=== VERIFICANDO RUTAS DE ADMIN ===
+
+✅ admin.dashboard: /admin/dashboard
+
+=== VERIFICANDO RUTAS DE SEARCH ===
+
+✅ main.search: /api/search

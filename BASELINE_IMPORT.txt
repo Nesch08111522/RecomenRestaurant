@@ -1,0 +1,5 @@
+Python path: ['/home/ubuntu/restaurantrecomm-work', '/usr/lib/python312.zip', '/usr/lib/python3.12', '/usr/lib/python3.12/lib-dynload', '/usr/local/lib/python3.12/dist-packages', '/usr/lib/python3/dist-packages']
+✅ FavoriteModel importado correctamente
+FavoriteModel.file_path: /home/ubuntu/restaurantrecomm-work/data/favorites.json
+✅ Config importado correctamente
+Config.FAVORITES_FILE: /home/ubuntu/restaurantrecomm-work/data/favorites.json

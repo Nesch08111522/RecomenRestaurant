@@ -1,0 +1,165 @@
+/* Restaurant Card */
+.restaurant-card {
+    border-radius: 12px;
+    overflow: hidden;
+    transition: transform 0.2s;
+}
+
+.card-image {
+    position: relative;
+    aspect-ratio: 4/3;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.promo-badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: #fff;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 700;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.fav-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: transparent;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    text-shadow: 0 0 4px rgba(0,0,0,0.5);
+}
+
+.card-content {
+    padding: 12px 0;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+}
+
+.card-header h3 {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.rating {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 14px;
+}
+
+.rating .material-icons {
+    font-size: 16px;
+    color: #222;
+}
+
+.district {
+    color: #717171;
+    font-size: 14px;
+}
+
+.price {
+    font-weight: 600;
+    margin-top: 4px;
+}
+
+.tags {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.tag {
+    font-size: 12px;
+    background: #f7f7f7;
+    padding: 2px 8px;
+    border-radius: 4px;
+    color: #717171;
+}
+
+.ia-justification {
+    margin-top: 12px;
+    background: #f0fdf4;
+    color: #166534;
+    padding: 8px;
+    border-radius: 8px;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.ia-justification .material-icons {
+    font-size: 18px;
+}
+
+/* Dropdown */
+.user-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 5px 5px 5px 12px;
+    border: 1px solid #ddd;
+    border-radius: 21px;
+    background: #fff;
+    cursor: pointer;
+    transition: box-shadow 0.2s;
+}
+
+.user-btn:hover {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.18);
+}
+
+.account-circle {
+    color: #717171;
+    font-size: 32px;
+}
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    right: 0;
+    background-color: #fff;
+    min-width: 240px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.12);
+    border-radius: 12px;
+    padding: 8px 0;
+    z-index: 1;
+    margin-top: 8px;
+}
+
+.dropdown-content a {
+    color: #222;
+    padding: 12px 16px;
+    display: block;
+    font-size: 14px;
+}
+
+.dropdown-content a:hover {
+    background-color: #f7f7f7;
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}

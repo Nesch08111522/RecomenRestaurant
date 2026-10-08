@@ -1,0 +1,66 @@
+<div class="restaurant-card" 
+     data-id="{{ r.id }}" 
+     data-lat="{{ r.lat }}" 
+     data-lng="{{ r.lng }}"
+     onmouseenter="highlightMarker({{ r.id }})" 
+     onmouseleave="resetMarker({{ r.id }})">
+    
+    <div class="card-image">
+        <img src="{{ r.image }}" alt="{{ r.name }}" loading="lazy">
+        
+        {% if r.promo %}
+            <div class="promo-badge">
+                <i class="fas fa-tag"></i> Promoción
+            </div>
+        {% endif %}
+        
+        {% if r.rating >= 4.5 %}
+            <div class="top-rated-badge">
+                <i class="fas fa-star"></i> Top
+            </div>
+        {% endif %}
+        
+        <button class="fav-btn" onclick="toggleFavorite({{ r.id }}, event)" title="Agregar a favoritos">
+            <i class="far fa-heart"></i>
+        </button>
+    </div>
+    
+    <div class="card-content">
+        <div class="card-header">
+            <h3>{{ r.name }}</h3>
+            <div class="rating">
+                <i class="fas fa-star"></i>
+                <span>{{ r.rating }}</span>
+            </div>
+        </div>
+        
+        <div class="card-location">
+            <i class="fas fa-map-marker-alt"></i>
+            <span>{{ r.district }}</span>
+            <span class="dot">•</span>
+            <span class="distance">{{ r.distance_km|round(1) if r.distance_km else '?' }} km</span>
+        </div>
+        
+        <div class="card-price">
+            <span class="price">{{ MONEDA }}{{ r.avg_price }}</span>
+            <span class="price-label">por persona</span>
+        </div>
+        
+        <div class="card-tags">
+            {% for tag in r.tags[:3] %}
+                <span class="tag">{{ tag }}</span>
+            {% endfor %}
+        </div>
+        
+        {% if r.justifications and r.justifications|length > 0 %}
+            <div class="ia-justification">
+                <i class="fas fa-robot"></i>
+                <span>{{ r.justifications[0] }}</span>
+            </div>
+        {% endif %}
+        
+        <a href="{{ url_for('main.detail', restaurant_id=r.id) }}" class="card-link">
+            Ver detalles <i class="fas fa-arrow-right"></i>
+        </a>
+    </div>
+</div>

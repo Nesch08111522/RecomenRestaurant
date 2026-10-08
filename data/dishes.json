@@ -1,0 +1,2789 @@
+[
+    {
+        "id": 1,
+        "restaurant_id": 1,
+        "name": "Cabrito a la Norteña",
+        "price": 35,
+        "category": "Fondo",
+        "is_recommended": true,
+        "is_available": true,
+        "dietary_info": [],
+        "ingredients": [
+            "cabrito",
+            "arroz",
+            "frijoles",
+            "cebolla",
+            "ají",
+            "especias"
+        ],
+        "description": "Tierno cabrito norteño acompañado de arroz y frijoles",
+        "preparation_time": 30,
+        "spiciness": 3,
+        "tags": [
+            "tradicional",
+            "norteño",
+            "familiar"
+        ],
+        "nutritional_info": {
+            "calories": 450,
+            "protein": 35,
+            "carbs": 40,
+            "fat": 15
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 2,
+        "restaurant_id": 1,
+        "name": "Ceviche de Pescado",
+        "price": 32,
+        "category": "Entrada",
+        "is_recommended": true,
+        "is_available": true,
+        "dietary_info": [
+            "sin gluten"
+        ],
+        "ingredients": [
+            "pescado",
+            "limón",
+            "cebolla",
+            "ají",
+            "choclo",
+            "cancha"
+        ],
+        "description": "Ceviche fresco con pescado del día",
+        "preparation_time": 20,
+        "spiciness": 2,
+        "tags": [
+            "mariscos",
+            "tradicional",
+            "fresco"
+        ],
+        "nutritional_info": {
+            "calories": 250,
+            "protein": 28,
+            "carbs": 15,
+            "fat": 5
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 3,
+        "restaurant_id": 1,
+        "name": "Seco de Cabrito",
+        "price": 38,
+        "category": "Fondo",
+        "is_recommended": true,
+        "is_available": true,
+        "dietary_info": [],
+        "ingredients": [
+            "cabrito",
+            "cilantro",
+            "ají",
+            "arroz",
+            "frijoles"
+        ],
+        "description": "Seco de cabrito con el auténtico sabor norteño",
+        "preparation_time": 35,
+        "spiciness": 3,
+        "tags": [
+            "tradicional",
+            "norteño"
+        ],
+        "nutritional_info": {
+            "calories": 480,
+            "protein": 38,
+            "carbs": 42,
+            "fat": 18
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 4,
+        "restaurant_id": 1,
+        "name": "Sopa Criolla",
+        "price": 18,
+        "category": "Entrada",
+        "is_recommended": false,
+        "is_available": true,
+        "dietary_info": [],
+        "ingredients": [
+            "carne",
+            "verduras",
+            "fideos",
+            "huevo",
+            "leche"
+        ],
+        "description": "Sopa criolla con fideos y carne",
+        "preparation_time": 15,
+        "spiciness": 0,
+        "tags": [
+            "criollo",
+            "familiar"
+        ],
+        "nutritional_info": {
+            "calories": 180,
+            "protein": 12,
+            "carbs": 20,
+            "fat": 6
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 5,
+        "restaurant_id": 1,
+        "name": "Arroz con Pato",
+        "price": 40,
+        "category": "Fondo",
+        "is_recommended": true,
+        "is_available": true,
+        "dietary_info": [],
+        "ingredients": [
+            "pato",
+            "arroz",
+            "cilantro",
+            "ají",
+            "cerveza"
+        ],
+        "description": "Arroz con pato norteño, un clásico de la región",
+        "preparation_time": 40,
+        "spiciness": 2,
+        "tags": [
+            "tradicional",
+            "norteño",
+            "especial"
+        ],
+        "nutritional_info": {
+            "calories": 520,
+            "protein": 42,
+            "carbs": 45,
+            "fat": 20
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 6,
+        "restaurant_id": 1,
+        "name": "Papa a la Huancaína",
+        "price": 22,
+        "category": "Entrada",
+        "is_recommended": false,
+        "is_available": true,
+        "dietary_info": [
+            "vegetariano"
+        ],
+        "ingredients": [
+            "papa",
+            "salsa huancaína",
+            "huevo",
+            "aceituna"
+        ],
+        "description": "Papas con salsa huancaína y huevo",
+        "preparation_time": 15,
+        "spiciness": 1,
+        "tags": [
+            "vegetariano",
+            "tradicional"
+        ],
+        "nutritional_info": {
+            "calories": 200,
+            "protein": 8,
+            "carbs": 25,
+            "fat": 10
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 7,
+        "restaurant_id": 1,
+        "name": "Causa Rellena",
+        "price": 25,
+        "category": "Entrada",
+        "is_recommended": false,
+        "is_available": true,
+        "dietary_info": [
+            "sin gluten"
+        ],
+        "ingredients": [
+            "papa",
+            "pollo",
+            "palta",
+            "mayonesa",
+            "limón"
+        ],
+        "description": "Causa rellena de pollo con palta",
+        "preparation_time": 20,
+        "spiciness": 0,
+        "tags": [
+            "tradicional",
+            "fresco"
+        ],
+        "nutritional_info": {
+            "calories": 220,
+            "protein": 12,
+            "carbs": 28,
+            "fat": 8
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 8,
+        "restaurant_id": 1,
+        "name": "Lomo Saltado",
+        "price": 35,
+        "category": "Fondo",
+        "is_recommended": true,
+        "is_available": true,
+        "dietary_info": [],
+        "ingredients": [
+            "lomo",
+            "cebolla",
+            "tomate",
+            "arroz",
+            "papas"
+        ],
+        "description": "Lomo saltado al estilo norteño",
+        "preparation_time": 25,
+        "spiciness": 1,
+        "tags": [
+            "criollo",
+            "fusión"
+        ],
+        "nutritional_info": {
+            "calories": 400,
+            "protein": 30,
+            "carbs": 35,
+            "fat": 16
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 9,
+        "restaurant_id": 1,
+        "name": "Suspiro a la Limeña",
+        "price": 15,
+        "category": "Postre",
+        "is_recommended": false,
+        "is_available": true,
+        "dietary_info": [
+            "sin gluten"
+        ],
+        "ingredients": [
+            "leche",
+            "huevo",
+            "azúcar",
+            "vino",
+            "canela"
+        ],
+        "description": "Postre tradicional limeño con toque de vino",
+        "preparation_time": 15,
+        "spiciness": 0,
+        "tags": [
+            "tradicional",
+            "dulce"
+        ],
+        "nutritional_info": {
+            "calories": 180,
+            "protein": 4,
+            "carbs": 30,
+            "fat": 6
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 10,
+        "restaurant_id": 1,
+        "name": "Chicha Morada",
+        "price": 8,
+        "category": "Bebida",
+        "is_recommended": false,
+        "is_available": true,
+        "dietary_info": [
+            "vegano",
+            "sin gluten"
+        ],
+        "ingredients": [
+            "maíz morado",
+            "piña",
+            "canela",
+            "clavo",
+            "azúcar"
+        ],
+        "description": "Refrescante chicha morada tradicional",
+        "preparation_time": 5,
+        "spiciness": 0,
+        "tags": [
+            "tradicional",
+            "refresco"
+        ],
+        "nutritional_info": {
+            "calories": 80,
+            "protein": 0,
+            "carbs": 20,
+            "fat": 0
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 11,
+        "restaurant_id": 1,
+        "name": "Pisco Sour",
+        "price": 15,
+        "category": "Bebida",
+        "is_recommended": false,
+        "is_available": true,
+        "dietary_info": [
+            "sin gluten"
+        ],
+        "ingredients": [
+            "pisco",
+            "limón",
+            "huevo",
+            "azúcar",
+            "amargo"
+        ],
+        "description": "El clásico cóctel peruano",
+        "preparation_time": 5,
+        "spiciness": 0,
+        "tags": [
+            "tradicional",
+            "cóctel"
+        ],
+        "nutritional_info": {
+            "calories": 120,
+            "protein": 2,
+            "carbs": 10,
+            "fat": 0
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 12,
+        "restaurant_id": 1,
+        "name": "Arroz con Leche",
+        "price": 12,
+        "category": "Postre",
+        "is_recommended": false,
+        "is_available": true,
+        "dietary_info": [],
+        "ingredients": [
+            "arroz",
+            "leche",
+            "azúcar",
+            "canela",
+            "clavo"
+        ],
+        "description": "Arroz con leche cremoso con canela",
+        "preparation_time": 20,
+        "spiciness": 0,
+        "tags": [
+            "tradicional",
+            "dulce"
+        ],
+        "nutritional_info": {
+            "calories": 160,
+            "protein": 4,
+            "carbs": 28,
+            "fat": 4
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 13,
+        "restaurant_id": 2,
+        "name": "Ceviche de Pescado",
+        "price": 45,
+        "category": "Fondo",
+        "is_recommended": true,
+        "is_available": true,
+        "dietary_info": [
+            "sin gluten"
+        ],
+        "ingredients": [
+            "pescado",
+            "limón",
+            "cebolla",
+            "ají",
+            "choclo",
+            "cancha"
+        ],
+        "description": "Ceviche fresco con vista al mar",
+        "preparation_time": 20,
+        "spiciness": 3,
+        "tags": [
+            "mariscos",
+            "tradicional",
+            "vista al mar"
+        ],
+        "nutritional_info": {
+            "calories": 280,
+            "protein": 30,
+            "carbs": 18,
+            "fat": 6
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 14,
+        "restaurant_id": 2,
+        "name": "Arroz con Mariscos",
+        "price": 50,
+        "category": "Fondo",
+        "is_recommended": true,
+        "is_available": true,
+        "dietary_info": [
+            "sin gluten"
+        ],
+        "ingredients": [
+            "arroz",
+            "mariscos",
+            "ají",
+            "cebolla",
+            "culantro"
+        ],
+        "description": "Arroz con mariscos estilo Huanchaco",
+        "preparation_time": 30,
+        "spiciness": 2,
+        "tags": [
+            "mariscos",
+            "tradicional"
+        ],
+        "nutritional_info": {
+            "calories": 480,
+            "protein": 35,
+            "carbs": 45,
+            "fat": 12
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 15,
+        "restaurant_id": 2,
+        "name": "Parihuela",
+        "price": 40,
+        "category": "Entrada",
+        "is_recommended": true,
+        "is_available": true,
+        "dietary_info": [
+            "sin gluten"
+        ],
+        "ingredients": [
+            "pescado",
+            "mariscos",
+            "camarones",
+            "caldo",
+            "ají"
+        ],
+        "description": "Parihuela con mariscos frescos del día",
+        "preparation_time": 25,
+        "spiciness": 3,
+        "tags": [
+            "mariscos",
+            "caliente"
+        ],
+        "nutritional_info": {
+            "calories": 320,
+            "protein": 28,
+            "carbs": 20,
+            "fat": 10
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 16,
+        "restaurant_id": 2,
+        "name": "Ceviche Mixto",
+        "price": 48,
+        "category": "Fondo",
+        "is_recommended": true,
+        "is_available": true,
+        "dietary_info": [
+            "sin gluten"
+        ],
+        "ingredients": [
+            "pescado",
+            "camarones",
+            "pulpo",
+            "limón",
+            "cebolla"
+        ],
+        "description": "Ceviche mixto con pescado y mariscos",
+        "preparation_time": 25,
+        "spiciness": 3,
+        "tags": [
+            "mariscos",
+            "premium"
+        ],
+        "nutritional_info": {
+            "calories": 300,
+            "protein": 32,
+            "carbs": 15,
+            "fat": 8
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 17,
+        "restaurant_id": 2,
+        "name": "Sudado de Pescado",
+        "price": 42,
+        "category": "Fondo",
+        "is_recommended": false,
+        "is_available": true,
+        "dietary_info": [
+            "sin gluten"
+        ],
+        "ingredients": [
+            "pescado",
+            "cebolla",
+            "tomate",
+            "ají",
+            "cilantro"
+        ],
+        "description": "Sudado de pescado al estilo de Huanchaco",
+        "preparation_time": 30,
+        "spiciness": 2,
+        "tags": [
+            "mariscos",
+            "tradicional"
+        ],
+        "nutritional_info": {
+            "calories": 350,
+            "protein": 30,
+            "carbs": 25,
+            "fat": 10
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 18,
+        "restaurant_id": 2,
+        "name": "Chilcano de Pescado",
+        "price": 35,
+        "category": "Entrada",
+        "is_recommended": false,
+        "is_available": true,
+        "dietary_info": [
+            "sin gluten"
+        ],
+        "ingredients": [
+            "pescado",
+            "caldo",
+            "ají",
+            "cilantro",
+            "limón"
+        ],
+        "description": "Chilcano de pescado, un clásico de la costa",
+        "preparation_time": 20,
+        "spiciness": 2,
+        "tags": [
+            "mariscos",
+            "tradicional"
+        ],
+        "nutritional_info": {
+            "calories": 200,
+            "protein": 22,
+            "carbs": 10,
+            "fat": 6
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 19,
+        "restaurant_id": 2,
+        "name": "Pulpo al Olivo",
+        "price": 38,
+        "category": "Entrada",
+        "is_recommended": false,
+        "is_available": true,
+        "dietary_info": [
+            "sin gluten"
+        ],
+        "ingredients": [
+            "pulpo",
+            "aceituna",
+            "aceite",
+            "ajo",
+            "perejil"
+        ],
+        "description": "Pulpo suave con salsa de olivo",
+        "preparation_time": 20,
+        "spiciness": 0,
+        "tags": [
+            "mariscos",
+            "gourmet"
+        ],
+        "nutritional_info": {
+            "calories": 220,
+            "protein": 20,
+            "carbs": 5,
+            "fat": 14
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 20,
+        "restaurant_id": 2,
+        "name": "Tortilla de Mariscos",
+        "price": 30,
+        "category": "Entrada",
+        "is_recommended": false,
+        "is_available": true,
+        "dietary_info": [
+            "sin gluten"
+        ],
+        "ingredients": [
+            "huevo",
+            "mariscos",
+            "cebolla",
+            "perejil",
+            "aceite"
+        ],
+        "description": "Tortilla española con mariscos",
+        "preparation_time": 15,
+        "spiciness": 0,
+        "tags": [
+            "mariscos",
+            "española"
+        ],
+        "nutritional_info": {
+            "calories": 250,
+            "protein": 18,
+            "carbs": 8,
+            "fat": 16
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 21,
+        "restaurant_id": 2,
+        "name": "Camarones al Ajo",
+        "price": 35,
+        "category": "Fondo",
+        "is_recommended": false,
+        "is_available": true,
+        "dietary_info": [
+            "sin gluten"
+        ],
+        "ingredients": [
+            "camarones",
+            "ajo",
+            "vino",
+            "mantequilla",
+            "perejil"
+        ],
+        "description": "Camarones salteados en ajo y mantequilla",
+        "preparation_time": 15,
+        "spiciness": 0,
+        "tags": [
+            "mariscos",
+            "rápido"
+        ],
+        "nutritional_info": {
+            "calories": 280,
+            "protein": 25,
+            "carbs": 5,
+            "fat": 18
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 22,
+        "restaurant_id": 2,
+        "name": "Crema de Mariscos",
+        "price": 28,
+        "category": "Entrada",
+        "is_recommended": false,
+        "is_available": true,
+        "dietary_info": [
+            "sin gluten"
+        ],
+        "ingredients": [
+            "mariscos",
+            "crema",
+            "caldo",
+            "cebolla",
+            "mantequilla"
+        ],
+        "description": "Crema de mariscos suave y cremosa",
+        "preparation_time": 20,
+        "spiciness": 1,
+        "tags": [
+            "mariscos",
+            "crema"
+        ],
+        "nutritional_info": {
+            "calories": 220,
+            "protein": 15,
+            "carbs": 12,
+            "fat": 14
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 23,
+        "restaurant_id": 2,
+        "name": "Pisco Sour de Maracuyá",
+        "price": 18,
+        "category": "Bebida",
+        "is_recommended": false,
+        "is_available": true,
+        "dietary_info": [
+            "sin gluten"
+        ],
+        "ingredients": [
+            "pisco",
+            "maracuyá",
+            "limón",
+            "huevo",
+            "azúcar"
+        ],
+        "description": "Pisco sour con maracuyá, refrescante y tropical",
+        "preparation_time": 5,
+        "spiciness": 0,
+        "tags": [
+            "bebida",
+            "cóctel"
+        ],
+        "nutritional_info": {
+            "calories": 130,
+            "protein": 2,
+            "carbs": 12,
+            "fat": 0
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 24,
+        "restaurant_id": 2,
+        "name": "Chicha de Jora",
+        "price": 8,
+        "category": "Bebida",
+        "is_recommended": false,
+        "is_available": true,
+        "dietary_info": [
+            "vegano",
+            "sin gluten"
+        ],
+        "ingredients": [
+            "maíz jora",
+            "agua",
+            "azúcar",
+            "canela"
+        ],
+        "description": "Chicha de jora tradicional de la costa",
+        "preparation_time": 5,
+        "spiciness": 0,
+        "tags": [
+            "tradicional",
+            "refresco"
+        ],
+        "nutritional_info": {
+            "calories": 70,
+            "protein": 0,
+            "carbs": 18,
+            "fat": 0
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 25,
+        "restaurant_id": 2,
+        "name": "Torta de Chocolate",
+        "price": 15,
+        "category": "Postre",
+        "is_recommended": false,
+        "is_available": true,
+        "dietary_info": [],
+        "ingredients": [
+            "chocolate",
+            "huevo",
+            "harina",
+            "mantequilla",
+            "azúcar"
+        ],
+        "description": "Torta de chocolate con maracuyá",
+        "preparation_time": 20,
+        "spiciness": 0,
+        "tags": [
+            "dulce",
+            "postre"
+        ],
+        "nutritional_info": {
+            "calories": 250,
+            "protein": 4,
+            "carbs": 30,
+            "fat": 14
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 26,
+        "restaurant_id": 3,
+        "name": "Seco de Res",
+        "price": 30,
+        "category": "Fondo",
+        "is_recommended": true,
+        "is_available": true,
+        "dietary_info": [],
+        "ingredients": [
+            "carne",
+            "cilantro",
+            "ají",
+            "arroz",
+            "frijoles"
+        ],
+        "description": "Seco de res con cilantro y ají",
+        "preparation_time": 30,
+        "spiciness": 3,
+        "tags": [
+            "criollo",
+            "tradicional"
+        ],
+        "nutritional_info": {
+            "calories": 420,
+            "protein": 32,
+            "carbs": 38,
+            "fat": 16
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 27,
+        "restaurant_id": 3,
+        "name": "Tallarín Saltado",
+        "price": 25,
+        "category": "Fondo",
+        "is_recommended": false,
+        "is_available": true,
+        "dietary_info": [],
+        "ingredients": [
+            "tallarín",
+            "carne",
+            "cebolla",
+            "tomate",
+            "salsa"
+        ],
+        "description": "Tallarín saltado estilo criollo",
+        "preparation_time": 20,
+        "spiciness": 1,
+        "tags": [
+            "criollo",
+            "fusión"
+        ],
+        "nutritional_info": {
+            "calories": 380,
+            "protein": 22,
+            "carbs": 42,
+            "fat": 12
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 28,
+        "restaurant_id": 3,
+        "name": "Guiso de Quinua",
+        "price": 22,
+        "category": "Fondo",
+        "is_recommended": false,
+        "is_available": true,
+        "dietary_info": [
+            "vegetariano",
+            "sin gluten"
+        ],
+        "ingredients": [
+            "quinua",
+            "verduras",
+            "ají",
+            "cebolla",
+            "tomate"
+        ],
+        "description": "Guiso de quinua con verduras andinas",
+        "preparation_time": 25,
+        "spiciness": 1,
+        "tags": [
+            "saludable",
+            "vegetariano"
+        ],
+        "nutritional_info": {
+            "calories": 280,
+            "protein": 15,
+            "carbs": 35,
+            "fat": 8
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 29,
+        "restaurant_id": 3,
+        "name": "Rocoto Relleno",
+        "price": 28,
+        "category": "Fondo",
+        "is_recommended": false,
+        "is_available": true,
+        "dietary_info": [],
+        "ingredients": [
+            "rocoto",
+            "carne",
+            "cebolla",
+            "huevo",
+            "queso"
+        ],
+        "description": "Rocoto relleno tradicional arequipeño",
+        "preparation_time": 35,
+        "spiciness": 4,
+        "tags": [
+            "picante",
+            "tradicional"
+        ],
+        "nutritional_info": {
+            "calories": 350,
+            "protein": 28,
+            "carbs": 20,
+            "fat": 18
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 30,
+        "restaurant_id": 3,
+        "name": "Sopa de Pollo",
+        "price": 18,
+        "category": "Entrada",
+        "is_recommended": false,
+        "is_available": true,
+        "dietary_info": [],
+        "ingredients": [
+            "pollo",
+            "verduras",
+            "fideos",
+            "huevo",
+            "perejil"
+        ],
+        "description": "Sopa de pollo casera con verduras",
+        "preparation_time": 20,
+        "spiciness": 0,
+        "tags": [
+            "familiar",
+            "casero"
+        ],
+        "nutritional_info": {
+            "calories": 160,
+            "protein": 12,
+            "carbs": 18,
+            "fat": 4
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 31,
+        "restaurant_id": 3,
+        "name": "Ensalada Mixta",
+        "price": 15,
+        "category": "Entrada",
+        "is_recommended": false,
+        "is_available": true,
+        "dietary_info": [
+            "vegano",
+            "sin gluten"
+        ],
+        "ingredients": [
+            "lechuga",
+            "tomate",
+            "cebolla",
+            "zanahoria",
+            "vinagreta"
+        ],
+        "description": "Ensalada mixta con vinagreta casera",
+        "preparation_time": 10,
+        "spiciness": 0,
+        "tags": [
+            "saludable",
+            "fresco"
+        ],
+        "nutritional_info": {
+            "calories": 80,
+            "protein": 2,
+            "carbs": 12,
+            "fat": 4
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 32,
+        "restaurant_id": 3,
+        "name": "Causa de Pollo",
+        "price": 22,
+        "category": "Entrada",
+        "is_recommended": false,
+        "is_available": true,
+        "dietary_info": [
+            "sin gluten"
+        ],
+        "ingredients": [
+            "papa",
+            "pollo",
+            "palta",
+            "mayonesa",
+            "limón"
+        ],
+        "description": "Causa rellena de pollo",
+        "preparation_time": 20,
+        "spiciness": 0,
+        "tags": [
+            "tradicional",
+            "fresco"
+        ],
+        "nutritional_info": {
+            "calories": 210,
+            "protein": 14,
+            "carbs": 24,
+            "fat": 8
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 33,
+        "restaurant_id": 3,
+        "name": "Ceviche de Pescado",
+        "price": 30,
+        "category": "Fondo",
+        "is_recommended": true,
+        "is_available": true,
+        "dietary_info": [
+            "sin gluten"
+        ],
+        "ingredients": [
+            "pescado",
+            "limón",
+            "cebolla",
+            "ají",
+            "choclo"
+        ],
+        "description": "Ceviche fresco de pescado",
+        "preparation_time": 20,
+        "spiciness": 2,
+        "tags": [
+            "mariscos",
+            "tradicional"
+        ],
+        "nutritional_info": {
+            "calories": 220,
+            "protein": 25,
+            "carbs": 12,
+            "fat": 4
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 34,
+        "restaurant_id": 3,
+        "name": "Jugo de Frutas",
+        "price": 8,
+        "category": "Bebida",
+        "is_recommended": false,
+        "is_available": true,
+        "dietary_info": [
+            "vegano",
+            "sin gluten"
+        ],
+        "ingredients": [
+            "frutas",
+            "agua",
+            "azúcar",
+            "hielo"
+        ],
+        "description": "Jugo de frutas natural",
+        "preparation_time": 5,
+        "spiciness": 0,
+        "tags": [
+            "refresco",
+            "saludable"
+        ],
+        "nutritional_info": {
+            "calories": 60,
+            "protein": 0,
+            "carbs": 15,
+            "fat": 0
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 35,
+        "restaurant_id": 4,
+        "name": "Pizza Margherita",
+        "price": 25,
+        "category": "Pizza",
+        "is_recommended": true,
+        "is_available": true,
+        "dietary_info": [
+            "vegetariano"
+        ],
+        "ingredients": [
+            "masa",
+            "tomate",
+            "queso",
+            "albahaca",
+            "aceite"
+        ],
+        "description": "Pizza Margherita con ingredientes frescos",
+        "preparation_time": 20,
+        "spiciness": 0,
+        "tags": [
+            "italiana",
+            "clásica"
+        ],
+        "nutritional_info": {
+            "calories": 380,
+            "protein": 16,
+            "carbs": 42,
+            "fat": 18
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 36,
+        "restaurant_id": 4,
+        "name": "Pizza Pepperoni",
+        "price": 28,
+        "category": "Pizza",
+        "is_recommended": false,
+        "is_available": true,
+        "dietary_info": [],
+        "ingredients": [
+            "masa",
+            "tomate",
+            "queso",
+            "pepperoni",
+            "orégano"
+        ],
+        "description": "Pizza con pepperoni y queso",
+        "preparation_time": 20,
+        "spiciness": 1,
+        "tags": [
+            "italiana",
+            "clásica"
+        ],
+        "nutritional_info": {
+            "calories": 420,
+            "protein": 18,
+            "carbs": 44,
+            "fat": 20
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 37,
+        "restaurant_id": 4,
+        "name": "Pizza Hawaiana",
+        "price": 27,
+        "category": "Pizza",
+        "is_recommended": false,
+        "is_available": true,
+        "dietary_info": [],
+        "ingredients": [
+            "masa",
+            "tomate",
+            "queso",
+            "jamón",
+            "piña"
+        ],
+        "description": "Pizza hawaiana con jamón y piña",
+        "preparation_time": 20,
+        "spiciness": 0,
+        "tags": [
+            "italiana",
+            "tropical"
+        ],
+        "nutritional_info": {
+            "calories": 400,
+            "protein": 17,
+            "carbs": 46,
+            "fat": 18
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 38,
+        "restaurant_id": 4,
+        "name": "Pizza 4 Quesos",
+        "price": 30,
+        "category": "Pizza",
+        "is_recommended": false,
+        "is_available": true,
+        "dietary_info": [
+            "vegetariano"
+        ],
+        "ingredients": [
+            "masa",
+            "tomate",
+            "mozzarella",
+            "parmesano",
+            "gorgonzola",
+            "provolone"
+        ],
+        "description": "Pizza con 4 quesos italianos",
+        "preparation_time": 20,
+        "spiciness": 0,
+        "tags": [
+            "italiana",
+            "gourmet"
+        ],
+        "nutritional_info": {
+            "calories": 450,
+            "protein": 20,
+            "carbs": 40,
+            "fat": 24
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 39,
+        "restaurant_id": 4,
+        "name": "Pizza Vegetariana",
+        "price": 26,
+        "category": "Pizza",
+        "is_recommended": false,
+        "is_available": true,
+        "dietary_info": [
+            "vegetariano"
+        ],
+        "ingredients": [
+            "masa",
+            "tomate",
+            "queso",
+            "champiñones",
+            "pimientos",
+            "cebolla"
+        ],
+        "description": "Pizza con verduras frescas",
+        "preparation_time": 20,
+        "spiciness": 0,
+        "tags": [
+            "vegetariano",
+            "saludable"
+        ],
+        "nutritional_info": {
+            "calories": 360,
+            "protein": 14,
+            "carbs": 40,
+            "fat": 16
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 40,
+        "restaurant_id": 4,
+        "name": "Calzone",
+        "price": 24,
+        "category": "Pizza",
+        "is_recommended": false,
+        "is_available": true,
+        "dietary_info": [],
+        "ingredients": [
+            "masa",
+            "tomate",
+            "queso",
+            "jamón",
+            "huevo"
+        ],
+        "description": "Calzone relleno de jamón y queso",
+        "preparation_time": 25,
+        "spiciness": 0,
+        "tags": [
+            "italiana",
+            "relleno"
+        ],
+        "nutritional_info": {
+            "calories": 380,
+            "protein": 16,
+            "carbs": 42,
+            "fat": 18
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 41,
+        "restaurant_id": 4,
+        "name": "Lasagna",
+        "price": 28,
+        "category": "Pasta",
+        "is_recommended": false,
+        "is_available": true,
+        "dietary_info": [],
+        "ingredients": [
+            "pasta",
+            "carne",
+            "tomate",
+            "queso",
+            "bechamel"
+        ],
+        "description": "Lasagna con carne y salsa bechamel",
+        "preparation_time": 30,
+        "spiciness": 0,
+        "tags": [
+            "italiana",
+            "pasta"
+        ],
+        "nutritional_info": {
+            "calories": 450,
+            "protein": 22,
+            "carbs": 45,
+            "fat": 20
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 42,
+        "restaurant_id": 4,
+        "name": "Espagueti a la Carbonara",
+        "price": 24,
+        "category": "Pasta",
+        "is_recommended": false,
+        "is_available": true,
+        "dietary_info": [],
+        "ingredients": [
+            "espagueti",
+            "huevo",
+            "queso",
+            "panceta",
+            "pimienta"
+        ],
+        "description": "Espagueti carbonara con panceta",
+        "preparation_time": 20,
+        "spiciness": 0,
+        "tags": [
+            "italiana",
+            "pasta"
+        ],
+        "nutritional_info": {
+            "calories": 400,
+            "protein": 18,
+            "carbs": 42,
+            "fat": 20
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 43,
+        "restaurant_id": 4,
+        "name": "Tiramisú",
+        "price": 14,
+        "category": "Postre",
+        "is_recommended": false,
+        "is_available": true,
+        "dietary_info": [],
+        "ingredients": [
+            "queso",
+            "café",
+            "bizcocho",
+            "cacao",
+            "huevo"
+        ],
+        "description": "Tiramisú italiano con café",
+        "preparation_time": 20,
+        "spiciness": 0,
+        "tags": [
+            "italiano",
+            "dulce"
+        ],
+        "nutritional_info": {
+            "calories": 220,
+            "protein": 6,
+            "carbs": 28,
+            "fat": 10
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 44,
+        "restaurant_id": 4,
+        "name": "Limonada",
+        "price": 8,
+        "category": "Bebida",
+        "is_recommended": false,
+        "is_available": true,
+        "dietary_info": [
+            "vegano",
+            "sin gluten"
+        ],
+        "ingredients": [
+            "limón",
+            "agua",
+            "azúcar",
+            "hielo"
+        ],
+        "description": "Limonada fresca",
+        "preparation_time": 5,
+        "spiciness": 0,
+        "tags": [
+            "refresco",
+            "fresco"
+        ],
+        "nutritional_info": {
+            "calories": 50,
+            "protein": 0,
+            "carbs": 12,
+            "fat": 0
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 45,
+        "restaurant_id": 5,
+        "name": "Chaufa de Pollo",
+        "price": 20,
+        "category": "Fondo",
+        "is_recommended": true,
+        "is_available": true,
+        "dietary_info": [],
+        "ingredients": [
+            "arroz",
+            "pollo",
+            "huevo",
+            "cebolla",
+            "salsa china"
+        ],
+        "description": "Chaufa de pollo, el clásico chifa",
+        "preparation_time": 15,
+        "spiciness": 0,
+        "tags": [
+            "chifa",
+            "rápido"
+        ],
+        "nutritional_info": {
+            "calories": 350,
+            "protein": 22,
+            "carbs": 40,
+            "fat": 12
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 46,
+        "restaurant_id": 5,
+        "name": "Chaufa de Carne",
+        "price": 22,
+        "category": "Fondo",
+        "is_recommended": false,
+        "is_available": true,
+        "dietary_info": [],
+        "ingredients": [
+            "arroz",
+            "carne",
+            "huevo",
+            "cebolla",
+            "salsa china"
+        ],
+        "description": "Chaufa de carne, abundante y sabroso",
+        "preparation_time": 15,
+        "spiciness": 0,
+        "tags": [
+            "chifa",
+            "abundante"
+        ],
+        "nutritional_info": {
+            "calories": 380,
+            "protein": 24,
+            "carbs": 42,
+            "fat": 14
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 47,
+        "restaurant_id": 5,
+        "name": "Chaufa de Mariscos",
+        "price": 25,
+        "category": "Fondo",
+        "is_recommended": false,
+        "is_available": true,
+        "dietary_info": [
+            "sin gluten"
+        ],
+        "ingredients": [
+            "arroz",
+            "mariscos",
+            "huevo",
+            "cebolla",
+            "salsa china"
+        ],
+        "description": "Chaufa de mariscos, el favorito",
+        "preparation_time": 15,
+        "spiciness": 0,
+        "tags": [
+            "chifa",
+            "mariscos"
+        ],
+        "nutritional_info": {
+            "calories": 340,
+            "protein": 26,
+            "carbs": 38,
+            "fat": 10
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 48,
+        "restaurant_id": 5,
+        "name": "Wantán Frito",
+        "price": 15,
+        "category": "Entrada",
+        "is_recommended": false,
+        "is_available": true,
+        "dietary_info": [],
+        "ingredients": [
+            "masa",
+            "carne",
+            "cebolla",
+            "especias",
+            "aceite"
+        ],
+        "description": "Wantán frito crujiente",
+        "preparation_time": 10,
+        "spiciness": 0,
+        "tags": [
+            "chifa",
+            "crujiente"
+        ],
+        "nutritional_info": {
+            "calories": 180,
+            "protein": 10,
+            "carbs": 18,
+            "fat": 8
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 49,
+        "restaurant_id": 5,
+        "name": "Sopa Wantán",
+        "price": 16,
+        "category": "Entrada",
+        "is_recommended": false,
+        "is_available": true,
+        "dietary_info": [],
+        "ingredients": [
+            "caldo",
+            "wantán",
+            "cebolla",
+            "verdura",
+            "huevo"
+        ],
+        "description": "Sopa wantán caliente y reconfortante",
+        "preparation_time": 15,
+        "spiciness": 0,
+        "tags": [
+            "chifa",
+            "sopa"
+        ],
+        "nutritional_info": {
+            "calories": 160,
+            "protein": 10,
+            "carbs": 20,
+            "fat": 4
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 50,
+        "restaurant_id": 5,
+        "name": "Cerdo Agridulce",
+        "price": 24,
+        "category": "Fondo",
+        "is_recommended": false,
+        "is_available": true,
+        "dietary_info": [],
+        "ingredients": [
+            "cerdo",
+            "piña",
+            "pimiento",
+            "salsa agridulce",
+            "arroz"
+        ],
+        "description": "Cerdo agridulce con piña",
+        "preparation_time": 20,
+        "spiciness": 0,
+        "tags": [
+            "chifa",
+            "agridulce"
+        ],
+        "nutritional_info": {
+            "calories": 370,
+            "protein": 20,
+            "carbs": 35,
+            "fat": 16
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 51,
+        "restaurant_id": 5,
+        "name": "Tallarín Saltado Chifa",
+        "price": 20,
+        "category": "Fondo",
+        "is_recommended": false,
+        "is_available": true,
+        "dietary_info": [],
+        "ingredients": [
+            "tallarín",
+            "carne",
+            "cebolla",
+            "tomate",
+            "salsa china"
+        ],
+        "description": "Tallarín saltado estilo chifa",
+        "preparation_time": 15,
+        "spiciness": 0,
+        "tags": [
+            "chifa",
+            "saltado"
+        ],
+        "nutritional_info": {
+            "calories": 360,
+            "protein": 20,
+            "carbs": 42,
+            "fat": 12
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 52,
+        "restaurant_id": 5,
+        "name": "Arroz Chifa",
+        "price": 18,
+        "category": "Fondo",
+        "is_recommended": false,
+        "is_available": true,
+        "dietary_info": [],
+        "ingredients": [
+            "arroz",
+            "huevo",
+            "cebolla",
+            "salsa china",
+            "especias"
+        ],
+        "description": "Arroz chifa, el acompañante perfecto",
+        "preparation_time": 10,
+        "spiciness": 0,
+        "tags": [
+            "chifa",
+            "rápido"
+        ],
+        "nutritional_info": {
+            "calories": 280,
+            "protein": 12,
+            "carbs": 40,
+            "fat": 6
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 53,
+        "restaurant_id": 5,
+        "name": "Té de Jengibre",
+        "price": 6,
+        "category": "Bebida",
+        "is_recommended": false,
+        "is_available": true,
+        "dietary_info": [
+            "vegano",
+            "sin gluten"
+        ],
+        "ingredients": [
+            "jengibre",
+            "agua",
+            "azúcar",
+            "limón"
+        ],
+        "description": "Té de jengibre caliente",
+        "preparation_time": 5,
+        "spiciness": 0,
+        "tags": [
+            "bebida",
+            "caliente"
+        ],
+        "nutritional_info": {
+            "calories": 40,
+            "protein": 0,
+            "carbs": 10,
+            "fat": 0
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 54,
+        "restaurant_id": 6,
+        "name": "Sushi Samurai",
+        "price": 55,
+        "category": "Sushi",
+        "is_recommended": true,
+        "is_available": true,
+        "dietary_info": [
+            "sin gluten"
+        ],
+        "ingredients": [
+            "arroz",
+            "pescado",
+            "algas",
+            "wasabi",
+            "jengibre"
+        ],
+        "description": "Sushi tradicional con pescado fresco",
+        "preparation_time": 25,
+        "spiciness": 1,
+        "tags": [
+            "japonés",
+            "sushi",
+            "premium"
+        ],
+        "nutritional_info": {
+            "calories": 280,
+            "protein": 22,
+            "carbs": 30,
+            "fat": 8
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 55,
+        "restaurant_id": 6,
+        "name": "Tempura de Camarón",
+        "price": 32,
+        "category": "Entrada",
+        "is_recommended": false,
+        "is_available": true,
+        "dietary_info": [],
+        "ingredients": [
+            "camarón",
+            "harina",
+            "huevo",
+            "agua",
+            "aceite"
+        ],
+        "description": "Tempura de camarón crujiente",
+        "preparation_time": 15,
+        "spiciness": 0,
+        "tags": [
+            "japonés",
+            "tempura"
+        ],
+        "nutritional_info": {
+            "calories": 200,
+            "protein": 12,
+            "carbs": 18,
+            "fat": 10
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 56,
+        "restaurant_id": 6,
+        "name": "Ramen Tradicional",
+        "price": 35,
+        "category": "Fondo",
+        "is_recommended": false,
+        "is_available": true,
+        "dietary_info": [],
+        "ingredients": [
+            "fideos",
+            "caldo",
+            "carne",
+            "huevo",
+            "verduras"
+        ],
+        "description": "Ramen tradicional con carne y verduras",
+        "preparation_time": 20,
+        "spiciness": 1,
+        "tags": [
+            "japonés",
+            "ramen"
+        ],
+        "nutritional_info": {
+            "calories": 380,
+            "protein": 22,
+            "carbs": 40,
+            "fat": 14
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 57,
+        "restaurant_id": 6,
+        "name": "Sashimi Variado",
+        "price": 45,
+        "category": "Sushi",
+        "is_recommended": false,
+        "is_available": true,
+        "dietary_info": [
+            "sin gluten"
+        ],
+        "ingredients": [
+            "pescado",
+            "atún",
+            "salmón",
+            "jengibre",
+            "wasabi"
+        ],
+        "description": "Sashimi variado de pescados frescos",
+        "preparation_time": 15,
+        "spiciness": 0,
+        "tags": [
+            "japonés",
+            "sashimi",
+            "premium"
+        ],
+        "nutritional_info": {
+            "calories": 240,
+            "protein": 28,
+            "carbs": 8,
+            "fat": 10
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 58,
+        "restaurant_id": 6,
+        "name": "Gyoza",
+        "price": 18,
+        "category": "Entrada",
+        "is_recommended": false,
+        "is_available": true,
+        "dietary_info": [],
+        "ingredients": [
+            "masa",
+            "carne",
+            "cebolla",
+            "ajo",
+            "salsa"
+        ],
+        "description": "Gyoza japonesa, empanadilla al vapor",
+        "preparation_time": 15,
+        "spiciness": 0,
+        "tags": [
+            "japonés",
+            "gyoza"
+        ],
+        "nutritional_info": {
+            "calories": 150,
+            "protein": 10,
+            "carbs": 16,
+            "fat": 6
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 59,
+        "restaurant_id": 6,
+        "name": "Miso Soup",
+        "price": 12,
+        "category": "Entrada",
+        "is_recommended": false,
+        "is_available": true,
+        "dietary_info": [
+            "vegano",
+            "sin gluten"
+        ],
+        "ingredients": [
+            "miso",
+            "tofu",
+            "algas",
+            "cebolla",
+            "agua"
+        ],
+        "description": "Sopa miso con tofu",
+        "preparation_time": 10,
+        "spiciness": 0,
+        "tags": [
+            "japonés",
+            "sopa"
+        ],
+        "nutritional_info": {
+            "calories": 60,
+            "protein": 4,
+            "carbs": 8,
+            "fat": 2
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 60,
+        "restaurant_id": 6,
+        "name": "Sake",
+        "price": 25,
+        "category": "Bebida",
+        "is_recommended": false,
+        "is_available": true,
+        "dietary_info": [
+            "sin gluten"
+        ],
+        "ingredients": [
+            "arroz",
+            "levadura",
+            "agua"
+        ],
+        "description": "Sake japonés tradicional",
+        "preparation_time": 5,
+        "spiciness": 0,
+        "tags": [
+            "japonés",
+            "bebida"
+        ],
+        "nutritional_info": {
+            "calories": 100,
+            "protein": 0,
+            "carbs": 5,
+            "fat": 0
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 61,
+        "restaurant_id": 6,
+        "name": "Té Verde",
+        "price": 8,
+        "category": "Bebida",
+        "is_recommended": false,
+        "is_available": true,
+        "dietary_info": [
+            "vegano",
+            "sin gluten"
+        ],
+        "ingredients": [
+            "té verde",
+            "agua"
+        ],
+        "description": "Té verde japonés",
+        "preparation_time": 5,
+        "spiciness": 0,
+        "tags": [
+            "japonés",
+            "bebida"
+        ],
+        "nutritional_info": {
+            "calories": 10,
+            "protein": 0,
+            "carbs": 2,
+            "fat": 0
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 62,
+        "restaurant_id": 7,
+        "name": "Lomo Fino a la Parrilla",
+        "price": 60,
+        "category": "Fondo",
+        "is_recommended": true,
+        "is_available": true,
+        "dietary_info": [
+            "sin gluten"
+        ],
+        "ingredients": [
+            "lomo",
+            "sal",
+            "pimienta",
+            "mantequilla",
+            "romero"
+        ],
+        "description": "Lomo fino a la parrilla con mantequilla y romero",
+        "preparation_time": 25,
+        "spiciness": 0,
+        "tags": [
+            "carnes",
+            "parrilla",
+            "premium"
+        ],
+        "nutritional_info": {
+            "calories": 450,
+            "protein": 40,
+            "carbs": 5,
+            "fat": 30
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 63,
+        "restaurant_id": 7,
+        "name": "Costillar de Cerdo",
+        "price": 55,
+        "category": "Fondo",
+        "is_recommended": false,
+        "is_available": true,
+        "dietary_info": [],
+        "ingredients": [
+            "costillar",
+            "salsa",
+            "especias",
+            "miel",
+            "mostaza"
+        ],
+        "description": "Costillar de cerdo con salsa BBQ",
+        "preparation_time": 30,
+        "spiciness": 1,
+        "tags": [
+            "carnes",
+            "parrilla"
+        ],
+        "nutritional_info": {
+            "calories": 480,
+            "protein": 35,
+            "carbs": 20,
+            "fat": 28
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 64,
+        "restaurant_id": 7,
+        "name": "Parrilla Mixta",
+        "price": 65,
+        "category": "Fondo",
+        "is_recommended": false,
+        "is_available": true,
+        "dietary_info": [
+            "sin gluten"
+        ],
+        "ingredients": [
+            "carne",
+            "pollo",
+            "chorizo",
+            "sal",
+            "especias"
+        ],
+        "description": "Parrilla mixta con carnes y chorizo",
+        "preparation_time": 30,
+        "spiciness": 1,
+        "tags": [
+            "carnes",
+            "parrilla",
+            "compartir"
+        ],
+        "nutritional_info": {
+            "calories": 520,
+            "protein": 45,
+            "carbs": 10,
+            "fat": 32
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 65,
+        "restaurant_id": 7,
+        "name": "Ensalada César",
+        "price": 20,
+        "category": "Entrada",
+        "is_recommended": false,
+        "is_available": true,
+        "dietary_info": [
+            "vegetariano"
+        ],
+        "ingredients": [
+            "lechuga",
+            "pan",
+            "queso",
+            "salsa César",
+            "pollo"
+        ],
+        "description": "Ensalada César con pollo",
+        "preparation_time": 10,
+        "spiciness": 0,
+        "tags": [
+            "ensalada",
+            "saludable"
+        ],
+        "nutritional_info": {
+            "calories": 220,
+            "protein": 14,
+            "carbs": 18,
+            "fat": 12
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 66,
+        "restaurant_id": 7,
+        "name": "Puré de Papas",
+        "price": 12,
+        "category": "Acompañamiento",
+        "is_recommended": false,
+        "is_available": true,
+        "dietary_info": [
+            "vegetariano"
+        ],
+        "ingredients": [
+            "papa",
+            "mantequilla",
+            "leche",
+            "sal",
+            "pimienta"
+        ],
+        "description": "Puré de papas cremoso",
+        "preparation_time": 15,
+        "spiciness": 0,
+        "tags": [
+            "acompañamiento"
+        ],
+        "nutritional_info": {
+            "calories": 180,
+            "protein": 4,
+            "carbs": 28,
+            "fat": 6
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 67,
+        "restaurant_id": 7,
+        "name": "Papas Fritas",
+        "price": 10,
+        "category": "Acompañamiento",
+        "is_recommended": false,
+        "is_available": true,
+        "dietary_info": [
+            "vegano",
+            "sin gluten"
+        ],
+        "ingredients": [
+            "papa",
+            "aceite",
+            "sal"
+        ],
+        "description": "Papas fritas crujientes",
+        "preparation_time": 10,
+        "spiciness": 0,
+        "tags": [
+            "acompañamiento"
+        ],
+        "nutritional_info": {
+            "calories": 220,
+            "protein": 3,
+            "carbs": 30,
+            "fat": 10
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 68,
+        "restaurant_id": 7,
+        "name": "Torta de Queso",
+        "price": 14,
+        "category": "Postre",
+        "is_recommended": false,
+        "is_available": true,
+        "dietary_info": [
+            "vegetariano"
+        ],
+        "ingredients": [
+            "queso",
+            "huevo",
+            "crema",
+            "azúcar",
+            "galleta"
+        ],
+        "description": "Torta de queso con frutos rojos",
+        "preparation_time": 20,
+        "spiciness": 0,
+        "tags": [
+            "dulce",
+            "postre"
+        ],
+        "nutritional_info": {
+            "calories": 260,
+            "protein": 8,
+            "carbs": 28,
+            "fat": 14
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 69,
+        "restaurant_id": 7,
+        "name": "Vino Tinto",
+        "price": 30,
+        "category": "Bebida",
+        "is_recommended": false,
+        "is_available": true,
+        "dietary_info": [
+            "vegano",
+            "sin gluten"
+        ],
+        "ingredients": [
+            "uva",
+            "levadura"
+        ],
+        "description": "Vino tinto de cosecha",
+        "preparation_time": 5,
+        "spiciness": 0,
+        "tags": [
+            "vino",
+            "bebida"
+        ],
+        "nutritional_info": {
+            "calories": 120,
+            "protein": 0,
+            "carbs": 4,
+            "fat": 0
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 70,
+        "restaurant_id": 8,
+        "name": "Café Americano",
+        "price": 8,
+        "category": "Bebida",
+        "is_recommended": false,
+        "is_available": true,
+        "dietary_info": [
+            "vegano",
+            "sin gluten"
+        ],
+        "ingredients": [
+            "café",
+            "agua"
+        ],
+        "description": "Café americano recién hecho",
+        "preparation_time": 5,
+        "spiciness": 0,
+        "tags": [
+            "café",
+            "bebida"
+        ],
+        "nutritional_info": {
+            "calories": 5,
+            "protein": 0,
+            "carbs": 0,
+            "fat": 0
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 71,
+        "restaurant_id": 8,
+        "name": "Café Latte",
+        "price": 12,
+        "category": "Bebida",
+        "is_recommended": false,
+        "is_available": true,
+        "dietary_info": [
+            "sin gluten"
+        ],
+        "ingredients": [
+            "café",
+            "leche",
+            "espuma"
+        ],
+        "description": "Café latte con leche",
+        "preparation_time": 5,
+        "spiciness": 0,
+        "tags": [
+            "café",
+            "bebida"
+        ],
+        "nutritional_info": {
+            "calories": 120,
+            "protein": 6,
+            "carbs": 12,
+            "fat": 6
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 72,
+        "restaurant_id": 8,
+        "name": "Capuchino",
+        "price": 14,
+        "category": "Bebida",
+        "is_recommended": false,
+        "is_available": true,
+        "dietary_info": [
+            "sin gluten"
+        ],
+        "ingredients": [
+            "café",
+            "leche",
+            "canela"
+        ],
+        "description": "Capuchino con canela",
+        "preparation_time": 5,
+        "spiciness": 0,
+        "tags": [
+            "café",
+            "bebida"
+        ],
+        "nutritional_info": {
+            "calories": 130,
+            "protein": 6,
+            "carbs": 14,
+            "fat": 6
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 73,
+        "restaurant_id": 8,
+        "name": "Torta de Zanahoria",
+        "price": 14,
+        "category": "Postre",
+        "is_recommended": false,
+        "is_available": true,
+        "dietary_info": [
+            "vegetariano"
+        ],
+        "ingredients": [
+            "zanahoria",
+            "harina",
+            "huevo",
+            "azúcar",
+            "queso"
+        ],
+        "description": "Torta de zanahoria con glaseado de queso",
+        "preparation_time": 20,
+        "spiciness": 0,
+        "tags": [
+            "dulce",
+            "postre"
+        ],
+        "nutritional_info": {
+            "calories": 240,
+            "protein": 6,
+            "carbs": 30,
+            "fat": 12
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 74,
+        "restaurant_id": 8,
+        "name": "Alfajores",
+        "price": 10,
+        "category": "Postre",
+        "is_recommended": false,
+        "is_available": true,
+        "dietary_info": [
+            "vegetariano"
+        ],
+        "ingredients": [
+            "harina",
+            "dulce de leche",
+            "coco",
+            "chocolate"
+        ],
+        "description": "Alfajores con dulce de leche y coco",
+        "preparation_time": 15,
+        "spiciness": 0,
+        "tags": [
+            "dulce",
+            "postre"
+        ],
+        "nutritional_info": {
+            "calories": 180,
+            "protein": 3,
+            "carbs": 28,
+            "fat": 8
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 75,
+        "restaurant_id": 8,
+        "name": "Sándwich de Pollo",
+        "price": 16,
+        "category": "Plato Principal",
+        "is_recommended": false,
+        "is_available": true,
+        "dietary_info": [],
+        "ingredients": [
+            "pan",
+            "pollo",
+            "lechuga",
+            "tomate",
+            "mayonesa"
+        ],
+        "description": "Sándwich de pollo con vegetales",
+        "preparation_time": 10,
+        "spiciness": 0,
+        "tags": [
+            "rápido",
+            "sándwich"
+        ],
+        "nutritional_info": {
+            "calories": 280,
+            "protein": 16,
+            "carbs": 30,
+            "fat": 12
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 76,
+        "restaurant_id": 9,
+        "name": "Ensalada Quinoa",
+        "price": 22,
+        "category": "Fondo",
+        "is_recommended": true,
+        "is_available": true,
+        "dietary_info": [
+            "vegano",
+            "sin gluten"
+        ],
+        "ingredients": [
+            "quinoa",
+            "espinaca",
+            "tomate",
+            "palta",
+            "limón"
+        ],
+        "description": "Ensalada de quinoa con vegetales frescos",
+        "preparation_time": 15,
+        "spiciness": 0,
+        "tags": [
+            "saludable",
+            "vegano"
+        ],
+        "nutritional_info": {
+            "calories": 250,
+            "protein": 12,
+            "carbs": 32,
+            "fat": 10
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 77,
+        "restaurant_id": 9,
+        "name": "Bowl de Frutas",
+        "price": 18,
+        "category": "Entrada",
+        "is_recommended": false,
+        "is_available": true,
+        "dietary_info": [
+            "vegano",
+            "sin gluten"
+        ],
+        "ingredients": [
+            "frutas",
+            "granola",
+            "yogurt",
+            "miel"
+        ],
+        "description": "Bowl de frutas con granola y yogurt",
+        "preparation_time": 10,
+        "spiciness": 0,
+        "tags": [
+            "saludable",
+            "desayuno"
+        ],
+        "nutritional_info": {
+            "calories": 200,
+            "protein": 6,
+            "carbs": 35,
+            "fat": 6
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 78,
+        "restaurant_id": 9,
+        "name": "Smoothie Verde",
+        "price": 15,
+        "category": "Bebida",
+        "is_recommended": false,
+        "is_available": true,
+        "dietary_info": [
+            "vegano",
+            "sin gluten"
+        ],
+        "ingredients": [
+            "espinaca",
+            "piña",
+            "jengibre",
+            "agua",
+            "limón"
+        ],
+        "description": "Smoothie verde saludable",
+        "preparation_time": 5,
+        "spiciness": 0,
+        "tags": [
+            "bebida",
+            "saludable"
+        ],
+        "nutritional_info": {
+            "calories": 120,
+            "protein": 2,
+            "carbs": 25,
+            "fat": 0
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 79,
+        "restaurant_id": 9,
+        "name": "Jugo de Naranja",
+        "price": 8,
+        "category": "Bebida",
+        "is_recommended": false,
+        "is_available": true,
+        "dietary_info": [
+            "vegano",
+            "sin gluten"
+        ],
+        "ingredients": [
+            "naranja",
+            "agua",
+            "hielo"
+        ],
+        "description": "Jugo de naranja natural",
+        "preparation_time": 5,
+        "spiciness": 0,
+        "tags": [
+            "bebida",
+            "saludable"
+        ],
+        "nutritional_info": {
+            "calories": 80,
+            "protein": 1,
+            "carbs": 20,
+            "fat": 0
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 80,
+        "restaurant_id": 10,
+        "name": "Tacos de Asada",
+        "price": 28,
+        "category": "Fondo",
+        "is_recommended": true,
+        "is_available": true,
+        "dietary_info": [
+            "sin gluten"
+        ],
+        "ingredients": [
+            "carne",
+            "tortilla",
+            "cebolla",
+            "cilantro",
+            "salsa"
+        ],
+        "description": "Tacos de asada con salsa verde",
+        "preparation_time": 15,
+        "spiciness": 3,
+        "tags": [
+            "mexicano",
+            "tacos"
+        ],
+        "nutritional_info": {
+            "calories": 320,
+            "protein": 22,
+            "carbs": 28,
+            "fat": 14
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 81,
+        "restaurant_id": 10,
+        "name": "Quesadilla de Pollo",
+        "price": 25,
+        "category": "Fondo",
+        "is_recommended": false,
+        "is_available": true,
+        "dietary_info": [],
+        "ingredients": [
+            "tortilla",
+            "pollo",
+            "queso",
+            "salsa",
+            "crema"
+        ],
+        "description": "Quesadilla de pollo con salsa y crema",
+        "preparation_time": 10,
+        "spiciness": 1,
+        "tags": [
+            "mexicano",
+            "quesadilla"
+        ],
+        "nutritional_info": {
+            "calories": 350,
+            "protein": 20,
+            "carbs": 30,
+            "fat": 18
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 82,
+        "restaurant_id": 10,
+        "name": "Guacamole con Totopos",
+        "price": 18,
+        "category": "Entrada",
+        "is_recommended": false,
+        "is_available": true,
+        "dietary_info": [
+            "vegano",
+            "sin gluten"
+        ],
+        "ingredients": [
+            "palta",
+            "cebolla",
+            "tomate",
+            "limón",
+            "totopos"
+        ],
+        "description": "Guacamole casero con totopos",
+        "preparation_time": 10,
+        "spiciness": 1,
+        "tags": [
+            "mexicano",
+            "aperitivo"
+        ],
+        "nutritional_info": {
+            "calories": 180,
+            "protein": 3,
+            "carbs": 16,
+            "fat": 14
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "id": 83,
+        "restaurant_id": 10,
+        "name": "Margarita Clásica",
+        "price": 20,
+        "category": "Bebida",
+        "is_recommended": false,
+        "is_available": true,
+        "dietary_info": [
+            "sin gluten"
+        ],
+        "ingredients": [
+            "tequila",
+            "limón",
+            "sal",
+            "hielo",
+            "azúcar"
+        ],
+        "description": "Margarita clásica con sal",
+        "preparation_time": 5,
+        "spiciness": 0,
+        "tags": [
+            "cóctel",
+            "mexicano"
+        ],
+        "nutritional_info": {
+            "calories": 150,
+            "protein": 0,
+            "carbs": 8,
+            "fat": 0
+        },
+        "seasonal": false,
+        "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "restaurant_id": 23,
+        "name": "Ratatouille Chaufero",
+        "price": 2,
+        "category": "Entrada",
+        "description": "Ven come tu cuy",
+        "ingredients": [
+            "rata",
+            "arroz",
+            "especias",
+            "verduras"
+        ],
+        "dietary_info": [],
+        "preparation_time": 10,
+        "spiciness": 0,
+        "is_recommended": false,
+        "is_available": true,
+        "tags": [
+            "fascinante"
+        ],
+        "created_at": "2026-06-30T17:49:37.273232",
+        "id": 84
+    }
+]

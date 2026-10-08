@@ -1,0 +1,4 @@
+[
+    {"id": 1, "restaurant_id": 1, "description": "10% de descuento en Cabrito", "valid_until": "2026-12-31", "discount_percent": 10},
+    {"id": 2, "restaurant_id": 6, "description": "All you can eat los martes", "valid_until": "2026-08-30", "discount_percent": 20}
+]
