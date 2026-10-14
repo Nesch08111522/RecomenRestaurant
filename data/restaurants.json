@@ -419,8 +419,13 @@
         "dietary_restrictions": [],
         "owner_id": 1,
         "owner_name": "Administrador",
-        "verified": false,
-        "moderation_notes": ""
+        "verified": true,
+        "moderation_notes": "Bien",
+        "approval_status": "APROBADO_AUTOMATICAMENTE",
+        "moderated_at": "2026-10-14T17:13:30.943308+00:00",
+        "rejected": false,
+        "suspended": false,
+        "publication_status": "published"
     },
     {
         "id": 13,
@@ -616,8 +621,13 @@
         "dietary_restrictions": [],
         "owner_id": 1,
         "owner_name": "Administrador",
-        "verified": false,
-        "moderation_notes": ""
+        "verified": true,
+        "moderation_notes": "Bien",
+        "approval_status": "APROBADO_AUTOMATICAMENTE",
+        "moderated_at": "2026-10-14T17:13:31.139528+00:00",
+        "rejected": false,
+        "suspended": false,
+        "publication_status": "published"
     },
     {
         "id": 19,
@@ -690,7 +700,12 @@
         "owner_id": 3,
         "owner_name": "Juan Empresario",
         "verified": false,
-        "moderation_notes": ""
+        "moderation_notes": "",
+        "approval_status": "RECHAZADO",
+        "moderated_at": "2026-10-14T17:13:34.681441+00:00",
+        "rejected": true,
+        "suspended": false,
+        "publication_status": "unpublished"
     },
     {
         "name": "La sazón de Daniela y su Frente",

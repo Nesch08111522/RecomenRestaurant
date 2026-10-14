@@ -3,48 +3,48 @@
         "actor_user_id": 1,
         "action": "ADMIN_APPROVAL_DECISION",
         "resource_type": "restaurant",
-        "resource_id": 7,
+        "resource_id": 12,
         "request_id": "",
         "ip_hash": "d72a839cb92de3ab9ec176ff6eeda8cad7beccc49644145534bcbee43644ace1",
         "metadata": {
             "action": "approve",
             "status": "APROBADO_AUTOMATICAMENTE",
-            "moderation_id": 15,
+            "moderation_id": 1,
             "has_notes": true
         },
-        "created_at": "2026-08-18T21:34:00.077040+00:00",
+        "created_at": "2026-10-14T17:13:30.963285+00:00",
         "id": 1
-<<<<<<< Updated upstream
-=======
     },
     {
         "actor_user_id": 1,
         "action": "ADMIN_APPROVAL_DECISION",
-        "resource_type": "moderation_batch",
-        "resource_id": null,
+        "resource_type": "restaurant",
+        "resource_id": 18,
         "request_id": "",
         "ip_hash": "d72a839cb92de3ab9ec176ff6eeda8cad7beccc49644145534bcbee43644ace1",
         "metadata": {
-            "total_checked": 24,
-            "flagged": 24,
-            "action": "preliminary_filter"
+            "action": "approve",
+            "status": "APROBADO_AUTOMATICAMENTE",
+            "moderation_id": 2,
+            "has_notes": true
         },
-        "created_at": "2026-10-14T05:40:34.579932+00:00",
+        "created_at": "2026-10-14T17:13:31.157094+00:00",
         "id": 2
     },
     {
         "actor_user_id": 1,
         "action": "ADMIN_APPROVAL_DECISION",
-        "resource_type": "moderation_batch",
-        "resource_id": null,
+        "resource_type": "restaurant",
+        "resource_id": 20,
         "request_id": "",
         "ip_hash": "d72a839cb92de3ab9ec176ff6eeda8cad7beccc49644145534bcbee43644ace1",
         "metadata": {
-            "total_checked": 24,
-            "flagged": 24,
-            "action": "preliminary_filter"
+            "action": "reject",
+            "status": "RECHAZADO",
+            "moderation_id": 3,
+            "has_notes": false
         },
-        "created_at": "2026-10-14T05:40:37.588687+00:00",
+        "created_at": "2026-10-14T17:13:34.695981+00:00",
         "id": 3
     },
     {
@@ -56,88 +56,14 @@
         "ip_hash": "d72a839cb92de3ab9ec176ff6eeda8cad7beccc49644145534bcbee43644ace1",
         "metadata": {
             "total_checked": 24,
-            "flagged": 24,
+            "flagged": 10,
+            "created": 21,
+            "updated": 0,
+            "preserved_human_decisions": 3,
             "action": "preliminary_filter"
         },
-        "created_at": "2026-10-14T15:55:16.565705+00:00",
+        "created_at": "2026-10-14T17:13:40.232106+00:00",
         "id": 4
-    },
-    {
-        "actor_user_id": 1,
-        "action": "ADMIN_APPROVAL_DECISION",
-        "resource_type": "restaurant",
-        "resource_id": 9,
-        "request_id": "",
-        "ip_hash": "d72a839cb92de3ab9ec176ff6eeda8cad7beccc49644145534bcbee43644ace1",
-        "metadata": {
-            "action": "approve",
-            "status": "APROBADO_AUTOMATICAMENTE",
-            "moderation_id": 19,
-            "has_notes": true
-        },
-        "created_at": "2026-10-14T15:55:27.950395+00:00",
-        "id": 5
-    },
-    {
-        "actor_user_id": 1,
-        "action": "ADMIN_APPROVAL_DECISION",
-        "resource_type": "restaurant",
-        "resource_id": 19,
-        "request_id": "",
-        "ip_hash": "d72a839cb92de3ab9ec176ff6eeda8cad7beccc49644145534bcbee43644ace1",
-        "metadata": {
-            "action": "reject",
-            "status": "RECHAZADO",
-            "moderation_id": 11,
-            "has_notes": true
-        },
-        "created_at": "2026-10-14T15:55:34.064758+00:00",
-        "id": 6
-    },
-    {
-        "actor_user_id": 1,
-        "action": "ADMIN_APPROVAL_DECISION",
-        "resource_type": "moderation_batch",
-        "resource_id": null,
-        "request_id": "",
-        "ip_hash": "d72a839cb92de3ab9ec176ff6eeda8cad7beccc49644145534bcbee43644ace1",
-        "metadata": {
-            "total_checked": 24,
-            "flagged": 24,
-            "action": "preliminary_filter"
-        },
-        "created_at": "2026-10-14T15:57:01.347987+00:00",
-        "id": 7
-    },
-    {
-        "actor_user_id": 1,
-        "action": "ADMIN_APPROVAL_DECISION",
-        "resource_type": "moderation_batch",
-        "resource_id": null,
-        "request_id": "",
-        "ip_hash": "d72a839cb92de3ab9ec176ff6eeda8cad7beccc49644145534bcbee43644ace1",
-        "metadata": {
-            "total_checked": 24,
-            "flagged": 24,
-            "action": "preliminary_filter"
-        },
-        "created_at": "2026-10-14T16:32:15.920973+00:00",
-        "id": 8
-    },
-    {
-        "actor_user_id": 1,
-        "action": "ADMIN_APPROVAL_DECISION",
-        "resource_type": "moderation_batch",
-        "resource_id": null,
-        "request_id": "",
-        "ip_hash": "d72a839cb92de3ab9ec176ff6eeda8cad7beccc49644145534bcbee43644ace1",
-        "metadata": {
-            "total_checked": 24,
-            "flagged": 24,
-            "action": "preliminary_filter"
-        },
-        "created_at": "2026-10-14T16:32:23.661450+00:00",
-        "id": 9
     },
     {
         "actor_user_id": 1,
@@ -154,24 +80,8 @@
             "preserved_human_decisions": 3,
             "action": "preliminary_filter"
         },
-        "created_at": "2026-10-14T16:36:49.097929+00:00",
-        "id": 10
-    },
-    {
-        "actor_user_id": 1,
-        "action": "ADMIN_APPROVAL_DECISION",
-        "resource_type": "restaurant",
-        "resource_id": 6,
-        "request_id": "",
-        "ip_hash": "d72a839cb92de3ab9ec176ff6eeda8cad7beccc49644145534bcbee43644ace1",
-        "metadata": {
-            "action": "approve",
-            "status": "APROBADO_AUTOMATICAMENTE",
-            "moderation_id": 4,
-            "has_notes": false
-        },
-        "created_at": "2026-10-14T16:37:24.042056+00:00",
-        "id": 11
+        "created_at": "2026-10-14T17:24:55.173890+00:00",
+        "id": 5
     },
     {
         "actor_user_id": 1,
@@ -184,12 +94,11 @@
             "total_checked": 24,
             "flagged": 10,
             "created": 0,
-            "updated": 20,
-            "preserved_human_decisions": 4,
+            "updated": 21,
+            "preserved_human_decisions": 3,
             "action": "preliminary_filter"
         },
-        "created_at": "2026-10-14T16:37:31.060884+00:00",
-        "id": 12
->>>>>>> Stashed changes
+        "created_at": "2026-10-14T17:26:24.811246+00:00",
+        "id": 6
     }
 ]
