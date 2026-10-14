@@ -47,6 +47,7 @@
                     <th>Nombre</th>
                     <th>Categoría</th>
                     <th>Distrito</th>
+                    <th>Modalidad</th>
                     <th>Rating</th>
                     <th>Precio</th>
                     <th>Promoción</th>
@@ -60,6 +61,17 @@
                         <td class="restaurant-name">{{ r.name }}</td>
                         <td>{{ r.category_name or 'Sin categoría' }}</td>
                         <td>{{ r.district }}</td>
+                        <td>
+                            <span class="service-mode-badge">
+                                {% if r.service_mode == 'dine_in_only' %}
+                                    Solo local
+                                {% elif r.service_mode == 'dine_in_and_delivery' %}
+                                    Local y delivery
+                                {% else %}
+                                    Solo delivery
+                                {% endif %}
+                            </span>
+                        </td>
                         <td>
                             <span class="rating-badge">
                                 <i class="fas fa-star"></i> {{ r.rating }}
@@ -255,6 +267,17 @@
         font-size: 13px;
     }
 
+    .service-mode-badge {
+        display: inline-block;
+        padding: 4px 9px;
+        border-radius: 999px;
+        background: #eef2ff;
+        color: #3730a3;
+        font-size: 12px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
     .action-buttons {
         display: flex;
         gap: 6px;
@@ -357,8 +380,8 @@
 </style>
 
 <script>
-    function addPromotion(id) {
-        const promo = prompt('Ingresa la promoción para este restaurante:');
+    async function addPromotion(id) {
+        const promo = await showOwnerPrompt('Agregar promoción', 'Escribe la promoción');
         if (promo !== null) {
             fetch(`/admin/restaurant/${id}/promo`, {
                 method: 'POST',
@@ -370,20 +393,22 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    location.reload();
+                    showOwnerToast('Promoción agregada correctamente.', 'success');
+                    setTimeout(() => location.reload(), 1800);
                 } else {
-                    alert('Error al agregar promoción');
+                    showOwnerToast(data.error || 'Error al agregar la promoción.', 'error');
                 }
             })
             .catch(error => {
-                alert('Error al agregar promoción');
+                showOwnerToast('Error al agregar la promoción.', 'error');
                 console.error(error);
             });
         }
     }
 
-    function deleteRestaurant(id) {
-        if (!confirm('¿Estás seguro de eliminar este restaurante? Esta acción no se puede deshacer.')) return;
+    async function deleteRestaurant(id) {
+        const confirmed = await showOwnerConfirm('Eliminar restaurante', '¿Estás seguro de eliminar este restaurante? Esta acción no se puede deshacer.');
+        if (!confirmed) return;
 
         fetch(`/admin/restaurant/${id}`, {
             method: 'DELETE'
@@ -391,13 +416,14 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                location.reload();
+                showOwnerToast('Restaurante eliminado correctamente.', 'success');
+                setTimeout(() => location.reload(), 1800);
             } else {
-                alert('Error al eliminar el restaurante');
+                showOwnerToast(data.error || 'Error al eliminar el restaurante.', 'error');
             }
         })
         .catch(error => {
-            alert('Error al eliminar el restaurante');
+            showOwnerToast('Error al eliminar el restaurante.', 'error');
             console.error(error);
         });
     }

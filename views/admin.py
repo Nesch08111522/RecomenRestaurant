@@ -21,6 +21,27 @@ logger = logging.getLogger(__name__)
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 
+SERVICE_MODES = {
+    'dine_in_only',
+    'dine_in_and_delivery',
+    'delivery_only',
+}
+
+
+def _restaurant_service_mode(restaurant):
+    """Devuelve la modalidad guardada o infiere una para registros antiguos."""
+    service_mode = normalize_text(restaurant.get('service_mode'), max_length=40).lower()
+    if service_mode in SERVICE_MODES:
+        return service_mode
+
+    features = restaurant.get('features', [])
+    if isinstance(features, list) and any(
+        normalize_text(feature, max_length=100).lower() == 'delivery'
+        for feature in features
+    ):
+        return 'dine_in_and_delivery'
+    return 'dine_in_only'
+
 
 def _fresh_session_user():
     """Revalida el rol contra el almacenamiento antes de autorizar."""
@@ -71,6 +92,11 @@ def _clean_restaurant_update(source):
     for field, max_length in (('open_time', 5), ('close_time', 5), ('image', 500), ('description', 2000), ('address', 300), ('phone', 40), ('promo', 500)):
         if field in source:
             payload[field] = normalize_text(source.get(field), max_length=max_length)
+    if 'service_mode' in source:
+        service_mode = normalize_text(source.get('service_mode'), max_length=40).lower()
+        if service_mode not in SERVICE_MODES:
+            raise ValueError('Selecciona una modalidad de atención válida')
+        payload['service_mode'] = service_mode
     for field in ('tags', 'features', 'dietary_restrictions'):
         if field in source:
             payload[field] = _clean_list(source.get(field), max_items=50, max_length=100)
@@ -219,6 +245,7 @@ def restaurants():
     for r in restaurants:
         r['category_name'] = cat_dict.get(r.get('category_id'), 'Sin categoría')
         r['is_open'] = r.get('open_time') <= now <= r.get('close_time')
+        r['service_mode'] = _restaurant_service_mode(r)
     
     districts = getattr(Config, 'DISTRITOS', ['Trujillo', 'Victor Larco', 'La Esperanza', 'Huanchaco', 'Moche'])
     
@@ -254,8 +281,8 @@ def new_restaurant():
             'owner_name': (session.get('user', {}).get('profile') or {}).get('name') or session['user'].get('username')
         })
 
-        if not data.get('name') or not data.get('category_id') or not data.get('district'):
-            flash('Por favor completa todos los campos requeridos', 'error')
+        if not data.get('name') or not data.get('category_id') or not data.get('district') or not data.get('service_mode'):
+            flash('Completa los campos requeridos, incluida la modalidad de atención', 'error')
             return redirect(url_for('admin.new_restaurant'))
         
         RestaurantModel.create(data)
@@ -293,6 +320,8 @@ def edit_restaurant(id):
     if not restaurant:
         flash('Restaurante no encontrado', 'error')
         return redirect(url_for('admin.restaurants'))
+
+    restaurant['service_mode'] = _restaurant_service_mode(restaurant)
     
     categories = []
     if os.path.exists(Config.CATEGORIES_FILE):

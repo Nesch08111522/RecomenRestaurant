@@ -8,7 +8,7 @@ from config import Config
 from utils.security import normalize_text
 from logic.hybrid_recommender import suggest_menu
 from functools import wraps
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 import json
 import os
 import logging
@@ -16,6 +16,56 @@ import logging
 logger = logging.getLogger(__name__)
 
 owner_bp = Blueprint('owner', __name__, url_prefix='/owner')
+
+WEEKDAYS = (
+    {'value': 'lunes', 'label': 'Lunes'},
+    {'value': 'martes', 'label': 'Martes'},
+    {'value': 'miercoles', 'label': 'Miércoles'},
+    {'value': 'jueves', 'label': 'Jueves'},
+    {'value': 'viernes', 'label': 'Viernes'},
+    {'value': 'sabado', 'label': 'Sábado'},
+    {'value': 'domingo', 'label': 'Domingo'},
+)
+MEAL_TIMES = (
+    {'value': 'desayuno', 'label': 'Desayuno'},
+    {'value': 'almuerzo', 'label': 'Almuerzo'},
+    {'value': 'cena', 'label': 'Cena'},
+)
+DISH_CATEGORIES = (
+    {'value': 'Entrada', 'label': 'Entradas'},
+    {'value': 'Fondo', 'label': 'Platos de fondo'},
+    {'value': 'Postre', 'label': 'Postres'},
+    {'value': 'Bebida', 'label': 'Bebidas'},
+)
+VALID_WEEKDAYS = {day['value'] for day in WEEKDAYS}
+VALID_MEAL_TIMES = {meal['value'] for meal in MEAL_TIMES}
+VALID_DISH_CATEGORIES = {category['value'] for category in DISH_CATEGORIES}
+VALID_MENU_TYPES = {'fixed', 'daily', 'mixed'}
+WEEKDAY_VALUES = tuple(day['value'] for day in WEEKDAYS)
+WEEKDAY_NAMES = ('lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado', 'domingo')
+MONTH_NAMES = (
+    'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+    'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'
+)
+LIMA_TIMEZONE = timezone(timedelta(hours=-5) )
+
+def _parse_menu_date(value):
+    if not isinstance(value, str):
+        return None
+    try:
+        parsed = datetime.strptime(value, '%Y-%m-%d').date()
+    except ValueError:
+        return None
+    return parsed if parsed.isoformat() == value else None
+
+
+def _format_menu_date(value):
+    return (f"{WEEKDAY_NAMES[value.weekday()]} {value.day} de "
+            f"{MONTH_NAMES[value.month - 1]} del {value.year}")
+
+
+def _menu_date_is_past(value):
+    return value < datetime.now(LIMA_TIMEZONE).date()
 
 
 def _json_payload():
@@ -35,6 +85,11 @@ def _string_list(value, *, limit=50, item_length=80):
     if not isinstance(value, list):
         return []
     return [normalize_text(item, max_length=item_length) for item in value[:limit] if normalize_text(item, max_length=item_length)]
+
+
+def _restaurant_menu_type(restaurant):
+    menu_type = normalize_text(restaurant.get('menu_type'), max_length=20).lower()
+    return menu_type if menu_type in VALID_MENU_TYPES else 'mixed'
 
 
 def owner_required(f):
@@ -118,14 +173,71 @@ def menu_management(restaurant_id):
     if not restaurant:
         flash('Restaurante no encontrado', 'error')
         return redirect(url_for('owner.dashboard'))
+
+    menu_type = _restaurant_menu_type(restaurant)
+    restaurant['menu_type'] = menu_type
     
+    today = datetime.now(LIMA_TIMEZONE).date()
+    requested_date = request.args.get('date')
+    selected_date = _parse_menu_date(requested_date) if requested_date else today
+    if selected_date is None:
+        flash('La fecha solicitada no es válida. Se muestra el menú de hoy.', 'warning')
+        selected_date = today
+
     dishes = DishModel.get_by_restaurant(restaurant_id)
+    for dish in dishes:
+        dish_date = _parse_menu_date(dish.get('menu_date'))
+        dish['menu_date_label'] = _format_menu_date(dish_date) if dish_date else None
+
+    selected_date_iso = selected_date.isoformat()
+    carta_dishes = [dish for dish in dishes if not dish.get('menu_date')]
+    date_dishes = [dish for dish in dishes if dish.get('menu_date') == selected_date_iso]
+    week_start = selected_date - timedelta(days=selected_date.weekday())
+    week_days = [
+        {
+            'value': (week_start + timedelta(days=index)).isoformat(),
+            'label': weekday['label'],
+            'day_number': (week_start + timedelta(days=index)).day,
+            'selected': (week_start + timedelta(days=index)) == selected_date,
+        }
+        for index, weekday in enumerate(WEEKDAYS)
+    ]
     today_menu = DailyMenuModel.get_active(restaurant_id)
+    history_menu = DailyMenuModel.get_by_date(restaurant_id, selected_date_iso)
+    if date_dishes:
+        history_menu = None
+
+    history_date_values = set()
+    for dish in dishes:
+        dish_date = _parse_menu_date(dish.get('menu_date'))
+        if dish_date and dish_date < today:
+            history_date_values.add(dish_date)
+    for saved_menu in DailyMenuModel.get_by_restaurant(restaurant_id):
+        saved_date = _parse_menu_date(saved_menu.get('date'))
+        if saved_date and saved_date < today:
+            history_date_values.add(saved_date)
+    history_dates = [
+        {'value': day.isoformat(), 'label': _format_menu_date(day)}
+        for day in sorted(history_date_values, reverse=True)
+    ]
     
     return render_template('owner/menu_management.html',
                          restaurant=restaurant,
                          dishes=dishes,
-                         today_menu=today_menu)
+                         carta_dishes=carta_dishes,
+                         date_dishes=date_dishes,
+                         week_days=week_days,
+                         menu_type=menu_type,
+                         today_menu=today_menu,
+                         weekdays=WEEKDAYS,
+                         meal_times=MEAL_TIMES,
+                         dish_categories=DISH_CATEGORIES,
+                         selected_date_iso=selected_date_iso,
+                         today_date_iso=today.isoformat(),
+                         selected_date_label=_format_menu_date(selected_date),
+                         is_read_only=selected_date < today,
+                         history_menu=history_menu,
+                         history_dates=history_dates)
 
 @owner_bp.route('/dish/add', methods=['POST'])
 @owner_required
@@ -147,19 +259,31 @@ def add_dish():
         name = normalize_text(data.get('name'), max_length=120)
         price = _number(data.get('price'), minimum=0, maximum=100000)
         category = normalize_text(data.get('category'), max_length=60)
+        raw_menu_date = data.get('menu_date')
+        menu_date = None if raw_menu_date in (None, '') else _parse_menu_date(raw_menu_date)
+        meal_time = normalize_text(data.get('meal_time'), max_length=20).lower()
         preparation_time = data.get('preparation_time', 20)
         try:
             preparation_time = int(preparation_time)
         except (TypeError, ValueError):
             preparation_time = 20
-        if not name or price is None or not category or not 1 <= preparation_time <= 600:
-            return jsonify({'error': 'Nombre, categoría, precio o tiempo de preparación inválidos'}), 400
+        if menu_date is None and raw_menu_date not in (None, ''):
+            return jsonify({'error': 'Selecciona una fecha válida para el menú'}), 400
+        if menu_date and _menu_date_is_past(menu_date):
+            return jsonify({'error': 'No puedes agregar platos a una fecha pasada'}), 400
+        if (not name or price is None or category not in VALID_DISH_CATEGORIES
+                or meal_time not in VALID_MEAL_TIMES
+                or not 1 <= preparation_time <= 600):
+            return jsonify({'error': 'Completa nombre, precio, tipo, horario y tiempo de preparación válidos'}), 400
 
         dish_data = {
             'restaurant_id': restaurant_id,
             'name': name,
             'price': round(price, 2),
             'category': category,
+            'menu_date': menu_date.isoformat() if menu_date else None,
+            'day_of_week': WEEKDAY_VALUES[menu_date.weekday()] if menu_date else None,
+            'meal_time': meal_time,
             'description': normalize_text(data.get('description', ''), max_length=1000),
             'ingredients': _string_list(data.get('ingredients', []), limit=50, item_length=100),
             'dietary_info': _string_list(data.get('dietary_info', []), limit=20, item_length=60),
@@ -205,6 +329,10 @@ def update_dish(dish_id):
         restaurant_id = dish.get('restaurant_id')
         if not RestaurantModel.is_owner(user_id, restaurant_id):
             return jsonify({'error': 'No autorizado'}), 403
+
+        existing_menu_date = _parse_menu_date(dish.get('menu_date'))
+        if existing_menu_date and _menu_date_is_past(existing_menu_date):
+            return jsonify({'error': 'Los menús de fechas pasadas son de solo lectura'}), 403
         
         data = _json_payload()
         if data is None:
@@ -222,7 +350,24 @@ def update_dish(dish_id):
                 return jsonify({'error': 'Precio inválido'}), 400
             allowed['price'] = round(price, 2)
         if 'category' in data:
-            allowed['category'] = normalize_text(data.get('category'), max_length=60)
+            category = normalize_text(data.get('category'), max_length=60)
+            if category not in VALID_DISH_CATEGORIES:
+                return jsonify({'error': 'Tipo de plato inválido'}), 400
+            allowed['category'] = category
+        if 'menu_date' in data:
+            raw_menu_date = data.get('menu_date')
+            menu_date = None if raw_menu_date in (None, '') else _parse_menu_date(raw_menu_date)
+            if menu_date is None and raw_menu_date not in (None, ''):
+                return jsonify({'error': 'Selecciona una fecha válida para el menú'}), 400
+            if menu_date and _menu_date_is_past(menu_date):
+                return jsonify({'error': 'No puedes mover platos a una fecha pasada'}), 400
+            allowed['menu_date'] = menu_date.isoformat() if menu_date else None
+            allowed['day_of_week'] = WEEKDAY_VALUES[menu_date.weekday()] if menu_date else None
+        if 'meal_time' in data:
+            meal_time = normalize_text(data.get('meal_time'), max_length=20).lower()
+            if meal_time not in VALID_MEAL_TIMES:
+                return jsonify({'error': 'Horario de menú inválido'}), 400
+            allowed['meal_time'] = meal_time
         if 'description' in data:
             allowed['description'] = normalize_text(data.get('description'), max_length=1000)
         if 'ingredients' in data:
@@ -279,6 +424,10 @@ def delete_dish(dish_id):
         restaurant_id = dish.get('restaurant_id')
         if not RestaurantModel.is_owner(user_id, restaurant_id):
             return jsonify({'error': 'No autorizado'}), 403
+
+        menu_date = _parse_menu_date(dish.get('menu_date'))
+        if menu_date and _menu_date_is_past(menu_date):
+            return jsonify({'error': 'No puedes eliminar platos de fechas pasadas'}), 403
         
         DishModel.delete(dish_id)
         
@@ -305,6 +454,10 @@ def toggle_dish_availability(dish_id):
         restaurant_id = dish.get('restaurant_id')
         if not RestaurantModel.is_owner(user_id, restaurant_id):
             return jsonify({'error': 'No autorizado'}), 403
+
+        menu_date = _parse_menu_date(dish.get('menu_date'))
+        if menu_date and _menu_date_is_past(menu_date):
+            return jsonify({'error': 'Los menús de fechas pasadas son de solo lectura'}), 403
         
         data = _json_payload()
         if data is None or not isinstance(data.get('is_available'), bool):
@@ -335,6 +488,12 @@ def generate_menu():
             restaurant_id = int(data.get('restaurant_id'))
         except (TypeError, ValueError):
             return jsonify({'error': 'ID de restaurante inválido'}), 400
+
+        menu_date = _parse_menu_date(data.get('menu_date', datetime.now(LIMA_TIMEZONE).strftime('%Y-%m-%d')))
+        if menu_date is None:
+            return jsonify({'error': 'Selecciona una fecha válida para generar el menú'}), 400
+        if _menu_date_is_past(menu_date):
+            return jsonify({'error': 'No puedes generar menús para fechas pasadas'}), 400
         
         if not restaurant_id:
             return jsonify({'error': 'ID de restaurante requerido'}), 400
@@ -343,7 +502,11 @@ def generate_menu():
             return jsonify({'error': 'No autorizado'}), 403
         
         all_dishes = DishModel.get_by_restaurant(restaurant_id)
-        available_dishes = [d for d in all_dishes if d.get('is_available', True)]
+        available_dishes = [
+            dish for dish in all_dishes
+            if dish.get('is_available', True)
+            and (not dish.get('menu_date') or dish.get('menu_date') == menu_date.isoformat())
+        ]
         
         if len(available_dishes) < 3:
             return jsonify({
@@ -381,16 +544,17 @@ def save_daily_menu():
             restaurant_id = int(data.get('restaurant_id'))
         except (TypeError, ValueError):
             return jsonify({'error': 'ID de restaurante inválido'}), 400
-        date = normalize_text(data.get('date', datetime.now().strftime('%Y-%m-%d')), max_length=10)
+        date = normalize_text(data.get('date', datetime.now(LIMA_TIMEZONE).strftime('%Y-%m-%d')), max_length=10)
         dish_ids = data.get('dish_ids', [])
         specials = _string_list(data.get('specials', []), limit=20, item_length=160)
         price = _number(data.get('price', 0), minimum=0, maximum=100000)
         if price is None or not isinstance(dish_ids, list) or len(dish_ids) > 100:
             return jsonify({'error': 'Datos del menú inválidos'}), 400
-        try:
-            datetime.strptime(date, '%Y-%m-%d')
-        except ValueError:
+        parsed_menu_date = _parse_menu_date(date)
+        if parsed_menu_date is None:
             return jsonify({'error': 'La fecha debe tener formato YYYY-MM-DD'}), 400
+        if _menu_date_is_past(parsed_menu_date):
+            return jsonify({'error': 'No puedes modificar menús de fechas pasadas'}), 400
         
         if not restaurant_id:
             return jsonify({'error': 'ID de restaurante requerido'}), 400
@@ -416,7 +580,9 @@ def save_daily_menu():
             dishes.append({
                 'dish_id': dish.get('id'),
                 'name': normalize_text(dish.get('name'), max_length=120),
-                'price': _number(dish.get('price'), minimum=0, maximum=100000) or 0
+                'price': _number(dish.get('price'), minimum=0, maximum=100000) or 0,
+                'category': dish.get('category'),
+                'meal_time': dish.get('meal_time')
             })
         
         menu = DailyMenuModel.create_or_update(
