@@ -2785,5 +2785,30 @@
         ],
         "created_at": "2026-06-30T17:49:37.273232",
         "id": 84
+    },
+    {
+        "restaurant_id": 2,
+        "name": "Arroz con pollo",
+        "price": 10.0,
+        "category": "Fondo",
+        "menu_date": "2026-10-14",
+        "day_of_week": "miercoles",
+        "meal_time": "almuerzo",
+        "description": "Arroz verde con pollo frito",
+        "ingredients": [
+            "Cilantro",
+            "tomate",
+            "cebolla"
+        ],
+        "dietary_info": [],
+        "preparation_time": 20,
+        "spiciness": 0,
+        "is_recommended": true,
+        "is_available": true,
+        "tags": [
+            "criolla"
+        ],
+        "created_at": "2026-10-14T17:30:57.741325",
+        "id": 85
     }
 ]

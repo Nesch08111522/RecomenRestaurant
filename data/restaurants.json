@@ -68,7 +68,10 @@
         "owner_name": "Juan Empresario",
         "verified": false,
         "moderation_notes": "",
-        "menu_type": "mixed"
+        "menu_type": "mixed",
+        "dishes": [
+            85
+        ]
     },
     {
         "id": 3,
