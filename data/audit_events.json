@@ -14,5 +14,35 @@
         },
         "created_at": "2026-08-18T21:34:00.077040+00:00",
         "id": 1
+    },
+    {
+        "actor_user_id": 1,
+        "action": "ADMIN_APPROVAL_DECISION",
+        "resource_type": "moderation_batch",
+        "resource_id": null,
+        "request_id": "",
+        "ip_hash": "d72a839cb92de3ab9ec176ff6eeda8cad7beccc49644145534bcbee43644ace1",
+        "metadata": {
+            "total_checked": 24,
+            "flagged": 24,
+            "action": "preliminary_filter"
+        },
+        "created_at": "2026-10-14T05:40:34.579932+00:00",
+        "id": 2
+    },
+    {
+        "actor_user_id": 1,
+        "action": "ADMIN_APPROVAL_DECISION",
+        "resource_type": "moderation_batch",
+        "resource_id": null,
+        "request_id": "",
+        "ip_hash": "d72a839cb92de3ab9ec176ff6eeda8cad7beccc49644145534bcbee43644ace1",
+        "metadata": {
+            "total_checked": 24,
+            "flagged": 24,
+            "action": "preliminary_filter"
+        },
+        "created_at": "2026-10-14T05:40:37.588687+00:00",
+        "id": 3
     }
 ]

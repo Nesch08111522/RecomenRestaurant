@@ -1,465 +1,781 @@
+{# templates/owner/restaurant_form.html
+   Plantilla ÚNICA para crear y editar restaurantes.
+   - Crear:  render_template('owner/restaurant_form.html', categories=..., districts=...)
+   - Editar: render_template('owner/restaurant_form.html', restaurant=r, categories=..., districts=...) #}
 {% extends 'owner/base.html' %}
 
 {% block owner_content %}
+{# Nota: no se usa el literal none/null a propósito (algunos formateadores lo reescriben a "null", que no existe en Jinja). #}
+{% if restaurant is defined and restaurant %}
+  {% set is_edit = true %}
+  {% set r = restaurant %}
+{% else %}
+  {% set is_edit = false %}
+  {% set r = false %}
+{% endif %}
 
-{% block extra_head %}
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<style>
-    #location-map {
-        height: 300px;
-        width: 100%;
-        border-radius: var(--radius-sm);
-        border: 1px solid var(--light-gray);
-        margin-top: 8px;
-    }
-    .location-input-group {
-        display: flex;
-        gap: 10px;
-        align-items: center;
-        margin-bottom: 8px;
-        flex-wrap: wrap;
-    }
-    .location-input-group input {
-        flex: 1;
-        min-width: 150px;
-    }
-    .btn-location {
-        padding: 10px 16px;
-        background: var(--primary);
-        color: white;
-        border: none;
-        border-radius: var(--radius-sm);
-        cursor: pointer;
-        font-size: 14px;
-        transition: var(--transition);
-        white-space: nowrap;
-    }
-    .btn-location:hover {
-        background: var(--primary-dark);
-    }
-    .btn-location i {
-        margin-right: 6px;
-    }
-    .btn-location-success {
-        background: #10B981;
-    }
-    .btn-location-success:hover {
-        background: #059669;
-    }
-    .coord-info {
-        font-size: 13px;
-        color: var(--gray);
-        margin-top: 4px;
-    }
-    .coord-info span {
-        font-weight: 600;
-        color: var(--dark);
-    }
-    .coord-info .hint {
-        color: #6b7280;
-        font-size: 12px;
-        margin-left: 16px;
-    }
-</style>
-{% endblock %}
+{# ---- Valores del formulario (se calculan una sola vez, sin ifs en línea) ---- #}
+{% if is_edit %}
+  {% set form_action = url_for('admin.update_restaurant', id=r.id) %}
+{% else %}
+  {% set form_action = url_for('admin.new_restaurant') %}
+{% endif %}
+
+{% if is_edit and r.name %}{% set f_name = r.name %}{% else %}{% set f_name = '' %}{% endif %}
+{% if is_edit and r.avg_price is defined and r.avg_price|string not in ['None', ''] %}{% set f_price = r.avg_price %}{% else %}{% set f_price = '' %}{% endif %}
+{% if is_edit %}{% if r.rating is defined and r.rating|string not in ['None', ''] %}{% set f_rating = r.rating %}{% else %}{% set f_rating = '' %}{% endif %}{% else %}{% set f_rating = 4.0 %}{% endif %}
+{% if is_edit and r.open_time %}{% set f_open = r.open_time|string %}{% set f_open = f_open[:5] %}{% else %}{% set f_open = '12:00' %}{% endif %}
+{% if is_edit and r.close_time %}{% set f_close = r.close_time|string %}{% set f_close = f_close[:5] %}{% else %}{% set f_close = '22:00' %}{% endif %}
+{% if is_edit and r.address %}{% set f_address = r.address %}{% else %}{% set f_address = '' %}{% endif %}
+{% if is_edit and r.phone %}{% set f_phone = r.phone %}{% else %}{% set f_phone = '' %}{% endif %}
+{% if is_edit and r.image %}{% set f_image = r.image %}{% else %}{% set f_image = '' %}{% endif %}
+{% if is_edit and r.description %}{% set f_description = r.description %}{% else %}{% set f_description = '' %}{% endif %}
+{% if is_edit and r.promo %}{% set f_promo = r.promo %}{% else %}{% set f_promo = '' %}{% endif %}
+{% if is_edit and r.tags %}{% set f_tags = r.tags %}{% else %}{% set f_tags = [] %}{% endif %}
+{% if is_edit and r.features %}{% set f_features = r.features %}{% else %}{% set f_features = [] %}{% endif %}
+{% if is_edit and r.dietary_restrictions %}{% set f_dietary = r.dietary_restrictions %}{% else %}{% set f_dietary = [] %}{% endif %}
+
+{% if is_edit and r.lat is defined and r.lat|string not in ['None', ''] %}{% set lat_value = r.lat|float %}{% else %}{% set lat_value = -8.1118 %}{% endif %}
+{% if is_edit and r.lng is defined and r.lng|string not in ['None', ''] %}{% set lng_value = r.lng|float %}{% else %}{% set lng_value = -79.0287 %}{% endif %}
+{% set lat_text = '%.6f'|format(lat_value) %}
+{% set lng_text = '%.6f'|format(lng_value) %}
+
+{% macro tag_field(name, label, values, suggestions, placeholder) %}
+  {% if values %}{% set joined = values|join(', ') %}{% else %}{% set joined = '' %}{% endif %}
+  <div class="form-group">
+    <label for="{{ name }}-field">{{ label }}</label>
+    <div class="tag-wrap" data-suggestions="{{ suggestions|join('|') }}">
+      <div class="tag-box">
+        <input type="text" id="{{ name }}-field" class="tag-field" placeholder="{{ placeholder }}" autocomplete="off">
+      </div>
+      <input type="hidden" name="{{ name }}" value="{{ joined }}">
+      <div class="tag-suggestions" aria-label="Sugerencias"></div>
+    </div>
+    <small class="field-hint">Escribe y presiona Enter o coma para agregar.</small>
+  </div>
+{% endmacro %}
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
 <div class="admin-container">
-    <div class="admin-header">
-        <h1><i class="fas fa-plus"></i> Nuevo Restaurante</h1>
-        <p>Completa la información del nuevo restaurante</p>
+  <div class="admin-header">
+    <h1>{% if is_edit %}<i class="fas fa-edit"></i> Editar restaurante{% else %}<i class="fas fa-plus"></i> Nuevo restaurante{% endif %}</h1>
+    <p>{% if is_edit %}Actualiza la información de {{ r.name }}.{% else %}Completa la información del nuevo restaurante.{% endif %}</p>
+  </div>
+
+
+<form method="POST" action="{{ form_action }}" class="admin-form" id="restaurantForm" data-mode="{{ form_mode }}">
+
+  {% if csrf_token is defined %}
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  {% endif %}
+
+  <!-- ===== Información básica ===== -->
+  <section class="form-section">
+    <h2 class="section-title">Información básica</h2>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="nameInput">Nombre del restaurante <span class="req">*</span></label>
+        <input type="text" id="nameInput" name="name" class="form-input" value="{{ f_name }}" required autofocus>
+      </div>
+      <div class="form-group">
+        <label for="categoryInput">Categoría <span class="req">*</span></label>
+        <select id="categoryInput" name="category_id" class="form-input" required>
+          <option value="">Seleccionar...</option>
+          {% for cat in categories %}
+            {% if is_edit and cat.id == r.category_id %}
+              <option value="{{ cat.id }}" selected>{{ cat.name }}</option>
+            {% else %}
+              <option value="{{ cat.id }}">{{ cat.name }}</option>
+            {% endif %}
+          {% endfor %}
+        </select>
+      </div>
     </div>
 
-    <form method="POST" class="admin-form" id="restaurantForm">
-        <div class="form-row">
-            <div class="form-group">
-                <label>Nombre del Restaurante *</label>
-                <input type="text" name="name" class="form-input" required>
-            </div>
-            <div class="form-group">
-                <label>Categoría *</label>
-                <select name="category_id" class="form-input" required>
-                    <option value="">Seleccionar...</option>
-                    {% for cat in categories %}
-                        <option value="{{ cat.id }}">{{ cat.name }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-        </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label for="districtInput">Distrito <span class="req">*</span></label>
+        <select id="districtInput" name="district" class="form-input" required>
+          <option value="">Seleccionar...</option>
+          {% for district in districts %}
+            {% if is_edit and district == r.district %}
+              <option value="{{ district }}" selected>{{ district }}</option>
+            {% else %}
+              <option value="{{ district }}">{{ district }}</option>
+            {% endif %}
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="priceInput">Precio promedio ({{ MONEDA }}) <span class="req">*</span></label>
+        <input type="number" id="priceInput" name="avg_price" class="form-input" step="0.5" min="0"
+               value="{{ f_price }}" required>
+      </div>
+    </div>
 
-        <div class="form-row">
-            <div class="form-group">
-                <label>Distrito *</label>
-                <select name="district" class="form-input" required>
-                    <option value="">Seleccionar...</option>
-                    {% for district in districts %}
-                        <option value="{{ district }}">{{ district }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Precio Promedio ({{ MONEDA }}) *</label>
-                <input type="number" name="avg_price" class="form-input" step="0.5" min="0" required>
-            </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label for="ratingInput">Rating</label>
+        <input type="number" id="ratingInput" name="rating" class="form-input" step="0.1" min="0" max="5"
+               value="{{ f_rating }}">
+      </div>
+      <div class="form-group">
+        <label for="openTime">Horario <span class="req">*</span></label>
+        <div class="time-group">
+          <input type="time" id="openTime" name="open_time" class="form-input"
+                 value="{{ f_open }}" required aria-label="Hora de apertura">
+          <span>a</span>
+          <input type="time" id="closeTime" name="close_time" class="form-input"
+                 value="{{ f_close }}" required aria-label="Hora de cierre">
         </div>
+      </div>
+    </div>
+  </section>
 
-        <div class="form-row">
-            <div class="form-group">
-                <label>Rating</label>
-                <input type="number" name="rating" class="form-input" step="0.1" min="0" max="5" value="4.0">
-            </div>
-            <div class="form-group">
-                <label>Horario *</label>
-                <div class="time-group">
-                    <input type="time" name="open_time" class="form-input" value="12:00" required>
-                    <span>a</span>
-                    <input type="time" name="close_time" class="form-input" value="22:00" required>
-                </div>
-            </div>
-        </div>
+  <!-- ===== Ubicación ===== -->
+  <section class="form-section">
+    <h2 class="section-title">Ubicación</h2>
 
-        <div class="form-group">
-            <label>Dirección *</label>
-            <input type="text" name="address" class="form-input" id="addressInput" required>
-        </div>
+    <div class="form-group">
+      <div class="label-row">
+        <label for="addressInput">Dirección <span class="req">*</span></label>
+        <button type="button" class="link-btn" id="useMapAddress"><i class="fas fa-crosshairs"></i> Usar dirección del pin</button>
+      </div>
+      <input type="text" id="addressInput" name="address" class="form-input" value="{{ f_address }}" required>
+      <small class="field-hint">
+        {% if is_edit %}Tu dirección no se cambia al mover el pin, salvo que uses el botón de arriba.{% else %}Se completa sola al mover el pin; puedes escribirla tú si prefieres.{% endif %}
+      </small>
+    </div>
 
-        <div class="form-group">
-            <label>Ubicación en el mapa</label>
-            <div class="location-input-group">
-                <input type="text" id="searchLocation" placeholder="Buscar ubicación (ej: Plaza de Armas Trujillo)" class="form-input">
-                <button type="button" class="btn-location" id="searchLocationBtn">
-                    <i class="fas fa-search"></i> Buscar
-                </button>
-                <button type="button" class="btn-location btn-location-success" id="getCurrentLocationBtn">
-                    <i class="fas fa-crosshairs"></i> Mi ubicación
-                </button>
-            </div>
-            <div id="location-map"></div>
-            <div class="coord-info">
-                📍 Latitud: <span id="latDisplay">-8.1118</span> | 
-                Longitud: <span id="lngDisplay">-79.0287</span>
-                <span class="hint">(Haz clic en el mapa para seleccionar la ubicación)</span>
-            </div>
-            <input type="hidden" name="lat" id="latInput" value="-8.1118">
-            <input type="hidden" name="lng" id="lngInput" value="-79.0287">
+    <div class="form-group">
+      <label for="searchLocation">Ubicación en el mapa</label>
+      <div class="location-input-group">
+        <div class="search-wrap">
+          <input type="search" id="searchLocation" class="form-input" placeholder="Buscar ubicación (ej: Plaza de Armas Trujillo)" autocomplete="off" aria-controls="searchResults">
+          <ul id="searchResults" class="search-results" hidden></ul>
         </div>
+        <button type="button" class="btn-location" id="searchLocationBtn"><i class="fas fa-search"></i> Buscar</button>
+        <button type="button" class="btn-location btn-location-success" id="getCurrentLocationBtn"><i class="fas fa-crosshairs"></i> Mi ubicación</button>
+      </div>
 
-        <div class="form-group">
-            <label>Teléfono</label>
-            <input type="text" name="phone" class="form-input" placeholder="044-123456">
-        </div>
+      <div id="location-map" role="application" aria-label="Mapa para elegir la ubicación del restaurante"></div>
+      <p id="mapStatus" class="map-status" aria-live="polite"></p>
 
-        <div class="form-group">
-            <label>Imagen (URL)</label>
-            <input type="url" name="image" class="form-input" placeholder="https://images.unsplash.com/photo-...">
-        </div>
+      <div class="coord-info">
+        Latitud: <span id="latDisplay">{{ lat_text }}</span> |
+        Longitud: <span id="lngDisplay">{{ lng_text }}</span>
+        <span class="hint">Haz clic en el mapa o arrastra el pin.</span>
+      </div>
+      <input type="hidden" name="lat" id="latInput" value="{{ lat_text }}">
+      <input type="hidden" name="lng" id="lngInput" value="{{ lng_text }}">
+    </div>
+  </section>
 
-        <div class="form-group">
-            <label>Descripción</label>
-            <textarea name="description" class="form-input" rows="3"></textarea>
-        </div>
+  <!-- ===== Contacto y presentación ===== -->
+  <section class="form-section">
+    <h2 class="section-title">Contacto y presentación</h2>
 
-        <div class="form-row">
-            <div class="form-group">
-                <label>Tags (separados por coma)</label>
-                <input type="text" name="tags" class="form-input" placeholder="tradicional, mariscos, familiar">
-            </div>
-            <div class="form-group">
-                <label>Características (separadas por coma)</label>
-                <input type="text" name="features" class="form-input" placeholder="wifi, estacionamiento, reservas">
-            </div>
-        </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label for="phoneInput">Teléfono</label>
+        <input type="tel" id="phoneInput" name="phone" class="form-input" value="{{ f_phone }}" placeholder="044-123456">
+      </div>
+      <div class="form-group">
+        <label for="imageInput">Imagen (URL)</label>
+        <input type="url" id="imageInput" name="image" class="form-input" value="{{ f_image }}" placeholder="https://images.unsplash.com/photo-...">
+      </div>
+    </div>
 
-        <div class="form-row">
-            <div class="form-group">
-                <label>Restricciones dietéticas (separadas por coma)</label>
-                <input type="text" name="dietary_restrictions" class="form-input" placeholder="vegano, sin gluten">
-            </div>
-            <div class="form-group">
-                <label>Promoción (opcional)</label>
-                <input type="text" name="promo" class="form-input" placeholder="10% de descuento en almuerzos">
-            </div>
-        </div>
+    <div class="image-preview" id="imagePreviewWrap" hidden>
+      <img id="imagePreview" alt="Vista previa de la imagen del restaurante">
+    </div>
 
-        <div class="form-actions">
-            <a href="{{ url_for('admin.restaurants') }}" class="btn-secondary">Cancelar</a>
-            <button type="submit" class="btn-primary">Guardar Restaurante</button>
-        </div>
-    </form>
+    <div class="form-group">
+      <div class="label-row">
+        <label for="descriptionInput">Descripción</label>
+        <small class="field-hint" id="descCount">0 caracteres</small>
+      </div>
+      <textarea id="descriptionInput" name="description" class="form-input" rows="3">{{ f_description }}</textarea>
+    </div>
+  </section>
+
+  <!-- ===== Etiquetas y promoción ===== -->
+  <section class="form-section">
+    <h2 class="section-title">Etiquetas y promoción</h2>
+
+    <div class="form-row">
+      {{ tag_field('tags', 'Tags', f_tags,
+                   ['tradicional', 'mariscos', 'familiar', 'parrillas', 'criollo', 'postres'],
+                   'tradicional, mariscos, familiar') }}
+      {{ tag_field('features', 'Características', f_features,
+                   ['wifi', 'estacionamiento', 'reservas', 'delivery', 'terraza', 'pet friendly'],
+                   'wifi, estacionamiento, reservas') }}
+    </div>
+
+    <div class="form-row">
+      {{ tag_field('dietary_restrictions', 'Restricciones dietéticas', f_dietary,
+                   ['vegano', 'vegetariano', 'sin gluten', 'sin lactosa', 'halal'],
+                   'vegano, sin gluten') }}
+      <div class="form-group">
+        <label for="promoInput">Promoción (opcional)</label>
+        <input type="text" id="promoInput" name="promo" class="form-input" value="{{ f_promo }}" placeholder="10% de descuento en almuerzos">
+      </div>
+    </div>
+  </section>
+
+  <div class="form-actions">
+    <a href="{{ url_for('admin.restaurants') }}" class="btn-secondary">Cancelar</a>
+    <button type="submit" class="btn-primary" id="submitBtn">{% if is_edit %}Guardar cambios{% else %}Guardar restaurante{% endif %}</button>
+  </div>
+</form>
 </div>
 
+
 <style>
-    .admin-container {
-        max-width: 800px;
-        margin: 0 auto;
-        padding: 0 20px;
-    }
+  .admin-container { max-width: 860px; margin: 0 auto; padding: 0 20px; }
+  .admin-header { margin-bottom: 28px; }
+  .admin-header h1 { font-size: 28px; font-weight: 700; }
+  .admin-header p { color: var(--gray); }
 
-    .admin-header {
-        margin-bottom: 32px;
-    }
+  .admin-form {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 8px 32px 32px;
+    box-shadow: var(--shadow);
+  }
 
-    .admin-header h1 {
-        font-size: 28px;
-        font-weight: 700;
-    }
+  .form-section { padding: 24px 0 8px; border-bottom: 1px solid var(--light-gray); }
+  .form-section:last-of-type { border-bottom: none; }
+  .section-title { font-size: 16px; font-weight: 600; margin-bottom: 18px; }
 
-    .admin-header p {
-        color: var(--gray);
-    }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .form-group { margin-bottom: 20px; min-width: 0; }
+  .form-group label { display: block; margin-bottom: 6px; font-weight: 500; font-size: 14px; }
+  .label-row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 6px; }
+  .label-row label { margin-bottom: 0; }
+  .req { color: var(--primary); }
+  .field-hint { display: block; margin-top: 6px; font-size: 12px; color: var(--gray); }
+  .label-row .field-hint { margin-top: 0; }
 
-    .admin-form {
-        background: var(--white);
-        border-radius: var(--radius);
-        padding: 32px;
-        box-shadow: var(--shadow);
-    }
+  .form-input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--light-gray);
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    transition: var(--transition);
+    font-family: var(--font-main);
+    background: var(--white);
+  }
+  .form-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
+  textarea.form-input { resize: vertical; min-height: 80px; }
 
-    .form-row {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 20px;
-    }
+  .time-group { display: flex; align-items: center; gap: 8px; }
+  .time-group input { flex: 1; }
 
-    .form-group {
-        margin-bottom: 20px;
-    }
+  .link-btn {
+    background: none; border: none; padding: 0; cursor: pointer;
+    color: var(--primary); font-size: 13px; font-weight: 500; font-family: inherit;
+  }
+  .link-btn:hover { text-decoration: underline; }
+  .link-btn i { margin-right: 4px; }
 
-    .form-group label {
-        display: block;
-        margin-bottom: 6px;
-        font-weight: 500;
-        font-size: 14px;
-    }
+  /* Mapa */
+  #location-map {
+    height: 320px; width: 100%;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--light-gray);
+    margin-top: 8px;
+    z-index: 0;
+  }
+  .location-input-group { display: flex; gap: 10px; align-items: flex-start; flex-wrap: wrap; }
+  .search-wrap { position: relative; flex: 1; min-width: 200px; }
+  .search-results {
+    position: absolute; left: 0; right: 0; top: calc(100% + 4px);
+    margin: 0; padding: 4px; list-style: none;
+    background: var(--white);
+    border: 1px solid var(--light-gray);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow);
+    z-index: 1000; max-height: 260px; overflow-y: auto;
+  }
+  .search-results[hidden] { display: none; }
+  .search-results button {
+    display: block; width: 100%; text-align: left;
+    padding: 9px 10px; border: none; background: none; cursor: pointer;
+    font: inherit; font-size: 13px; line-height: 1.35; border-radius: 6px; color: var(--dark);
+  }
+  .search-results button:hover,
+  .search-results button:focus-visible { background: var(--light-gray); outline: none; }
 
-    .form-input {
-        width: 100%;
-        padding: 10px 14px;
-        border: 1px solid var(--light-gray);
-        border-radius: var(--radius-sm);
-        font-size: 14px;
-        transition: var(--transition);
-        font-family: var(--font-main);
-    }
+  .btn-location {
+    padding: 10px 16px; background: var(--primary); color: #fff; border: none;
+    border-radius: var(--radius-sm); cursor: pointer; font-size: 14px;
+    transition: var(--transition); white-space: nowrap; font-family: inherit;
+  }
+  .btn-location:hover { background: var(--primary-dark); }
+  .btn-location:disabled { opacity: .6; cursor: wait; }
+  .btn-location i { margin-right: 6px; }
+  .btn-location-success { background: #10B981; }
+  .btn-location-success:hover { background: #059669; }
 
-    .form-input:focus {
-        outline: none;
-        border-color: var(--primary);
-        box-shadow: 0 0 0 3px var(--primary-light);
-    }
+  .map-status { min-height: 20px; margin: 8px 0 0; font-size: 13px; color: var(--gray); }
+  .map-status[data-type="error"] { color: #b91c1c; }
+  .map-status[data-type="warn"] { color: #92400e; }
+  .map-status[data-type="ok"] { color: #047857; }
 
-    textarea.form-input {
-        resize: vertical;
-        min-height: 80px;
-    }
+  .coord-info { font-size: 13px; color: var(--gray); margin-top: 4px; }
+  .coord-info span { font-weight: 600; color: var(--dark); }
+  .coord-info .hint { font-weight: 400; color: #6b7280; font-size: 12px; margin-left: 12px; }
 
-    .time-group {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
+  /* Vista previa de imagen */
+  .image-preview { margin: -6px 0 20px; }
+  .image-preview img {
+    display: block; max-height: 160px; max-width: 100%;
+    border-radius: var(--radius-sm); border: 1px solid var(--light-gray); object-fit: cover;
+  }
 
-    .time-group input {
-        flex: 1;
-    }
+  /* Tags */
+  .tag-box {
+    display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
+    padding: 6px 8px; min-height: 42px; cursor: text;
+    border: 1px solid var(--light-gray); border-radius: var(--radius-sm); background: var(--white);
+    transition: var(--transition);
+  }
+  .tag-box:focus-within { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
+  .tag-chip {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 4px 3px 10px; border-radius: 999px;
+    background: var(--primary-light); color: var(--dark); font-size: 13px;
+  }
+  .tag-chip button {
+    border: none; background: none; cursor: pointer; width: 20px; height: 20px;
+    border-radius: 50%; line-height: 1; font-size: 15px; color: inherit;
+  }
+  .tag-chip button:hover { background: rgba(0, 0, 0, .1); }
+  .tag-field { flex: 1; min-width: 120px; border: none; outline: none; font: inherit; font-size: 14px; padding: 4px; background: transparent; }
+  .tag-suggestions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .tag-suggestions button {
+    padding: 2px 10px; font-size: 12px; font-family: inherit; cursor: pointer;
+    border: 1px dashed var(--light-gray); border-radius: 999px; background: none; color: var(--gray);
+  }
+  .tag-suggestions button:hover { border-color: var(--primary); color: var(--primary); }
 
-    .form-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 12px;
-        margin-top: 24px;
-        padding-top: 16px;
-        border-top: 1px solid var(--light-gray);
-    }
+  .form-actions {
+    display: flex; justify-content: flex-end; gap: 12px;
+    margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--light-gray);
+  }
+  .btn-secondary {
+    padding: 10px 24px; background: var(--light-gray); border: none; border-radius: var(--radius-sm);
+    cursor: pointer; transition: var(--transition); font-weight: 500; text-decoration: none; color: var(--dark);
+    font-family: inherit; font-size: 14px;
+  }
+  .btn-secondary:hover { background: #d5d5d5; }
+  .btn-primary {
+    padding: 10px 24px; background: var(--primary); color: var(--white); border: none;
+    border-radius: var(--radius-sm); cursor: pointer; transition: var(--transition);
+    font-weight: 500; font-family: inherit; font-size: 14px;
+  }
+  .btn-primary:hover:not(:disabled) { background: var(--primary-dark); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(255, 56, 92, .3); }
+  .btn-primary:disabled { opacity: .7; cursor: wait; }
 
-    .btn-secondary {
-        padding: 10px 24px;
-        background: var(--light-gray);
-        border: none;
-        border-radius: var(--radius-sm);
-        cursor: pointer;
-        transition: var(--transition);
-        font-weight: 500;
-        text-decoration: none;
-        color: var(--dark);
-    }
+  .toast-stack { position: fixed; right: 20px; bottom: 20px; display: flex; flex-direction: column; gap: 8px; z-index: 3000; }
+  .toast {
+    padding: 12px 16px; border-radius: var(--radius-sm); background: var(--dark); color: #fff;
+    font-size: 14px; box-shadow: var(--shadow); max-width: 320px; transition: opacity .3s, transform .3s;
+  }
+  .toast-error { background: #b91c1c; }
+  .toast-ok { background: #047857; }
+  .toast-out { opacity: 0; transform: translateY(6px); }
 
-    .btn-secondary:hover {
-        background: #d5d5d5;
-    }
+  :is(button, a, input, select, textarea):focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 
-    .btn-primary {
-        padding: 10px 24px;
-        background: var(--primary);
-        color: var(--white);
-        border: none;
-        border-radius: var(--radius-sm);
-        cursor: pointer;
-        transition: var(--transition);
-        font-weight: 500;
-    }
-
-    .btn-primary:hover {
-        background: var(--primary-dark);
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(255, 56, 92, 0.3);
-    }
-
-    @media (max-width: 768px) {
-        .form-row {
-            grid-template-columns: 1fr;
-        }
-
-        .admin-form {
-            padding: 20px;
-        }
-        
-        .location-input-group {
-            flex-direction: column;
-        }
-        
-        .location-input-group input {
-            width: 100%;
-        }
-        
-        .location-input-group .btn-location {
-            width: 100%;
-            justify-content: center;
-        }
-    }
+  @media (max-width: 768px) {
+    .form-row { grid-template-columns: 1fr; gap: 0; }
+    .admin-form { padding: 4px 18px 24px; }
+    .location-input-group { flex-direction: column; align-items: stretch; }
+    .search-wrap { min-width: 0; }
+    .btn-location { width: 100%; }
+    .form-actions { flex-direction: column-reverse; }
+    .form-actions > * { width: 100%; text-align: center; }
+  }
 </style>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        let map;
-        let marker;
-        let initialLat = -8.1118;
-        let initialLng = -79.0287;
-        
-        function initMap(lat, lng) {
-            if (map) {
-                map.remove();
-            }
-            
-            map = L.map('location-map').setView([lat, lng], 15);
-            
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors'
-            }).addTo(map);
-            
-            marker = L.marker([lat, lng], {
-                draggable: true
-            }).addTo(map);
-            
-            marker.on('dragend', function(e) {
-                const pos = marker.getLatLng();
-                updateCoords(pos.lat, pos.lng);
-            });
-            
-            map.on('click', function(e) {
-                const pos = e.latlng;
-                marker.setLatLng(pos);
-                updateCoords(pos.lat, pos.lng);
-            });
-            
-            document.getElementById('searchLocationBtn').addEventListener('click', function() {
-                const query = document.getElementById('searchLocation').value.trim();
-                if (query) {
-                    searchLocation(query);
-                } else {
-                    alert('Por favor ingresa una dirección para buscar');
-                }
-            });
-            
-            document.getElementById('searchLocation').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    document.getElementById('searchLocationBtn').click();
-                }
-            });
-            
-            document.getElementById('getCurrentLocationBtn').addEventListener('click', function() {
-                if (navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition(
-                        function(position) {
-                            const lat = position.coords.latitude;
-                            const lng = position.coords.longitude;
-                            map.setView([lat, lng], 16);
-                            marker.setLatLng([lat, lng]);
-                            updateCoords(lat, lng);
-                            reverseGeocode(lat, lng);
-                        },
-                        function(error) {
-                            alert('Error al obtener ubicación: ' + error.message);
-                        }
-                    );
-                } else {
-                    alert('Tu navegador no soporta geolocalización');
-                }
-            });
-        }
-        
-        function updateCoords(lat, lng) {
-            document.getElementById('latInput').value = lat.toFixed(6);
-            document.getElementById('lngInput').value = lng.toFixed(6);
-            document.getElementById('latDisplay').textContent = lat.toFixed(6);
-            document.getElementById('lngDisplay').textContent = lng.toFixed(6);
-        }
-        
-        function searchLocation(query) {
-            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`;
-            
-            fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    if (data && data.length > 0) {
-                        const lat = parseFloat(data[0].lat);
-                        const lng = parseFloat(data[0].lon);
-                        map.setView([lat, lng], 16);
-                        marker.setLatLng([lat, lng]);
-                        updateCoords(lat, lng);
-                        if (data[0].display_name) {
-                            document.getElementById('addressInput').value = data[0].display_name;
-                        }
-                    } else {
-                        alert('No se encontró la ubicación. Intenta con otra búsqueda.');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error buscando ubicación:', error);
-                    alert('Error al buscar la ubicación. Por favor intenta de nuevo.');
-                });
-        }
-        
-        function reverseGeocode(lat, lng) {
-            const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`;
-            
-            fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    if (data && data.display_name) {
-                        document.getElementById('addressInput').value = data.display_name;
-                    }
-                })
-                .catch(error => {
-                    console.error('Error en reverse geocoding:', error);
-                });
-        }
-        
-        initMap(initialLat, initialLng);
-        
-        const existingLat = document.getElementById('latInput').value;
-        const existingLng = document.getElementById('lngInput').value;
-        if (existingLat && existingLng && existingLat !== '-8.1118') {
-            const lat = parseFloat(existingLat);
-            const lng = parseFloat(existingLng);
-            if (!isNaN(lat) && !isNaN(lng)) {
-                map.setView([lat, lng], 16);
-                marker.setLatLng([lat, lng]);
-                updateCoords(lat, lng);
-            }
-        }
+  document.addEventListener('DOMContentLoaded', function () {
+    'use strict';
+
+    const DEFAULT_CENTER = [-8.1118, -79.0287]; // Trujillo
+
+    const $ = (id) => document.getElementById(id);
+    const form = $('restaurantForm');
+    const IS_EDIT = form.dataset.mode === 'edit';
+    const submitBtn = $('submitBtn');
+    const submitLabel = submitBtn.innerHTML;
+    const addressInput = $('addressInput');
+    const latInput = $('latInput');
+    const lngInput = $('lngInput');
+    const latDisplay = $('latDisplay');
+    const lngDisplay = $('lngDisplay');
+    const mapStatus = $('mapStatus');
+    const searchInput = $('searchLocation');
+    const searchBtn = $('searchLocationBtn');
+    const geoBtn = $('getCurrentLocationBtn');
+    const resultsList = $('searchResults');
+
+    let dirty = false;
+    let submitting = false;
+    // En edición no pisamos la dirección existente cuando se mueve el pin.
+    let addressTouched = IS_EDIT;
+
+    const markDirty = () => { dirty = true; };
+
+    /* ---------- Avisos ---------- */
+    function toast(msg, type) {
+      let stack = $('toastStack');
+      if (!stack) {
+        stack = document.createElement('div');
+        stack.id = 'toastStack';
+        stack.className = 'toast-stack';
+        stack.setAttribute('aria-live', 'polite');
+        document.body.appendChild(stack);
+      }
+      const t = document.createElement('div');
+      t.className = 'toast toast-' + (type || 'info');
+      t.textContent = msg;
+      stack.appendChild(t);
+      setTimeout(() => {
+        t.classList.add('toast-out');
+        setTimeout(() => t.remove(), 300);
+      }, 3500);
+    }
+
+    function setStatus(msg, type) {
+      mapStatus.textContent = msg || '';
+      mapStatus.dataset.type = type || '';
+    }
+
+    /* ---------- Mapa ---------- */
+    if (typeof L === 'undefined') {
+      setStatus('No se pudo cargar el mapa. Revisa tu conexión y recarga la página.', 'error');
+      [searchBtn, geoBtn, searchInput].forEach((el) => { el.disabled = true; });
+      return;
+    }
+
+    const startLat = parseFloat(latInput.value);
+    const startLng = parseFloat(lngInput.value);
+    const start = Number.isFinite(startLat) && Number.isFinite(startLng) ? [startLat, startLng] : DEFAULT_CENTER;
+
+    const map = L.map('location-map').setView(start, IS_EDIT ? 16 : 15);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; Colaboradores de OpenStreetMap'
+    }).addTo(map);
+    const marker = L.marker(start, { draggable: true }).addTo(map);
+    setTimeout(() => map.invalidateSize(), 200);
+
+    function setCoords(lat, lng, opts) {
+      opts = opts || {};
+      lat = Number(lat);
+      lng = Number(lng);
+      if (!Number.isFinite(lat) || !Number.isFinite(lng) || Math.abs(lat) > 90 || Math.abs(lng) > 180) return;
+      marker.setLatLng([lat, lng]);
+      latInput.value = lat.toFixed(6);
+      lngInput.value = lng.toFixed(6);
+      latDisplay.textContent = lat.toFixed(6);
+      lngDisplay.textContent = lng.toFixed(6);
+      if (opts.pan) map.setView([lat, lng], opts.zoom || Math.max(map.getZoom(), 16));
+      if (opts.reverse) reverseGeocode(lat, lng, false);
+      markDirty();
+    }
+
+    marker.on('dragend', () => {
+      const p = marker.getLatLng();
+      setCoords(p.lat, p.lng, { reverse: true });
     });
+    map.on('click', (e) => setCoords(e.latlng.lat, e.latlng.lng, { reverse: true }));
+
+    /* ---------- Geocodificación inversa (con debounce y cancelación) ---------- */
+    let revTimer = null;
+    let revCtrl = null;
+
+    function reverseGeocode(lat, lng, force) {
+      if (!force && addressTouched) return;
+      clearTimeout(revTimer);
+      revTimer = setTimeout(async () => {
+        if (revCtrl) revCtrl.abort();
+        revCtrl = new AbortController();
+        setStatus('Obteniendo dirección…');
+        try {
+          const url = 'https://nominatim.openstreetmap.org/reverse?format=jsonv2&accept-language=es&lat=' + lat + '&lon=' + lng;
+          const res = await fetch(url, { signal: revCtrl.signal, headers: { Accept: 'application/json' } });
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          const data = await res.json();
+          if (data && data.display_name && (force || !addressTouched)) {
+            addressInput.value = data.display_name;
+            if (force) addressTouched = false;
+            setStatus('Dirección actualizada desde el mapa.', 'ok');
+          } else {
+            setStatus('');
+          }
+        } catch (err) {
+          if (err.name !== 'AbortError') setStatus('No se pudo obtener la dirección. Puedes escribirla manualmente.', 'warn');
+        }
+      }, 700);
+    }
+
+    addressInput.addEventListener('input', () => { addressTouched = true; });
+    $('useMapAddress').addEventListener('click', () => {
+      const p = marker.getLatLng();
+      reverseGeocode(p.lat, p.lng, true);
+      markDirty();
+    });
+
+    /* ---------- Búsqueda de lugares ---------- */
+    let searchCtrl = null;
+
+    function hideResults() {
+      resultsList.hidden = true;
+      resultsList.innerHTML = '';
+    }
+
+    function pickResult(item) {
+      setCoords(item.lat, item.lon, { pan: true, zoom: 17 });
+      if (item.display_name) {
+        addressInput.value = item.display_name;
+        addressTouched = false;
+      }
+      hideResults();
+      setStatus('Ubicación seleccionada. Ajusta el pin si hace falta.', 'ok');
+    }
+
+    function showResults(items) {
+      resultsList.innerHTML = '';
+      items.forEach((item) => {
+        const li = document.createElement('li');
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.textContent = item.display_name;
+        b.addEventListener('click', () => pickResult(item));
+        li.appendChild(b);
+        resultsList.appendChild(li);
+      });
+      resultsList.hidden = false;
+    }
+
+    async function searchPlaces() {
+      const q = searchInput.value.trim();
+      if (q.length < 3) {
+        setStatus('Escribe al menos 3 caracteres para buscar.', 'warn');
+        return;
+      }
+      if (searchCtrl) searchCtrl.abort();
+      searchCtrl = new AbortController();
+      searchBtn.disabled = true;
+      setStatus('Buscando…');
+      try {
+        // countrycodes=pe limita los resultados a Perú. Quítalo si necesitas buscar en otros países.
+        const url = 'https://nominatim.openstreetmap.org/search?format=jsonv2&limit=5&accept-language=es&countrycodes=pe&q=' + encodeURIComponent(q);
+        const res = await fetch(url, { signal: searchCtrl.signal, headers: { Accept: 'application/json' } });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const results = await res.json();
+        if (!results.length) {
+          hideResults();
+          setStatus('No se encontró la ubicación. Prueba con otro nombre o agrega la ciudad.', 'warn');
+        } else if (results.length === 1) {
+          pickResult(results[0]);
+        } else {
+          showResults(results);
+          setStatus('Elige un resultado de la lista.');
+        }
+      } catch (err) {
+        if (err.name !== 'AbortError') setStatus('No se pudo buscar. Revisa tu conexión e inténtalo de nuevo.', 'error');
+      } finally {
+        searchBtn.disabled = false;
+      }
+    }
+
+    searchBtn.addEventListener('click', searchPlaces);
+    searchInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); searchPlaces(); }
+      if (e.key === 'Escape') hideResults();
+    });
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.search-wrap')) hideResults();
+    });
+
+    /* ---------- Mi ubicación ---------- */
+    geoBtn.addEventListener('click', () => {
+      if (!navigator.geolocation) {
+        setStatus('Tu navegador no soporta geolocalización.', 'error');
+        return;
+      }
+      geoBtn.disabled = true;
+      setStatus('Obteniendo tu ubicación…');
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          geoBtn.disabled = false;
+          setCoords(pos.coords.latitude, pos.coords.longitude, { pan: true, zoom: 17, reverse: true });
+          setStatus('Ubicación actual seleccionada.', 'ok');
+        },
+        (err) => {
+          geoBtn.disabled = false;
+          const msgs = {
+            1: 'Permiso denegado. Habilita la ubicación en tu navegador (requiere HTTPS o localhost).',
+            2: 'No se pudo determinar tu ubicación.',
+            3: 'Se agotó el tiempo de espera. Inténtalo de nuevo.'
+          };
+          setStatus(msgs[err.code] || 'Error al obtener la ubicación.', 'error');
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+      );
+    });
+
+    /* ---------- Campos de etiquetas (chips) ---------- */
+    function initTagField(wrap) {
+      const box = wrap.querySelector('.tag-box');
+      const field = wrap.querySelector('.tag-field');
+      const hidden = wrap.querySelector('input[type="hidden"]');
+      const sugBox = wrap.querySelector('.tag-suggestions');
+      const suggestions = (wrap.dataset.suggestions || '').split('|').filter(Boolean);
+      const tags = [];
+
+      const clean = (s) => s.trim().replace(/\s+/g, ' ');
+      const has = (t) => tags.some((x) => x.toLowerCase() === t.toLowerCase());
+
+      function render() {
+        box.querySelectorAll('.tag-chip').forEach((n) => n.remove());
+        tags.forEach((t, i) => {
+          const chip = document.createElement('span');
+          chip.className = 'tag-chip';
+          chip.appendChild(document.createTextNode(t));
+          const x = document.createElement('button');
+          x.type = 'button';
+          x.setAttribute('aria-label', 'Quitar ' + t);
+          x.innerHTML = '&times;';
+          x.addEventListener('click', () => { tags.splice(i, 1); render(); markDirty(); });
+          chip.appendChild(x);
+          box.insertBefore(chip, field);
+        });
+        hidden.value = tags.join(', ');
+
+        sugBox.innerHTML = '';
+        suggestions.filter((s) => !has(s)).forEach((s) => {
+          const b = document.createElement('button');
+          b.type = 'button';
+          b.textContent = '+ ' + s;
+          b.addEventListener('click', () => add(s));
+          sugBox.appendChild(b);
+        });
+      }
+
+      function add(raw) {
+        let changed = false;
+        raw.split(',').forEach((piece) => {
+          const t = clean(piece);
+          if (t && !has(t)) { tags.push(t); changed = true; }
+        });
+        if (changed) { render(); markDirty(); }
+      }
+
+      function flush() {
+        if (field.value.trim()) add(field.value);
+        field.value = '';
+      }
+
+      field.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ',') {
+          e.preventDefault();
+          flush();
+        } else if (e.key === 'Backspace' && !field.value && tags.length) {
+          tags.pop();
+          render();
+          markDirty();
+        }
+      });
+      field.addEventListener('input', () => {
+        if (field.value.includes(',')) flush();
+      });
+      field.addEventListener('blur', flush);
+      box.addEventListener('click', (e) => { if (e.target === box) field.focus(); });
+
+      add(hidden.value);
+      render();
+      return { flush: flush };
+    }
+
+    const tagFields = Array.from(document.querySelectorAll('.tag-wrap')).map(initTagField);
+    dirty = false; // la carga inicial de chips no cuenta como cambio
+
+    /* ---------- Vista previa de imagen ---------- */
+    const imageInput = $('imageInput');
+    const preview = $('imagePreview');
+    const previewWrap = $('imagePreviewWrap');
+    let previewTimer = null;
+
+    function updatePreview() {
+      const url = imageInput.value.trim();
+      if (!url) {
+        previewWrap.hidden = true;
+        preview.removeAttribute('src');
+        return;
+      }
+      preview.src = url;
+    }
+    preview.addEventListener('load', () => { previewWrap.hidden = false; });
+    preview.addEventListener('error', () => { previewWrap.hidden = true; });
+    imageInput.addEventListener('input', () => {
+      clearTimeout(previewTimer);
+      previewTimer = setTimeout(updatePreview, 400);
+    });
+    updatePreview();
+
+    /* ---------- Contador de descripción ---------- */
+    const desc = $('descriptionInput');
+    const descCount = $('descCount');
+    function updateCount() { descCount.textContent = desc.value.length + ' caracteres'; }
+    desc.addEventListener('input', updateCount);
+    updateCount();
+
+    /* ---------- Cambios sin guardar y envío ---------- */
+    form.addEventListener('input', (e) => { if (e.target.id !== 'searchLocation' && !e.target.classList.contains('tag-field')) markDirty(); });
+    form.addEventListener('change', (e) => { if (e.target.id !== 'searchLocation') markDirty(); });
+
+    window.addEventListener('beforeunload', (e) => {
+      if (dirty && !submitting) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    });
+
+    form.addEventListener('submit', (e) => {
+      tagFields.forEach((t) => t.flush());
+      const lat = parseFloat(latInput.value);
+      const lng = parseFloat(lngInput.value);
+      if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+        e.preventDefault();
+        toast('Selecciona una ubicación válida en el mapa.', 'error');
+        $('location-map').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+      submitting = true;
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando…';
+    });
+
+    // Si el usuario vuelve con el botón "atrás", se restablece el botón.
+    window.addEventListener('pageshow', (e) => {
+      if (e.persisted) {
+        submitting = false;
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = submitLabel;
+      }
+    });
+  });
 </script>
 
 {% endblock %}

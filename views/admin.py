@@ -22,6 +22,17 @@ logger = logging.getLogger(__name__)
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 
 
+@admin_bp.app_context_processor
+def inject_sidebar_restaurants():
+    user = session.get("user") or {}
+    role = user.get("role")
+    if role == "admin":
+        return {"restaurants": RestaurantModel.all()}
+    if role == "business_owner":
+        return {"restaurants": RestaurantModel.get_by_owner(user.get("id"))}
+    return {}
+
+
 def _fresh_session_user():
     """Revalida el rol contra el almacenamiento antes de autorizar."""
     raw_id = session.get('user_id')
@@ -284,16 +295,16 @@ def edit_restaurant(id):
     user = session.get('user')
     user_id = user.get('id')
     role = user.get('role')
-    
+
     if role != 'admin' and not RestaurantModel.is_owner(user_id, id):
         flash('No tienes permiso para editar este restaurante', 'error')
         return redirect(url_for('admin.restaurants'))
-    
+
     restaurant = RestaurantModel.get_by_id(id)
     if not restaurant:
         flash('Restaurante no encontrado', 'error')
         return redirect(url_for('admin.restaurants'))
-    
+
     categories = []
     if os.path.exists(Config.CATEGORIES_FILE):
         try:
@@ -301,13 +312,14 @@ def edit_restaurant(id):
                 categories = json.load(f)
         except:
             categories = []
-    
+
     districts = getattr(Config, 'DISTRITOS', ['Trujillo', 'Victor Larco', 'La Esperanza', 'Huanchaco', 'Moche'])
-    
-    return render_template('admin/restaurant_edit.html',
-                         restaurant=restaurant,
-                         categories=categories,
-                         districts=districts)
+
+    return render_template("admin/restaurant_form.html",
+        restaurant=restaurant,
+        categories=categories,
+        districts=districts,
+    )
 
 @admin_bp.route('/restaurant/<int:id>/update', methods=['POST'])
 @admin_or_owner_required
@@ -722,7 +734,7 @@ def stats_api():
         'with_promo': sum(1 for r in restaurants if r.get('promo')),
         'total_reviews': sum(r.get('reviews', 0) for r in restaurants)
     })
-    
+
 @admin_bp.route('/moderation')
 @admin_required
 def moderation_dashboard():
