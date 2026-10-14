@@ -121,9 +121,17 @@ def detail(restaurant_id):
             return render_template('404.html', message="Restaurante no encontrado"), 404
         
         # ✅ Verificar que el restaurante esté aprobado
+        # Los restaurantes no verificados solo pueden ser vistos por administradores
         if not restaurant.get('verified', False):
-            return render_template('404.html', message="Restaurante no disponible"), 404
-            
+            user = session.get('user') or {}
+            role = str(user.get('role', user.get('rol', ''))).upper()
+
+            if role != 'ADMIN':
+                return render_template(
+                    '404.html',
+                    message="Restaurante no disponible"
+                ), 404
+                    
         # Obtener platos del restaurante
         dishes = load_dishes(restaurant_id)
         

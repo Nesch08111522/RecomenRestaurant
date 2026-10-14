@@ -202,8 +202,13 @@
         ],
         "owner_id": 3,
         "owner_name": "Juan Empresario",
-        "verified": false,
-        "moderation_notes": ""
+        "verified": true,
+        "moderation_notes": "",
+        "approval_status": "APROBADO_AUTOMATICAMENTE",
+        "moderated_at": "2026-10-14T16:37:24.026432+00:00",
+        "rejected": false,
+        "suspended": false,
+        "publication_status": "published"
     },
     {
         "id": 7,
@@ -312,8 +317,13 @@
         ],
         "owner_id": 3,
         "owner_name": "Juan Empresario",
-        "verified": false,
-        "moderation_notes": ""
+        "verified": true,
+        "moderation_notes": "Bien",
+        "approval_status": "APROBADO_AUTOMATICAMENTE",
+        "moderated_at": "2026-10-14T15:55:27.936040+00:00",
+        "rejected": false,
+        "suspended": false,
+        "publication_status": "published"
     },
     {
         "id": 10,
@@ -639,7 +649,12 @@
         "owner_id": 3,
         "owner_name": "Juan Empresario",
         "verified": false,
-        "moderation_notes": ""
+        "moderation_notes": "Mal",
+        "approval_status": "RECHAZADO",
+        "moderated_at": "2026-10-14T15:55:34.048300+00:00",
+        "rejected": true,
+        "suspended": false,
+        "publication_status": "unpublished"
     },
     {
         "id": 20,

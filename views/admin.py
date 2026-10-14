@@ -856,23 +856,153 @@ def restaurant_moderation_history(id):
     return jsonify({'moderation_id': entry.get('id'), 'status': ModerationModel.normalize_state(entry), 'history': entry.get('status_history', [])})
 
 
-@admin_bp.route('/moderation/auto-filter', methods=['POST'])
+@admin_bp.route("/moderation/auto-filter", methods=["POST"])
 @admin_required
 def auto_filter_restaurants():
-    """Ejecutar solo preevaluación y marcar señales; no decide rechazos humanos."""
-    from models.moderation import ModerationModel
+    """Evalúa restaurantes y registra los resultados sin borrar decisiones humanas."""
+    from datetime import datetime, timezone
+
+    from flask import jsonify, session
+    from models.moderation import (
+        ModerationModel,
+        APPROVAL_PENDING,
+        CONTROLLED_TO_LEGACY,
+    )
+    from models.restaurant import RestaurantModel
+
+    actor_id = session.get("user_id")
+
     checked = 0
     flagged = 0
-    actor_id = int(session.get('user_id'))
+    created = 0
+    updated = 0
+    preserved_human_decisions = 0
+
+    now = lambda: datetime.now(timezone.utc).isoformat()
+
     for restaurant in RestaurantModel.all():
-        evaluation = ModerationModel.preliminary_evaluate('restaurant', restaurant)
+        if not isinstance(restaurant, dict):
+            continue
+
         checked += 1
-        if evaluation.get('human_review_required') or evaluation.get('issues'):
+        restaurant_id = restaurant.get("id")
+
+        evaluation = ModerationModel.preliminary_evaluate(
+            "restaurant",
+            restaurant,
+        )
+
+        needs_review = bool(
+            evaluation.get("human_review_required") or evaluation.get("issues")
+        )
+
+        if needs_review:
             flagged += 1
-            entry = next((item for item in ModerationModel._load_data() if item.get('content_id') == restaurant.get('id') and item.get('content_type') == 'restaurant'), None)
-            if entry:
-                ModerationModel.update(entry['id'], {'ai_verdict': evaluation['ai_verdict'], 'ai_confidence': evaluation['confidence'], 'ai_evaluation': evaluation, 'approval_status': 'PENDIENTE_REVISION', 'status': 'pending', 'flagged': True, 'updated_at': datetime.datetime.now(datetime.timezone.utc).isoformat()})
-            else:
-                ModerationModel.create_moderation_entry('restaurant', restaurant.get('id'), restaurant, actor_id, reason='Preevaluación automática', ai_evaluation=evaluation)
-    record_event('ADMIN_APPROVAL_DECISION', resource_type='moderation_batch', metadata={'total_checked': checked, 'flagged': flagged, 'action': 'preliminary_filter'}, actor_user_id=actor_id)
-    return jsonify({'success': True, 'total_checked': checked, 'flagged': flagged, 'human_review_required': flagged})
+
+        entries = ModerationModel._load_data()
+
+        existing = next(
+            (
+                item
+                for item in entries
+                if str(item.get("content_id")) == str(restaurant_id)
+                and item.get("content_type") == "restaurant"
+            ),
+            None,
+        )
+
+        # Una decisión humana no debe ser sustituida por una nueva
+        # ejecución del filtro automático.
+        if existing and (
+            existing.get("human_decision_at")
+            or existing.get("decision_source")
+            in (
+                "ADMIN_REVIEW",
+                "ADMIN_REVERT",
+            )
+        ):
+            preserved_human_decisions += 1
+            continue
+
+        if existing is None:
+            ModerationModel.create_moderation_entry(
+                content_type="restaurant",
+                content_id=restaurant_id,
+                content_data=restaurant,
+                user_id=actor_id,
+                reason="Preevaluación automática",
+                ai_evaluation=evaluation,
+            )
+            created += 1
+            continue
+
+        previous_status = ModerationModel.normalize_state(existing)
+        new_status = evaluation.get(
+            "final_status",
+            APPROVAL_PENDING,
+        )
+
+        if new_status not in CONTROLLED_TO_LEGACY:
+            new_status = APPROVAL_PENDING
+
+        timestamp = now()
+        history = list(existing.get("status_history") or [])
+
+        # Registra el cambio de estado para mantener la trazabilidad.
+        if previous_status != new_status:
+            history.append(
+                {
+                    "from": previous_status,
+                    "to": new_status,
+                    "actor_user_id": None,
+                    "source": "AI_PRECHECK",
+                    "notes": "Estado actualizado por una nueva preevaluación.",
+                    "timestamp": timestamp,
+                }
+            )
+
+        ModerationModel.update(
+            existing["id"],
+            {
+                "content_data": restaurant,
+                "approval_status": new_status,
+                "status": CONTROLLED_TO_LEGACY[new_status],
+                "ai_verdict": evaluation.get("ai_verdict"),
+                "ai_confidence": evaluation.get("confidence"),
+                "ai_evaluation": evaluation,
+                "decision_source": "AI_PRECHECK",
+                "flagged": needs_review,
+                "status_history": history,
+                "updated_at": timestamp,
+            },
+        )
+        updated += 1
+
+    record_event(
+        "ADMIN_APPROVAL_DECISION",
+        resource_type="moderation_batch",
+        metadata={
+            "total_checked": checked,
+            "flagged": flagged,
+            "created": created,
+            "updated": updated,
+            "preserved_human_decisions": preserved_human_decisions,
+            "action": "preliminary_filter",
+        },
+        actor_user_id=actor_id,
+    )
+
+    return (
+        jsonify(
+            {
+                "success": True,
+                "total_checked": checked,
+                "flagged": flagged,
+                "human_review_required": flagged,
+                "created": created,
+                "updated": updated,
+                "preserved_human_decisions": preserved_human_decisions,
+            }
+        ),
+        200,
+    )
