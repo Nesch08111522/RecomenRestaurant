@@ -336,19 +336,20 @@ class AdminController {
         }
         
         // Acciones de edición
-        document.querySelectorAll('.edit-btn').forEach(btn => {
+        // Las vistas pueden definir una acción propia con onclick; no la dupliques aquí.
+        document.querySelectorAll('.edit-btn:not([onclick])').forEach(btn => {
             btn.addEventListener('click', () => {
                 this.editRestaurant(btn.dataset.id);
             });
         });
         
-        document.querySelectorAll('.delete-btn').forEach(btn => {
+        document.querySelectorAll('.delete-btn:not([onclick])').forEach(btn => {
             btn.addEventListener('click', () => {
                 this.deleteRestaurant(btn.dataset.id);
             });
         });
         
-        document.querySelectorAll('.promo-btn').forEach(btn => {
+        document.querySelectorAll('.promo-btn:not([onclick])').forEach(btn => {
             btn.addEventListener('click', () => {
                 this.addPromotion(btn.dataset.id);
             });

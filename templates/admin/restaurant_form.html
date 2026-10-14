@@ -102,6 +102,43 @@
             </div>
         </div>
 
+        <fieldset class="service-mode-fieldset" aria-describedby="serviceModeStatus">
+            <legend>Modalidad de atención *</legend>
+            <div class="service-mode-options">
+                <label class="service-mode-option">
+                    <input class="service-mode-radio" type="radio" name="service_mode" value="dine_in_only" required>
+                    <span class="service-mode-card">
+                        <img src="{{ url_for('static', filename='images/service-dine-in.svg') }}" alt="">
+                        <span class="service-mode-copy">
+                            <strong>Solo local</strong>
+                            <small>Atención y consumo dentro del restaurante.</small>
+                        </span>
+                    </span>
+                </label>
+                <label class="service-mode-option">
+                    <input class="service-mode-radio" type="radio" name="service_mode" value="dine_in_and_delivery" required>
+                    <span class="service-mode-card">
+                        <img src="{{ url_for('static', filename='images/service-dine-in-delivery.svg') }}" alt="">
+                        <span class="service-mode-copy">
+                            <strong>Local y delivery</strong>
+                            <small>Atiende en mesa y recibe pedidos a domicilio.</small>
+                        </span>
+                    </span>
+                </label>
+                <label class="service-mode-option">
+                    <input class="service-mode-radio" type="radio" name="service_mode" value="delivery_only" required>
+                    <span class="service-mode-card">
+                        <img src="{{ url_for('static', filename='images/service-delivery-only.svg') }}" alt="">
+                        <span class="service-mode-copy">
+                            <strong>Solo delivery</strong>
+                            <small>Prepara y entrega pedidos a domicilio.</small>
+                        </span>
+                    </span>
+                </label>
+            </div>
+            <p class="service-mode-status" id="serviceModeStatus">Selecciona una modalidad. Puedes cambiarla haciendo clic en otra tarjeta.</p>
+        </fieldset>
+
         <div class="form-row">
             <div class="form-group">
                 <label>Rating</label>
