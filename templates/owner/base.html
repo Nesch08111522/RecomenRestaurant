@@ -66,6 +66,17 @@
     </div>
 </div>
 
+<div id="owner-toast-container" class="owner-toast-container"
+     aria-live="polite" aria-atomic="false"></div>
+
+<div id="owner-flash-messages" hidden>
+    {% with owner_messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in owner_messages %}
+            <div data-category="{{ category }}">{{ message }}</div>
+        {% endfor %}
+    {% endwith %}
+</div>
+
 <style>
     .owner-dashboard {
         display: flex;
@@ -205,9 +216,129 @@
     
     .owner-content {
         flex: 1;
+        min-width: 0;
         padding: 32px 40px;
-        overflow-y: auto;
-        max-height: calc(100vh - 80px);
+        /* Deja que el documento completo haga scroll, incluyendo el footer. */
+        overflow: visible;
+        max-height: none;
+    }
+
+    /* Compacta el footer solo en las pantallas del panel Owner. */
+    body:has(.owner-dashboard) .main-footer {
+        position: static;
+        margin-top: 0;
+        padding: 20px 40px;
+    }
+
+    .service-mode-fieldset {
+        min-width: 0;
+        margin: 0 0 20px;
+        padding: 0;
+        border: 0;
+    }
+
+    .service-mode-fieldset legend {
+        margin-bottom: 10px;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    .service-mode-options {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .service-mode-option {
+        position: relative;
+        display: block;
+        min-width: 0;
+        cursor: pointer;
+    }
+
+    .service-mode-radio {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        opacity: 0;
+    }
+
+    .service-mode-card {
+        position: relative;
+        display: flex;
+        height: 100%;
+        min-height: 218px;
+        flex-direction: column;
+        overflow: hidden;
+        border: 2px solid #e5e7eb;
+        border-radius: 14px;
+        background: #fff;
+        cursor: pointer;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease, opacity 0.2s ease;
+    }
+
+    .service-mode-card img {
+        display: block;
+        width: 100%;
+        height: 124px;
+        object-fit: cover;
+    }
+
+    .service-mode-copy {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        gap: 5px;
+        padding: 12px 14px 14px;
+    }
+
+    .service-mode-copy strong {
+        color: #1f2937;
+        font-size: 14px;
+    }
+
+    .service-mode-copy small {
+        color: #6b7280;
+        font-size: 12px;
+        line-height: 1.4;
+    }
+
+    .service-mode-radio:checked + .service-mode-card {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px var(--primary-light);
+    }
+
+    .service-mode-radio:not(:checked) + .service-mode-card {
+        filter: grayscale(1);
+        opacity: 0.68;
+    }
+
+    .service-mode-option:hover .service-mode-radio:not(:checked) + .service-mode-card {
+        border-color: #9ca3af;
+    }
+
+    .service-mode-radio:checked + .service-mode-card::after {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        padding: 5px 9px;
+        border-radius: 999px;
+        background: var(--primary);
+        color: #fff;
+        content: "Seleccionado";
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    .service-mode-radio:focus-visible + .service-mode-card {
+        outline: 3px solid #2563eb;
+        outline-offset: 3px;
+    }
+
+    .service-mode-status {
+        margin: 10px 0 0;
+        color: #6b7280;
+        font-size: 13px;
     }
     
     @media (max-width: 768px) {
@@ -257,6 +388,16 @@
             padding: 20px 16px;
             max-height: none;
         }
+
+        body:has(.owner-dashboard) .main-footer {
+            padding: 16px;
+        }
+
+        .service-mode-options {
+            grid-template-columns: repeat(3, minmax(180px, 1fr));
+            overflow-x: auto;
+            padding: 4px 4px 10px;
+        }
         
         .submenu-items {
             max-height: none !important;
@@ -277,6 +418,192 @@
             margin: 0;
         }
     }
+
+    .owner-toast-container {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        right: auto;
+        transform: translate(-50%, -50%);
+        z-index: 10000;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        width: min(460px, calc(100vw - 32px));
+        pointer-events: none;
+    }
+    
+    .owner-toast {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 15px 16px;
+        background: #fff;
+        color: #1f2937;
+        border-left: 5px solid #2563eb;
+        border-radius: 12px;
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
+        opacity: 0;
+        transform: translateY(12px);
+        transition: opacity 0.25s ease, transform 0.25s ease;
+        pointer-events: auto;
+    }
+    
+    .owner-toast.is-visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    
+    .owner-toast--success {
+        border-left-color: #16a34a;
+    }
+    
+    .owner-toast--error {
+        border-left-color: #dc2626;
+    }
+    
+    .owner-toast--warning {
+        border-left-color: #d97706;
+    }
+    
+    .owner-toast--info {
+        border-left-color: #2563eb;
+    }
+    
+    .owner-toast__icon {
+        font-size: 20px;
+    }
+    
+    .owner-toast--success .owner-toast__icon {
+        color: #16a34a;
+    }
+    
+    .owner-toast--error .owner-toast__icon {
+        color: #dc2626;
+    }
+    
+    .owner-toast--warning .owner-toast__icon {
+        color: #d97706;
+    }
+    
+    .owner-toast--info .owner-toast__icon {
+        color: #2563eb;
+    }
+    
+    .owner-toast__message {
+        flex: 1;
+        font-size: 14px;
+        line-height: 1.4;
+    }
+    
+    .owner-toast__close {
+        border: 0;
+        background: transparent;
+        color: #6b7280;
+        cursor: pointer;
+        font-size: 22px;
+        line-height: 1;
+        padding: 0 2px;
+    }
+    
+    .owner-toast__close:hover {
+        color: #111827;
+    }
+
+    .owner-dialog-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 10001;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        background: rgba(15, 23, 42, 0.55);
+    }
+
+    .owner-dialog {
+        width: min(560px, 100%);
+        max-height: min(85vh, 720px);
+        padding: 24px;
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.25);
+        overflow-y: auto;
+    }
+
+    .owner-dialog__title {
+        margin: 0 0 8px;
+        color: #111827;
+        font-size: 20px;
+    }
+
+    .owner-dialog__message {
+        margin: 0 0 18px;
+        color: #4b5563;
+        line-height: 1.5;
+        white-space: pre-line;
+        overflow-wrap: anywhere;
+    }
+
+    .owner-dialog__input {
+        box-sizing: border-box;
+        width: 100%;
+        min-height: 44px;
+        margin-bottom: 20px;
+        padding: 10px 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        font: inherit;
+    }
+
+    .owner-dialog__input:focus {
+        outline: 2px solid #2563eb;
+        outline-offset: 1px;
+    }
+
+    .owner-dialog__actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+
+    .owner-dialog__button {
+        min-height: 40px;
+        padding: 9px 16px;
+        border: 0;
+        border-radius: 8px;
+        background: #e5e7eb;
+        color: #1f2937;
+        cursor: pointer;
+        font: inherit;
+        font-weight: 600;
+    }
+
+    .owner-dialog__button--primary {
+        background: var(--primary);
+        color: #fff;
+    }
+
+    .owner-dialog__button--danger {
+        background: #dc2626;
+        color: #fff;
+    }
+    
+    @media (max-width: 480px) {
+        .owner-toast-container {
+            top: 50%;
+            left: 50%;
+            right: auto;
+            width: calc(100vw - 24px);
+        }
+    }
+    
+    @media (prefers-reduced-motion: reduce) {
+        .owner-toast {
+            transition: none;
+        }
+    }
+
 </style>
 
 <script>
@@ -290,5 +617,157 @@
             }
         }
     }
+
+    function showOwnerToast(message, type = 'info') {
+        const container = document.getElementById('owner-toast-container');
+        if (!container) return;
+    
+        const validTypes = ['success', 'error', 'warning', 'info'];
+        const toastType = validTypes.includes(type) ? type : 'info';
+    
+        const icons = {
+            success: 'fa-circle-check',
+            error: 'fa-circle-exclamation',
+            warning: 'fa-triangle-exclamation',
+            info: 'fa-circle-info'
+        };
+    
+        const toast = document.createElement('div');
+        toast.className = `owner-toast owner-toast--${toastType}`;
+        toast.setAttribute('role', toastType === 'error' ? 'alert' : 'status');
+    
+        const icon = document.createElement('i');
+        icon.className = `fas ${icons[toastType]} owner-toast__icon`;
+        icon.setAttribute('aria-hidden', 'true');
+    
+        const text = document.createElement('span');
+        text.className = 'owner-toast__message';
+        text.textContent = String(message);
+    
+        const closeButton = document.createElement('button');
+        closeButton.className = 'owner-toast__close';
+        closeButton.type = 'button';
+        closeButton.setAttribute('aria-label', 'Cerrar notificación');
+        closeButton.textContent = '×';
+    
+        toast.append(icon, text, closeButton);
+        container.appendChild(toast);
+    
+        function closeToast() {
+            window.clearTimeout(timer);
+            toast.classList.remove('is-visible');
+            window.setTimeout(() => toast.remove(), 250);
+        }
+    
+        closeButton.addEventListener('click', closeToast);
+    
+        const timer = window.setTimeout(closeToast, 4500);
+        window.requestAnimationFrame(() => toast.classList.add('is-visible'));
+    }
+    
+    function showOwnerDialog({ title, message, input = false, placeholder = '', confirmLabel = 'Aceptar', danger = false }) {
+        return new Promise((resolve) => {
+            const backdrop = document.createElement('div');
+            backdrop.className = 'owner-dialog-backdrop';
+
+            const dialog = document.createElement('div');
+            dialog.className = 'owner-dialog';
+            dialog.setAttribute('role', 'dialog');
+            dialog.setAttribute('aria-modal', 'true');
+
+            const heading = document.createElement('h2');
+            heading.className = 'owner-dialog__title';
+            heading.id = 'owner-dialog-title';
+            heading.textContent = title;
+            dialog.setAttribute('aria-labelledby', heading.id);
+
+            const description = document.createElement('p');
+            description.className = 'owner-dialog__message';
+            description.id = 'owner-dialog-message';
+            description.textContent = message;
+            dialog.setAttribute('aria-describedby', description.id);
+
+            let inputElement = null;
+            if (input) {
+                inputElement = document.createElement('input');
+                inputElement.className = 'owner-dialog__input';
+                inputElement.type = 'text';
+                inputElement.placeholder = placeholder;
+                inputElement.maxLength = 500;
+                inputElement.setAttribute('aria-label', title);
+            }
+
+            const actions = document.createElement('div');
+            actions.className = 'owner-dialog__actions';
+
+            const cancelButton = document.createElement('button');
+            cancelButton.className = 'owner-dialog__button';
+            cancelButton.type = 'button';
+            cancelButton.textContent = 'Cancelar';
+
+            const confirmButton = document.createElement('button');
+            confirmButton.className = `owner-dialog__button ${danger ? 'owner-dialog__button--danger' : 'owner-dialog__button--primary'}`;
+            confirmButton.type = 'button';
+            confirmButton.textContent = confirmLabel;
+
+            let finished = false;
+            function finish(value) {
+                if (finished) return;
+                finished = true;
+                document.removeEventListener('keydown', handleKeydown);
+                backdrop.remove();
+                resolve(value);
+            }
+
+            function handleKeydown(event) {
+                if (event.key === 'Escape') {
+                    finish(input ? null : false);
+                } else if (event.key === 'Enter' && input && document.activeElement === inputElement) {
+                    event.preventDefault();
+                    finish(inputElement.value);
+                }
+            }
+
+            cancelButton.addEventListener('click', () => finish(input ? null : false));
+            confirmButton.addEventListener('click', () => finish(input ? inputElement.value : true));
+            backdrop.addEventListener('click', (event) => {
+                if (event.target === backdrop) finish(input ? null : false);
+            });
+            document.addEventListener('keydown', handleKeydown);
+
+            actions.append(cancelButton, confirmButton);
+            dialog.append(heading, description);
+            if (inputElement) dialog.appendChild(inputElement);
+            dialog.appendChild(actions);
+            backdrop.appendChild(dialog);
+            document.body.appendChild(backdrop);
+
+            (inputElement || confirmButton).focus();
+        });
+    }
+
+    function showOwnerPrompt(title, placeholder) {
+        return showOwnerDialog({
+            title,
+            message: 'Escribe la promoción que deseas publicar.',
+            input: true,
+            placeholder,
+            confirmLabel: 'Guardar'
+        });
+    }
+
+    function showOwnerConfirm(title, message, confirmLabel = 'Eliminar', danger = true) {
+        return showOwnerDialog({
+            title,
+            message,
+            confirmLabel,
+            danger
+        });
+    }
+
+    document.querySelectorAll('#owner-flash-messages [data-category]').forEach((item) => {
+        showOwnerToast(item.textContent.trim(), item.dataset.category);
+    });
+
 </script>
 {% endblock %}

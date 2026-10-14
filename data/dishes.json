@@ -2785,5 +2785,59 @@
         ],
         "created_at": "2026-06-30T17:49:37.273232",
         "id": 84
+    },
+    {
+        "restaurant_id": 2,
+        "name": "Arroz con pollo",
+        "price": 10.0,
+        "category": "Fondo",
+        "menu_date": "2026-10-14",
+        "day_of_week": "miercoles",
+        "meal_time": "almuerzo",
+        "description": "Arroz con pollo y ensalada",
+        "ingredients": [
+            "Cilantro",
+            "tomate",
+            "cebolla"
+        ],
+        "dietary_info": [
+            "vegetariano"
+        ],
+        "preparation_time": 57,
+        "spiciness": 0,
+        "is_recommended": false,
+        "is_available": true,
+        "tags": [
+            "criolla"
+        ],
+        "created_at": "2026-10-14T17:36:27.452484",
+        "id": 85
+    },
+    {
+        "restaurant_id": 2,
+        "name": "Torta de zanahoria",
+        "price": 5.0,
+        "category": "Postre",
+        "menu_date": "2026-10-14",
+        "day_of_week": "miercoles",
+        "meal_time": "almuerzo",
+        "description": "Torte hecha con zananhoria",
+        "ingredients": [
+            "Zanahoria",
+            "harina",
+            "azucar"
+        ],
+        "dietary_info": [
+            "vegetariano"
+        ],
+        "preparation_time": 15,
+        "spiciness": 0,
+        "is_recommended": true,
+        "is_available": true,
+        "tags": [
+            "Dulces"
+        ],
+        "created_at": "2026-10-14T17:38:30.620824",
+        "id": 86
     }
 ]
