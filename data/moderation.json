@@ -424,7 +424,7 @@
             }
         ],
         "created_at": "2026-10-14T17:13:39.214428+00:00",
-        "updated_at": "2026-10-14T17:26:23.519714+00:00",
+        "updated_at": "2026-10-14T20:35:46.581822+00:00",
         "id": 4
     },
     {
@@ -463,7 +463,13 @@
             "owner_id": 3,
             "owner_name": "Juan Empresario",
             "verified": false,
-            "moderation_notes": ""
+            "moderation_notes": "",
+            "menu_type": "mixed",
+            "dishes": [
+                85,
+                85,
+                86
+            ]
         },
         "user_id": 1,
         "reason": "Preevaluación automática",
@@ -523,7 +529,7 @@
             }
         ],
         "created_at": "2026-10-14T17:13:39.252560+00:00",
-        "updated_at": "2026-10-14T17:26:23.585141+00:00",
+        "updated_at": "2026-10-14T20:35:46.635765+00:00",
         "id": 5
     },
     {
@@ -621,7 +627,7 @@
             }
         ],
         "created_at": "2026-10-14T17:13:39.294478+00:00",
-        "updated_at": "2026-10-14T17:26:23.649115+00:00",
+        "updated_at": "2026-10-14T20:35:46.693785+00:00",
         "id": 6
     },
     {
@@ -722,7 +728,7 @@
             }
         ],
         "created_at": "2026-10-14T17:13:39.340906+00:00",
-        "updated_at": "2026-10-14T17:26:23.712091+00:00",
+        "updated_at": "2026-10-14T20:35:46.748243+00:00",
         "id": 7
     },
     {
@@ -816,7 +822,7 @@
             }
         ],
         "created_at": "2026-10-14T17:13:39.380750+00:00",
-        "updated_at": "2026-10-14T17:26:23.763943+00:00",
+        "updated_at": "2026-10-14T20:35:46.798130+00:00",
         "id": 8
     },
     {
@@ -920,7 +926,7 @@
             }
         ],
         "created_at": "2026-10-14T17:13:39.426023+00:00",
-        "updated_at": "2026-10-14T17:26:23.829665+00:00",
+        "updated_at": "2026-10-14T20:35:46.851504+00:00",
         "id": 9
     },
     {
@@ -1024,7 +1030,7 @@
             }
         ],
         "created_at": "2026-10-14T17:13:39.481037+00:00",
-        "updated_at": "2026-10-14T17:26:23.885318+00:00",
+        "updated_at": "2026-10-14T20:35:46.898621+00:00",
         "id": 10
     },
     {
@@ -1124,7 +1130,7 @@
             }
         ],
         "created_at": "2026-10-14T17:13:39.534308+00:00",
-        "updated_at": "2026-10-14T17:26:23.945358+00:00",
+        "updated_at": "2026-10-14T20:35:46.951747+00:00",
         "id": 11
     },
     {
@@ -1228,7 +1234,7 @@
             }
         ],
         "created_at": "2026-10-14T17:13:39.584048+00:00",
-        "updated_at": "2026-10-14T17:26:23.999921+00:00",
+        "updated_at": "2026-10-14T20:35:47.000262+00:00",
         "id": 12
     },
     {
@@ -1327,7 +1333,7 @@
             }
         ],
         "created_at": "2026-10-14T17:13:39.627304+00:00",
-        "updated_at": "2026-10-14T17:26:24.058423+00:00",
+        "updated_at": "2026-10-14T20:35:47.051861+00:00",
         "id": 13
     },
     {
@@ -1422,7 +1428,7 @@
             }
         ],
         "created_at": "2026-10-14T17:13:39.671969+00:00",
-        "updated_at": "2026-10-14T17:26:24.110102+00:00",
+        "updated_at": "2026-10-14T20:35:47.100235+00:00",
         "id": 14
     },
     {
@@ -1523,7 +1529,7 @@
             }
         ],
         "created_at": "2026-10-14T17:13:39.726831+00:00",
-        "updated_at": "2026-10-14T17:26:24.170889+00:00",
+        "updated_at": "2026-10-14T20:35:47.154160+00:00",
         "id": 15
     },
     {
@@ -1618,7 +1624,7 @@
             }
         ],
         "created_at": "2026-10-14T17:13:39.770959+00:00",
-        "updated_at": "2026-10-14T17:26:24.220462+00:00",
+        "updated_at": "2026-10-14T20:35:47.206072+00:00",
         "id": 16
     },
     {
@@ -1713,7 +1719,7 @@
             }
         ],
         "created_at": "2026-10-14T17:13:39.826574+00:00",
-        "updated_at": "2026-10-14T17:26:24.277077+00:00",
+        "updated_at": "2026-10-14T20:35:47.259400+00:00",
         "id": 17
     },
     {
@@ -1810,7 +1816,7 @@
             }
         ],
         "created_at": "2026-10-14T17:13:39.880934+00:00",
-        "updated_at": "2026-10-14T17:26:24.326999+00:00",
+        "updated_at": "2026-10-14T20:35:47.310071+00:00",
         "id": 18
     },
     {
@@ -1907,7 +1913,7 @@
             }
         ],
         "created_at": "2026-10-14T17:13:39.937378+00:00",
-        "updated_at": "2026-10-14T17:26:24.416072+00:00",
+        "updated_at": "2026-10-14T20:35:47.361816+00:00",
         "id": 19
     },
     {
@@ -2006,7 +2012,7 @@
             }
         ],
         "created_at": "2026-10-14T17:13:39.995850+00:00",
-        "updated_at": "2026-10-14T17:26:24.524684+00:00",
+        "updated_at": "2026-10-14T20:35:47.425115+00:00",
         "id": 20
     },
     {
@@ -2105,7 +2111,7 @@
             }
         ],
         "created_at": "2026-10-14T17:13:40.050364+00:00",
-        "updated_at": "2026-10-14T17:26:24.578459+00:00",
+        "updated_at": "2026-10-14T19:24:19.430645+00:00",
         "id": 21
     },
     {
@@ -2203,7 +2209,7 @@
             }
         ],
         "created_at": "2026-10-14T17:13:40.104539+00:00",
-        "updated_at": "2026-10-14T17:26:24.638199+00:00",
+        "updated_at": "2026-10-14T19:24:19.476835+00:00",
         "id": 22
     },
     {
@@ -2297,7 +2303,7 @@
             }
         ],
         "created_at": "2026-10-14T17:13:40.152956+00:00",
-        "updated_at": "2026-10-14T17:26:24.708563+00:00",
+        "updated_at": "2026-10-14T20:35:47.480825+00:00",
         "id": 23
     },
     {
@@ -2388,7 +2394,99 @@
             }
         ],
         "created_at": "2026-10-14T17:13:40.209140+00:00",
-        "updated_at": "2026-10-14T17:26:24.781351+00:00",
+        "updated_at": "2026-10-14T19:24:19.568767+00:00",
         "id": 24
+    },
+    {
+        "content_type": "restaurant",
+        "content_id": 25,
+        "content_data": {
+            "name": "Q' Rica Pizza",
+            "district": "Trujillo",
+            "category_id": 3,
+            "lat": -8.0997,
+            "lng": -79.0372,
+            "avg_price": 50.0,
+            "rating": 4.0,
+            "open_time": "17:00",
+            "close_time": "23:00",
+            "image": "https://www.laespanolaaceites.com/wp-content/uploads/2019/06/pizza-con-chorizo-jamon-y-queso-1080x671.jpg",
+            "description": "Masa artesanal al puro estilo argentino.",
+            "address": "1083, Avenida Nicolás de Piérola, Urbanización Santa Inés, Trujillo, La Libertad, 13011, Perú",
+            "phone": "942038151",
+            "promo": "Llevate una gaceosa gratis",
+            "service_mode": "dine_in_and_delivery",
+            "tags": [
+                "pizza",
+                "comida italiana",
+                "argentina"
+            ],
+            "features": [],
+            "dietary_restrictions": [
+                "Sin gluten"
+            ],
+            "owner_id": 3,
+            "owner_name": "Enrique Empresario",
+            "id": 25
+        },
+        "user_id": 1,
+        "reason": "Preevaluación automática",
+        "status": "approved",
+        "approval_status": "APROBADO_AUTOMATICAMENTE",
+        "ai_verdict": "APROBADO_AUTOMATICAMENTE",
+        "ai_confidence": 0.9,
+        "ai_evaluation": {
+            "model_version": "content-filter-rules-v2",
+            "content_type": "restaurant",
+            "route": "AUTO_OK",
+            "ai_verdict": "APROBADO_AUTOMATICAMENTE",
+            "final_status": "APROBADO_AUTOMATICAMENTE",
+            "confidence": 0.9,
+            "rules": {
+                "required_fields": [
+                    "name",
+                    "description"
+                ],
+                "missing_fields": [],
+                "critical_signal": false,
+                "evasion_suspected": false,
+                "dictionary_can_judge": true,
+                "food_score": 20.0,
+                "banned_words": [],
+                "context_words": [],
+                "food_words_found": [
+                    "comida",
+                    "italiana",
+                    "pizza"
+                ],
+                "coverage": {
+                    "script_ratio": 0.0,
+                    "known_ratio": 0.29,
+                    "foreign_markers": 0,
+                    "unknown_language": false
+                },
+                "inappropriate_tags": []
+            },
+            "issues": [],
+            "notes": [],
+            "human_review_required": false
+        },
+        "decision_source": "AI_PRECHECK",
+        "flagged": false,
+        "flags": [],
+        "reversible": true,
+        "status_history": [
+            {
+                "from": null,
+                "to": "APROBADO_AUTOMATICAMENTE",
+                "actor_user_id": null,
+                "source": "AI_PRECHECK",
+                "notes": "Preevaluación automática; no sustituye la revisión administrativa.",
+                "timestamp": "2026-10-14T20:35:47.544966+00:00"
+            }
+        ],
+        "created_at": "2026-10-14T20:35:47.544966+00:00",
+        "updated_at": "2026-10-14T20:35:47.544966+00:00",
+        "id": 25
     }
 ]
