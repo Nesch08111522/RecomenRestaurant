@@ -46,8 +46,7 @@ MONTH_NAMES = (
     'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
     'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'
 )
-LIMA_TIMEZONE = timezone(timedelta(hours=-5))
-
+LIMA_TIMEZONE = timezone(timedelta(hours=-5) )
 
 def _parse_menu_date(value):
     if not isinstance(value, str):
