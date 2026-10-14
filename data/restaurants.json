@@ -684,75 +684,6 @@
         "moderation_notes": ""
     },
     {
-        "name": "La sazón de Daniela y su Frente",
-        "category_id": 3,
-        "district": "Trujillo",
-        "lat": -8.099512,
-        "lng": -79.037728,
-        "avg_price": 20.0,
-        "rating": 4.0,
-        "open_time": "12:00",
-        "close_time": "22:00",
-        "tags": [
-            "moderno",
-            "familiar",
-            "innovador"
-        ],
-        "features": [
-            "wifi",
-            "reservas",
-            "estacionamiento"
-        ],
-        "image": "https://hips.hearstapps.com/hmg-prod/images/restaurante-italiano-baldoria-madrid-elle-gourmet-64c2408c4bfbd.jpg",
-        "description": "Ven y prueba la sazón y ricura de nuestros platillos italianos, donde el ambiente y la comida serán como en Italia, Mamma mia.",
-        "address": "626, Calle las Gemas, Urbanización Santa Inés, Trujillo, Province of Trujillo, La Libertad, 13011, Peru",
-        "phone": "932246778",
-        "promo": "10% de descuento por comentar",
-        "dietary_restrictions": [
-            "vegano",
-            "sin glutén",
-            "dietético"
-        ],
-        "owner_id": 3,
-        "owner_name": "Juan Empresario",
-        "id": 21,
-        "verified": false,
-        "moderation_notes": ""
-    },
-    {
-        "name": "Alessita La Malcriada",
-        "category_id": 5,
-        "district": "La Esperanza",
-        "lat": -8.072195,
-        "lng": -79.040265,
-        "avg_price": 25.0,
-        "rating": 4.0,
-        "open_time": "12:00",
-        "close_time": "22:00",
-        "tags": [
-            "criolla",
-            "familiar"
-        ],
-        "features": [
-            "wifi",
-            "estacionamiento",
-            "promociones"
-        ],
-        "image": "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/0c/92/2f/49/la-esperanza-restaurant.jpg?w=900&h=500&s=1",
-        "description": "Restaurante con deliciosa comida criolla",
-        "address": "av nicolas de pierola 1221",
-        "phone": "941432384",
-        "promo": "5% si vienes con tu pareja",
-        "dietary_restrictions": [
-            "sin gluten"
-        ],
-        "owner_id": 3,
-        "owner_name": "Juan Empresario",
-        "id": 22,
-        "verified": false,
-        "moderation_notes": ""
-    },
-    {
         "name": "La Patita del Ratón",
         "category_id": 4,
         "district": "Trujillo",
@@ -784,31 +715,32 @@
         "moderation_notes": ""
     },
     {
-        "name": "La tia Veneno",
-        "category_id": 8,
+        "name": "Q' Rica Pizza",
         "district": "Trujillo",
-        "lat": -8.100688,
-        "lng": -79.038575,
-        "avg_price": 10.0,
+        "category_id": 3,
+        "lat": -8.0997,
+        "lng": -79.0372,
+        "avg_price": 50.0,
         "rating": 4.0,
-        "open_time": "12:00",
-        "close_time": "22:00",
+        "open_time": "17:00",
+        "close_time": "23:00",
+        "image": "https://www.laespanolaaceites.com/wp-content/uploads/2019/06/pizza-con-chorizo-jamon-y-queso-1080x671.jpg",
+        "description": "Masa artesanal al puro estilo argentino.",
+        "address": "1083, Avenida Nicolás de Piérola, Urbanización Santa Inés, Trujillo, La Libertad, 13011, Perú",
+        "phone": "942038151",
+        "promo": "Llevate una gaceosa gratis",
+        "service_mode": "dine_in_and_delivery",
         "tags": [
-            "fascinante"
+            "pizza",
+            "comida italiana",
+            "argentina"
         ],
-        "features": [
-            "wifi",
-            "reservas",
-            "estacionamiento"
+        "features": [],
+        "dietary_restrictions": [
+            "Sin gluten"
         ],
-        "image": "",
-        "description": "Comida saludable al paso",
-        "address": "Calle las Gemas, Urbanización Santa Inés, Trujillo, Province of Trujillo, La Libertad, 13011, Peru",
-        "phone": "999999999",
-        "promo": "90% si traes a tu mascota",
-        "dietary_restrictions": [],
         "owner_id": 3,
-        "owner_name": "Juan Empresario",
-        "id": 24
+        "owner_name": "Enrique Empresario",
+        "id": 25
     }
 ]
