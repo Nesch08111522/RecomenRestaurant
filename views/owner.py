@@ -17,6 +17,30 @@ logger = logging.getLogger(__name__)
 
 owner_bp = Blueprint('owner', __name__, url_prefix='/owner')
 
+WEEKDAYS = (
+    {'value': 'lunes', 'label': 'Lunes'},
+    {'value': 'martes', 'label': 'Martes'},
+    {'value': 'miercoles', 'label': 'Miércoles'},
+    {'value': 'jueves', 'label': 'Jueves'},
+    {'value': 'viernes', 'label': 'Viernes'},
+    {'value': 'sabado', 'label': 'Sábado'},
+    {'value': 'domingo', 'label': 'Domingo'},
+)
+MEAL_TIMES = (
+    {'value': 'desayuno', 'label': 'Desayuno'},
+    {'value': 'almuerzo', 'label': 'Almuerzo'},
+    {'value': 'cena', 'label': 'Cena'},
+)
+DISH_CATEGORIES = (
+    {'value': 'Entrada', 'label': 'Entradas'},
+    {'value': 'Fondo', 'label': 'Platos de fondo'},
+    {'value': 'Postre', 'label': 'Postres'},
+    {'value': 'Bebida', 'label': 'Bebidas'},
+)
+VALID_WEEKDAYS = {day['value'] for day in WEEKDAYS}
+VALID_MEAL_TIMES = {meal['value'] for meal in MEAL_TIMES}
+VALID_DISH_CATEGORIES = {category['value'] for category in DISH_CATEGORIES}
+
 
 def _json_payload():
     payload = request.get_json(silent=True)
@@ -125,7 +149,10 @@ def menu_management(restaurant_id):
     return render_template('owner/menu_management.html',
                          restaurant=restaurant,
                          dishes=dishes,
-                         today_menu=today_menu)
+                         today_menu=today_menu,
+                         weekdays=WEEKDAYS,
+                         meal_times=MEAL_TIMES,
+                         dish_categories=DISH_CATEGORIES)
 
 @owner_bp.route('/dish/add', methods=['POST'])
 @owner_required
@@ -147,19 +174,25 @@ def add_dish():
         name = normalize_text(data.get('name'), max_length=120)
         price = _number(data.get('price'), minimum=0, maximum=100000)
         category = normalize_text(data.get('category'), max_length=60)
+        day_of_week = normalize_text(data.get('day_of_week'), max_length=20).lower()
+        meal_time = normalize_text(data.get('meal_time'), max_length=20).lower()
         preparation_time = data.get('preparation_time', 20)
         try:
             preparation_time = int(preparation_time)
         except (TypeError, ValueError):
             preparation_time = 20
-        if not name or price is None or not category or not 1 <= preparation_time <= 600:
-            return jsonify({'error': 'Nombre, categoría, precio o tiempo de preparación inválidos'}), 400
+        if (not name or price is None or category not in VALID_DISH_CATEGORIES
+                or day_of_week not in VALID_WEEKDAYS or meal_time not in VALID_MEAL_TIMES
+                or not 1 <= preparation_time <= 600):
+            return jsonify({'error': 'Completa nombre, precio, categoría, día, horario y tiempo de preparación válidos'}), 400
 
         dish_data = {
             'restaurant_id': restaurant_id,
             'name': name,
             'price': round(price, 2),
             'category': category,
+            'day_of_week': day_of_week,
+            'meal_time': meal_time,
             'description': normalize_text(data.get('description', ''), max_length=1000),
             'ingredients': _string_list(data.get('ingredients', []), limit=50, item_length=100),
             'dietary_info': _string_list(data.get('dietary_info', []), limit=20, item_length=60),
@@ -222,7 +255,20 @@ def update_dish(dish_id):
                 return jsonify({'error': 'Precio inválido'}), 400
             allowed['price'] = round(price, 2)
         if 'category' in data:
-            allowed['category'] = normalize_text(data.get('category'), max_length=60)
+            category = normalize_text(data.get('category'), max_length=60)
+            if category not in VALID_DISH_CATEGORIES:
+                return jsonify({'error': 'Tipo de plato inválido'}), 400
+            allowed['category'] = category
+        if 'day_of_week' in data:
+            day_of_week = normalize_text(data.get('day_of_week'), max_length=20).lower()
+            if day_of_week not in VALID_WEEKDAYS:
+                return jsonify({'error': 'Día de la semana inválido'}), 400
+            allowed['day_of_week'] = day_of_week
+        if 'meal_time' in data:
+            meal_time = normalize_text(data.get('meal_time'), max_length=20).lower()
+            if meal_time not in VALID_MEAL_TIMES:
+                return jsonify({'error': 'Horario de menú inválido'}), 400
+            allowed['meal_time'] = meal_time
         if 'description' in data:
             allowed['description'] = normalize_text(data.get('description'), max_length=1000)
         if 'ingredients' in data:

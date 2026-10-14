@@ -357,8 +357,8 @@
 </style>
 
 <script>
-    function addPromotion(id) {
-        const promo = prompt('Ingresa la promoción para este restaurante:');
+    async function addPromotion(id) {
+        const promo = await showOwnerPrompt('Agregar promoción', 'Escribe la promoción');
         if (promo !== null) {
             fetch(`/admin/restaurant/${id}/promo`, {
                 method: 'POST',
@@ -370,20 +370,22 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    location.reload();
+                    showOwnerToast('Promoción agregada correctamente.', 'success');
+                    setTimeout(() => location.reload(), 1800);
                 } else {
-                    alert('Error al agregar promoción');
+                    showOwnerToast(data.error || 'Error al agregar la promoción.', 'error');
                 }
             })
             .catch(error => {
-                alert('Error al agregar promoción');
+                showOwnerToast('Error al agregar la promoción.', 'error');
                 console.error(error);
             });
         }
     }
 
-    function deleteRestaurant(id) {
-        if (!confirm('¿Estás seguro de eliminar este restaurante? Esta acción no se puede deshacer.')) return;
+    async function deleteRestaurant(id) {
+        const confirmed = await showOwnerConfirm('Eliminar restaurante', '¿Estás seguro de eliminar este restaurante? Esta acción no se puede deshacer.');
+        if (!confirmed) return;
 
         fetch(`/admin/restaurant/${id}`, {
             method: 'DELETE'
@@ -391,13 +393,14 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                location.reload();
+                showOwnerToast('Restaurante eliminado correctamente.', 'success');
+                setTimeout(() => location.reload(), 1800);
             } else {
-                alert('Error al eliminar el restaurante');
+                showOwnerToast(data.error || 'Error al eliminar el restaurante.', 'error');
             }
         })
         .catch(error => {
-            alert('Error al eliminar el restaurante');
+            showOwnerToast('Error al eliminar el restaurante.', 'error');
             console.error(error);
         });
     }

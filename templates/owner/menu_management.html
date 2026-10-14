@@ -15,6 +15,71 @@
         </div>
     </div>
 
+    <section class="weekly-menu-planner" aria-labelledby="weeklyMenuTitle">
+        <div class="planner-intro">
+            <div>
+                <h2 id="weeklyMenuTitle">Programación semanal</h2>
+                <p>Elige el día y horario del menú. Administra sus platos por categoría.</p>
+            </div>
+            <strong class="active-menu-label" id="activeMenuLabel"></strong>
+        </div>
+
+        <div class="schedule-control">
+            <h3>Día de la semana</h3>
+            <div class="weekday-tabs" id="weekdayTabs" role="group" aria-label="Día de la semana">
+                {% for day in weekdays %}
+                    <button type="button" class="schedule-tab weekday-tab" data-day="{{ day.value }}" onclick="setActiveDay('{{ day.value }}')">{{ day.label }}</button>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="schedule-control">
+            <h3>Horario</h3>
+            <div class="meal-tabs" id="mealTabs" role="group" aria-label="Horario del menú">
+                {% for meal in meal_times %}
+                    <button type="button" class="schedule-tab meal-tab" data-meal="{{ meal.value }}" onclick="setActiveMeal('{{ meal.value }}')">{{ meal.label }}</button>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <div class="menu-sections scheduled-menu-sections" id="scheduledMenuSections">
+        {% for category in dish_categories %}
+            <section class="menu-section" data-menu-category="{{ category.value }}">
+                <h3>{{ category.label }}</h3>
+                <div class="dish-list schedule-dish-list">
+                    {% for dish in dishes if dish.category == category.value and dish.day_of_week and dish.meal_time %}
+                        {% include 'partials/dish_item.html' %}
+                    {% endfor %}
+                    <div class="empty-message" data-empty-state>No hay platos en este menú.</div>
+                </div>
+                <button type="button" class="btn-add-dish" onclick="openAddDishModal('{{ category.value }}')">
+                    <i class="fas fa-plus"></i> Agregar a {{ category.label|lower }}
+                </button>
+            </section>
+        {% endfor %}
+    </div>
+
+    {% set pending_dishes = namespace(has_items=false) %}
+    {% for dish in dishes %}
+        {% if not dish.day_of_week or not dish.meal_time %}
+            {% set pending_dishes.has_items = true %}
+        {% endif %}
+    {% endfor %}
+    <section class="unassigned-section" id="unassignedSection" {% if not pending_dishes.has_items %}hidden{% endif %}>
+        <div>
+            <h2>Platos sin programación</h2>
+            <p>Asigna un día y horario para incorporarlos al menú semanal.</p>
+        </div>
+        <div class="unassigned-dish-list">
+            {% for dish in dishes if not dish.day_of_week or not dish.meal_time %}
+                {% include 'partials/dish_item.html' %}
+            {% else %}
+                <p class="empty-message">Todos tus platos están asignados a un menú semanal.</p>
+            {% endfor %}
+        </div>
+    </section>
+
     <!-- Tipo de menú -->
     <div class="menu-type-selector">
         <label>Tipo de menú:</label>
@@ -61,7 +126,7 @@
     {% endif %}
 
     <!-- Carta por categorías -->
-    <div class="menu-sections">
+    <div class="menu-sections legacy-menu-sections">
         <div class="menu-section">
             <h3>🥗 Entradas</h3>
             <div class="dish-list" id="entries-list">
@@ -124,13 +189,41 @@
 <div class="modal" id="addDishModal">
     <div class="modal-content modal-large">
         <div class="modal-header">
-            <h2>Agregar Nuevo Plato</h2>
+            <h2 id="dishModalTitle">Agregar Nuevo Plato</h2>
             <span class="close-modal" onclick="closeAddDishModal()">&times;</span>
         </div>
         <div class="modal-body">
             <form id="addDishForm">
-                <input type="hidden" id="dishCategory" name="category">
+                <input type="hidden" id="editingDishId" value="">
                 <input type="hidden" id="restaurantId" name="restaurant_id" value="{{ restaurant.id }}">
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="dishCategory">Tipo de plato *</label>
+                        <select id="dishCategory" name="category" class="form-input" required>
+                            {% for category in dish_categories %}
+                                <option value="{{ category.value }}">{{ category.label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="dishDay">Día de la semana *</label>
+                        <select id="dishDay" name="day_of_week" class="form-input" required>
+                            {% for day in weekdays %}
+                                <option value="{{ day.value }}">{{ day.label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="dishMeal">Horario *</label>
+                    <select id="dishMeal" name="meal_time" class="form-input" required>
+                        {% for meal in meal_times %}
+                            <option value="{{ meal.value }}">{{ meal.label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
                 
                 <div class="form-group">
                     <label>Nombre del Plato *</label>
@@ -161,11 +254,11 @@
                 <div class="form-group">
                     <label>Información dietética</label>
                     <div class="checkbox-group">
-                        <label><input type="checkbox" value="sin gluten"> Sin gluten</label>
-                        <label><input type="checkbox" value="vegano"> Vegano</label>
-                        <label><input type="checkbox" value="vegetariano"> Vegetariano</label>
-                        <label><input type="checkbox" value="sin lactosa"> Sin lactosa</label>
-                        <label><input type="checkbox" value="keto"> Keto</label>
+                        <label><input class="dietary-checkbox" type="checkbox" value="sin gluten"> Sin gluten</label>
+                        <label><input class="dietary-checkbox" type="checkbox" value="vegano"> Vegano</label>
+                        <label><input class="dietary-checkbox" type="checkbox" value="vegetariano"> Vegetariano</label>
+                        <label><input class="dietary-checkbox" type="checkbox" value="sin lactosa"> Sin lactosa</label>
+                        <label><input class="dietary-checkbox" type="checkbox" value="keto"> Keto</label>
                     </div>
                 </div>
                 
@@ -189,7 +282,7 @@
                 
                 <div class="form-actions">
                     <button type="button" class="btn-secondary" onclick="closeAddDishModal()">Cancelar</button>
-                    <button type="submit" class="btn-primary">Agregar Plato</button>
+                    <button type="submit" class="btn-primary" id="dishSubmitButton">Agregar Plato</button>
                 </div>
             </form>
         </div>
@@ -246,6 +339,114 @@
         background: var(--primary-dark);
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(255, 56, 92, 0.3);
+    }
+
+    .weekly-menu-planner {
+        background: var(--white);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        padding: 22px;
+        margin-bottom: 24px;
+    }
+
+    .planner-intro,
+    .unassigned-section > div:first-child {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 18px;
+    }
+
+    .planner-intro h2,
+    .unassigned-section h2 {
+        margin: 0 0 4px;
+        font-size: 20px;
+    }
+
+    .planner-intro p,
+    .unassigned-section p {
+        margin: 0;
+        color: var(--gray);
+        font-size: 14px;
+    }
+
+    .active-menu-label {
+        flex-shrink: 0;
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: var(--primary-light);
+        color: var(--primary);
+        font-size: 14px;
+    }
+
+    .schedule-control + .schedule-control {
+        margin-top: 18px;
+    }
+
+    .schedule-control h3 {
+        margin: 0 0 10px;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    .weekday-tabs,
+    .meal-tabs {
+        display: grid;
+        gap: 8px;
+    }
+
+    .weekday-tabs {
+        grid-template-columns: repeat(7, minmax(0, 1fr));
+    }
+
+    .meal-tabs {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .schedule-tab {
+        min-height: 42px;
+        padding: 8px 10px;
+        border: 1px solid var(--light-gray);
+        border-radius: var(--radius-sm);
+        background: #fff;
+        color: var(--dark);
+        cursor: pointer;
+        font: inherit;
+        transition: var(--transition);
+    }
+
+    .schedule-tab:hover,
+    .schedule-tab.is-active {
+        border-color: var(--primary);
+        background: var(--primary);
+        color: #fff;
+    }
+
+    .legacy-menu-sections,
+    .menu-type-selector,
+    .today-menu {
+        display: none !important;
+    }
+
+    .unassigned-section {
+        margin-top: 24px;
+        padding: 20px;
+        border: 1px solid #fed7aa;
+        border-radius: var(--radius);
+        background: #fff7ed;
+    }
+
+    .unassigned-section[hidden] {
+        display: none !important;
+    }
+
+    .unassigned-dish-list {
+        margin-top: 12px;
+    }
+
+    .dish-item[hidden] {
+        display: none !important;
     }
     
     .menu-type-selector {
@@ -366,6 +567,23 @@
     .dish-info .dish-name {
         font-weight: 500;
         font-size: 15px;
+    }
+
+    .dish-schedule-labels {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin: 5px 0;
+    }
+
+    .dish-schedule-labels span {
+        padding: 3px 8px;
+        border-radius: 999px;
+        background: #f3f4f6;
+        color: #4b5563;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: capitalize;
     }
     
     .dish-info .dish-details {
@@ -502,85 +720,187 @@
         .checkbox-group {
             grid-template-columns: 1fr;
         }
+
+        .weekday-tabs {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 480px) {
+        .planner-intro,
+        .unassigned-section > div:first-child {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .weekday-tabs {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
     }
 </style>
 
 <script>
     const restaurantId = {{ restaurant.id }};
-    
-    function generateRandomMenu() {
-        if (confirm('¿Generar un menú aleatorio sugerido?')) {
-            fetch('/owner/generate_menu', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({restaurant_id: restaurantId})
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    let message = 'Menú sugerido:\n\n';
-                    if (data.menu.entradas) {
-                        message += '🥗 Entradas:\n';
-                        data.menu.entradas.forEach(d => {
-                            message += `  - ${d.name} ({{ MONEDA }}${d.price})\n`;
-                        });
-                        message += '\n';
-                    }
-                    if (data.menu.fondos) {
-                        message += '🍛 Fondos:\n';
-                        data.menu.fondos.forEach(d => {
-                            message += `  - ${d.name} ({{ MONEDA }}${d.price})\n`;
-                        });
-                        message += '\n';
-                    }
-                    if (data.menu.postres) {
-                        message += '🍰 Postres:\n';
-                        data.menu.postres.forEach(d => {
-                            message += `  - ${d.name} ({{ MONEDA }}${d.price})\n`;
-                        });
-                        message += '\n';
-                    }
-                    if (data.menu.bebidas) {
-                        message += '🥤 Bebidas:\n';
-                        data.menu.bebidas.forEach(d => {
-                            message += `  - ${d.name} ({{ MONEDA }}${d.price})\n`;
-                        });
-                    }
-                    
-                    if (confirm(message + '\n\n¿Guardar este menú como el menú de hoy?')) {
-                        const dishIds = [];
-                        ['entradas', 'fondos', 'postres', 'bebidas'].forEach(cat => {
-                            if (data.menu[cat]) {
-                                data.menu[cat].forEach(d => {
-                                    if (d.id) dishIds.push(d.id);
-                                });
-                            }
-                        });
-                        
-                        fetch('/owner/save_daily_menu', {
-                            method: 'POST',
-                            headers: {'Content-Type': 'application/json'},
-                            body: JSON.stringify({
-                                restaurant_id: restaurantId,
-                                dish_ids: dishIds,
-                                specials: ['Recomendación del chef'],
-                                price: 0
-                            })
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                alert('✅ Menú guardado exitosamente');
-                                location.reload();
-                            }
-                        });
-                    }
-                }
-            });
-        }
+    const initialDishes = {{ dishes|tojson }};
+    const weekdayOptions = {{ weekdays|tojson }};
+    const mealOptions = {{ meal_times|tojson }};
+    const dayStorageKey = `owner-menu-day-${restaurantId}`;
+    const mealStorageKey = `owner-menu-meal-${restaurantId}`;
+    const weekdayValues = weekdayOptions.map((day) => day.value);
+    const mealValues = mealOptions.map((meal) => meal.value);
+    const todayIndex = (new Date().getDay() + 6) % 7;
+    let activeDay = weekdayValues[todayIndex] || 'lunes';
+    let activeMeal = 'almuerzo';
+
+    try {
+        const savedDay = localStorage.getItem(dayStorageKey);
+        const savedMeal = localStorage.getItem(mealStorageKey);
+        if (weekdayValues.includes(savedDay)) activeDay = savedDay;
+        if (mealValues.includes(savedMeal)) activeMeal = savedMeal;
+    } catch (error) {
+        console.warn('No se pudo recuperar la selección del menú semanal.', error);
     }
 
-    function openAddDishModal() {
+    function updateScheduleView() {
+        const day = weekdayOptions.find((option) => option.value === activeDay);
+        const meal = mealOptions.find((option) => option.value === activeMeal);
+        document.getElementById('activeMenuLabel').textContent = `${day.label} · ${meal.label}`;
+
+        document.querySelectorAll('.weekday-tab').forEach((button) => {
+            const selected = button.dataset.day === activeDay;
+            button.classList.toggle('is-active', selected);
+            button.setAttribute('aria-pressed', String(selected));
+        });
+        document.querySelectorAll('.meal-tab').forEach((button) => {
+            const selected = button.dataset.meal === activeMeal;
+            button.classList.toggle('is-active', selected);
+            button.setAttribute('aria-pressed', String(selected));
+        });
+
+        const visibleCounts = {};
+        document.querySelectorAll('#scheduledMenuSections .dish-item').forEach((item) => {
+            const visible = item.dataset.day === activeDay && item.dataset.meal === activeMeal;
+            item.hidden = !visible;
+            if (visible) visibleCounts[item.dataset.category] = (visibleCounts[item.dataset.category] || 0) + 1;
+        });
+
+        document.querySelectorAll('#scheduledMenuSections [data-menu-category]').forEach((section) => {
+            const emptyState = section.querySelector('[data-empty-state]');
+            if (emptyState) emptyState.hidden = Boolean(visibleCounts[section.dataset.menuCategory]);
+        });
+    }
+
+    function setActiveDay(day) {
+        if (!weekdayValues.includes(day)) return;
+        activeDay = day;
+        try { localStorage.setItem(dayStorageKey, day); } catch (error) { /* almacenamiento opcional */ }
+        updateScheduleView();
+    }
+
+    function setActiveMeal(meal) {
+        if (!mealValues.includes(meal)) return;
+        activeMeal = meal;
+        try { localStorage.setItem(mealStorageKey, meal); } catch (error) { /* almacenamiento opcional */ }
+        updateScheduleView();
+    }
+
+    updateScheduleView();
+    
+    async function generateRandomMenu() {
+        const generate = await showOwnerConfirm(
+            'Generar menú aleatorio',
+            '¿Deseas generar un menú sugerido con los platos registrados?',
+            'Generar',
+            false
+        );
+        if (!generate) return;
+
+        try {
+            const response = await fetch('/owner/generate_menu', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ restaurant_id: restaurantId })
+            });
+            const result = await response.json();
+
+            if (!response.ok || !result.success) {
+                showOwnerToast(result.error || 'No se pudo generar el menú.', 'error');
+                return;
+            }
+
+            const categories = [
+                { key: 'entradas', label: 'Entradas' },
+                { key: 'fondos', label: 'Platos de fondo' },
+                { key: 'postres', label: 'Postres' },
+                { key: 'bebidas', label: 'Bebidas' }
+            ];
+            let menuMessage = '';
+
+            categories.forEach((category) => {
+                const dishes = result.menu[category.key] || [];
+                if (dishes.length === 0) return;
+
+                menuMessage += category.label + '\n';
+                dishes.forEach((dish) => {
+                    menuMessage += '• ' + dish.name + ' ({{ MONEDA }}' + dish.price + ')\n';
+                });
+                menuMessage += '\n';
+            });
+
+            if (!menuMessage) {
+                showOwnerToast('La sugerencia no contiene platos disponibles.', 'warning');
+                return;
+            }
+
+            const saveMenu = await showOwnerConfirm(
+                'Menú sugerido',
+                menuMessage + '¿Deseas guardarlo como menú de hoy?',
+                'Guardar',
+                false
+            );
+            if (!saveMenu) return;
+
+            const dishIds = [];
+            categories.forEach((category) => {
+                (result.menu[category.key] || []).forEach((dish) => {
+                    if (dish.id) dishIds.push(dish.id);
+                });
+            });
+
+            const saveResponse = await fetch('/owner/save_daily_menu', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    restaurant_id: restaurantId,
+                    dish_ids: dishIds,
+                    specials: ['Recomendación del chef'],
+                    price: 0
+                })
+            });
+            const saveResult = await saveResponse.json();
+
+            if (!saveResponse.ok || !saveResult.success) {
+                showOwnerToast(saveResult.error || 'No se pudo guardar el menú.', 'error');
+                return;
+            }
+
+            showOwnerToast('Menú guardado exitosamente.', 'success');
+            setTimeout(() => location.reload(), 1800);
+        } catch (error) {
+            console.error('Error generando o guardando el menú:', error);
+            showOwnerToast('Ocurrió un error al generar o guardar el menú.', 'error');
+        }
+    }
+    function openAddDishModal(category = '') {
+        const form = document.getElementById('addDishForm');
+        form.reset();
+        document.getElementById('editingDishId').value = '';
+        document.getElementById('dishDay').value = activeDay;
+        document.getElementById('dishMeal').value = activeMeal;
+        if (category) document.getElementById('dishCategory').value = category;
+        document.getElementById('dishModalTitle').textContent = 'Agregar Nuevo Plato';
+        document.getElementById('dishSubmitButton').textContent = 'Agregar Plato';
+        document.getElementById('spicinessDisplay').textContent = '0';
         document.getElementById('addDishModal').classList.add('show');
     }
 
@@ -588,80 +908,135 @@
         document.getElementById('addDishModal').classList.remove('show');
     }
 
-    function addDishToCategory(category) {
-        document.getElementById('dishCategory').value = category;
-        openAddDishModal();
+    function editDish(dishId) {
+        const dish = initialDishes.find((item) => Number(item.id) === Number(dishId));
+        if (!dish) {
+            showOwnerToast('No se encontró el plato que quieres editar.', 'error');
+            return;
+        }
+
+        openAddDishModal(dish.category);
+        document.getElementById('editingDishId').value = dish.id;
+        document.getElementById('dishName').value = dish.name || '';
+        document.getElementById('dishPrice').value = dish.price ?? '';
+        document.getElementById('dishCategory').value = dish.category || 'Entrada';
+        document.getElementById('dishDay').value = dish.day_of_week || activeDay;
+        document.getElementById('dishMeal').value = dish.meal_time || activeMeal;
+        document.getElementById('dishDescription').value = dish.description || '';
+        document.getElementById('dishIngredients').value = Array.isArray(dish.ingredients) ? dish.ingredients.join(', ') : '';
+        document.getElementById('dishTags').value = Array.isArray(dish.tags) ? dish.tags.join(', ') : '';
+        document.getElementById('dishPrepTime').value = dish.preparation_time || 20;
+        document.getElementById('dishSpiciness').value = dish.spiciness || 0;
+        document.getElementById('spicinessDisplay').textContent = String(dish.spiciness || 0);
+        document.getElementById('dishRecommended').checked = Boolean(dish.is_recommended);
+        document.querySelectorAll('.dietary-checkbox').forEach((checkbox) => {
+            checkbox.checked = (dish.dietary_info || []).includes(checkbox.value);
+        });
+        document.getElementById('dishModalTitle').textContent = 'Editar Plato';
+        document.getElementById('dishSubmitButton').textContent = 'Guardar Cambios';
     }
 
     document.getElementById('dishSpiciness').addEventListener('input', function() {
         document.getElementById('spicinessDisplay').textContent = this.value;
     });
 
-    document.getElementById('addDishForm').addEventListener('submit', function(e) {
+    document.getElementById('addDishForm').addEventListener('submit', async function(e) {
         e.preventDefault();
-        
+
         const formData = new FormData(this);
+        const editingId = document.getElementById('editingDishId').value;
         const data = {
             restaurant_id: parseInt(formData.get('restaurant_id')),
             name: formData.get('name'),
             price: parseFloat(formData.get('price')),
             category: formData.get('category'),
+            day_of_week: formData.get('day_of_week'),
+            meal_time: formData.get('meal_time'),
             description: formData.get('description'),
             ingredients: formData.get('ingredients').split(',').map(i => i.trim()).filter(i => i),
             tags: formData.get('tags').split(',').map(t => t.trim()).filter(t => t),
-            dietary_info: document.querySelectorAll('#addDishForm input[type="checkbox"]:checked'),
+            dietary_info: Array.from(document.querySelectorAll('.dietary-checkbox:checked')).map(cb => cb.value),
             preparation_time: parseInt(formData.get('preparation_time')) || 20,
             spiciness: parseInt(formData.get('spiciness')) || 0,
             is_recommended: document.getElementById('dishRecommended').checked
         };
-        
-        data.dietary_info = Array.from(data.dietary_info).map(cb => cb.value);
-        
-        fetch('/owner/dish/add', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(data)
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('✅ Plato agregado exitosamente');
-                location.reload();
-            } else {
-                alert(data.error || 'Error al agregar el plato');
+
+        try {
+            const response = await fetch(editingId ? `/owner/dish/${editingId}/update` : '/owner/dish/add', {
+                method: editingId ? 'PUT' : 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            const result = await response.json();
+
+            if (!response.ok || !result.success) {
+                showOwnerToast(result.error || 'No se pudo guardar el plato.', 'error');
+                return;
             }
-        });
+
+            showOwnerToast(editingId ? 'Plato actualizado exitosamente.' : 'Plato agregado exitosamente.', 'success');
+            closeAddDishModal();
+            setTimeout(() => location.reload(), 1800);
+        } catch (error) {
+            console.error('Error guardando el plato:', error);
+            showOwnerToast('Ocurrió un error al guardar el plato.', 'error');
+        }
     });
 
-    function deleteDish(dishId) {
-        if (confirm('¿Estás seguro de eliminar este plato?')) {
-            fetch(`/owner/dish/${dishId}/delete`, {
+    async function deleteDish(dishId) {
+        const confirmed = await showOwnerConfirm(
+            'Eliminar plato',
+            '¿Estás seguro de eliminar este plato?',
+            'Eliminar',
+            true
+        );
+        if (!confirmed) return;
+
+        try {
+            const response = await fetch(`/owner/dish/${dishId}/delete`, {
                 method: 'DELETE'
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('✅ Plato eliminado exitosamente');
-                    location.reload();
-                }
             });
+            const result = await response.json();
+
+            if (!response.ok || !result.success) {
+                showOwnerToast(result.error || 'No se pudo eliminar el plato.', 'error');
+                return;
+            }
+
+            showOwnerToast('Plato eliminado exitosamente.', 'success');
+            setTimeout(() => location.reload(), 1800);
+        } catch (error) {
+            console.error('Error eliminando plato:', error);
+            showOwnerToast('Ocurrió un error al eliminar el plato.', 'error');
         }
     }
+    async function changeMenuType(type) {
+        const confirmed = await showOwnerConfirm(
+            'Cambiar tipo de menú',
+            '¿Cambiar el tipo de menú a "' + type + '"?',
+            'Cambiar',
+            false
+        );
+        if (!confirmed) return;
 
-    function changeMenuType(type) {
-        if (confirm('¿Cambiar el tipo de menú a "' + type + '"?')) {
-            fetch(`/owner/restaurant/${restaurantId}/menu_type`, {
+        try {
+            const response = await fetch(`/owner/restaurant/${restaurantId}/menu_type`, {
                 method: 'PUT',
-                headers: {'Content-Type': 'application/json'},
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ menu_type: type })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('✅ Tipo de menú actualizado');
-                    location.reload();
-                }
             });
+            const result = await response.json();
+
+            if (!response.ok || !result.success) {
+                showOwnerToast(result.error || 'No se pudo actualizar el tipo de menú.', 'error');
+                return;
+            }
+
+            showOwnerToast('Tipo de menú actualizado.', 'success');
+            setTimeout(() => location.reload(), 1800);
+        } catch (error) {
+            console.error('Error actualizando el tipo de menú:', error);
+            showOwnerToast('Ocurrió un error al actualizar el tipo de menú.', 'error');
         }
     }
 </script>
