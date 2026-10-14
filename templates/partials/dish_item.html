@@ -1,4 +1,4 @@
-<div class="dish-item" data-id="{{ dish.id }}" data-day="{{ dish.day_of_week or '' }}" data-meal="{{ dish.meal_time or '' }}" data-category="{{ dish.category }}">
+<div class="dish-item" data-id="{{ dish.id }}" data-date="{{ dish.menu_date or '' }}" data-meal="{{ dish.meal_time or '' }}" data-category="{{ dish.category }}">
     <div class="dish-info">
         <div class="dish-name">
             {{ dish.name }}
@@ -9,12 +9,6 @@
                 <span class="unavailable-badge">❌ No disponible</span>
             {% endif %}
         </div>
-        {% set day_label = namespace(value='Día sin asignar') %}
-        {% for day_option in weekdays %}
-            {% if day_option.value == dish.day_of_week %}
-                {% set day_label.value = day_option.label %}
-            {% endif %}
-        {% endfor %}
         {% set meal_label = namespace(value='Horario sin asignar') %}
         {% for meal_option in meal_times %}
             {% if meal_option.value == dish.meal_time %}
@@ -22,7 +16,7 @@
             {% endif %}
         {% endfor %}
         <div class="dish-schedule-labels" aria-label="Clasificación del plato">
-            <span>{{ day_label.value }}</span>
+            <span>{{ dish.menu_date_label or 'Fecha sin asignar' }}</span>
             <span>{% if dish.category == 'Entrada' %}Entrada{% elif dish.category == 'Fondo' %}Plato de fondo{% elif dish.category == 'Postre' %}Postre{% elif dish.category == 'Bebida' %}Bebida{% else %}{{ dish.category or 'Tipo sin asignar' }}{% endif %}</span>
             <span>{{ meal_label.value }}</span>
         </div>
@@ -46,12 +40,14 @@
             </div>
         {% endif %}
     </div>
-    <div class="dish-actions">
-        <button class="action-btn edit-btn" onclick="editDish({{ dish.id }})" title="Editar">
-            <i class="fas fa-edit"></i>
-        </button>
-        <button class="action-btn delete-btn" onclick="deleteDish({{ dish.id }})" title="Eliminar">
-            <i class="fas fa-trash"></i>
-        </button>
-    </div>
+    {% if not is_read_only %}
+        <div class="dish-actions">
+            <button class="action-btn edit-btn" onclick="editDish({{ dish.id }})" title="Editar">
+                <i class="fas fa-edit"></i>
+            </button>
+            <button class="action-btn delete-btn" onclick="deleteDish({{ dish.id }})" title="Eliminar">
+                <i class="fas fa-trash"></i>
+            </button>
+        </div>
+    {% endif %}
 </div>

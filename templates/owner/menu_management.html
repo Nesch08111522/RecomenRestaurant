@@ -6,10 +6,10 @@
         <h1><i class="fas fa-utensils"></i> Gestión de Menú</h1>
         <p>{{ restaurant.name }}</p>
         <div class="actions">
-            <button class="btn-primary" onclick="generateRandomMenu()">
+            <button class="btn-primary" onclick="generateRandomMenu()" {% if is_read_only %}disabled title="El historial es de solo lectura"{% endif %}>
                 <i class="fas fa-dice"></i> Generar Menú Aleatorio
             </button>
-            <button class="btn-primary" onclick="openAddDishModal()">
+            <button class="btn-primary" onclick="openAddDishModal()" {% if is_read_only %}disabled title="El historial es de solo lectura"{% endif %}>
                 <i class="fas fa-plus"></i> Agregar Plato
             </button>
         </div>
@@ -18,22 +18,47 @@
     <section class="weekly-menu-planner" aria-labelledby="weeklyMenuTitle">
         <div class="planner-intro">
             <div>
-                <h2 id="weeklyMenuTitle">Programación semanal</h2>
-                <p>Elige el día y horario del menú. Administra sus platos por categoría.</p>
+                <h2 id="weeklyMenuTitle">Menú e historial por fecha</h2>
+                <p>Consulta menús de cualquier fecha y administra cada plato por tipo y horario.</p>
             </div>
-            <strong class="active-menu-label" id="activeMenuLabel"></strong>
+            <strong class="active-menu-label" id="activeMenuLabel">{{ selected_date_label }}</strong>
         </div>
 
-        <div class="schedule-control">
-            <h3>Día de la semana</h3>
-            <div class="weekday-tabs" id="weekdayTabs" role="group" aria-label="Día de la semana">
-                {% for day in weekdays %}
-                    <button type="button" class="schedule-tab weekday-tab" data-day="{{ day.value }}" onclick="setActiveDay('{{ day.value }}')">{{ day.label }}</button>
-                {% endfor %}
-            </div>
+        <div class="history-controls" aria-label="Navegación del historial">
+            <button type="button" class="history-nav-button" onclick="shiftMenuDate(-1)" aria-label="Fecha anterior">&larr;</button>
+            <input type="date" id="menuDatePicker" value="{{ selected_date_iso }}" aria-label="Seleccionar fecha del menú">
+            <button type="button" class="history-nav-button" onclick="shiftMenuDate(1)" aria-label="Fecha siguiente">&rarr;</button>
+            <select id="dateStep" aria-label="Intervalo de navegación">
+                <option value="day">Día</option>
+                <option value="week">Semana</option>
+                <option value="month">Mes</option>
+                <option value="year">Año</option>
+            </select>
+            <button type="button" class="history-today-button" onclick="goToToday()">Ir a hoy</button>
         </div>
 
-        <div class="schedule-control">
+        <div class="menu-date-status {% if is_read_only %}is-read-only{% endif %}" role="status">
+            {% if is_read_only %}
+                Estás viendo un menú pasado. El historial se puede consultar, pero no editar.
+            {% else %}
+                Esta fecha se puede administrar. Los cambios quedan guardados para este día.
+            {% endif %}
+        </div>
+
+        {% if history_dates %}
+            <details class="history-index">
+                <summary>Historial de menús guardados ({{ history_dates|length }} fechas)</summary>
+                <div class="history-date-links">
+                    {% for history_date in history_dates %}
+                        <a href="{{ url_for('owner.menu_management', restaurant_id=restaurant.id, date=history_date.value) }}">{{ history_date.label }}</a>
+                    {% endfor %}
+                </div>
+            </details>
+        {% else %}
+            <p class="history-empty-note">Todavía no hay fechas anteriores con menús guardados.</p>
+        {% endif %}
+
+        <div class="schedule-control meal-schedule-control">
             <h3>Horario</h3>
             <div class="meal-tabs" id="mealTabs" role="group" aria-label="Horario del menú">
                 {% for meal in meal_times %}
@@ -48,37 +73,62 @@
             <section class="menu-section" data-menu-category="{{ category.value }}">
                 <h3>{{ category.label }}</h3>
                 <div class="dish-list schedule-dish-list">
-                    {% for dish in dishes if dish.category == category.value and dish.day_of_week and dish.meal_time %}
+                    {% for dish in date_dishes if dish.category == category.value %}
                         {% include 'partials/dish_item.html' %}
                     {% endfor %}
                     <div class="empty-message" data-empty-state>No hay platos en este menú.</div>
                 </div>
-                <button type="button" class="btn-add-dish" onclick="openAddDishModal('{{ category.value }}')">
+                <button type="button" class="btn-add-dish" onclick="openAddDishModal('{{ category.value }}')" {% if is_read_only %}disabled title="El historial es de solo lectura"{% endif %}>
                     <i class="fas fa-plus"></i> Agregar a {{ category.label|lower }}
                 </button>
             </section>
         {% endfor %}
     </div>
 
-    {% set pending_dishes = namespace(has_items=false) %}
-    {% for dish in dishes %}
-        {% if not dish.day_of_week or not dish.meal_time %}
-            {% set pending_dishes.has_items = true %}
-        {% endif %}
-    {% endfor %}
-    <section class="unassigned-section" id="unassignedSection" {% if not pending_dishes.has_items %}hidden{% endif %}>
-        <div>
-            <h2>Platos sin programación</h2>
-            <p>Asigna un día y horario para incorporarlos al menú semanal.</p>
-        </div>
-        <div class="unassigned-dish-list">
-            {% for dish in dishes if not dish.day_of_week or not dish.meal_time %}
-                {% include 'partials/dish_item.html' %}
-            {% else %}
-                <p class="empty-message">Todos tus platos están asignados a un menú semanal.</p>
-            {% endfor %}
-        </div>
-    </section>
+    {% if not is_read_only %}
+        {% set pending_dishes = namespace(has_items=false) %}
+        {% for dish in dishes %}
+            {% if not dish.menu_date %}
+                {% set pending_dishes.has_items = true %}
+            {% endif %}
+        {% endfor %}
+        <section class="unassigned-section" id="unassignedSection" {% if not pending_dishes.has_items %}hidden{% endif %}>
+            <div>
+                <h2>Platos del catálogo sin fecha</h2>
+                <p>Edítalos para programarlos en la fecha que estás gestionando.</p>
+            </div>
+            <div class="unassigned-dish-list">
+                {% for dish in dishes if not dish.menu_date %}
+                    {% include 'partials/dish_item.html' %}
+                {% else %}
+                    <p class="empty-message">No hay platos del catálogo pendientes de programar.</p>
+                {% endfor %}
+            </div>
+        </section>
+    {% endif %}
+
+    {% if history_menu and history_menu.dishes %}
+        <section class="unassigned-section legacy-history-section">
+            <div>
+                <h2>Menú diario guardado</h2>
+                <p>Este menú se guardó con el generador anterior y se conserva como registro de esta fecha.</p>
+            </div>
+            <ul class="legacy-history-list">
+                {% for item in history_menu.dishes %}
+                    <li>
+                        <div>
+                            <strong>{{ item.name }}</strong>
+                            <small>
+                                {% if item.category == 'Fondo' %}Plato de fondo{% else %}{{ item.category or 'Tipo no registrado' }}{% endif %}
+                                · {{ item.meal_time|capitalize if item.meal_time else 'Horario no registrado' }}
+                            </small>
+                        </div>
+                        <span>{{ MONEDA }}{{ item.price }}</span>
+                    </li>
+                {% endfor %}
+            </ul>
+        </section>
+    {% endif %}
 
     <!-- Tipo de menú -->
     <div class="menu-type-selector">
@@ -196,6 +246,7 @@
             <form id="addDishForm">
                 <input type="hidden" id="editingDishId" value="">
                 <input type="hidden" id="restaurantId" name="restaurant_id" value="{{ restaurant.id }}">
+                <input type="hidden" id="dishMenuDate" name="menu_date" value="{{ selected_date_iso }}">
 
                 <div class="form-row">
                     <div class="form-group">
@@ -207,12 +258,8 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="dishDay">Día de la semana *</label>
-                        <select id="dishDay" name="day_of_week" class="form-input" required>
-                            {% for day in weekdays %}
-                                <option value="{{ day.value }}">{{ day.label }}</option>
-                            {% endfor %}
-                        </select>
+                        <label>Fecha del menú</label>
+                        <p class="dish-date-label" id="dishDateLabel">{{ selected_date_label }}</p>
                     </div>
                 </div>
 
@@ -380,6 +427,137 @@
         font-size: 14px;
     }
 
+    .history-controls {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin: 18px 0 12px;
+    }
+
+    .history-controls input,
+    .history-controls select,
+    .history-nav-button,
+    .history-today-button {
+        min-height: 40px;
+        padding: 8px 12px;
+        border: 1px solid var(--light-gray);
+        border-radius: var(--radius-sm);
+        background: #fff;
+        color: var(--dark);
+        font: inherit;
+    }
+
+    .history-nav-button,
+    .history-today-button {
+        cursor: pointer;
+    }
+
+    .history-nav-button {
+        min-width: 42px;
+        font-size: 20px;
+    }
+
+    .history-today-button {
+        border-color: var(--primary);
+        color: var(--primary);
+        font-weight: 600;
+    }
+
+    .menu-date-status {
+        margin: 0 0 18px;
+        padding: 11px 14px;
+        border-radius: var(--radius-sm);
+        background: #ecfdf5;
+        color: #166534;
+        font-size: 14px;
+    }
+
+    .menu-date-status.is-read-only {
+        background: #fff7ed;
+        color: #9a3412;
+    }
+
+    .legacy-history-list {
+        margin: 12px 0 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    .legacy-history-list li {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 10px 0;
+        border-bottom: 1px solid #fed7aa;
+    }
+
+    .legacy-history-list li:last-child {
+        border-bottom: 0;
+    }
+
+    .legacy-history-list small {
+        display: block;
+        margin-top: 4px;
+        color: var(--gray);
+    }
+
+    .history-index {
+        margin: 0 0 18px;
+        border: 1px solid var(--light-gray);
+        border-radius: var(--radius-sm);
+        background: #fff;
+    }
+
+    .history-index summary {
+        padding: 12px 14px;
+        color: var(--primary);
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    .history-date-links {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 8px;
+        padding: 0 14px 14px;
+    }
+
+    .history-date-links a {
+        padding: 9px 10px;
+        border-radius: var(--radius-sm);
+        background: #f9fafb;
+        color: var(--dark);
+        text-decoration: none;
+    }
+
+    .history-date-links a:hover {
+        background: var(--primary-light);
+        color: var(--primary);
+    }
+
+    .history-empty-note {
+        margin: 0 0 18px;
+        color: var(--gray);
+        font-size: 14px;
+    }
+
+    .dish-date-label {
+        margin: 0;
+        padding: 10px 12px;
+        border: 1px solid var(--light-gray);
+        border-radius: var(--radius-sm);
+        background: #f9fafb;
+    }
+
+    .btn-primary:disabled,
+    .btn-add-dish:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+
     .schedule-control + .schedule-control {
         margin-top: 18px;
     }
@@ -390,14 +568,9 @@
         font-weight: 600;
     }
 
-    .weekday-tabs,
     .meal-tabs {
         display: grid;
         gap: 8px;
-    }
-
-    .weekday-tabs {
-        grid-template-columns: repeat(7, minmax(0, 1fr));
     }
 
     .meal-tabs {
@@ -721,9 +894,6 @@
             grid-template-columns: 1fr;
         }
 
-        .weekday-tabs {
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-        }
     }
 
     @media (max-width: 480px) {
@@ -733,44 +903,31 @@
             flex-direction: column;
         }
 
-        .weekday-tabs {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-        }
     }
 </style>
 
 <script>
     const restaurantId = {{ restaurant.id }};
     const initialDishes = {{ dishes|tojson }};
-    const weekdayOptions = {{ weekdays|tojson }};
+    const selectedMenuDate = {{ selected_date_iso|tojson }};
+    const todayMenuDate = {{ today_date_iso|tojson }};
+    const selectedDateLabel = {{ selected_date_label|tojson }};
+    const isReadOnly = {{ 'true' if is_read_only else 'false' }};
     const mealOptions = {{ meal_times|tojson }};
-    const dayStorageKey = `owner-menu-day-${restaurantId}`;
     const mealStorageKey = `owner-menu-meal-${restaurantId}`;
-    const weekdayValues = weekdayOptions.map((day) => day.value);
     const mealValues = mealOptions.map((meal) => meal.value);
-    const todayIndex = (new Date().getDay() + 6) % 7;
-    let activeDay = weekdayValues[todayIndex] || 'lunes';
     let activeMeal = 'almuerzo';
 
     try {
-        const savedDay = localStorage.getItem(dayStorageKey);
         const savedMeal = localStorage.getItem(mealStorageKey);
-        if (weekdayValues.includes(savedDay)) activeDay = savedDay;
         if (mealValues.includes(savedMeal)) activeMeal = savedMeal;
     } catch (error) {
-        console.warn('No se pudo recuperar la selección del menú semanal.', error);
+        console.warn('No se pudo recuperar el horario seleccionado.', error);
     }
 
     function updateScheduleView() {
-        const day = weekdayOptions.find((option) => option.value === activeDay);
         const meal = mealOptions.find((option) => option.value === activeMeal);
-        document.getElementById('activeMenuLabel').textContent = `${day.label} · ${meal.label}`;
-
-        document.querySelectorAll('.weekday-tab').forEach((button) => {
-            const selected = button.dataset.day === activeDay;
-            button.classList.toggle('is-active', selected);
-            button.setAttribute('aria-pressed', String(selected));
-        });
+        document.getElementById('activeMenuLabel').textContent = `${selectedDateLabel} · ${meal.label}`;
         document.querySelectorAll('.meal-tab').forEach((button) => {
             const selected = button.dataset.meal === activeMeal;
             button.classList.toggle('is-active', selected);
@@ -779,7 +936,7 @@
 
         const visibleCounts = {};
         document.querySelectorAll('#scheduledMenuSections .dish-item').forEach((item) => {
-            const visible = item.dataset.day === activeDay && item.dataset.meal === activeMeal;
+            const visible = item.dataset.meal === activeMeal;
             item.hidden = !visible;
             if (visible) visibleCounts[item.dataset.category] = (visibleCounts[item.dataset.category] || 0) + 1;
         });
@@ -790,13 +947,6 @@
         });
     }
 
-    function setActiveDay(day) {
-        if (!weekdayValues.includes(day)) return;
-        activeDay = day;
-        try { localStorage.setItem(dayStorageKey, day); } catch (error) { /* almacenamiento opcional */ }
-        updateScheduleView();
-    }
-
     function setActiveMeal(meal) {
         if (!mealValues.includes(meal)) return;
         activeMeal = meal;
@@ -805,8 +955,50 @@
     }
 
     updateScheduleView();
+
+    function navigateToMenuDate(dateValue) {
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(dateValue)) return;
+        window.location.href = `${window.location.pathname}?date=${encodeURIComponent(dateValue)}`;
+    }
+
+    function shiftMenuDate(direction) {
+        const [year, month, day] = selectedMenuDate.split('-').map(Number);
+        const target = new Date(Date.UTC(year, month - 1, day));
+        const step = document.getElementById('dateStep').value;
+
+        if (step === 'day') target.setUTCDate(target.getUTCDate() + direction);
+        if (step === 'week') target.setUTCDate(target.getUTCDate() + 7 * direction);
+        if (step === 'month') {
+            target.setUTCDate(1);
+            target.setUTCMonth(target.getUTCMonth() + direction);
+            target.setUTCDate(Math.min(day, new Date(Date.UTC(target.getUTCFullYear(), target.getUTCMonth() + 1, 0)).getUTCDate()));
+        }
+        if (step === 'year') {
+            target.setUTCDate(1);
+            target.setUTCFullYear(target.getUTCFullYear() + direction);
+            target.setUTCMonth(month - 1);
+            target.setUTCDate(Math.min(day, new Date(Date.UTC(target.getUTCFullYear(), month, 0)).getUTCDate()));
+        }
+
+        const yearText = String(target.getUTCFullYear()).padStart(4, '0');
+        const monthText = String(target.getUTCMonth() + 1).padStart(2, '0');
+        const dayText = String(target.getUTCDate()).padStart(2, '0');
+        navigateToMenuDate(`${yearText}-${monthText}-${dayText}`);
+    }
+
+    function goToToday() {
+        navigateToMenuDate(todayMenuDate);
+    }
+
+    document.getElementById('menuDatePicker').addEventListener('change', function() {
+        if (this.value) navigateToMenuDate(this.value);
+    });
     
     async function generateRandomMenu() {
+        if (isReadOnly) {
+            showOwnerToast('El historial de fechas pasadas es de solo lectura.', 'warning');
+            return;
+        }
         const generate = await showOwnerConfirm(
             'Generar menú aleatorio',
             '¿Deseas generar un menú sugerido con los platos registrados?',
@@ -819,7 +1011,7 @@
             const response = await fetch('/owner/generate_menu', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ restaurant_id: restaurantId })
+                body: JSON.stringify({ restaurant_id: restaurantId, menu_date: selectedMenuDate })
             });
             const result = await response.json();
 
@@ -872,6 +1064,7 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     restaurant_id: restaurantId,
+                    date: selectedMenuDate,
                     dish_ids: dishIds,
                     specials: ['Recomendación del chef'],
                     price: 0
@@ -891,11 +1084,16 @@
             showOwnerToast('Ocurrió un error al generar o guardar el menú.', 'error');
         }
     }
-    function openAddDishModal(category = '') {
+    function openAddDishModal(category = '', menuDate = selectedMenuDate) {
+        if (isReadOnly) {
+            showOwnerToast('No puedes editar menús de fechas pasadas.', 'warning');
+            return;
+        }
         const form = document.getElementById('addDishForm');
         form.reset();
         document.getElementById('editingDishId').value = '';
-        document.getElementById('dishDay').value = activeDay;
+        document.getElementById('dishMenuDate').value = menuDate;
+        document.getElementById('dishDateLabel').textContent = selectedDateLabel;
         document.getElementById('dishMeal').value = activeMeal;
         if (category) document.getElementById('dishCategory').value = category;
         document.getElementById('dishModalTitle').textContent = 'Agregar Nuevo Plato';
@@ -909,18 +1107,23 @@
     }
 
     function editDish(dishId) {
+        if (isReadOnly) {
+            showOwnerToast('El historial de fechas pasadas es de solo lectura.', 'warning');
+            return;
+        }
         const dish = initialDishes.find((item) => Number(item.id) === Number(dishId));
         if (!dish) {
             showOwnerToast('No se encontró el plato que quieres editar.', 'error');
             return;
         }
 
-        openAddDishModal(dish.category);
+        openAddDishModal(dish.category, dish.menu_date || selectedMenuDate);
         document.getElementById('editingDishId').value = dish.id;
         document.getElementById('dishName').value = dish.name || '';
         document.getElementById('dishPrice').value = dish.price ?? '';
         document.getElementById('dishCategory').value = dish.category || 'Entrada';
-        document.getElementById('dishDay').value = dish.day_of_week || activeDay;
+        document.getElementById('dishMenuDate').value = dish.menu_date || selectedMenuDate;
+        document.getElementById('dishDateLabel').textContent = dish.menu_date_label || selectedDateLabel;
         document.getElementById('dishMeal').value = dish.meal_time || activeMeal;
         document.getElementById('dishDescription').value = dish.description || '';
         document.getElementById('dishIngredients').value = Array.isArray(dish.ingredients) ? dish.ingredients.join(', ') : '';
@@ -942,6 +1145,10 @@
 
     document.getElementById('addDishForm').addEventListener('submit', async function(e) {
         e.preventDefault();
+        if (isReadOnly) {
+            showOwnerToast('No puedes guardar cambios en fechas pasadas.', 'warning');
+            return;
+        }
 
         const formData = new FormData(this);
         const editingId = document.getElementById('editingDishId').value;
@@ -950,7 +1157,7 @@
             name: formData.get('name'),
             price: parseFloat(formData.get('price')),
             category: formData.get('category'),
-            day_of_week: formData.get('day_of_week'),
+            menu_date: formData.get('menu_date'),
             meal_time: formData.get('meal_time'),
             description: formData.get('description'),
             ingredients: formData.get('ingredients').split(',').map(i => i.trim()).filter(i => i),
