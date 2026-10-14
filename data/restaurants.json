@@ -67,7 +67,8 @@
         "owner_id": 3,
         "owner_name": "Juan Empresario",
         "verified": false,
-        "moderation_notes": ""
+        "moderation_notes": "",
+        "menu_type": "daily"
     },
     {
         "id": 3,
