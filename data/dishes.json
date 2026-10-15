@@ -2839,5 +2839,49 @@
         ],
         "created_at": "2026-10-14T17:38:30.620824",
         "id": 86
+    },
+    {
+        "restaurant_id": 2,
+        "name": "Papa a la huancaina",
+        "price": 3.0,
+        "category": "Entrada",
+        "menu_date": "2026-10-14",
+        "day_of_week": "miercoles",
+        "meal_time": "almuerzo",
+        "description": "Papa con crema de huancaina",
+        "ingredients": [
+            "ají amarillo"
+        ],
+        "dietary_info": [
+            "vegano"
+        ],
+        "preparation_time": 20,
+        "spiciness": 2,
+        "is_recommended": false,
+        "is_available": true,
+        "tags": [],
+        "created_at": "2026-10-14T20:55:40.116228",
+        "id": 87
+    },
+    {
+        "restaurant_id": 2,
+        "name": "aaa",
+        "price": 10.0,
+        "category": "Bebida",
+        "menu_date": "2026-10-14",
+        "day_of_week": "miercoles",
+        "meal_time": "almuerzo",
+        "description": "qaq",
+        "ingredients": [
+            "qqsq"
+        ],
+        "dietary_info": [],
+        "preparation_time": 20,
+        "spiciness": 0,
+        "is_recommended": false,
+        "is_available": true,
+        "tags": [],
+        "created_at": "2026-10-14T21:05:08.857235",
+        "id": 88
     }
 ]

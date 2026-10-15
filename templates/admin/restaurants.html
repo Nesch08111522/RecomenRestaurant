@@ -1,520 +1,668 @@
-<!-- templates/admin/restaurants.html -->
+{# templates/admin/restaurants.html #}
 {% extends 'base.html' %}
 
 {% block content %}
+{% if csrf_token is defined %}<meta name="csrf-token" content="{{ csrf_token() }}">{% endif %}
+
 <div class="admin-container">
-    <div class="admin-header">
-        <div class="header-left">
-            <h1><i class="fas fa-utensils"></i> Gestión de Restaurantes</h1>
-            <p>
-                {% if is_admin %}
-                    Administra todos los restaurantes del sistema
-                {% else %}
-                    Administra tus restaurantes
-                {% endif %}
-            </p>
-        </div>
-        <div class="header-right">
-            <button class="btn-primary" onclick="location.href='{{ url_for('admin.new_restaurant') }}'">
-                <i class="fas fa-plus"></i> Nuevo Restaurante
-            </button>
-        </div>
+  <div class="admin-header">
+    <div class="header-left">
+      <h1><i class="fas fa-utensils"></i> Gestión de restaurantes</h1>
+      <p>
+        {% if is_admin %}Administra todos los restaurantes del sistema{% else %}Administra tus restaurantes{% endif %}
+      </p>
     </div>
+    <div class="header-right">
+      <a class="btn-primary" href="{{ url_for('admin.new_restaurant') }}"><i class="fas fa-plus"></i> Nuevo restaurante</a>
+    </div>
+  </div>
 
-    <!-- Filtros y búsqueda -->
-    <div class="admin-filters">
-        <div class="filter-group">
-            <input type="text" id="searchRestaurant" placeholder="Buscar restaurante..." class="form-input">
-        </div>
-        <div class="filter-group">
-            <select id="filterCategory" class="form-input">
-                <option value="">Todas las categorías</option>
-                {% for cat in categories %}
-                    <option value="{{ cat.id }}">{{ cat.name }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="filter-group">
-            <select id="filterDistrict" class="form-input">
-                <option value="">Todos los distritos</option>
-                {% for district in districts %}
-                    <option value="{{ district }}">{{ district }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <button class="btn-secondary" onclick="clearFilters()">
-            <i class="fas fa-undo"></i> Limpiar
-        </button>
-    </div>
+  {% if restaurants %}
 
-    <!-- Tabla de restaurantes -->
-    <div class="table-container">
-        <table class="admin-table">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Nombre</th>
-                    <th>Categoría</th>
-                    <th>Distrito</th>
-                    <th>Rating</th>
-                    <th>Precio</th>
-                    <th>Promoción</th>
-                    <th>Estado</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody id="restaurantsTableBody">
-                {% for r in restaurants %}
-                    <tr data-id="{{ r.id }}" data-category="{{ r.category_id }}" data-district="{{ r.district }}">
-                        <td>{{ r.id }}</td>
-                        <td class="restaurant-name">{{ r.name }}</td>
-                        <td>{{ r.category_name or 'Sin categoría' }}</td>
-                        <td>{{ r.district }}</td>
-                        <td>
-                            <span class="rating-badge">
-                                <i class="fas fa-star"></i> {{ r.rating }}
-                            </span>
-                        </td>
-                        <td>{{ MONEDA }}{{ r.avg_price }}</td>
-                        <td>
-                            {% if r.promo %}
-                                <span class="promo-badge-small">{{ r.promo }}</span>
-                            {% else %}
-                                <span class="no-promo">Sin promoción</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            <span class="status-badge {% if r.is_open %}status-open{% else %}status-closed{% endif %}">
-                                {% if r.is_open %}Abierto{% else %}Cerrado{% endif %}
-                            </span>
-                        </td>
-                        <td>
-                            <div class="action-buttons">
-                                <button class="action-btn edit-btn" onclick="editRestaurant({{ r.id }})" title="Editar">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="action-btn promo-btn" onclick="addPromotion({{ r.id }})" title="Agregar promoción">
-                                    <i class="fas fa-tag"></i>
-                                </button>
-                                <button class="action-btn delete-btn" onclick="deleteRestaurant({{ r.id }})" title="Eliminar">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        
-        {% if not restaurants %}
-            <div class="empty-state">
-                <i class="fas fa-utensils" style="font-size: 48px; color: var(--light-gray);"></i>
-                <h3 style="margin-top: 16px;">
-                    {% if is_admin %}
-                        No hay restaurantes registrados
-                    {% else %}
-                        No tienes restaurantes registrados
-                    {% endif %}
-                </h3>
-                <p style="color: var(--gray);">
-                    {% if is_admin %}
-                        Los restaurantes aparecerán aquí cuando sean creados.
-                    {% else %}
-                        <a href="{{ url_for('admin.new_restaurant') }}" style="color: var(--primary);">Agrega tu primer restaurante</a>
-                    {% endif %}
-                </p>
-            </div>
-        {% endif %}
-    </div>
+  <!-- Resumen -->
+  <section class="stats-row" aria-label="Resumen">
+    <div class="stat-card"><span class="stat-value" id="statTotal">{{ restaurants|length }}</span><span class="stat-label">Restaurantes</span></div>
+    <div class="stat-card"><span class="stat-value" id="statOpen">0</span><span class="stat-label">Abiertos ahora</span></div>
+    <div class="stat-card"><span class="stat-value" id="statPromo">0</span><span class="stat-label">Con promoción</span></div>
+  </section>
 
-    <!-- Paginación -->
-    <div class="pagination">
-        <button class="page-btn" onclick="changePage('prev')">
-            <i class="fas fa-chevron-left"></i>
-        </button>
-        <span id="pageInfo">Página 1 de {{ total_pages }}</span>
-        <button class="page-btn" onclick="changePage('next')">
-            <i class="fas fa-chevron-right"></i>
-        </button>
+  <!-- Filtros -->
+  <div class="admin-filters">
+    <div class="filter-group filter-search">
+      <input type="search" id="searchRestaurant" placeholder="Buscar por nombre, categoría o distrito..." class="form-input" aria-label="Buscar restaurante">
     </div>
+    <div class="filter-group">
+      <select id="filterCategory" class="form-input" aria-label="Filtrar por categoría">
+        <option value="">Todas las categorías</option>
+        {% for cat in categories %}
+          <option value="{{ cat.id }}">{{ cat.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="filter-group">
+      <select id="filterDistrict" class="form-input" aria-label="Filtrar por distrito">
+        <option value="">Todos los distritos</option>
+        {% for district in districts %}
+          <option value="{{ district }}">{{ district }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="filter-group">
+      <select id="filterStatus" class="form-input" aria-label="Filtrar por estado">
+        <option value="">Todos los estados</option>
+        <option value="1">Abiertos</option>
+        <option value="0">Cerrados</option>
+      </select>
+    </div>
+    <button type="button" class="btn-secondary" id="clearFilters"><i class="fas fa-undo"></i> Limpiar</button>
+  </div>
+
+  <!-- Tabla -->
+  <div class="table-container">
+    <table class="admin-table" id="restaurantsTable"
+           data-promo-url="/admin/restaurant/__ID__/promo"
+           data-delete-url="/admin/restaurant/__ID__">
+      <thead>
+        <tr>
+          <th scope="col"><button type="button" class="th-sort" data-sort="id">ID <i class="fas fa-sort"></i></button></th>
+          <th scope="col"><button type="button" class="th-sort" data-sort="name">Nombre <i class="fas fa-sort"></i></button></th>
+          <th scope="col"><button type="button" class="th-sort" data-sort="category">Categoría <i class="fas fa-sort"></i></button></th>
+          <th scope="col"><button type="button" class="th-sort" data-sort="district">Distrito <i class="fas fa-sort"></i></button></th>
+          <th scope="col"><button type="button" class="th-sort" data-sort="rating">Rating <i class="fas fa-sort"></i></button></th>
+          <th scope="col"><button type="button" class="th-sort" data-sort="price">Precio <i class="fas fa-sort"></i></button></th>
+          <th scope="col">Promoción</th>
+          <th scope="col">Estado</th>
+          <th scope="col">Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="restaurantsTableBody">
+        {% for r in restaurants %}
+          {% if r.rating is defined and r.rating|string not in ['None', ''] %}
+            {% set rating_data = r.rating %}
+            {% set rating_text = '%.1f'|format(r.rating|float) %}
+          {% else %}
+            {% set rating_data = '' %}
+            {% set rating_text = '—' %}
+          {% endif %}
+          {% if r.avg_price is defined and r.avg_price|string not in ['None', ''] %}
+            {% set price_data = r.avg_price %}
+            {% set price_text = '%.2f'|format(r.avg_price|float) %}
+          {% else %}
+            {% set price_data = '' %}
+            {% set price_text = '—' %}
+          {% endif %}
+          {% if r.is_open %}
+            {% set open_flag = '1' %}
+            {% set status_class = 'status-open' %}
+            {% set status_text = 'Abierto' %}
+          {% else %}
+            {% set open_flag = '0' %}
+            {% set status_class = 'status-closed' %}
+            {% set status_text = 'Cerrado' %}
+          {% endif %}
+          <tr data-id="{{ r.id }}"
+              data-name="{{ r.name }}"
+              data-category="{{ r.category_id|default('', true) }}"
+              data-catname="{{ r.category_name or '' }}"
+              data-district="{{ r.district or '' }}"
+              data-rating="{{ rating_data }}"
+              data-price="{{ price_data }}"
+              data-open="{{ open_flag }}"
+              data-promo="{{ r.promo or '' }}">
+            <td>{{ r.id }}</td>
+            <td class="restaurant-name">{{ r.name }}</td>
+            <td>{{ r.category_name or 'Sin categoría' }}</td>
+            <td>{{ r.district }}</td>
+            <td>
+              <span class="rating-badge"><i class="fas fa-star"></i> {{ rating_text }}</span>
+            </td>
+            <td>{% if r.avg_price is defined and r.avg_price|string not in ['None', ''] %}{{ MONEDA }}{{ price_text }}{% else %}—{% endif %}</td>
+            <td class="promo-cell">
+              {% if r.promo %}
+                <span class="promo-badge-small" title="{{ r.promo }}">{{ r.promo }}</span>
+              {% else %}
+                <span class="no-promo">Sin promoción</span>
+              {% endif %}
+            </td>
+            <td>
+              <span class="status-badge {{ status_class }}">{{ status_text }}</span>
+            </td>
+            <td>
+              <div class="action-buttons">
+                <a class="action-btn edit-btn" href="/admin/restaurant/{{ r.id }}/edit" title="Editar" aria-label="Editar {{ r.name }}"><i class="fas fa-edit"></i></a>
+                <button type="button" class="action-btn promo-btn" data-action="promo" title="Promoción" aria-label="Editar promoción de {{ r.name }}"><i class="fas fa-tag"></i></button>
+                <button type="button" class="action-btn delete-btn" data-action="delete" title="Eliminar" aria-label="Eliminar {{ r.name }}"><i class="fas fa-trash"></i></button>
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div class="empty-state" id="noResults" hidden>
+      <i class="fas fa-search"></i>
+      <h3>No hay resultados</h3>
+      <p>Prueba con otra búsqueda o limpia los filtros.</p>
+    </div>
+  </div>
+
+  <!-- Paginación -->
+  <div class="pagination">
+    <span class="result-info" id="resultInfo" aria-live="polite"></span>
+    <div class="pager">
+      <label for="pageSize" class="sr-only">Filas por página</label>
+      <select id="pageSize" class="form-input page-size">
+        <option value="10">10 por página</option>
+        <option value="25">25 por página</option>
+        <option value="50">50 por página</option>
+      </select>
+      <button type="button" class="page-btn" id="prevPage" aria-label="Página anterior"><i class="fas fa-chevron-left"></i></button>
+      <span id="pageInfo">Página 1 de 1</span>
+      <button type="button" class="page-btn" id="nextPage" aria-label="Página siguiente"><i class="fas fa-chevron-right"></i></button>
+    </div>
+  </div>
+
+  {% else %}
+
+  <div class="table-container">
+    <div class="empty-state">
+      <i class="fas fa-utensils"></i>
+      <h3>{% if is_admin %}No hay restaurantes registrados{% else %}No tienes restaurantes registrados{% endif %}</h3>
+      <p>
+        {% if is_admin %}Los restaurantes aparecerán aquí cuando sean creados.{% else %}Registra tu primer restaurante para comenzar.{% endif %}
+      </p>
+      {% if not is_admin %}
+        <a href="{{ url_for('admin.new_restaurant') }}" class="btn-primary empty-cta"><i class="fas fa-plus"></i> Agregar restaurante</a>
+      {% endif %}
+    </div>
+  </div>
+
+  {% endif %}
 </div>
 
+<!-- Diálogo: eliminar -->
+<dialog id="deleteDialog" class="dialog" aria-labelledby="deleteTitle">
+  <form method="dialog">
+    <h3 id="deleteTitle"><i class="fas fa-exclamation-triangle"></i> Eliminar restaurante</h3>
+    <p>¿Eliminar <strong id="deleteName"></strong>? Esta acción no se puede deshacer.</p>
+    <div class="dialog-actions">
+      <button class="btn-secondary" value="cancel">Cancelar</button>
+      <button type="button" class="btn-danger" id="deleteConfirm">Eliminar</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Diálogo: promoción -->
+<dialog id="promoDialog" class="dialog" aria-labelledby="promoTitle">
+  <form id="promoForm" method="dialog">
+    <h3 id="promoTitle"><i class="fas fa-tag"></i> Promoción</h3>
+    <p class="dialog-sub" id="promoFor"></p>
+    <label for="promoText">Texto de la promoción</label>
+    <input type="text" id="promoText" class="form-input" placeholder="10% de descuento en almuerzos" autocomplete="off">
+    <div class="dialog-actions">
+      <button type="button" class="btn-link-danger" id="promoRemove" hidden>Quitar promoción</button>
+      <button class="btn-secondary" value="cancel" formnovalidate>Cancelar</button>
+      <button type="submit" class="btn-primary" id="promoSave">Guardar</button>
+    </div>
+  </form>
+</dialog>
+
+<div class="toast-stack" id="toastStack" aria-live="polite"></div>
+
 <style>
-    .admin-container {
-        max-width: 1200px;
-        margin: 40px auto;
-        padding: 0 20px;
-    }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
 
-    .admin-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 32px;
-        flex-wrap: wrap;
-        gap: 12px;
-    }
+  .admin-container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
+  .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
+  .admin-header h1 { font-size: 28px; font-weight: 700; }
+  .admin-header p { color: var(--gray); font-size: 14px; }
 
-    .admin-header h1 {
-        font-size: 28px;
-        font-weight: 700;
-    }
+  .btn-primary {
+    padding: 10px 24px; background: var(--primary); color: var(--white); border: none;
+    border-radius: var(--radius-sm); cursor: pointer; transition: var(--transition); font-weight: 500;
+    text-decoration: none; display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-family: inherit;
+  }
+  .btn-primary:hover:not(:disabled) { background: var(--primary-dark); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(255, 56, 92, .3); }
+  .btn-primary:disabled { opacity: .7; cursor: wait; }
+  .btn-secondary {
+    padding: 10px 20px; background: var(--light-gray); border: none; border-radius: var(--radius-sm);
+    cursor: pointer; transition: var(--transition); font-weight: 500; font-size: 14px; font-family: inherit; color: var(--dark);
+  }
+  .btn-secondary:hover { background: #d5d5d5; }
+  .btn-danger {
+    padding: 10px 20px; background: #dc2626; color: #fff; border: none; border-radius: var(--radius-sm);
+    cursor: pointer; font-weight: 500; font-size: 14px; font-family: inherit;
+  }
+  .btn-danger:hover:not(:disabled) { background: #b91c1c; }
+  .btn-danger:disabled { opacity: .7; cursor: wait; }
+  .btn-link-danger { margin-right: auto; background: none; border: none; color: #b91c1c; cursor: pointer; font: inherit; font-size: 13px; }
+  .btn-link-danger:hover { text-decoration: underline; }
 
-    .admin-header p {
-        color: var(--gray);
-        font-size: 14px;
-    }
+  /* Resumen */
+  .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+  .stat-card {
+    display: flex; flex-direction: column; gap: 2px; padding: 14px 18px;
+    background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow);
+  }
+  .stat-value { font-size: 24px; font-weight: 700; line-height: 1.2; }
+  .stat-label { font-size: 13px; color: var(--gray); }
 
-    .btn-primary {
-        padding: 10px 24px;
-        background: var(--primary);
-        color: var(--white);
-        border: none;
-        border-radius: var(--radius-sm);
-        cursor: pointer;
-        transition: var(--transition);
-        font-weight: 500;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 14px;
-    }
+  /* Filtros */
+  .admin-filters { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+  .admin-filters .filter-group { flex: 1; min-width: 150px; }
+  .admin-filters .filter-search { flex: 2; min-width: 220px; }
+  .form-input {
+    width: 100%; padding: 10px 14px; border: 1px solid var(--light-gray); border-radius: var(--radius-sm);
+    font-size: 14px; transition: var(--transition); font-family: var(--font-main); background: var(--white);
+  }
+  .form-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
 
-    .btn-primary:hover {
-        background: var(--primary-dark);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(255, 56, 92, 0.3);
-    }
+  /* Tabla */
+  .table-container { background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow); overflow-x: auto; }
+  .admin-table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 860px; }
+  .admin-table th {
+    background: #f8f9fa; padding: 0; text-align: left; font-weight: 600;
+    border-bottom: 2px solid var(--light-gray); white-space: nowrap;
+  }
+  .admin-table th:not(:has(.th-sort)) { padding: 12px 16px; }
+  .th-sort {
+    width: 100%; padding: 12px 16px; border: none; background: none; cursor: pointer;
+    font: inherit; font-weight: 600; text-align: left; color: var(--dark);
+  }
+  .th-sort:hover { background: #eef0f2; }
+  .th-sort i { margin-left: 4px; font-size: 11px; color: var(--gray); opacity: .6; }
+  th[aria-sort="ascending"] .th-sort i,
+  th[aria-sort="descending"] .th-sort i { opacity: 1; color: var(--primary); }
+  .admin-table td { padding: 12px 16px; border-bottom: 1px solid var(--light-gray); vertical-align: middle; }
+  .admin-table tbody tr:hover { background: #f8f9fa; }
+  .restaurant-name { font-weight: 500; }
 
-    .admin-filters {
-        display: flex;
-        gap: 12px;
-        margin-bottom: 24px;
-        flex-wrap: wrap;
-    }
+  .rating-badge { display: inline-flex; align-items: center; gap: 4px; color: #b45309; font-weight: 600; }
+  .rating-badge i { color: #ffb800; }
+  .promo-badge-small {
+    display: inline-block; padding: 2px 10px; background: #dcfce7; color: #166534; border-radius: 12px;
+    font-size: 12px; font-weight: 500; max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: middle;
+  }
+  .no-promo { color: var(--gray); font-size: 13px; }
+  .status-badge { display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+  .status-open { background: #dcfce7; color: #166534; }
+  .status-closed { background: #fee2e2; color: #991b1b; }
 
-    .admin-filters .filter-group {
-        flex: 1;
-        min-width: 150px;
-    }
+  .action-buttons { display: flex; gap: 6px; }
+  .action-btn {
+    width: 32px; height: 32px; border: none; border-radius: var(--radius-sm); cursor: pointer;
+    transition: var(--transition); display: flex; align-items: center; justify-content: center; text-decoration: none;
+  }
+  .edit-btn { background: #dbeafe; color: #1e40af; }
+  .edit-btn:hover { background: #bfdbfe; }
+  .promo-btn { background: #fef3c7; color: #92400e; }
+  .promo-btn:hover { background: #fde68a; }
+  .delete-btn { background: #fee2e2; color: #991b1b; }
+  .delete-btn:hover { background: #fca5a5; }
 
-    .admin-filters .form-input {
-        width: 100%;
-        padding: 10px 14px;
-        border: 1px solid var(--light-gray);
-        border-radius: var(--radius-sm);
-        font-size: 14px;
-        transition: var(--transition);
-        font-family: var(--font-main);
-    }
+  .empty-state { text-align: center; padding: 60px 20px; }
+  .empty-state[hidden] { display: none; }
+  .empty-state i { font-size: 48px; color: var(--light-gray); }
+  .empty-state h3 { margin-top: 16px; font-size: 20px; font-weight: 600; }
+  .empty-state p { color: var(--gray); margin-top: 8px; }
+  .empty-cta { margin-top: 20px; }
 
-    .admin-filters .form-input:focus {
-        outline: none;
-        border-color: var(--primary);
-        box-shadow: 0 0 0 3px var(--primary-light);
-    }
+  /* Paginación */
+  .pagination { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 20px; flex-wrap: wrap; }
+  .result-info { font-size: 13px; color: var(--gray); }
+  .pager { display: flex; align-items: center; gap: 12px; }
+  .page-size { width: auto; padding: 8px 12px; }
+  .page-btn {
+    padding: 8px 14px; border: 1px solid var(--light-gray); border-radius: var(--radius-sm);
+    background: var(--white); cursor: pointer; transition: var(--transition);
+  }
+  .page-btn:hover:not(:disabled) { border-color: var(--dark); }
+  .page-btn:disabled { opacity: .4; cursor: not-allowed; }
+  #pageInfo { font-size: 14px; white-space: nowrap; }
 
-    .btn-secondary {
-        padding: 10px 20px;
-        background: var(--light-gray);
-        border: none;
-        border-radius: var(--radius-sm);
-        cursor: pointer;
-        transition: var(--transition);
-        font-weight: 500;
-        font-size: 14px;
-    }
+  /* Diálogos */
+  .dialog {
+    border: none; border-radius: var(--radius); padding: 24px; width: min(440px, calc(100vw - 32px));
+    box-shadow: 0 20px 50px rgba(0, 0, 0, .25); color: var(--dark);
+  }
+  .dialog::backdrop { background: rgba(0, 0, 0, .45); }
+  .dialog h3 { font-size: 18px; font-weight: 600; margin-bottom: 12px; }
+  .dialog p { color: var(--gray); font-size: 14px; line-height: 1.5; }
+  .dialog .dialog-sub { margin-bottom: 14px; }
+  .dialog label { display: block; margin-bottom: 6px; font-size: 14px; font-weight: 500; }
+  .dialog-actions { display: flex; justify-content: flex-end; align-items: center; gap: 10px; margin-top: 20px; }
+  #deleteTitle i { color: #dc2626; }
 
-    .btn-secondary:hover {
-        background: #d5d5d5;
-    }
+  .toast-stack { position: fixed; right: 20px; bottom: 20px; display: flex; flex-direction: column; gap: 8px; z-index: 3000; }
+  .toast {
+    padding: 12px 16px; border-radius: var(--radius-sm); background: var(--dark); color: #fff;
+    font-size: 14px; box-shadow: var(--shadow); max-width: 320px; transition: opacity .3s, transform .3s;
+  }
+  .toast-error { background: #b91c1c; }
+  .toast-ok { background: #047857; }
+  .toast-out { opacity: 0; transform: translateY(6px); }
 
-    .table-container {
-        background: var(--white);
-        border-radius: var(--radius);
-        overflow: hidden;
-        box-shadow: var(--shadow);
-        overflow-x: auto;
-    }
+  :is(button, a, input, select):focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 
-    .admin-table {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: 14px;
-    }
-
-    .admin-table th {
-        background: #f8f9fa;
-        padding: 12px 16px;
-        text-align: left;
-        font-weight: 600;
-        border-bottom: 2px solid var(--light-gray);
-    }
-
-    .admin-table td {
-        padding: 12px 16px;
-        border-bottom: 1px solid var(--light-gray);
-    }
-
-    .admin-table tr:hover {
-        background: #f8f9fa;
-    }
-
-    .restaurant-name {
-        font-weight: 500;
-    }
-
-    .rating-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 4px;
-        color: #FFB800;
-        font-weight: 600;
-    }
-
-    .promo-badge-small {
-        display: inline-block;
-        padding: 2px 10px;
-        background: #dcfce7;
-        color: #166534;
-        border-radius: 12px;
-        font-size: 12px;
-        font-weight: 500;
-        max-width: 120px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-
-    .no-promo {
-        color: var(--gray);
-        font-size: 13px;
-    }
-
-    .status-badge {
-        display: inline-block;
-        padding: 4px 12px;
-        border-radius: 12px;
-        font-size: 12px;
-        font-weight: 600;
-    }
-
-    .status-open {
-        background: #dcfce7;
-        color: #166534;
-    }
-
-    .status-closed {
-        background: #fee2e2;
-        color: #991b1b;
-    }
-
-    .action-buttons {
-        display: flex;
-        gap: 6px;
-    }
-
-    .action-btn {
-        width: 32px;
-        height: 32px;
-        border: none;
-        border-radius: var(--radius-sm);
-        cursor: pointer;
-        transition: var(--transition);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .edit-btn {
-        background: #dbeafe;
-        color: #1e40af;
-    }
-
-    .edit-btn:hover {
-        background: #bfdbfe;
-    }
-
-    .promo-btn {
-        background: #fef3c7;
-        color: #92400e;
-    }
-
-    .promo-btn:hover {
-        background: #fde68a;
-    }
-
-    .delete-btn {
-        background: #fee2e2;
-        color: #991b1b;
-    }
-
-    .delete-btn:hover {
-        background: #fca5a5;
-    }
-
-    .empty-state {
-        text-align: center;
-        padding: 60px 20px;
-    }
-
-    .empty-state i {
-        font-size: 48px;
-        color: var(--light-gray);
-    }
-
-    .empty-state h3 {
-        margin-top: 16px;
-        font-size: 20px;
-        font-weight: 600;
-    }
-
-    .empty-state p {
-        color: var(--gray);
-        margin-top: 8px;
-    }
-
-    .pagination {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 16px;
-        margin-top: 24px;
-    }
-
-    .page-btn {
-        padding: 8px 16px;
-        border: 1px solid var(--light-gray);
-        border-radius: var(--radius-sm);
-        background: var(--white);
-        cursor: pointer;
-        transition: var(--transition);
-    }
-
-    .page-btn:hover {
-        border-color: var(--dark);
-    }
-
-    @media (max-width: 768px) {
-        .admin-header {
-            flex-direction: column;
-            align-items: flex-start;
-        }
-
-        .admin-filters {
-            flex-direction: column;
-        }
-
-        .admin-filters .filter-group {
-            min-width: 100%;
-        }
-
-        .admin-table {
-            font-size: 12px;
-        }
-
-        .admin-table th,
-        .admin-table td {
-            padding: 8px 10px;
-        }
-
-        .action-buttons {
-            flex-direction: column;
-            gap: 4px;
-        }
-    }
+  @media (max-width: 768px) {
+    .admin-header { flex-direction: column; align-items: flex-start; }
+    .stats-row { grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+    .stat-card { padding: 10px 12px; }
+    .stat-value { font-size: 20px; }
+    .admin-filters { flex-direction: column; }
+    .admin-filters .filter-group { min-width: 100%; }
+    .admin-table { font-size: 12px; }
+    .pagination { flex-direction: column; align-items: flex-start; }
+  }
 </style>
 
 <script>
-    function editRestaurant(id) {
-        if (!id) {
-            alert('Error: ID de restaurante no válido');
-            return;
-        }
-        window.location.href = `/admin/restaurant/${id}/edit`;
-    }
+  (function () {
+    'use strict';
 
-    function addPromotion(id) {
-        const promo = prompt('Ingresa la promoción para este restaurante:');
-        if (promo !== null) {
-            fetch(`/admin/restaurant/${id}/promo`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ promo: promo })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    location.reload();
-                } else {
-                    alert('Error al agregar promoción');
-                }
-            })
-            .catch(error => {
-                alert('Error al agregar promoción');
-                console.error(error);
-            });
-        }
-    }
+    const table = document.getElementById('restaurantsTable');
+    if (!table) return; // estado vacío: no hay nada que inicializar
 
-    function deleteRestaurant(id) {
-        if (!confirm('¿Estás seguro de eliminar este restaurante? Esta acción no se puede deshacer.')) return;
+    const $ = (id) => document.getElementById(id);
+    const tbody = $('restaurantsTableBody');
+    const csrf = (document.querySelector('meta[name="csrf-token"]') || {}).content;
 
-        fetch(`/admin/restaurant/${id}`, {
-            method: 'DELETE'
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                location.reload();
-            } else {
-                alert('Error al eliminar el restaurante');
-            }
-        })
-        .catch(error => {
-            alert('Error al eliminar el restaurante');
-            console.error(error);
-        });
-    }
+    const els = {
+      search: $('searchRestaurant'), cat: $('filterCategory'), dist: $('filterDistrict'), status: $('filterStatus'),
+      clear: $('clearFilters'), size: $('pageSize'), prev: $('prevPage'), next: $('nextPage'),
+      info: $('resultInfo'), pageInfo: $('pageInfo'), none: $('noResults'),
+      statTotal: $('statTotal'), statOpen: $('statOpen'), statPromo: $('statPromo')
+    };
 
-    function clearFilters() {
-        document.getElementById('searchRestaurant').value = '';
-        document.getElementById('filterCategory').value = '';
-        document.getElementById('filterDistrict').value = '';
-        filterTable();
-    }
+    const norm = (s) => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
 
-    function filterTable() {
-        const search = document.getElementById('searchRestaurant').value.toLowerCase();
-        const category = document.getElementById('filterCategory').value;
-        const district = document.getElementById('filterDistrict').value;
-        const rows = document.querySelectorAll('#restaurantsTableBody tr');
-
-        rows.forEach(row => {
-            const name = row.querySelector('.restaurant-name')?.textContent.toLowerCase() || '';
-            const rowCategory = row.dataset.category || '';
-            const rowDistrict = row.dataset.district || '';
-
-            const matchSearch = name.includes(search);
-            const matchCategory = !category || rowCategory == category;
-            const matchDistrict = !district || rowDistrict == district;
-
-            row.style.display = (matchSearch && matchCategory && matchDistrict) ? '' : 'none';
-        });
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-        document.getElementById('searchRestaurant').addEventListener('input', filterTable);
-        document.getElementById('filterCategory').addEventListener('change', filterTable);
-        document.getElementById('filterDistrict').addEventListener('change', filterTable);
+    let rows = Array.from(tbody.querySelectorAll('tr'));
+    rows.forEach((row, i) => {
+      row._idx = i;
+      row._search = norm([row.dataset.name, row.dataset.catname, row.dataset.district].join(' '));
     });
 
-    function changePage(direction) {
-        // Implementar paginación si es necesario
-        console.log('Cambiar página:', direction);
+    /* ---------- Estado (sincronizado con la URL) ---------- */
+    const state = { q: '', cat: '', district: '', status: '', sort: '', dir: 'asc', page: 1, size: 10 };
+    const params = new URLSearchParams(location.search);
+    state.q = params.get('q') || '';
+    state.cat = params.get('cat') || '';
+    state.district = params.get('district') || '';
+    state.status = params.get('status') || '';
+    state.sort = params.get('sort') || '';
+    state.dir = params.get('dir') === 'desc' ? 'desc' : 'asc';
+    state.page = parseInt(params.get('page'), 10) || 1;
+    state.size = [10, 25, 50].includes(parseInt(params.get('size'), 10)) ? parseInt(params.get('size'), 10) : 10;
+
+    els.search.value = state.q;
+    els.cat.value = state.cat;
+    els.dist.value = state.district;
+    els.status.value = state.status;
+    els.size.value = String(state.size);
+
+    function syncUrl() {
+      const p = new URLSearchParams(location.search);
+      const set = (k, v, def) => { if (v && String(v) !== String(def)) p.set(k, v); else p.delete(k); };
+      set('q', state.q, '');
+      set('cat', state.cat, '');
+      set('district', state.district, '');
+      set('status', state.status, '');
+      set('sort', state.sort, '');
+      set('dir', state.sort ? state.dir : '', 'asc');
+      set('page', state.page, 1);
+      set('size', state.size, 10);
+      const qs = p.toString();
+      history.replaceState(null, '', location.pathname + (qs ? '?' + qs : ''));
     }
+
+    /* ---------- Filtrado, orden y paginación ---------- */
+    const sorters = {
+      id: (r) => Number(r.dataset.id),
+      name: (r) => norm(r.dataset.name),
+      category: (r) => norm(r.dataset.catname),
+      district: (r) => norm(r.dataset.district),
+      rating: (r) => Number(r.dataset.rating) || 0,
+      price: (r) => Number(r.dataset.price) || 0
+    };
+
+    function getFiltered() {
+      const q = norm(state.q);
+      return rows.filter((r) =>
+        (!q || r._search.includes(q)) &&
+        (!state.cat || r.dataset.category === state.cat) &&
+        (!state.district || r.dataset.district === state.district) &&
+        (!state.status || r.dataset.open === state.status)
+      );
+    }
+
+    function getSorted(list) {
+      const out = list.slice();
+      const f = sorters[state.sort];
+      if (!f) return out.sort((a, b) => a._idx - b._idx);
+      const dir = state.dir === 'asc' ? 1 : -1;
+      return out.sort((a, b) => {
+        const x = f(a), y = f(b);
+        const c = typeof x === 'string' ? x.localeCompare(y, 'es') : x - y;
+        return c * dir || a._idx - b._idx;
+      });
+    }
+
+    function updateStats() {
+      els.statTotal.textContent = rows.length;
+      els.statOpen.textContent = rows.filter((r) => r.dataset.open === '1').length;
+      els.statPromo.textContent = rows.filter((r) => r.dataset.promo).length;
+    }
+
+    function render() {
+      const list = getSorted(getFiltered());
+      const pages = Math.max(1, Math.ceil(list.length / state.size));
+      state.page = Math.min(Math.max(1, state.page), pages);
+      const start = (state.page - 1) * state.size;
+      const end = start + state.size;
+      const visible = new Set(list.slice(start, end));
+
+      list.forEach((r) => tbody.appendChild(r));
+      rows.forEach((r) => { r.hidden = !visible.has(r); });
+
+      els.none.hidden = list.length > 0;
+      els.info.textContent = list.length
+        ? 'Mostrando ' + (start + 1) + '–' + Math.min(end, list.length) + ' de ' + list.length
+        : 'Sin resultados';
+      els.pageInfo.textContent = 'Página ' + state.page + ' de ' + pages;
+      els.prev.disabled = state.page <= 1;
+      els.next.disabled = state.page >= pages;
+
+      table.querySelectorAll('th').forEach((th) => {
+        const b = th.querySelector('.th-sort');
+        if (!b) return;
+        const active = b.dataset.sort === state.sort;
+        th.setAttribute('aria-sort', active ? (state.dir === 'asc' ? 'ascending' : 'descending') : 'none');
+        b.querySelector('i').className = 'fas ' + (active ? (state.dir === 'asc' ? 'fa-sort-up' : 'fa-sort-down') : 'fa-sort');
+      });
+
+      updateStats();
+      syncUrl();
+    }
+
+    /* ---------- Eventos de filtros ---------- */
+    let searchTimer = null;
+    els.search.addEventListener('input', () => {
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(() => { state.q = els.search.value; state.page = 1; render(); }, 200);
+    });
+    els.cat.addEventListener('change', () => { state.cat = els.cat.value; state.page = 1; render(); });
+    els.dist.addEventListener('change', () => { state.district = els.dist.value; state.page = 1; render(); });
+    els.status.addEventListener('change', () => { state.status = els.status.value; state.page = 1; render(); });
+    els.size.addEventListener('change', () => { state.size = parseInt(els.size.value, 10); state.page = 1; render(); });
+    els.prev.addEventListener('click', () => { state.page--; render(); });
+    els.next.addEventListener('click', () => { state.page++; render(); });
+    els.clear.addEventListener('click', () => {
+      Object.assign(state, { q: '', cat: '', district: '', status: '', sort: '', dir: 'asc', page: 1 });
+      els.search.value = ''; els.cat.value = ''; els.dist.value = ''; els.status.value = '';
+      render();
+    });
+
+    // Orden por columna: ascendente → descendente → sin orden
+    table.querySelectorAll('.th-sort').forEach((b) => {
+      b.addEventListener('click', () => {
+        const key = b.dataset.sort;
+        if (state.sort !== key) { state.sort = key; state.dir = 'asc'; }
+        else if (state.dir === 'asc') { state.dir = 'desc'; }
+        else { state.sort = ''; state.dir = 'asc'; }
+        state.page = 1;
+        render();
+      });
+    });
+
+    /* ---------- Avisos ---------- */
+    function toast(msg, type) {
+      const stack = $('toastStack');
+      const t = document.createElement('div');
+      t.className = 'toast toast-' + (type || 'info');
+      t.textContent = msg;
+      stack.appendChild(t);
+      setTimeout(() => {
+        t.classList.add('toast-out');
+        setTimeout(() => t.remove(), 300);
+      }, 3500);
+    }
+
+    /* ---------- API ---------- */
+    async function api(url, method, body) {
+      const headers = { Accept: 'application/json' };
+      if (body) headers['Content-Type'] = 'application/json';
+      if (csrf) headers['X-CSRFToken'] = csrf;
+      const res = await fetch(url, {
+        method: method,
+        headers: headers,
+        body: body ? JSON.stringify(body) : undefined,
+        credentials: 'same-origin'
+      });
+      let data = null;
+      try { data = await res.json(); } catch (e) { /* respuesta sin JSON */ }
+      if (!res.ok || !data || !data.success) {
+        throw new Error((data && (data.error || data.message)) || 'Error ' + res.status);
+      }
+      return data;
+    }
+    const urlFor = (attr, id) => table.dataset[attr].replace('__ID__', encodeURIComponent(id));
+
+    /* ---------- Eliminar ---------- */
+    const deleteDialog = $('deleteDialog');
+    const deleteConfirm = $('deleteConfirm');
+    let deleteTarget = null;
+
+    function openDelete(row) {
+      deleteTarget = row;
+      $('deleteName').textContent = row.dataset.name;
+      deleteConfirm.disabled = false;
+      deleteConfirm.textContent = 'Eliminar';
+      deleteDialog.showModal();
+    }
+
+    deleteConfirm.addEventListener('click', async () => {
+      if (!deleteTarget) return;
+      const row = deleteTarget;
+      deleteConfirm.disabled = true;
+      deleteConfirm.textContent = 'Eliminando…';
+      try {
+        await api(urlFor('deleteUrl', row.dataset.id), 'DELETE');
+        deleteDialog.close();
+        rows = rows.filter((r) => r !== row);
+        row.remove();
+        toast('Restaurante eliminado.', 'ok');
+        if (!rows.length) { location.reload(); return; }
+        render();
+      } catch (err) {
+        deleteDialog.close();
+        toast('No se pudo eliminar: ' + err.message, 'error');
+        console.error(err);
+      }
+      deleteTarget = null;
+    });
+
+    /* ---------- Promoción ---------- */
+    const promoDialog = $('promoDialog');
+    const promoForm = $('promoForm');
+    const promoText = $('promoText');
+    const promoSave = $('promoSave');
+    const promoRemove = $('promoRemove');
+    let promoTarget = null;
+
+    function openPromo(row) {
+      promoTarget = row;
+      $('promoFor').textContent = row.dataset.name;
+      promoText.value = row.dataset.promo || '';
+      promoRemove.hidden = !row.dataset.promo;
+      promoSave.disabled = false;
+      promoSave.textContent = 'Guardar';
+      promoDialog.showModal();
+      promoText.focus();
+      promoText.select();
+    }
+
+    function applyPromo(row, text) {
+      row.dataset.promo = text;
+      const cell = row.querySelector('.promo-cell');
+      cell.innerHTML = '';
+      const span = document.createElement('span');
+      if (text) {
+        span.className = 'promo-badge-small';
+        span.textContent = text;
+        span.title = text;
+      } else {
+        span.className = 'no-promo';
+        span.textContent = 'Sin promoción';
+      }
+      cell.appendChild(span);
+    }
+
+    async function savePromo(text) {
+      const row = promoTarget;
+      if (!row) return;
+      promoSave.disabled = true;
+      promoRemove.disabled = true;
+      promoSave.textContent = 'Guardando…';
+      try {
+        await api(urlFor('promoUrl', row.dataset.id), 'POST', { promo: text });
+        applyPromo(row, text);
+        updateStats();
+        promoDialog.close();
+        toast(text ? 'Promoción guardada.' : 'Promoción eliminada.', 'ok');
+      } catch (err) {
+        toast('No se pudo guardar la promoción: ' + err.message, 'error');
+        console.error(err);
+        promoSave.disabled = false;
+        promoSave.textContent = 'Guardar';
+      } finally {
+        promoRemove.disabled = false;
+      }
+    }
+
+    promoForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const text = promoText.value.trim();
+      if (!text) { toast('Escribe la promoción o usa "Quitar promoción".', 'error'); promoText.focus(); return; }
+      savePromo(text);
+    });
+    promoRemove.addEventListener('click', () => savePromo(''));
+
+    // Cerrar al hacer clic fuera del diálogo
+    [deleteDialog, promoDialog].forEach((d) => {
+      d.addEventListener('mousedown', (e) => { if (e.target === d) d.close(); });
+    });
+
+    /* ---------- Acciones de fila (delegación de eventos) ---------- */
+    tbody.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-action]');
+      if (!btn) return;
+      const row = btn.closest('tr');
+      if (btn.dataset.action === 'delete') openDelete(row);
+      if (btn.dataset.action === 'promo') openPromo(row);
+    });
+
+    render();
+  })();
 </script>
 {% endblock %}

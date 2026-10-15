@@ -163,22 +163,58 @@
             <span class="m-badge" data-badge></span>
         </div>
 
+        {# Nombres legibles de los campos. Los que no estén aquí se muestran con su nombre formateado. #}
+        {% set labels = {
+            'description': 'Descripción',
+            'district': 'Distrito',
+            'address': 'Dirección',
+            'phone': 'Teléfono',
+            'avg_price': 'Precio promedio',
+            'cuisine_type': 'Cocina',
+            'dietary_restrictions': 'Restricciones dietéticas',
+            'features': 'Servicios'
+        } %}
+        {# Campos que no se muestran en el resumen (siguen visibles en el JSON técnico). #}
+        {% set hidden_keys = ['id', 'name', 'owner_id', 'status', 'created_at', 'updated_at'] %}
+
         <div class="m-list">
             {% for item in pending %}
+            {% set d = item.content_data if item.content_data is mapping else {} %}
             <article class="item m-row" data-kind="content" data-id="{{ item.id }}"
-                     data-i="{{ loop.index0 }}" data-name="{{ item.content_type }}" data-date="{{ item.created_at[:10] }}">
+                     data-i="{{ loop.index0 }}" data-name="{{ d.get('name') or item.content_type }}"
+                     data-date="{{ item.created_at[:10] }}">
+
                 <div class="m-row-top">
                     <span class="m-type">{{ item.content_type|capitalize }}</span>
-                    <span class="m-id">ID {{ item.content_id }}</span>
+                    <h4 class="m-row-title">{{ d.get('name') or 'Sin nombre' }}</h4>
+                    <span class="m-id">#{{ item.content_id }}</span>
                     <span class="m-date">{{ item.created_at[:10] }}</span>
                 </div>
+
                 {% if item.reason %}
-                <p class="m-reason"><strong>Razón:</strong> {{ item.reason }}</p>
+                <p class="m-reason">⚠️ {{ item.reason }}</p>
                 {% endif %}
-                <details>
-                    <summary>Ver datos</summary>
+
+                <dl class="m-facts">
+                    {% for key, val in d.items() if key not in hidden_keys and val not in [none, '', []] %}
+                    <div class="m-fact {% if key == 'description' %}wide{% endif %}">
+                        <dt>{{ labels.get(key, key|replace('_', ' ')|capitalize) }}</dt>
+                        <dd>
+                            {% if val is sameas true %}Sí
+                            {% elif val is sameas false %}No
+                            {% elif val is iterable and val is not string and val is not mapping %}
+                                {% for v in val %}<span class="m-chip">{{ v }}</span>{% endfor %}
+                            {% else %}{{ val }}{% endif %}
+                        </dd>
+                    </div>
+                    {% endfor %}
+                </dl>
+
+                <details class="m-raw">
+                    <summary>Ver datos técnicos (JSON)</summary>
                     <pre>{{ item.content_data|tojson(indent=2) }}</pre>
                 </details>
+
                 <div class="m-actions">
                     <button type="button" class="m-btn ok" data-action="approve"><i class="fas fa-check"></i> Aprobar</button>
                     <button type="button" class="m-btn no" data-action="reject"><i class="fas fa-times"></i> Rechazar</button>
@@ -363,13 +399,24 @@
 
     /* Contenido pendiente */
     .m-list { display: flex; flex-direction: column; gap: 10px; }
-    .m-row { border: 1px solid var(--m-line); border-radius: 10px; padding: 14px 16px; display: grid; gap: 10px; transition: border-color .15s, opacity .2s, transform .2s; }
+    .m-row { border: 1px solid var(--m-line); border-radius: 10px; padding: 14px 16px; display: grid; gap: 12px; transition: border-color .15s, opacity .2s, transform .2s; }
     .m-row:hover { border-color: var(--m-primary); }
     .m-row-top { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .m-row-title { font-size: 16px; font-weight: 600; min-width: 0; }
     .m-type { padding: 3px 12px; border-radius: 20px; background: var(--primary-light, #fff0f3); color: var(--m-primary); font-size: 13px; font-weight: 600; }
     .m-date { margin-left: auto; font-size: 13px; color: var(--m-gray); }
-    .m-reason { font-size: 14px; color: var(--m-gray); background: var(--warn-bg); padding: 8px 12px; border-radius: 6px; }
-    .m-row details summary { cursor: pointer; font-size: 13px; color: var(--info-fg); font-weight: 500; width: fit-content; }
+    .m-reason { font-size: 14px; color: var(--warn-fg); background: var(--warn-bg); padding: 8px 12px; border-radius: 6px; }
+
+    /* Resumen legible de datos */
+    .m-facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px 20px; margin: 0; }
+    .m-fact { min-width: 0; }
+    .m-fact.wide { grid-column: 1 / -1; }
+    .m-fact dt { font-size: 12px; font-weight: 600; color: var(--m-gray); text-transform: uppercase; letter-spacing: .03em; }
+    .m-fact dd { margin: 2px 0 0; font-size: 14px; color: var(--m-dark); overflow-wrap: anywhere; }
+    .m-chip { display: inline-block; margin: 2px 4px 2px 0; padding: 2px 10px; border-radius: 12px; background: var(--info-bg); color: var(--info-fg); font-size: 12px; font-weight: 500; }
+
+    .m-row details summary { cursor: pointer; font-size: 12px; color: var(--m-gray); font-weight: 500; width: fit-content; }
+    .m-row details summary:hover { color: var(--info-fg); }
     .m-row pre { margin: 8px 0 0; background: #f8f9fa; padding: 12px; border-radius: 6px; font-size: 13px; overflow: auto; max-height: 200px; }
     .m-row .m-actions { border-top: 1px solid var(--m-line); padding-top: 10px; margin-top: 0; }
 
@@ -389,7 +436,15 @@
     }
 
     /* Modal */
-    .m-dlg { border: 0; border-radius: 14px; padding: 22px; width: min(440px, calc(100% - 32px)); box-shadow: 0 20px 50px rgba(0,0,0,.25); color: var(--m-dark); }
+    .m-dlg {
+        position: fixed; top: 12vh; left: 50%; transform: translateX(-50%);
+        margin: 0; /* el CSS global de la web anula el margin:auto del dialog */
+        border: 0; border-radius: 14px; padding: 22px;
+        width: min(440px, calc(100% - 32px));
+        box-shadow: 0 20px 50px rgba(0,0,0,.25); color: var(--m-dark);
+    }
+    .m-dlg[open] { animation: m-drop .18s ease; }
+    @keyframes m-drop { from { opacity: 0; transform: translate(-50%, -12px); } }
     .m-dlg::backdrop { background: rgba(0,0,0,.4); }
     .m-dlg h3 { font-size: 18px; margin-bottom: 6px; }
     .m-dlg p { color: var(--m-gray); font-size: 14px; margin-bottom: 14px; }
@@ -428,6 +483,7 @@
         .m-stat b { font-size: 20px; }
         .m-actions .m-btn { flex: 1; }
         .m-bulk { flex-wrap: wrap; justify-content: center; }
+        .m-facts { grid-template-columns: 1fr; }
     }
 </style>
 
