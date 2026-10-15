@@ -1,6 +1,7 @@
 """Build and read the spreadsheet and Word menu templates."""
 from __future__ import annotations
 
+from datetime import date, datetime
 from io import BytesIO
 from pathlib import Path
 from zipfile import BadZipFile, ZipFile
@@ -20,6 +21,8 @@ except ImportError:  # Keep the rest of the app available until extra packages a
 MENU_HEADERS = (
     "Nombre",
     "Precio (S/)",
+    "Tipo de menú",
+    "Fecha (AAAA-MM-DD)",
     "Categoría",
     "Horario",
     "Descripción actual",
@@ -28,6 +31,7 @@ MENU_HEADERS = (
     "Tiempo de preparación (min)",
     "Nivel de picante (0-5)",
 )
+WORD_MENU_HEADERS = MENU_HEADERS[:9]
 MAX_MENU_ROWS = 40
 MAX_MENU_TEXT = 30000
 MAX_ARCHIVE_MEMBERS = 500
@@ -55,20 +59,42 @@ def build_menu_template(file_format: str) -> BytesIO:
             cell.font = Font(bold=True, color="FFFFFF")
             cell.fill = PatternFill("solid", fgColor="FF385C")
         sheet.freeze_panes = "A2"
-        sheet.auto_filter.ref = f"A1:I{MAX_MENU_ROWS + 1}"
+        sheet.auto_filter.ref = f"A1:K{MAX_MENU_ROWS + 1}"
+        menu_type_validation = DataValidation(type="list", formula1='"carta,variable"', allow_blank=False)
         category_validation = DataValidation(type="list", formula1='"Entrada,Fondo,Postre,Bebida"', allow_blank=True)
         meal_validation = DataValidation(type="list", formula1='"desayuno,almuerzo,cena"', allow_blank=True)
-        sheet.add_data_validation(category_validation)
-        sheet.add_data_validation(meal_validation)
-        category_validation.add(f"C2:C{MAX_MENU_ROWS + 1}")
-        meal_validation.add(f"D2:D{MAX_MENU_ROWS + 1}")
-        for column, width in zip("ABCDEFGHI", (28, 16, 18, 18, 48, 36, 32, 25, 22)):
+        menu_date_validation = DataValidation(
+            type="custom",
+            formula1='=AND($C2<>"",OR($C2="carta",AND($C2="variable",OR(ISNUMBER($D2),AND(ISTEXT($D2),LEN($D2)=10,MID($D2,5,1)="-",MID($D2,8,1)="-")))))',
+            allow_blank=False,
+        )
+        menu_type_validation.error = "Selecciona carta o variable."
+        menu_type_validation.errorTitle = "Tipo de menú requerido"
+        menu_type_validation.showInputMessage = True
+        menu_type_validation.promptTitle = "Tipo de menú"
+        menu_type_validation.prompt = "Elige carta o variable."
+        menu_date_validation.error = "Para menú variable, ingresa una fecha válida."
+        menu_date_validation.errorTitle = "Fecha requerida"
+        menu_date_validation.showInputMessage = True
+        menu_date_validation.promptTitle = "Fecha del menú variable"
+        menu_date_validation.prompt = "Usa el formato AAAA-MM-DD, por ejemplo 2026-10-15."
+        for validation in (menu_type_validation, category_validation, meal_validation, menu_date_validation):
+            sheet.add_data_validation(validation)
+        menu_type_validation.add(f"C2:C{MAX_MENU_ROWS + 1}")
+        menu_date_validation.add(f"D2:D{MAX_MENU_ROWS + 1}")
+        category_validation.add(f"E2:E{MAX_MENU_ROWS + 1}")
+        meal_validation.add(f"F2:F{MAX_MENU_ROWS + 1}")
+        for row in range(2, MAX_MENU_ROWS + 2):
+            sheet[f"D{row}"].number_format = "yyyy-mm-dd"
+        for column, width in zip("ABCDEFGHIJK", (28, 16, 24, 24, 18, 18, 48, 36, 32, 25, 22)):
             sheet.column_dimensions[column].width = width
 
         instructions = workbook.create_sheet("Instrucciones")
         instructions.append(("Cómo completar la plantilla",))
         instructions.append(("Agrega un plato por fila en la hoja Carta.",))
         instructions.append(("Nombre y precio son obligatorios. El precio debe ser numérico.",))
+        instructions.append(("Tipo de menú es obligatorio: carta o variable.",))
+        instructions.append(("Si eliges variable, completa la fecha del menú en formato AAAA-MM-DD.",))
         instructions.append(("Categoría: Entrada, Fondo, Postre o Bebida.",))
         instructions.append(("Horario: desayuno, almuerzo o cena. Se puede dejar vacío.",))
         instructions.append(("Separa ingredientes e información dietética con comas.",))
@@ -87,15 +113,17 @@ def build_menu_template(file_format: str) -> BytesIO:
         document.add_heading("Plantilla de carta del restaurante", 0)
         document.add_paragraph(
             "Completa una fila por plato. Nombre y precio son obligatorios. "
+            "Indica si es de carta o variable; para un plato variable, completa la fecha del menú (AAAA-MM-DD). "
             "Agrega más filas si las necesitas. Deja en blanco los datos que no tengas; podrás revisar las sugerencias de Qwen antes de guardarlas."
         )
-        word_headers = MENU_HEADERS[:7]
+        word_headers = WORD_MENU_HEADERS
         table = document.add_table(rows=9, cols=len(word_headers))
         table.style = "Table Grid"
         for cell, header in zip(table.rows[0].cells, word_headers):
             cell.text = header
         document.add_paragraph("Categorías: Entrada, Fondo, Postre o Bebida.")
         document.add_paragraph("Horarios: desayuno, almuerzo o cena.")
+        document.add_paragraph("Tipo de menú: carta o variable. Para variable, la fecha es obligatoria y debe usar AAAA-MM-DD.")
         document.add_paragraph("Separa ingredientes e información dietética con comas.")
         stream = BytesIO()
         document.save(stream)
@@ -113,6 +141,8 @@ def _header_key(value: object) -> str:
 _HEADER_ALIASES = {
     "name": {"nombre", "nombre del plato", "plato", "dish", "dish name"},
     "price": {"precio", "precio (s/)", "precio s/", "price", "price (s/)"},
+    "menu_type": {"tipo de menu", "tipo de menu (carta/variable)", "carta o variable", "menu type"},
+    "menu_date": {"fecha", "fecha (aaaa-mm-dd)", "fecha del menu", "fecha del menu (aaaa-mm-dd)", "menu date", "date"},
     "category": {"categoria", "tipo", "tipo de plato", "category"},
     "meal_time": {"horario", "tiempo de comida", "meal time"},
     "description": {"descripcion actual", "descripcion", "description"},
@@ -134,6 +164,36 @@ def _clean_cell(value: object, limit: int = 1000) -> str:
     return " ".join(str(value).strip().split())[:limit]
 
 
+def _normalize_menu_type(value: object) -> str | None:
+    normalized = _header_key(value)
+    aliases = {
+        "carta": "carta",
+        "a la carta": "carta",
+        "carta permanente": "carta",
+        "permanente": "carta",
+        "variable": "variable",
+        "menu variable": "variable",
+        "diario": "variable",
+    }
+    return aliases.get(normalized)
+
+
+def _normalize_menu_date(value: object) -> str | None:
+    if isinstance(value, datetime):
+        return value.date().isoformat()
+    if isinstance(value, date):
+        return value.isoformat()
+    text = _clean_cell(value, limit=40)
+    if not text:
+        return None
+    for date_format in ("%Y-%m-%d", "%d/%m/%Y", "%d-%m-%Y"):
+        try:
+            return datetime.strptime(text, date_format).date().isoformat()
+        except ValueError:
+            continue
+    return None
+
+
 def _rows_to_records(rows) -> list[dict]:
     rows = list(rows)
     if not rows:
@@ -149,21 +209,33 @@ def _rows_to_records(rows) -> list[dict]:
             break
     if header_row_index is None:
         raise MenuDocumentError("No encontré las columnas Nombre y Precio de la plantilla.")
+    has_menu_type_column = "menu_type" in fields
 
     records = []
     total_chars = 0
-    for row in rows[header_row_index + 1:]:
+    for row_number, row in enumerate(rows[header_row_index + 1:], start=header_row_index + 2):
         values = {}
         for field, value in zip(fields, row):
             if field:
-                values[field] = _clean_cell(value)
+                values[field] = value if field == "menu_date" else _clean_cell(value)
         if not any(values.values()):
             continue
         if not values.get("name") and not values.get("price"):
             continue
+        menu_type = _normalize_menu_type(values.get("menu_type")) if has_menu_type_column else "carta"
+        if has_menu_type_column and not menu_type:
+            raise MenuDocumentError(f"Indica si {values.get('name') or 'el plato'} es de carta o variable (fila {row_number}).")
+        if not menu_type:
+            raise MenuDocumentError(f"El tipo de menú de {values.get('name') or 'el plato'} debe ser carta o variable (fila {row_number}).")
+        menu_date = _normalize_menu_date(values.get("menu_date"))
+        if menu_type == "variable" and not menu_date:
+            raise MenuDocumentError(f"Indica una fecha válida para el plato variable {values.get('name') or ''} (fila {row_number}).")
+
         records.append({
             "name": values.get("name", "")[:120],
             "price": values.get("price", "")[:40],
+            "menu_type": menu_type,
+            "menu_date": menu_date if menu_type == "variable" else None,
             "category": values.get("category", "")[:60],
             "meal_time": values.get("meal_time", "")[:30],
             "description": values.get("description", "")[:500],
@@ -172,7 +244,7 @@ def _rows_to_records(rows) -> list[dict]:
             "preparation_time": values.get("preparation_time", "")[:20],
             "spiciness": values.get("spiciness", "")[:10],
         })
-        total_chars += sum(len(value) for value in records[-1].values())
+        total_chars += sum(len(str(value or "")) for value in records[-1].values())
         if len(records) > MAX_MENU_ROWS:
             raise MenuDocumentError(f"La plantilla admite hasta {MAX_MENU_ROWS} platos por carga.")
         if total_chars > MAX_MENU_TEXT:
