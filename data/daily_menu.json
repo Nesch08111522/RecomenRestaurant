@@ -515,5 +515,98 @@
         "price": 30,
         "is_active": true,
         "created_at": "2026-06-01T10:00:00"
+    },
+    {
+        "restaurant_id": 2,
+        "date": "2026-10-14",
+        "day_of_week": "wednesday",
+        "type": "daily",
+        "dishes": [
+            {
+                "dish_id": 15,
+                "name": "Parihuela",
+                "price": 40.0,
+                "category": "Entrada",
+                "meal_time": null
+            },
+            {
+                "dish_id": 87,
+                "name": "Papa a la huancaina",
+                "price": 3.0,
+                "category": "Entrada",
+                "meal_time": "almuerzo"
+            },
+            {
+                "dish_id": 22,
+                "name": "Crema de Mariscos",
+                "price": 28.0,
+                "category": "Entrada",
+                "meal_time": null
+            },
+            {
+                "dish_id": 13,
+                "name": "Ceviche de Pescado",
+                "price": 45.0,
+                "category": "Fondo",
+                "meal_time": null
+            },
+            {
+                "dish_id": 16,
+                "name": "Ceviche Mixto",
+                "price": 48.0,
+                "category": "Fondo",
+                "meal_time": null
+            },
+            {
+                "dish_id": 14,
+                "name": "Arroz con Mariscos",
+                "price": 50.0,
+                "category": "Fondo",
+                "meal_time": null
+            },
+            {
+                "dish_id": 86,
+                "name": "Torta de zanahoria",
+                "price": 5.0,
+                "category": "Postre",
+                "meal_time": "almuerzo"
+            },
+            {
+                "dish_id": 25,
+                "name": "Torta de Chocolate",
+                "price": 15.0,
+                "category": "Postre",
+                "meal_time": null
+            },
+            {
+                "dish_id": 24,
+                "name": "Chicha de Jora",
+                "price": 8.0,
+                "category": "Bebida",
+                "meal_time": null
+            },
+            {
+                "dish_id": 88,
+                "name": "aaa",
+                "price": 10.0,
+                "category": "Bebida",
+                "meal_time": "almuerzo"
+            },
+            {
+                "dish_id": 23,
+                "name": "Pisco Sour de Maracuyá",
+                "price": 18.0,
+                "category": "Bebida",
+                "meal_time": null
+            }
+        ],
+        "specials": [
+            "Recomendación del chef"
+        ],
+        "price": 0,
+        "is_active": true,
+        "updated_at": "2026-10-14T16:05:29.832841",
+        "created_at": "2026-10-14T16:05:29.832857",
+        "id": 13
     }
 ]

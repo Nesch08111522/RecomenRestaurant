@@ -311,18 +311,18 @@ def edit_restaurant(id):
     user = session.get('user')
     user_id = user.get('id')
     role = user.get('role')
-    
+
     if role != 'admin' and not RestaurantModel.is_owner(user_id, id):
         flash('No tienes permiso para editar este restaurante', 'error')
         return redirect(url_for('admin.restaurants'))
-    
+
     restaurant = RestaurantModel.get_by_id(id)
     if not restaurant:
         flash('Restaurante no encontrado', 'error')
         return redirect(url_for('admin.restaurants'))
 
     restaurant['service_mode'] = _restaurant_service_mode(restaurant)
-    
+
     categories = []
     if os.path.exists(Config.CATEGORIES_FILE):
         try:
@@ -330,13 +330,15 @@ def edit_restaurant(id):
                 categories = json.load(f)
         except:
             categories = []
-    
+
     districts = getattr(Config, 'DISTRITOS', ['Trujillo', 'Victor Larco', 'La Esperanza', 'Huanchaco', 'Moche'])
-    
-    return render_template('admin/restaurant_edit.html',
-                         restaurant=restaurant,
-                         categories=categories,
-                         districts=districts)
+
+    return render_template(
+        "admin/restaurant_form.html",
+        restaurant=restaurant,
+        categories=categories,
+        districts=districts,
+    )
 
 @admin_bp.route('/restaurant/<int:id>/update', methods=['POST'])
 @admin_or_owner_required
@@ -751,7 +753,7 @@ def stats_api():
         'with_promo': sum(1 for r in restaurants if r.get('promo')),
         'total_reviews': sum(r.get('reviews', 0) for r in restaurants)
     })
-    
+
 @admin_bp.route('/moderation')
 @admin_required
 def moderation_dashboard():

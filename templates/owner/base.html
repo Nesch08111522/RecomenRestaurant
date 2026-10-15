@@ -22,6 +22,15 @@
                 <i class="fas fa-plus-circle"></i>
                 <span>Agregar Restaurante</span>
             </a>
+
+            {% set on_edit = request.endpoint == 'admin.edit_restaurant' %}
+            {% if on_edit or restaurants %}
+                {% set editing_id = request.view_args.id if on_edit else restaurants[0].id %}
+                <a href="{{ url_for('admin.edit_restaurant', id=editing_id) }}" class="owner-nav-item {% if on_edit %}active{% endif %}">
+                    <i class="fas fa-edit"></i>
+                    <span>Editar Restaurante</span>
+                </a>
+            {% endif %}
             
             <!-- ✅ GESTIÓN DE MENÚ CON SUBMENÚ -->
             {% if restaurants %}

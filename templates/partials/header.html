@@ -1,3 +1,7 @@
+{# Barra de búsqueda: se oculta automáticamente en el blueprint "admin".
+   Cualquier página puede forzarla con:  {% set show_search = true %}  o  {% set show_search = false %} #}
+{% set show_search = show_search if show_search is defined else (request.blueprint != 'admin') %}
+
 <header class="main-header">
   <div class="header-container">
     <!-- Logo -->
@@ -8,8 +12,9 @@
       </a>
     </div>
 
-    <!-- Barra de búsqueda -->
+    <!-- Barra de búsqueda (el div queda siempre para no mover el logo ni el menú) -->
     <div class="header-center">
+      {% if show_search %}
       <form id="search-form" class="search-bar" action="{{ url_for('main.index') }}" method="get">
         <div class="search-group">
           <i class="fas fa-map-marker-alt"></i>
@@ -44,6 +49,7 @@
 
         <button type="submit" class="search-btn"><i class="fas fa-search"></i></button>
       </form>
+      {% endif %}
     </div>
 
     <!-- Menú de usuario -->
