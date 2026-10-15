@@ -332,8 +332,6 @@ def edit_restaurant(id):
         flash('Restaurante no encontrado', 'error')
         return redirect(url_for('admin.restaurants'))
 
-    restaurant['service_mode'] = _restaurant_service_mode(restaurant)
-
     categories = []
     if os.path.exists(Config.CATEGORIES_FILE):
         try:
@@ -344,8 +342,7 @@ def edit_restaurant(id):
 
     districts = getattr(Config, 'DISTRITOS', ['Trujillo', 'Victor Larco', 'La Esperanza', 'Huanchaco', 'Moche'])
 
-    return render_template(
-        "admin/restaurant_form.html",
+    return render_template("admin/restaurant_form.html",
         restaurant=restaurant,
         categories=categories,
         districts=districts,

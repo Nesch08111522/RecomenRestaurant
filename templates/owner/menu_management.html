@@ -29,6 +29,32 @@
         </button>
     </section>
 
+    <section class="menu-import-card" aria-labelledby="menuImportTitle">
+        <div class="menu-import-heading">
+            <div class="menu-import-icon"><i class="fas fa-file-import" aria-hidden="true"></i></div>
+            <div>
+                <h2 id="menuImportTitle">Crear carta con Qwen</h2>
+                <p>Descarga una plantilla, complétala y súbela. Qwen organizará los platos y sugerirá descripciones para tu carta digital.</p>
+            </div>
+        </div>
+        <div class="menu-import-actions">
+            <a class="menu-template-link" href="{{ url_for('owner.download_menu_template', restaurant_id=restaurant.id, file_format='xlsx') }}">
+                <i class="fas fa-file-excel" aria-hidden="true"></i> Descargar Excel
+            </a>
+            <a class="menu-template-link" href="{{ url_for('owner.download_menu_template', restaurant_id=restaurant.id, file_format='docx') }}">
+                <i class="fas fa-file-word" aria-hidden="true"></i> Descargar Word
+            </a>
+        </div>
+        <form class="menu-import-form" method="post" enctype="multipart/form-data" action="{{ url_for('owner.import_menu_preview', restaurant_id=restaurant.id) }}">
+            <label for="menuImportFile">Plantilla completada</label>
+            <div class="menu-import-upload-row">
+                <input id="menuImportFile" name="menu_file" type="file" accept=".xlsx,.docx" required>
+                <button type="submit" class="btn-primary"><i class="fas fa-wand-magic-sparkles" aria-hidden="true"></i> Analizar y crear borrador</button>
+            </div>
+        </form>
+        <p class="menu-import-privacy">Se procesan archivos Excel y Word de hasta 2 MB. El archivo no se guarda; los datos de los platos se envían a Alibaba Cloud Qwen para generar el borrador. Podrás revisarlo antes de incorporarlo a la carta pública. El uso se realiza con la API key configurada y puede generar cargos según el modelo y la región.</p>
+    </section>
+
     {% if menu_type in ['fixed', 'mixed'] %}
         <section class="carta-menu-planner" aria-labelledby="cartaMenuTitle">
             <div class="planner-intro">
@@ -1479,4 +1505,19 @@
         }
     }
 </script>
+<style>
+    .menu-import-card { margin: 24px 0 32px; padding: 22px 24px; border: 1px solid #e5e7eb; border-radius: var(--radius); background: #fff; box-shadow: var(--shadow); }
+    .menu-import-heading { display: flex; align-items: flex-start; gap: 14px; }
+    .menu-import-icon { width: 42px; height: 42px; display: grid; place-items: center; flex: 0 0 auto; border-radius: 12px; color: var(--primary); background: var(--primary-light); }
+    .menu-import-heading h2 { margin: 0 0 5px; font-size: 19px; }
+    .menu-import-heading p { margin: 0; color: var(--gray); line-height: 1.5; }
+    .menu-import-actions { display: flex; gap: 10px; margin: 18px 0; }
+    .menu-template-link { display: inline-flex; align-items: center; gap: 8px; padding: 9px 13px; border: 1px solid #d1d5db; border-radius: 8px; color: #1f2937; text-decoration: none; font-weight: 600; }
+    .menu-template-link:hover { border-color: var(--primary); color: var(--primary); }
+    .menu-import-form label { display: block; margin-bottom: 7px; font-size: 14px; font-weight: 600; }
+    .menu-import-upload-row { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
+    .menu-import-upload-row input { min-width: 220px; flex: 1; }
+    .menu-import-privacy { margin: 14px 0 0; color: #6b7280; font-size: 12px; line-height: 1.5; }
+    @media (max-width: 600px) { .menu-import-card { padding: 18px; } .menu-import-actions { flex-wrap: wrap; } .menu-import-upload-row { align-items: stretch; flex-direction: column; } }
+</style>
 {% endblock %}

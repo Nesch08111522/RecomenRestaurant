@@ -261,25 +261,17 @@ class AdminController {
         if (tableFilter) {
             tableFilter.addEventListener('change', (e) => this.filterTableByStatus(e.target.value));
         }
-        
-        // Acciones de edición
-        // Las vistas pueden definir una acción propia con onclick; no la dupliques aquí.
-        document.querySelectorAll('.edit-btn:not([onclick])').forEach(btn => {
-            btn.addEventListener('click', () => {
-                this.editRestaurant(btn.dataset.id);
-            });
+
+        document.querySelectorAll(scope + '.edit-btn').forEach(btn => {
+            btn.addEventListener('click', () => this.editRestaurant(btn.dataset.id));
         });
-        
-        document.querySelectorAll('.delete-btn:not([onclick])').forEach(btn => {
-            btn.addEventListener('click', () => {
-                this.deleteRestaurant(btn.dataset.id);
-            });
+
+        document.querySelectorAll(scope + '.delete-btn').forEach(btn => {
+            btn.addEventListener('click', () => this.deleteRestaurant(btn.dataset.id));
         });
-        
-        document.querySelectorAll('.promo-btn:not([onclick])').forEach(btn => {
-            btn.addEventListener('click', () => {
-                this.addPromotion(btn.dataset.id);
-            });
+
+        document.querySelectorAll(scope + '.promo-btn').forEach(btn => {
+            btn.addEventListener('click', () => this.addPromotion(btn.dataset.id));
         });
     }
 

@@ -1,0 +1,115 @@
+{% extends 'owner/base.html' %}
+
+{% block owner_content %}
+<main class="menu-import-preview">
+    <a class="back-link" href="{{ url_for('owner.menu_management', restaurant_id=restaurant.id) }}">
+        <i class="fas fa-arrow-left" aria-hidden="true"></i> Volver a la gestión de menú
+    </a>
+    <header class="preview-header">
+        <span class="preview-eyebrow"><i class="fas fa-wand-magic-sparkles" aria-hidden="true"></i> Borrador generado con Qwen</span>
+        <h1>Revisa la carta de {{ restaurant.name }}</h1>
+        <p>Archivo analizado: <strong>{{ source_filename }}</strong>. Verifica el contenido y edita cualquier campo antes de agregarlo a la carta pública.</p>
+    </header>
+
+    <form method="post" action="{{ url_for('owner.import_menu_apply', restaurant_id=restaurant.id) }}" class="review-form">
+        <textarea name="draft_json" hidden>{{ draft|tojson }}</textarea>
+        <section class="intro-review">
+            <label for="menuIntroduction">Introducción de la carta <span>(opcional)</span></label>
+            <textarea id="menuIntroduction" name="introduction" maxlength="500" rows="3" placeholder="Una breve presentación de la carta">{{ draft.introduction }}</textarea>
+        </section>
+
+        <div class="review-list-heading">
+            <h2>Platos sugeridos <span>{{ draft.dishes|length }}</span></h2>
+            <p>El precio viene de la plantilla. Qwen propone la categoría, el horario y la descripción.</p>
+        </div>
+
+        <div class="review-dishes">
+            {% for dish in draft.dishes %}
+                <article class="review-dish-card">
+                    <div class="review-dish-heading">
+                        <span class="dish-number">{{ '%02d'|format(loop.index) }}</span>
+                        <label class="field-label" for="dishName{{ loop.index0 }}">Nombre del plato</label>
+                    </div>
+                    <input id="dishName{{ loop.index0 }}" name="dish_{{ loop.index0 }}_name" type="text" value="{{ dish.name }}" maxlength="120" required>
+
+                    <div class="review-fields-grid">
+                        <div class="review-field">
+                            <label class="field-label" for="dishPrice{{ loop.index0 }}">Precio (S/)</label>
+                            <input id="dishPrice{{ loop.index0 }}" name="dish_{{ loop.index0 }}_price" type="number" min="0" max="100000" step="0.01" value="{{ dish.price }}" required>
+                        </div>
+                        <div class="review-field">
+                            <label class="field-label" for="dishCategory{{ loop.index0 }}">Categoría</label>
+                            <select id="dishCategory{{ loop.index0 }}" name="dish_{{ loop.index0 }}_category" required>
+                                {% for category in dish_categories %}
+                                    <option value="{{ category.value }}" {% if category.value == dish.category %}selected{% endif %}>{{ category.label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="review-field">
+                            <label class="field-label" for="dishMeal{{ loop.index0 }}">Horario</label>
+                            <select id="dishMeal{{ loop.index0 }}" name="dish_{{ loop.index0 }}_meal_time" required>
+                                {% for meal in meal_times %}
+                                    <option value="{{ meal.value }}" {% if meal.value == dish.meal_time %}selected{% endif %}>{{ meal.label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="review-field">
+                        <label class="field-label" for="dishDescription{{ loop.index0 }}">Descripción sugerida</label>
+                        <textarea id="dishDescription{{ loop.index0 }}" name="dish_{{ loop.index0 }}_description" maxlength="1000" rows="3">{{ dish.description }}</textarea>
+                    </div>
+
+                    {% if dish.ingredients %}
+                        <p class="review-source-data"><strong>Ingredientes indicados:</strong> {{ dish.ingredients|join(', ') }}</p>
+                    {% endif %}
+                    {% if dish.dietary_info %}
+                        <p class="review-source-data"><strong>Información dietética indicada:</strong> {{ dish.dietary_info|join(', ') }}</p>
+                    {% endif %}
+                </article>
+            {% endfor %}
+        </div>
+
+        <footer class="review-actions">
+            <a class="cancel-review" href="{{ url_for('owner.menu_management', restaurant_id=restaurant.id) }}">Cancelar</a>
+            <button type="submit" class="save-review-button"><i class="fas fa-check" aria-hidden="true"></i> Aprobar y agregar a la carta</button>
+        </footer>
+    </form>
+</main>
+
+<style>
+    .menu-import-preview { max-width: 1000px; margin: 0 auto; color: #1f2937; }
+    .back-link { display: inline-flex; gap: 8px; align-items: center; margin-bottom: 22px; color: #4b5563; text-decoration: none; font-weight: 600; }
+    .back-link:hover { color: var(--primary); }
+    .preview-header { margin-bottom: 24px; }
+    .preview-eyebrow { display: inline-flex; align-items: center; gap: 7px; color: #9d174d; font-size: 13px; font-weight: 700; }
+    .preview-header h1 { margin: 9px 0; font-size: clamp(25px, 4vw, 34px); }
+    .preview-header p { margin: 0; color: #6b7280; line-height: 1.6; }
+    .review-form { display: grid; gap: 20px; }
+    .intro-review, .review-dish-card { padding: 20px; border: 1px solid #e5e7eb; border-radius: 14px; background: #fff; box-shadow: 0 3px 14px rgba(15, 23, 42, .04); }
+    .intro-review label, .field-label { display: block; margin-bottom: 7px; color: #374151; font-size: 13px; font-weight: 700; }
+    .intro-review label span { color: #9ca3af; font-weight: 400; }
+    .review-form input, .review-form select, .review-form textarea { box-sizing: border-box; width: 100%; min-height: 42px; padding: 9px 11px; border: 1px solid #d1d5db; border-radius: 8px; background: #fff; color: #111827; font: inherit; }
+    .review-form textarea { min-height: 76px; resize: vertical; line-height: 1.5; }
+    .review-form input:focus, .review-form select:focus, .review-form textarea:focus { outline: 2px solid #f9a8d4; border-color: #db2777; }
+    .review-list-heading { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 6px 16px; }
+    .review-list-heading h2 { margin: 0; font-size: 20px; }
+    .review-list-heading h2 span { margin-left: 5px; padding: 3px 9px; border-radius: 999px; background: #f3f4f6; color: #4b5563; font-size: 12px; vertical-align: middle; }
+    .review-list-heading p { margin: 0; color: #6b7280; font-size: 13px; }
+    .review-dishes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .review-dish-card { display: grid; align-content: start; gap: 13px; }
+    .review-dish-heading { display: flex; align-items: center; gap: 10px; }
+    .review-dish-heading .field-label { margin: 0; }
+    .dish-number { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: #fce7f3; color: #9d174d; font-size: 11px; font-weight: 700; }
+    .review-fields-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+    .review-field { min-width: 0; }
+    .review-source-data { margin: 0; color: #6b7280; font-size: 12px; line-height: 1.5; }
+    .review-actions { position: sticky; bottom: 0; display: flex; justify-content: flex-end; gap: 12px; padding: 14px 0; background: rgba(247, 247, 247, .95); backdrop-filter: blur(6px); }
+    .cancel-review, .save-review-button { display: inline-flex; justify-content: center; align-items: center; gap: 8px; min-height: 44px; padding: 10px 16px; border: 0; border-radius: 9px; text-decoration: none; font: inherit; font-weight: 700; cursor: pointer; }
+    .cancel-review { color: #374151; background: #e5e7eb; }
+    .save-review-button { color: #fff; background: var(--primary); }
+    .save-review-button:hover { filter: brightness(.95); }
+    @media (max-width: 760px) { .review-dishes { grid-template-columns: 1fr; } }
+    @media (max-width: 520px) { .review-fields-grid { grid-template-columns: 1fr; } .review-actions { flex-direction: column-reverse; } .cancel-review, .save-review-button { width: 100%; box-sizing: border-box; } }
+</style>
+{% endblock %}
