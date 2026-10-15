@@ -7,8 +7,8 @@
     </a>
     <header class="preview-header">
         <span class="preview-eyebrow"><i class="fas fa-wand-magic-sparkles" aria-hidden="true"></i> Borrador generado con Qwen</span>
-        <h1>Revisa la carta de {{ restaurant.name }}</h1>
-        <p>Archivo analizado: <strong>{{ source_filename }}</strong>. Verifica el contenido y edita cualquier campo antes de agregarlo a la carta pública.</p>
+        <h1>Revisa los platos de {{ restaurant.name }}</h1>
+        <p>Archivo analizado: <strong>{{ source_filename }}</strong>. Verifica cada plato y elige si pertenece a la carta permanente o a un menú variable con fecha.</p>
     </header>
 
     <form method="post" action="{{ url_for('owner.import_menu_apply', restaurant_id=restaurant.id) }}" class="review-form">
@@ -20,7 +20,7 @@
 
         <div class="review-list-heading">
             <h2>Platos sugeridos <span>{{ draft.dishes|length }}</span></h2>
-            <p>El precio viene de la plantilla. Qwen propone la categoría, el horario y la descripción.</p>
+            <p>El precio, tipo de menú y fecha vienen de la plantilla. Puedes corregirlos antes de guardar.</p>
         </div>
 
         <div class="review-dishes">
@@ -53,6 +53,19 @@
                                 {% endfor %}
                             </select>
                         </div>
+                        <div class="review-field">
+                            <label class="field-label" for="dishMenuType{{ loop.index0 }}">Tipo de menú</label>
+                            <select id="dishMenuType{{ loop.index0 }}" name="dish_{{ loop.index0 }}_menu_type" data-menu-type required>
+                                <option value="carta" {% if dish.menu_type != 'variable' %}selected{% endif %}>Carta permanente</option>
+                                <option value="variable" {% if dish.menu_type == 'variable' %}selected{% endif %}>Menú variable</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="review-field menu-date-field" data-menu-date-field {% if dish.menu_type != 'variable' %}hidden{% endif %}>
+                        <label class="field-label" for="dishMenuDate{{ loop.index0 }}">Fecha del menú variable</label>
+                        <input id="dishMenuDate{{ loop.index0 }}" name="dish_{{ loop.index0 }}_menu_date" type="date" value="{{ dish.menu_date or '' }}" min="{{ today_date_iso }}" {% if dish.menu_type == 'variable' %}required{% endif %} data-menu-date>
+                        <small>El plato se mostrará en la fecha seleccionada.</small>
                     </div>
 
                     <div class="review-field">
@@ -72,7 +85,7 @@
 
         <footer class="review-actions">
             <a class="cancel-review" href="{{ url_for('owner.menu_management', restaurant_id=restaurant.id) }}">Cancelar</a>
-            <button type="submit" class="save-review-button"><i class="fas fa-check" aria-hidden="true"></i> Aprobar y agregar a la carta</button>
+            <button type="submit" class="save-review-button"><i class="fas fa-check" aria-hidden="true"></i> Aprobar y agregar al menú</button>
         </footer>
     </form>
 </main>
@@ -101,15 +114,34 @@
     .review-dish-heading { display: flex; align-items: center; gap: 10px; }
     .review-dish-heading .field-label { margin: 0; }
     .dish-number { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: #fce7f3; color: #9d174d; font-size: 11px; font-weight: 700; }
-    .review-fields-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+    .review-fields-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
     .review-field { min-width: 0; }
+    .menu-date-field[hidden] { display: none; }
+    .menu-date-field small { display: block; margin-top: 6px; color: #6b7280; }
     .review-source-data { margin: 0; color: #6b7280; font-size: 12px; line-height: 1.5; }
     .review-actions { position: sticky; bottom: 0; display: flex; justify-content: flex-end; gap: 12px; padding: 14px 0; background: rgba(247, 247, 247, .95); backdrop-filter: blur(6px); }
     .cancel-review, .save-review-button { display: inline-flex; justify-content: center; align-items: center; gap: 8px; min-height: 44px; padding: 10px 16px; border: 0; border-radius: 9px; text-decoration: none; font: inherit; font-weight: 700; cursor: pointer; }
     .cancel-review { color: #374151; background: #e5e7eb; }
     .save-review-button { color: #fff; background: var(--primary); }
     .save-review-button:hover { filter: brightness(.95); }
-    @media (max-width: 760px) { .review-dishes { grid-template-columns: 1fr; } }
+    @media (max-width: 760px) { .review-dishes { grid-template-columns: 1fr; } .review-fields-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
     @media (max-width: 520px) { .review-fields-grid { grid-template-columns: 1fr; } .review-actions { flex-direction: column-reverse; } .cancel-review, .save-review-button { width: 100%; box-sizing: border-box; } }
 </style>
+
+<script>
+    document.querySelectorAll('[data-menu-type]').forEach(function (menuType) {
+        const card = menuType.closest('.review-dish-card');
+        const dateField = card.querySelector('[data-menu-date-field]');
+        const dateInput = dateField.querySelector('[data-menu-date]');
+
+        function updateDateField() {
+            const isVariable = menuType.value === 'variable';
+            dateField.hidden = !isVariable;
+            dateInput.required = isVariable;
+        }
+
+        menuType.addEventListener('change', updateDateField);
+        updateDateField();
+    });
+</script>
 {% endblock %}

@@ -33,8 +33,8 @@
         <div class="menu-import-heading">
             <div class="menu-import-icon"><i class="fas fa-file-import" aria-hidden="true"></i></div>
             <div>
-                <h2 id="menuImportTitle">Crear carta con Qwen</h2>
-                <p>Descarga una plantilla, complétala y súbela. Qwen organizará los platos y sugerirá descripciones para tu carta digital.</p>
+                <h2 id="menuImportTitle">Importar menú con Qwen</h2>
+                <p>Descarga una plantilla, indica si cada plato es de carta o variable y agrega una fecha para los platos variables. Qwen sugerirá descripciones antes de guardar.</p>
             </div>
         </div>
         <div class="menu-import-actions">
@@ -52,7 +52,7 @@
                 <button type="submit" class="btn-primary"><i class="fas fa-wand-magic-sparkles" aria-hidden="true"></i> Analizar y crear borrador</button>
             </div>
         </form>
-        <p class="menu-import-privacy">Se procesan archivos Excel y Word de hasta 2 MB. El archivo no se guarda; los datos de los platos se envían a Alibaba Cloud Qwen para generar el borrador. Podrás revisarlo antes de incorporarlo a la carta pública. El uso se realiza con la API key configurada y puede generar cargos según el modelo y la región.</p>
+        <p class="menu-import-privacy">Se procesan archivos Excel y Word de hasta 2 MB en memoria; el archivo no se guarda en la aplicación. Solo los datos extraídos de los platos se envían a Qwen mediante Groq para crear un borrador revisable. El plan gratuito tiene cuotas y la función puede quedar temporalmente limitada al agotarlas. Aprueba el borrador antes de agregar los platos a la carta pública.</p>
     </section>
 
     {% if menu_type in ['fixed', 'mixed'] %}
