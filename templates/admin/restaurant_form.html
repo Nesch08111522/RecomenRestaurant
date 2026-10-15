@@ -458,6 +458,10 @@
       mapStatus.textContent = msg || '';
       mapStatus.dataset.type = type || '';
     }
+    form.querySelectorAll('input[name="service_mode"]').forEach((radio) => {
+      radio.addEventListener('change', updateModeStatus);
+    });
+    updateModeStatus();
 
     /* ---------- Mapa ---------- */
     if (typeof L === 'undefined') {

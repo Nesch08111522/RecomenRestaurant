@@ -1,6 +1,14 @@
 {% extends 'base.html' %}
 
 {% block content %}
+{# ===== Variables auxiliares ===== #}
+{% set is_logged_in = session.get('user') %}
+{% if restaurant.lat and restaurant.lng %}
+    {% set maps_query = (restaurant.lat|string ~ ',' ~ restaurant.lng|string)|urlencode %}
+{% else %}
+    {% set maps_query = (restaurant.address ~ ', ' ~ restaurant.district ~ ', Trujillo, Perú')|urlencode %}
+{% endif %}
+
 <div class="detail-container">
     <!-- Encabezado -->
     <div class="detail-header">
@@ -32,8 +40,7 @@
             <section class="description">
                 <h2><i class="fas fa-info-circle"></i> Descripción</h2>
                 <p>{{ restaurant.description }}</p>
-                
-                <!-- Tags y características -->
+
                 <div class="restaurant-tags">
                     {% if restaurant.tags %}
                         {% for tag in restaurant.tags %}
@@ -48,7 +55,7 @@
                 </div>
             </section>
 
-            <!-- Análisis de SmartResto MEJORADO -->
+            <!-- Análisis de SmartResto -->
             <section class="ai-recommendation">
                 <div class="ia-box">
                     <div class="ia-icon">
@@ -56,7 +63,7 @@
                     </div>
                     <div class="ia-content">
                         <h3>🧠 Análisis de SmartResto</h3>
-                        
+
                         {% if explanation %}
                             {% if explanation is string %}
                                 <p>{{ explanation }}</p>
@@ -64,16 +71,16 @@
                                 <div class="ia-details">
                                     {% if explanation.compatible %}
                                         <div class="ia-status compatible">
-                                            <i class="fas fa-check-circle"></i> 
+                                            <i class="fas fa-check-circle"></i>
                                             <span>✅ Restaurante compatible con tus preferencias</span>
                                         </div>
                                     {% else %}
                                         <div class="ia-status incompatible">
-                                            <i class="fas fa-times-circle"></i> 
+                                            <i class="fas fa-times-circle"></i>
                                             <span>❌ No compatible con tus preferencias</span>
                                         </div>
                                     {% endif %}
-                                    
+
                                     {% if explanation.reasons and explanation.reasons|length > 0 %}
                                         <div class="ia-reasons">
                                             <strong>📌 Recomendado porque:</strong>
@@ -84,7 +91,7 @@
                                             </ul>
                                         </div>
                                     {% endif %}
-                                    
+
                                     {% if explanation.exclusions and explanation.exclusions|length > 0 %}
                                         <div class="ia-exclusions">
                                             <strong>⚠️ Consideraciones:</strong>
@@ -95,7 +102,7 @@
                                             </ul>
                                         </div>
                                     {% endif %}
-                                    
+
                                     <div class="ia-dietary">
                                         <strong>🥗 Opciones dietéticas:</strong>
                                         <div class="dietary-tags">
@@ -122,17 +129,20 @@
                 </div>
             </section>
 
-            <!-- CARTA DIGITAL MEJORADA -->
+            <!-- Carta digital -->
             <section class="menu-section">
                 <div class="menu-header">
                     <h2><i class="fas fa-utensils"></i> Carta Digital</h2>
                     <div class="menu-badge">
-                        <span class="badge-count">{{ dishes|length }} platos</span>
+                        <span class="badge-count">{{ dishes|length }} {{ 'plato' if dishes|length == 1 else 'platos' }}</span>
                     </div>
                 </div>
 
+                {% if restaurant.menu_intro %}
+                    <p class="menu-introduction">{{ restaurant.menu_intro }}</p>
+                {% endif %}
+
                 {% if dishes and dishes|length > 0 %}
-                    <!-- Agrupar platos por categoría -->
                     {% set categories = {} %}
                     {% for dish in dishes %}
                         {% set cat = dish.category or 'Otros' %}
@@ -144,11 +154,15 @@
                     {% endfor %}
 
                     <div class="menu-categories">
-                        {% for category, category_dishes in categories.items() %}
+                        {% set category_order = ['Entrada', 'Entradas', 'Fondo', 'Fondos', 'Segundo', 'Segundos', 'Postre', 'Postres', 'Bebida', 'Bebidas'] %}
+                        {% set other_categories = categories.keys()|reject('in', category_order)|list %}
+                        {% for category in category_order + other_categories %}
+                          {% if category in categories %}
+                            {% set category_dishes = categories[category] %}
                             <div class="menu-category">
                                 <div class="category-header">
                                     <h3>{{ category }}</h3>
-                                    <span class="category-count">{{ category_dishes|length }} platos</span>
+                                    <span class="category-count">{{ category_dishes|length }} {{ 'plato' if category_dishes|length == 1 else 'platos' }}</span>
                                 </div>
                                 <div class="category-dishes">
                                     {% for dish in category_dishes %}
@@ -161,9 +175,7 @@
                                                     {% endif %}
                                                     {% if dish.spiciness and dish.spiciness > 0 %}
                                                         <span class="spiciness">
-                                                            {% for i in range(dish.spiciness) %}
-                                                                🌶️
-                                                            {% endfor %}
+                                                            {% for i in range(dish.spiciness) %}🌶️{% endfor %}
                                                         </span>
                                                     {% endif %}
                                                 </div>
@@ -202,6 +214,7 @@
                                     {% endfor %}
                                 </div>
                             </div>
+                          {% endif %}
                         {% endfor %}
                     </div>
                 {% else %}
@@ -213,15 +226,18 @@
             </section>
         </div>
 
-        <!-- Sidebar MEJORADO -->
+        <!-- Sidebar -->
         <div class="sticky-sidebar">
-            <div class="booking-card">
+            <div class="booking-card"
+                 data-open="{{ restaurant.open_time }}"
+                 data-close="{{ restaurant.close_time }}">
+
                 <div class="booking-header">
-                    <h3>Precio Promedio</h3>
+                    <h3>Precio promedio</h3>
                     <p class="price-val">{{ MONEDA }}{{ restaurant.avg_price }}</p>
                     <span class="price-per-person">por persona</span>
                 </div>
-                
+
                 <div class="booking-info">
                     <div class="info-row">
                         <i class="fas fa-star"></i>
@@ -234,30 +250,53 @@
                         <strong>{{ dishes|length }}</strong>
                     </div>
                     {% if restaurant.promo %}
-                        <div class="info-row promo-row">
-                            <i class="fas fa-tag"></i>
-                            <span>Promoción</span>
-                            <strong style="color: var(--primary);">{{ restaurant.promo }}</strong>
+                        <div class="promo-row">
+                            <div class="promo-title"><i class="fas fa-tag"></i> Promoción</div>
+                            <strong>{{ restaurant.promo }}</strong>
                         </div>
                     {% endif %}
                 </div>
-                
-                <button class="reserve-btn">
-                    <i class="fas fa-calendar-check"></i> Reservar ahora
-                </button>
-                
+
+                <!-- Reserva: solo usuarios logueados -->
+                {% if is_logged_in %}
+                    <button type="button" class="reserve-btn" id="openReserve">
+                        <i class="fas fa-calendar-check"></i> Reservar ahora
+                    </button>
+                {% else %}
+                    <a class="reserve-btn reserve-btn--login"
+                       href="{{ login_url }}">
+                        <i class="fas fa-lock"></i> Inicia sesión para reservar
+                    </a>
+                {% endif %}
+
                 <div class="contact-info">
                     <div class="contact-item">
                         <i class="fas fa-phone"></i>
-                        <span>{{ restaurant.phone }}</span>
+                        <a href="tel:{{ restaurant.phone|replace(' ', '')|replace('-', '') }}">{{ restaurant.phone }}</a>
                     </div>
+
                     <div class="contact-item">
                         <i class="fas fa-clock"></i>
                         <span>{{ restaurant.open_time }} - {{ restaurant.close_time }}</span>
+                        <span class="open-status" id="openStatus"></span>
                     </div>
-                    <div class="contact-item">
+
+                    <div class="contact-item contact-item--location">
                         <i class="fas fa-map-marker-alt"></i>
-                        <span>{{ restaurant.district }}</span>
+                        <div>
+                            <span>{{ restaurant.address }}</span>
+                            <small>{{ restaurant.district }}</small>
+                            <div class="map-actions">
+                                <a href="https://www.google.com/maps/search/?api=1&query={{ maps_query }}"
+                                   target="_blank" rel="noopener noreferrer">
+                                    <i class="fas fa-map"></i> Ver en Maps
+                                </a>
+                                <a href="https://www.google.com/maps/dir/?api=1&destination={{ maps_query }}"
+                                   target="_blank" rel="noopener noreferrer">
+                                    <i class="fas fa-route"></i> Cómo llegar
+                                </a>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -265,25 +304,47 @@
     </div>
 </div>
 
+<!-- Modal de reserva (solo se renderiza con sesión iniciada) -->
+{% if is_logged_in %}
+<div class="modal-overlay" id="reserveModal" hidden>
+    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="reserveTitle">
+        <button type="button" class="modal-close" id="closeReserve" aria-label="Cerrar">&times;</button>
+        <h3 id="reserveTitle">Reservar en {{ restaurant.name }}</h3>
+
+        <form method="POST" action="{{ url_for('main.reserve', restaurant_id=restaurant.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <label>Fecha
+                <input type="date" name="date" id="resDate" required>
+            </label>
+            <label>Hora
+                <input type="time" name="time" required>
+            </label>
+            <label>Personas
+                <input type="number" name="guests" min="1" max="20" value="2" required>
+            </label>
+
+            <button type="submit" class="reserve-btn">Confirmar reserva</button>
+        </form>
+    </div>
+</div>
+{% endif %}
+
 <style>
     .detail-container {
         max-width: 1120px;
         margin: 0 auto;
         padding: 24px 40px 60px;
     }
-    
+
     /* Header */
-    .detail-header {
-        margin-bottom: 24px;
-    }
-    
+    .detail-header { margin-bottom: 24px; }
     .detail-header h1 {
         font-family: var(--font-heading);
         font-size: 32px;
         font-weight: 700;
         margin-bottom: 8px;
     }
-    
     .detail-meta {
         display: flex;
         flex-wrap: wrap;
@@ -292,20 +353,10 @@
         color: var(--gray);
         font-size: 14px;
     }
-    
-    .detail-meta .dot {
-        color: var(--light-gray);
-    }
-    
-    .detail-meta .rating {
-        color: var(--dark);
-        font-weight: 600;
-    }
-    
-    .detail-meta i {
-        margin-right: 4px;
-    }
-    
+    .detail-meta .dot { color: var(--light-gray); }
+    .detail-meta .rating { color: var(--dark); font-weight: 600; }
+    .detail-meta i { margin-right: 4px; }
+
     /* Galería */
     .image-gallery {
         border-radius: 16px;
@@ -313,17 +364,12 @@
         margin-bottom: 40px;
         position: relative;
     }
-    
-    .main-image {
-        position: relative;
-    }
-    
+    .main-image { position: relative; }
     .main-image img {
         width: 100%;
         height: 450px;
         object-fit: cover;
     }
-    
     .promo-badge-gallery {
         position: absolute;
         top: 20px;
@@ -336,54 +382,19 @@
         font-size: 14px;
         box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     }
-    
-    .promo-badge-gallery i {
-        margin-right: 6px;
-    }
-    
-    /* Content */
-    .detail-content {
-        display: flex;
-        gap: 60px;
-    }
-    
-    .info-column {
-        flex: 1;
-        min-width: 0;
-    }
-    
-    .sticky-sidebar {
-        flex: 0 0 340px;
-    }
-    
-    /* Description */
-    .description {
-        margin-bottom: 32px;
-    }
-    
-    .description h2 {
-        font-size: 20px;
-        font-weight: 600;
-        margin-bottom: 12px;
-    }
-    
-    .description h2 i {
-        color: var(--primary);
-        margin-right: 8px;
-    }
-    
-    .description p {
-        color: var(--gray);
-        line-height: 1.7;
-        margin-bottom: 16px;
-    }
-    
-    .restaurant-tags {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-    }
-    
+    .promo-badge-gallery i { margin-right: 6px; }
+
+    /* Layout */
+    .detail-content { display: flex; gap: 60px; }
+    .info-column { flex: 1; min-width: 0; }
+    .sticky-sidebar { flex: 0 0 340px; }
+
+    /* Descripción */
+    .description { margin-bottom: 32px; }
+    .description h2 { font-size: 20px; font-weight: 600; margin-bottom: 12px; }
+    .description h2 i { color: var(--primary); margin-right: 8px; }
+    .description p { color: var(--gray); line-height: 1.7; margin-bottom: 16px; }
+    .restaurant-tags { display: flex; flex-wrap: wrap; gap: 8px; }
     .tag-category {
         padding: 4px 14px;
         background: var(--primary-light);
@@ -392,7 +403,6 @@
         font-size: 13px;
         font-weight: 500;
     }
-    
     .tag-feature {
         padding: 4px 14px;
         background: #e5e7eb;
@@ -403,13 +413,9 @@
         align-items: center;
         gap: 4px;
     }
-    
-    .tag-feature i {
-        color: #10B981;
-        font-size: 12px;
-    }
-    
-    /* IA Box */
+    .tag-feature i { color: #10B981; font-size: 12px; }
+
+    /* Caja IA */
     .ia-box {
         background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
         border: 1px solid #bae6fd;
@@ -420,11 +426,7 @@
         margin: 32px 0;
         transition: all 0.3s ease;
     }
-    
-    .ia-box:hover {
-        box-shadow: 0 4px 20px rgba(56, 189, 248, 0.15);
-    }
-    
+    .ia-box:hover { box-shadow: 0 4px 20px rgba(56, 189, 248, 0.15); }
     .ia-icon {
         flex-shrink: 0;
         width: 56px;
@@ -437,52 +439,21 @@
         color: white;
         font-size: 28px;
     }
-    
-    .ia-content {
-        flex: 1;
-    }
-    
-    .ia-content h3 {
-        font-size: 18px;
-        font-weight: 600;
-        color: #0369a1;
-        margin-bottom: 8px;
-    }
-    
-    .ia-status {
-        padding: 8px 16px;
-        border-radius: 8px;
-        font-weight: 500;
-        margin-bottom: 12px;
-    }
-    
-    .ia-status.compatible {
-        background: #dcfce7;
-        color: #166534;
-    }
-    
-    .ia-status.incompatible {
-        background: #fee2e2;
-        color: #991b1b;
-    }
-    
-    .ia-reasons {
-        margin-bottom: 12px;
-    }
-    
-    .ia-reasons strong {
+    .ia-content { flex: 1; }
+    .ia-content h3 { font-size: 18px; font-weight: 600; color: #0369a1; margin-bottom: 8px; }
+    .ia-status { padding: 8px 16px; border-radius: 8px; font-weight: 500; margin-bottom: 12px; }
+    .ia-status.compatible { background: #dcfce7; color: #166534; }
+    .ia-status.incompatible { background: #fee2e2; color: #991b1b; }
+    .ia-reasons, .ia-exclusions { margin-bottom: 12px; }
+    .ia-reasons strong, .ia-exclusions strong, .ia-dietary strong {
         display: block;
         margin-bottom: 4px;
         font-size: 14px;
         color: var(--dark);
     }
-    
-    .ia-reasons ul {
-        list-style: none;
-        padding: 0;
-    }
-    
-    .ia-reasons ul li {
+    .ia-exclusions strong { color: #991b1b; }
+    .ia-reasons ul, .ia-exclusions ul { list-style: none; padding: 0; }
+    .ia-reasons ul li, .ia-exclusions ul li {
         padding: 4px 0;
         font-size: 14px;
         color: var(--gray);
@@ -490,77 +461,16 @@
         align-items: center;
         gap: 6px;
     }
-    
-    .ia-exclusions {
-        margin-bottom: 12px;
-    }
-    
-    .ia-exclusions strong {
-        display: block;
-        margin-bottom: 4px;
-        font-size: 14px;
-        color: #991b1b;
-    }
-    
-    .ia-exclusions ul {
-        list-style: none;
-        padding: 0;
-    }
-    
-    .ia-exclusions ul li {
-        padding: 4px 0;
-        font-size: 14px;
-        color: #dc2626;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-    }
-    
-    .ia-dietary strong {
-        display: block;
-        margin-bottom: 6px;
-        font-size: 14px;
-        color: var(--dark);
-    }
-    
-    .dietary-tags {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 6px;
-    }
-    
-    .dietary-tag {
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-size: 12px;
-        font-weight: 500;
-    }
-    
-    .dietary-tag.vegan {
-        background: #dcfce7;
-        color: #166534;
-    }
-    
-    .dietary-tag.vegetarian {
-        background: #fef3c7;
-        color: #92400e;
-    }
-    
-    .dietary-tag.gluten-free {
-        background: #dbeafe;
-        color: #1e40af;
-    }
-    
-    .dietary-tag.none {
-        background: #f3f4f6;
-        color: #6b7280;
-    }
-    
-    /* Menu Digital */
-    .menu-section {
-        margin-top: 32px;
-    }
-    
+    .ia-exclusions ul li { color: #dc2626; }
+    .dietary-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .dietary-tag { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 500; }
+    .dietary-tag.vegan { background: #dcfce7; color: #166534; }
+    .dietary-tag.vegetarian { background: #fef3c7; color: #92400e; }
+    .dietary-tag.gluten-free { background: #dbeafe; color: #1e40af; }
+    .dietary-tag.none { background: #f3f4f6; color: #6b7280; }
+
+    /* Carta digital */
+    .menu-section { margin-top: 32px; }
     .menu-header {
         display: flex;
         justify-content: space-between;
@@ -569,17 +479,8 @@
         padding-bottom: 16px;
         border-bottom: 2px solid var(--light-gray);
     }
-    
-    .menu-header h2 {
-        font-size: 24px;
-        font-weight: 700;
-    }
-    
-    .menu-header h2 i {
-        color: var(--primary);
-        margin-right: 8px;
-    }
-    
+    .menu-header h2 { font-size: 24px; font-weight: 700; }
+    .menu-header h2 i { color: var(--primary); margin-right: 8px; }
     .badge-count {
         background: var(--primary-light);
         color: var(--primary);
@@ -588,13 +489,7 @@
         font-size: 14px;
         font-weight: 600;
     }
-    
-    .menu-categories {
-        display: flex;
-        flex-direction: column;
-        gap: 32px;
-    }
-    
+    .menu-categories { display: flex; flex-direction: column; gap: 32px; }
     .menu-category {
         background: var(--white);
         border-radius: 16px;
@@ -602,11 +497,7 @@
         overflow: hidden;
         transition: all 0.3s ease;
     }
-    
-    .menu-category:hover {
-        box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-    }
-    
+    .menu-category:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
     .category-header {
         background: #f8fafc;
         padding: 16px 24px;
@@ -615,13 +506,7 @@
         align-items: center;
         border-bottom: 1px solid var(--light-gray);
     }
-    
-    .category-header h3 {
-        font-size: 18px;
-        font-weight: 600;
-        color: var(--dark);
-    }
-    
+    .category-header h3 { font-size: 18px; font-weight: 600; color: var(--dark); }
     .category-header h3::before {
         content: "";
         display: inline-block;
@@ -632,7 +517,6 @@
         margin-right: 12px;
         vertical-align: middle;
     }
-    
     .category-count {
         font-size: 13px;
         color: var(--gray);
@@ -641,11 +525,7 @@
         border-radius: 12px;
         border: 1px solid var(--light-gray);
     }
-    
-    .category-dishes {
-        padding: 8px 0;
-    }
-    
+    .category-dishes { padding: 8px 0; }
     .dish-item {
         display: flex;
         justify-content: space-between;
@@ -653,20 +533,9 @@
         border-bottom: 1px solid #f1f5f9;
         transition: background 0.2s ease;
     }
-    
-    .dish-item:last-child {
-        border-bottom: none;
-    }
-    
-    .dish-item:hover {
-        background: #fafbfc;
-    }
-    
-    .dish-info {
-        flex: 1;
-        padding-right: 20px;
-    }
-    
+    .dish-item:last-child { border-bottom: none; }
+    .dish-item:hover { background: #fafbfc; }
+    .dish-info { flex: 1; padding-right: 20px; }
     .dish-name-wrapper {
         display: flex;
         flex-wrap: wrap;
@@ -674,14 +543,7 @@
         gap: 8px;
         margin-bottom: 4px;
     }
-    
-    .dish-name-wrapper h4 {
-        font-size: 16px;
-        font-weight: 500;
-        color: var(--dark);
-        margin: 0;
-    }
-    
+    .dish-name-wrapper h4 { font-size: 16px; font-weight: 500; color: var(--dark); margin: 0; }
     .chef-recommendation {
         font-size: 12px;
         background: #fef3c7;
@@ -690,43 +552,12 @@
         border-radius: 12px;
         font-weight: 500;
     }
-    
-    .spiciness {
-        font-size: 14px;
-        letter-spacing: -2px;
-    }
-    
-    .dish-description {
-        font-size: 14px;
-        color: var(--gray);
-        margin: 4px 0 8px;
-        line-height: 1.5;
-    }
-    
-    .dish-meta {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 12px;
-        font-size: 13px;
-        color: var(--gray);
-    }
-    
-    .dish-ingredients {
-        display: flex;
-        align-items: center;
-        gap: 4px;
-    }
-    
-    .dish-ingredients i {
-        font-size: 12px;
-        color: #10B981;
-    }
-    
-    .dish-dietary {
-        display: flex;
-        gap: 4px;
-    }
-    
+    .spiciness { font-size: 14px; letter-spacing: -2px; }
+    .dish-description { font-size: 14px; color: var(--gray); margin: 4px 0 8px; line-height: 1.5; }
+    .dish-meta { display: flex; flex-wrap: wrap; gap: 12px; font-size: 13px; color: var(--gray); }
+    .dish-ingredients { display: flex; align-items: center; gap: 4px; }
+    .dish-ingredients i { font-size: 12px; color: #10B981; }
+    .dish-dietary { display: flex; gap: 4px; }
     .diet-tag {
         padding: 1px 8px;
         background: #e5e7eb;
@@ -734,38 +565,12 @@
         font-size: 11px;
         color: var(--gray);
     }
-    
-    .dish-time {
-        display: flex;
-        align-items: center;
-        gap: 4px;
-    }
-    
-    .dish-price {
-        text-align: right;
-        flex-shrink: 0;
-        min-width: 100px;
-    }
-    
-    .price-amount {
-        display: block;
-        font-size: 18px;
-        font-weight: 700;
-        color: var(--dark);
-    }
-    
-    .available-badge {
-        font-size: 12px;
-        color: #10B981;
-        font-weight: 500;
-    }
-    
-    .unavailable-badge {
-        font-size: 12px;
-        color: #dc2626;
-        font-weight: 500;
-    }
-    
+    .dish-time { display: flex; align-items: center; gap: 4px; }
+    .dish-price { text-align: right; flex-shrink: 0; min-width: 100px; }
+    .price-amount { display: block; font-size: 18px; font-weight: 700; color: var(--dark); }
+    .available-badge { font-size: 12px; color: #10B981; font-weight: 500; }
+    .unavailable-badge { font-size: 12px; color: #dc2626; font-weight: 500; }
+
     /* Sidebar */
     .booking-card {
         background: var(--white);
@@ -776,37 +581,16 @@
         position: sticky;
         top: 100px;
     }
-    
     .booking-header {
         text-align: center;
         padding-bottom: 20px;
         border-bottom: 1px solid var(--light-gray);
         margin-bottom: 20px;
     }
-    
-    .booking-header h3 {
-        font-size: 14px;
-        font-weight: 500;
-        color: var(--gray);
-        margin-bottom: 4px;
-    }
-    
-    .price-val {
-        font-size: 32px;
-        font-weight: 700;
-        color: var(--dark);
-        margin: 0;
-    }
-    
-    .price-per-person {
-        font-size: 13px;
-        color: var(--gray);
-    }
-    
-    .booking-info {
-        margin-bottom: 20px;
-    }
-    
+    .booking-header h3 { font-size: 14px; font-weight: 500; color: var(--gray); margin-bottom: 4px; }
+    .price-val { font-size: 32px; font-weight: 700; color: var(--dark); margin: 0; }
+    .price-per-person { font-size: 13px; color: var(--gray); }
+    .booking-info { margin-bottom: 20px; }
     .info-row {
         display: flex;
         justify-content: space-between;
@@ -815,75 +599,52 @@
         border-bottom: 1px solid #f1f5f9;
         font-size: 14px;
     }
-    
-    .info-row:last-child {
-        border-bottom: none;
-    }
-    
-    .info-row i {
-        color: var(--primary);
-        width: 20px;
-    }
-    
-    .info-row span {
-        flex: 1;
-        margin-left: 12px;
-        color: var(--gray);
-    }
-    
-    .info-row strong {
-        font-weight: 600;
-        color: var(--dark);
-    }
-    
-    .info-row.promo-row {
+    .info-row:last-child { border-bottom: none; }
+    .info-row i { color: var(--primary); width: 20px; }
+    .info-row span { flex: 1; margin-left: 12px; color: var(--gray); }
+    .info-row strong { font-weight: 600; color: var(--dark); }
+
+    .promo-row {
         background: #fef3c7;
-        padding: 8px 12px;
         border-radius: 8px;
+        padding: 10px 12px;
         margin-top: 8px;
-        border-bottom: none;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
     }
-    
-    .info-row.promo-row i {
-        color: #92400e;
-    }
-    
-    .info-row.promo-row span {
-        color: #92400e;
-    }
-    
+    .promo-title { font-size: 13px; color: #92400e; }
+    .promo-title i { margin-right: 6px; }
+    .promo-row strong { color: var(--primary); font-size: 14px; }
+
     .reserve-btn {
         width: 100%;
         padding: 14px;
         background: var(--primary);
-        color: white;
+        color: #fff;
         border: none;
         border-radius: 10px;
         font-size: 16px;
         font-weight: 600;
         cursor: pointer;
-        transition: all 0.3s ease;
         display: flex;
         align-items: center;
         justify-content: center;
         gap: 8px;
         margin-bottom: 20px;
+        text-decoration: none;
+        transition: transform .2s, box-shadow .2s;
     }
-    
-    .reserve-btn:hover {
-        background: var(--primary-dark);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 20px rgba(255, 56, 92, 0.3);
-    }
-    
+    .reserve-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 20px rgba(255,56,92,.3); }
+    .reserve-btn--login { background: var(--dark); }
+
     .contact-info {
         display: flex;
         flex-direction: column;
-        gap: 8px;
+        gap: 12px;
         padding-top: 16px;
         border-top: 1px solid var(--light-gray);
     }
-    
     .contact-item {
         display: flex;
         align-items: center;
@@ -891,12 +652,27 @@
         font-size: 14px;
         color: var(--gray);
     }
-    
-    .contact-item i {
-        width: 20px;
-        color: var(--dark);
+    .contact-item i { width: 20px; color: var(--dark); }
+    .contact-item a { color: inherit; text-decoration: none; }
+    .contact-item a:hover { color: var(--primary); }
+    .contact-item--location { align-items: flex-start; }
+    .contact-item--location i { margin-top: 3px; }
+    .contact-item--location small { display: block; color: var(--gray); font-size: 13px; }
+
+    .map-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 6px; }
+    .map-actions a { font-size: 13px; font-weight: 600; color: var(--primary); }
+    .map-actions a i { width: auto; color: inherit; margin-right: 4px; }
+
+    .open-status {
+        margin-left: auto;
+        font-size: 12px;
+        font-weight: 600;
+        padding: 2px 10px;
+        border-radius: 12px;
     }
-    
+    .open-status.is-open { background: #dcfce7; color: #166534; }
+    .open-status.is-closed { background: #fee2e2; color: #991b1b; }
+
     .empty-menu {
         text-align: center;
         padding: 48px 20px;
@@ -904,56 +680,58 @@
         border-radius: 16px;
         border: 1px solid var(--light-gray);
     }
-    
-    .empty-menu p {
-        color: var(--gray);
-        margin-top: 12px;
+    .empty-menu p { color: var(--gray); margin-top: 12px; }
+
+    /* Modal de reserva */
+    .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
     }
-    
+    .modal-overlay[hidden] { display: none; }
+    .modal-box {
+        background: #fff;
+        border-radius: 16px;
+        padding: 28px;
+        width: min(420px, 92vw);
+        position: relative;
+    }
+    .modal-box h3 { margin-bottom: 16px; font-size: 20px; }
+    .modal-box label { display: block; margin-bottom: 14px; font-size: 14px; color: var(--gray); }
+    .modal-box input {
+        width: 100%;
+        margin-top: 4px;
+        padding: 10px 12px;
+        border: 1px solid var(--light-gray);
+        border-radius: 8px;
+        font-size: 15px;
+    }
+    .modal-box .reserve-btn { margin-bottom: 0; margin-top: 8px; }
+    .modal-close {
+        position: absolute;
+        top: 12px;
+        right: 16px;
+        background: none;
+        border: none;
+        font-size: 26px;
+        cursor: pointer;
+    }
+
     /* Responsive */
     @media (max-width: 768px) {
-        .detail-container {
-            padding: 16px;
-        }
-        
-        .detail-content {
-            flex-direction: column;
-            gap: 32px;
-        }
-        
-        .sticky-sidebar {
-            flex: 1;
-        }
-        
-        .booking-card {
-            position: static;
-        }
-        
-        .main-image img {
-            height: 250px;
-        }
-        
-        .detail-header h1 {
-            font-size: 24px;
-        }
-        
-        .ia-box {
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-        }
-        
-        .ia-icon {
-            width: 48px;
-            height: 48px;
-            font-size: 22px;
-        }
-        
-        .dish-item {
-            flex-direction: column;
-            padding: 16px;
-        }
-        
+        .detail-container { padding: 16px; }
+        .detail-content { flex-direction: column; gap: 32px; }
+        .sticky-sidebar { flex: 1; }
+        .booking-card { position: static; }
+        .main-image img { height: 250px; }
+        .detail-header h1 { font-size: 24px; }
+        .ia-box { flex-direction: column; align-items: center; text-align: center; }
+        .ia-icon { width: 48px; height: 48px; font-size: 22px; }
+        .dish-item { flex-direction: column; padding: 16px; }
         .dish-price {
             text-align: left;
             min-width: auto;
@@ -961,72 +739,69 @@
             padding-top: 8px;
             border-top: 1px solid var(--light-gray);
         }
-        
-        .price-amount {
-            display: inline;
-            margin-right: 12px;
-        }
-        
-        .category-header {
-            flex-direction: column;
-            gap: 4px;
-            text-align: center;
-        }
-        
-        .category-header h3::before {
-            display: none;
-        }
-        
-        .dish-name-wrapper {
-            flex-wrap: wrap;
-        }
-        
-        .dish-meta {
-            flex-direction: column;
-            gap: 4px;
-        }
+        .price-amount { display: inline; margin-right: 12px; }
+        .category-header { flex-direction: column; gap: 4px; text-align: center; }
+        .category-header h3::before { display: none; }
+        .dish-meta { flex-direction: column; gap: 4px; }
     }
-    
     @media (max-width: 480px) {
-        .detail-meta {
-            font-size: 13px;
-        }
-        
-        .restaurant-tags {
-            gap: 4px;
-        }
-        
-        .tag-category,
-        .tag-feature {
-            font-size: 12px;
-            padding: 2px 10px;
-        }
-        
-        .menu-header {
-            flex-direction: column;
-            gap: 8px;
-            text-align: center;
-        }
-        
-        .price-val {
-            font-size: 24px;
-        }
+        .detail-meta { font-size: 13px; }
+        .restaurant-tags { gap: 4px; }
+        .tag-category, .tag-feature { font-size: 12px; padding: 2px 10px; }
+        .menu-header { flex-direction: column; gap: 8px; text-align: center; }
+        .price-val { font-size: 24px; }
     }
 </style>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Agregar efecto de scroll en la carta
-    const menuCategories = document.querySelectorAll('.menu-category');
-    menuCategories.forEach((category, index) => {
+document.addEventListener('DOMContentLoaded', function () {
+    // Animación de entrada de las categorías de la carta
+    document.querySelectorAll('.menu-category').forEach((category, index) => {
         category.style.opacity = '0';
         category.style.transform = 'translateY(20px)';
         setTimeout(() => {
             category.style.transition = 'all 0.5s ease';
             category.style.opacity = '1';
             category.style.transform = 'translateY(0)';
-        }, 100 + (index * 150));
+        }, 100 + index * 150);
     });
+
+    // Estado Abierto / Cerrado (soporta horarios que cruzan la medianoche)
+    const card = document.querySelector('.booking-card');
+    const statusEl = document.getElementById('openStatus');
+    if (card && statusEl && card.dataset.open && card.dataset.close) {
+        const toMin = t => { const [h, m] = t.split(':').map(Number); return h * 60 + (m || 0); };
+        const open = toMin(card.dataset.open);
+        const close = toMin(card.dataset.close);
+        const d = new Date();
+        const now = d.getHours() * 60 + d.getMinutes();
+        const isOpen = open < close ? (now >= open && now < close) : (now >= open || now < close);
+        statusEl.textContent = isOpen ? 'Abierto' : 'Cerrado';
+        statusEl.classList.add(isOpen ? 'is-open' : 'is-closed');
+    }
+
+    // Modal de reserva
+    const modal = document.getElementById('reserveModal');
+    if (modal) {
+        const openBtn = document.getElementById('openReserve');
+        const closeBtn = document.getElementById('closeReserve');
+        const dateInput = document.getElementById('resDate');
+        const today = new Date();
+        const iso = new Date(today.getTime() - today.getTimezoneOffset() * 60000)
+            .toISOString().split('T')[0];
+        dateInput.min = iso;
+
+        const show = () => { modal.hidden = false; };
+        const hide = () => { modal.hidden = true; };
+
+        openBtn.addEventListener('click', show);
+        closeBtn.addEventListener('click', hide);
+        modal.addEventListener('click', e => { if (e.target === modal) hide(); });
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') hide(); });
+    }
 });
 </script>
+<style>
+    .menu-introduction { margin: 4px 0 20px; color: #5b6472; line-height: 1.65; }
+</style>
 {% endblock %}

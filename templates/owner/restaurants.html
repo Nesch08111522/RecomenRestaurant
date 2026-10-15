@@ -47,6 +47,7 @@
                     <th>Nombre</th>
                     <th>Categoría</th>
                     <th>Distrito</th>
+                    <th>Modalidad</th>
                     <th>Rating</th>
                     <th>Precio</th>
                     <th>Promoción</th>
@@ -60,6 +61,17 @@
                         <td class="restaurant-name">{{ r.name }}</td>
                         <td>{{ r.category_name or 'Sin categoría' }}</td>
                         <td>{{ r.district }}</td>
+                        <td>
+                            <span class="service-mode-badge">
+                                {% if r.service_mode == 'dine_in_only' %}
+                                    Solo local
+                                {% elif r.service_mode == 'dine_in_and_delivery' %}
+                                    Local y delivery
+                                {% else %}
+                                    Solo delivery
+                                {% endif %}
+                            </span>
+                        </td>
                         <td>
                             <span class="rating-badge">
                                 <i class="fas fa-star"></i> {{ r.rating }}
@@ -253,6 +265,17 @@
     .no-promo {
         color: var(--gray);
         font-size: 13px;
+    }
+
+    .service-mode-badge {
+        display: inline-block;
+        padding: 4px 9px;
+        border-radius: 999px;
+        background: #eef2ff;
+        color: #3730a3;
+        font-size: 12px;
+        font-weight: 600;
+        white-space: nowrap;
     }
 
     .action-buttons {

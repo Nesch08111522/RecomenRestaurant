@@ -16,7 +16,7 @@
             {% endif %}
         {% endfor %}
         <div class="dish-schedule-labels" aria-label="Clasificación del plato">
-            <span>{{ dish.menu_date_label or 'Fecha sin asignar' }}</span>
+            <span>{% if dish.menu_date %}{{ dish.menu_date_label or dish.menu_date }}{% else %}Carta · todos los días{% endif %}</span>
             <span>{% if dish.category == 'Entrada' %}Entrada{% elif dish.category == 'Fondo' %}Plato de fondo{% elif dish.category == 'Postre' %}Postre{% elif dish.category == 'Bebida' %}Bebida{% else %}{{ dish.category or 'Tipo sin asignar' }}{% endif %}</span>
             <span>{{ meal_label.value }}</span>
         </div>
@@ -40,7 +40,7 @@
             </div>
         {% endif %}
     </div>
-    {% if not is_read_only %}
+    {% if not is_read_only or not dish.menu_date %}
         <div class="dish-actions">
             <button class="action-btn edit-btn" onclick="editDish({{ dish.id }})" title="Editar">
                 <i class="fas fa-edit"></i>
