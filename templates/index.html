@@ -1,7 +1,6 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<!-- Filtros dinámicos -->
 <div class="filter-section">
     <div class="filter-scroll">
         <button class="filter-chip active" data-filter="all">Todos</button>
@@ -12,7 +11,6 @@
 
         <div class="filter-divider"></div>
 
-        <!-- Chips de categorías -->
         {% for cat in categories %}
             <button class="filter-chip category-chip" data-category="{{ cat.id }}">
                 <i class="fas fa-{{ cat.icon }}"></i>
@@ -28,9 +26,7 @@
     </div>
 </div>
 
-<!-- Layout principal -->
 <div class="main-layout">
-    <!-- Columna izquierda: Resultados -->
     <div class="results-column" id="resultsColumn">
         <div class="results-header">
             <h2 id="resultsCount">{{ restaurants|length }} restaurantes encontrados</h2>
@@ -46,13 +42,11 @@
             {% endfor %}
         </div>
 
-        <!-- Carga infinita -->
         <div class="load-more-container" id="loadMoreContainer" style="display: none;">
             <button class="load-more-btn" id="loadMoreBtn">Ver más restaurantes</button>
         </div>
     </div>
 
-    <!-- Columna derecha: Mapa -->
     <div class="map-column">
         <div id="main-map" class="map-container"></div>
         <button class="location-btn" id="locationBtn">
@@ -60,15 +54,15 @@
             Usar mi ubicación
         </button>
 
-        <!-- Mini panel de control del mapa -->
         <div class="map-controls">
             <button class="map-control-btn" id="zoomInBtn" title="Acercar"><i class="fas fa-plus"></i></button>
             <button class="map-control-btn" id="zoomOutBtn" title="Alejar"><i class="fas fa-minus"></i></button>
+            <button class="map-control-btn" id="toggle3dBtn" title="Vista 3D"><i class="fas fa-cube"></i></button>
         </div>
     </div>
 </div>
 
-<!-- Modal de recomendación IA -->
+<!-- Recomendación Inteligente (versión simple: un cuadro de texto + un botón) -->
 <div class="modal" id="recommendationModal">
     <div class="modal-content">
         <div class="modal-header">
@@ -76,63 +70,43 @@
             <span class="close-modal">&times;</span>
         </div>
         <div class="modal-body">
-            <form id="recommendationForm">
+            <form id="aiRecForm">
                 <div class="form-group">
-                    <label>Ubicación actual</label>
-                    <input type="text" id="userLocation" placeholder="Ej: Trujillo, Centro" class="form-input" />
-                    <button type="button" id="detectLocationBtn" class="btn-small"><i class="fas fa-crosshairs"></i> Detectar</button>
+                    <label for="aiRecText">¿Qué se te antoja?</label>
+                    <textarea id="aiRecText" class="form-input" rows="3" maxlength="300" required
+                        placeholder="Ej: una cena romántica y económica para esta noche"></textarea>
                 </div>
+                <button type="submit" id="aiRecBtn" class="btn-primary btn-block">
+                    <i class="fas fa-magic"></i> Recomiéndame
+                </button>
+            </form>
 
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Presupuesto ({{ MONEDA }})</label>
-                        <input type="number" id="userBudget" placeholder="50" min="0" class="form-input" />
-                    </div>
-                    <div class="form-group">
-                        <label>Hora de visita</label>
-                        <input type="time" id="visitTime" class="form-input" />
-                    </div>
-                </div>
+            <div id="aiRecResult" style="margin-top:16px;"></div>
 
-                <div class="form-group">
-                    <label>Tipo de comida preferido</label>
-                    <select id="userFoodPreference" class="form-input">
+            <!-- Formulario anterior: oculto para no romper app.js.
+                 Cuando confirme que app.js no lo usa, puede borrar este div. -->
+            <div style="display:none">
+                <form id="recommendationForm">
+                    <input type="text" id="userLocation" name="location" />
+                    <button type="button" id="detectLocationBtn"></button>
+                    <input type="number" id="userBudget" name="budget" />
+                    <input type="time" id="visitTime" name="visit_time" />
+                    <select id="userFoodPreference" name="food_preference">
                         <option value="">Selecciona...</option>
                         {% for cat in categories %}
                             <option value="{{ cat.id }}">{{ cat.name }}</option>
                         {% endfor %}
                     </select>
-                </div>
-
-                <div class="form-group">
-                    <label>Restricciones alimenticias</label>
-                    <div class="checkbox-group">
-                        <label class="checkbox-label"><input type="checkbox" value="vegano" />Vegano</label>
-                        <label class="checkbox-label"><input type="checkbox" value="vegetariano" />Vegetariano</label>
-                        <label class="checkbox-label"><input type="checkbox" value="celiaco" />Celíaco</label>
-                        <label class="checkbox-label"><input type="checkbox" value="sin gluten" />Sin gluten</label>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Objetivo de la salida</label>
-                    <select id="outingGoal" class="form-input">
+                    <select id="outingGoal" name="goal">
                         <option value="almuerzo">Almuerzo</option>
-                        <option value="cena">Cena</option>
-                        <option value="romantica">Cena romántica</option>
-                        <option value="negocios">Reunión de negocios</option>
-                        <option value="familia">Familia</option>
-                        <option value="amigos">Amigos</option>
                     </select>
-                </div>
-
-                <button type="submit" class="btn-primary btn-block"><i class="fas fa-magic"></i> Obtener recomendaciones</button>
-            </form>
+                    <button type="submit"></button>
+                </form>
+            </div>
         </div>
     </div>
 </div>
 
-<!-- Panel de notificaciones -->
 <div class="notification-panel" id="notificationPanel" style="display: none;">
     <div class="notification-header">
         <h3>Notificaciones</h3>
@@ -142,20 +116,63 @@
         <div class="notification-empty">No hay notificaciones</div>
     </div>
 </div>
+
+<!-- Estilos mínimos del mapa nuevo (no tocan tamaños de tarjetas, filtros ni layout) -->
+<style>
+    .map-control-btn.active {
+        background: var(--primary);
+        color: #fff;
+    }
+
+    .maplibregl-popup-content {
+        padding: 12px 14px;
+        border-radius: 12px;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
+    }
+
+    .rm-popup {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        font-size: 13px;
+        line-height: 1.4;
+        color: #374151;
+    }
+
+    .rm-popup strong {
+        font-size: 14px;
+        color: #111827;
+    }
+
+    .rm-popup a {
+        margin-top: 4px;
+        color: var(--primary);
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .rm-user-dot {
+        width: 16px;
+        height: 16px;
+        border: 3px solid #fff;
+        border-radius: 50%;
+        background: #2563eb;
+        box-shadow: 0 0 0 6px rgba(37, 99, 235, 0.25);
+    }
+</style>
 {% endblock %}
 
 {% block scripts %}
 <script>
-    // ✅ Datos iniciales para el mapa y la búsqueda - Corregido
-    // Usar JSON.parse para asegurar que los datos se conviertan correctamente
+    // ✅ Datos iniciales para el mapa y la búsqueda
     const INITIAL_COORDS = {{ CENTER_COORDS | tojson | safe }};
     const RESTAURANTS_DATA = {{ restaurants | tojson | safe }};
     const CATEGORIES_DATA = {{ categories | tojson | safe }};
     const USER_PROFILE = {{ user_profile | tojson | safe }};
-    
+
     // ✅ Agregar MONEDA a las variables globales
     const MONEDA = '{{ MONEDA }}';
-    
+
     // Configuración de la aplicación
     const APP_CONFIG = {
         city: '{{ CIUDAD }}',
@@ -164,11 +181,516 @@
         secondaryColor: '{{ SECONDARY_COLOR }}',
         maxRadius: {{ RADIO_MAXIMO_KM }}
     };
-    
+
     // ✅ Para depuración - verificar que los datos se cargaron correctamente
     console.log('✅ INITIAL_COORDS:', INITIAL_COORDS);
     console.log('✅ RESTAURANTS_DATA:', RESTAURANTS_DATA.length, 'restaurantes');
     console.log('✅ CATEGORIES_DATA:', CATEGORIES_DATA.length, 'categorías');
     console.log('✅ MONEDA:', MONEDA);
+</script>
+
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" />
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script>
+(function () {
+    'use strict';
+
+    const STYLE_URL = 'https://tiles.openfreemap.org/styles/liberty';
+    const COLOR = (typeof APP_CONFIG !== 'undefined' && APP_CONFIG.primaryColor) || '#ff385c';
+    const DEFAULT_CENTER = [-79.03, -8.11]; // [lng, lat] Trujillo
+
+    const num = (v) => {
+        const n = parseFloat(v);
+        return Number.isFinite(n) ? n : null;
+    };
+
+    function toLngLat(r) {
+        if (!r) return null;
+        const lat = num(r.lat ?? r.latitude ?? r.latitud ?? r.coordinates?.lat ?? r.coords?.lat ?? r.location?.lat);
+        const lng = num(r.lng ?? r.lon ?? r.long ?? r.longitude ?? r.longitud ?? r.coordinates?.lng ?? r.coords?.lng ?? r.location?.lng);
+        if (lat !== null && lng !== null) return [lng, lat];
+
+        const arr = Array.isArray(r) ? r : (r.coordinates || r.coords || r.location);
+        if (Array.isArray(arr) && arr.length >= 2) {
+            const a = num(arr[0]);
+            const b = num(arr[1]);
+            if (a !== null && b !== null) {
+                // En Perú la latitud (≈ -8) tiene menor valor absoluto que la longitud (≈ -79)
+                return Math.abs(a) < Math.abs(b) ? [b, a] : [a, b];
+            }
+        }
+        return null;
+    }
+
+    function toFeature(r) {
+        const ll = toLngLat(r);
+        if (!ll) return null;
+        return {
+            type: 'Feature',
+            geometry: { type: 'Point', coordinates: ll },
+            properties: {
+                id: String(r.id),
+                name: r.name || 'Restaurante',
+                rating: num(r.rating ?? r.avg_rating ?? r.rating_avg),
+                price: num(r.price ?? r.avg_price ?? r.price_avg ?? r.precio),
+                district: r.district || r.distrito || ''
+            }
+        };
+    }
+
+    function cardLink(card) {
+        return card.matches('a[href]') ? card : card.querySelector('a[href]');
+    }
+
+    function cardId(card) {
+        const d = card.dataset;
+        const direct = d.id ?? d.restaurantId ?? d.restaurant ?? d.rid;
+        if (direct) return String(direct);
+        const a = cardLink(card);
+        const m = a && a.getAttribute('href').match(/(\d+)(?!.*\d)/);
+        return m ? m[1] : null;
+    }
+
+    function init() {
+        if (typeof maplibregl === 'undefined' || typeof RESTAURANTS_DATA === 'undefined') return;
+
+        const probe = document.createElement('canvas');
+        if (!(probe.getContext('webgl2') || probe.getContext('webgl'))) {
+            console.warn('WebGL no disponible: se mantiene el mapa anterior.');
+            return;
+        }
+
+        const oldMap = document.getElementById('main-map');
+        if (!oldMap) return;
+
+        const container = oldMap.cloneNode(false);
+        container.className = 'map-container';
+        container.removeAttribute('style');
+        oldMap.replaceWith(container);
+        ['zoomInBtn', 'zoomOutBtn', 'locationBtn'].forEach((id) => {
+            const b = document.getElementById(id);
+            if (b) b.replaceWith(b.cloneNode(true));
+        });
+
+        const all = RESTAURANTS_DATA.map(toFeature).filter(Boolean);
+        const centerLL = toLngLat(Array.isArray(INITIAL_COORDS) ? { coords: INITIAL_COORDS } : INITIAL_COORDS) || DEFAULT_CENTER;
+
+        const map = new maplibregl.Map({
+            container,
+            style: STYLE_URL,
+            center: centerLL,
+            zoom: 12,
+            minZoom: 8,
+            maxPitch: 70,
+            attributionControl: { compact: true }
+        });
+        map.getCanvas().setAttribute('aria-label', 'Mapa de restaurantes');
+
+        const popup = new maplibregl.Popup({ closeButton: false, offset: 14, maxWidth: '240px' });
+        const grid = document.getElementById('resultsGrid');
+        const links = new Map();
+        let lastKey = '';
+        let userMarker = null;
+        let is3d = false;
+
+        function indexCards() {
+            if (!grid) return;
+            for (const card of grid.children) {
+                const id = cardId(card);
+                const a = cardLink(card);
+                if (id && a) links.set(id, a.getAttribute('href'));
+            }
+        }
+
+        function readVisibleIds() {
+            if (!grid) return null;
+            const ids = new Set();
+            let known = 0;
+            for (const card of grid.children) {
+                const id = cardId(card);
+                if (!id) continue;
+                known++;
+                if (card.offsetParent !== null && !card.hidden) ids.add(id);
+            }
+            return known ? ids : null;
+        }
+
+        function fitTo(features) {
+            if (!features.length) return;
+            if (features.length === 1) {
+                map.easeTo({ center: features[0].geometry.coordinates, zoom: 15, duration: 600 });
+                return;
+            }
+            const b = new maplibregl.LngLatBounds();
+            features.forEach((f) => b.extend(f.geometry.coordinates));
+            map.fitBounds(b, { padding: 70, maxZoom: 15, duration: 600 });
+        }
+
+        function pushData(ids, fit) {
+            const src = map.getSource('restaurants');
+            if (!src) return;
+            const feats = ids ? all.filter((f) => ids.has(f.properties.id)) : all;
+            const key = feats.map((f) => f.properties.id).join(',');
+            if (key === lastKey) return;
+            lastKey = key;
+            src.setData({ type: 'FeatureCollection', features: feats });
+            if (fit) fitTo(feats);
+        }
+
+        function setActive(id) {
+            if (map.getLayer('rm-halo')) map.setFilter('rm-halo', ['==', ['get', 'id'], id ? String(id) : '']);
+        }
+
+        function popupNode(p) {
+            const wrap = document.createElement('div');
+            wrap.className = 'rm-popup';
+
+            const title = document.createElement('strong');
+            title.textContent = p.name;
+            wrap.appendChild(title);
+
+            const meta = [];
+            if (p.rating != null) meta.push('★ ' + Number(p.rating).toFixed(1));
+            if (p.district) meta.push(p.district);
+            if (meta.length) {
+                const m = document.createElement('span');
+                m.textContent = meta.join(' · ');
+                wrap.appendChild(m);
+            }
+
+            if (p.price != null) {
+                const pr = document.createElement('span');
+                pr.textContent = (typeof MONEDA !== 'undefined' ? MONEDA : 'S/.') + p.price + ' por persona';
+                wrap.appendChild(pr);
+            }
+
+            const a = document.createElement('a');
+            a.href = links.get(String(p.id)) || '/restaurant/' + p.id;
+            a.textContent = 'Ver detalles';
+            wrap.appendChild(a);
+            return wrap;
+        }
+
+        function openPopup(feature) {
+            const p = feature.properties;
+            popup.setLngLat(feature.geometry.coordinates.slice()).setDOMContent(popupNode(p)).addTo(map);
+            setActive(p.id);
+
+            // Lleva la tarjeta correspondiente a la vista y la resalta un momento
+            if (grid) {
+                for (const card of grid.children) {
+                    if (cardId(card) === String(p.id)) {
+                        card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                        card.animate(
+                            [{ boxShadow: '0 0 0 3px ' + COLOR }, { boxShadow: '0 0 0 0 transparent' }],
+                            { duration: 1400 }
+                        );
+                        break;
+                    }
+                }
+            }
+        }
+
+        map.on('load', () => {
+            map.addSource('restaurants', {
+                type: 'geojson',
+                data: { type: 'FeatureCollection', features: [] },
+                cluster: true,
+                clusterMaxZoom: 15,
+                clusterRadius: 48
+            });
+
+            map.addLayer({
+                id: 'rm-clusters',
+                type: 'circle',
+                source: 'restaurants',
+                filter: ['has', 'point_count'],
+                paint: {
+                    'circle-color': COLOR,
+                    'circle-opacity': 0.9,
+                    'circle-radius': ['step', ['get', 'point_count'], 16, 10, 20, 30, 26],
+                    'circle-stroke-width': 3,
+                    'circle-stroke-color': '#ffffff'
+                }
+            });
+
+            map.addLayer({
+                id: 'rm-cluster-count',
+                type: 'symbol',
+                source: 'restaurants',
+                filter: ['has', 'point_count'],
+                layout: {
+                    'text-field': ['get', 'point_count_abbreviated'],
+                    'text-font': ['Noto Sans Bold'],
+                    'text-size': 13
+                },
+                paint: { 'text-color': '#ffffff' }
+            });
+
+            map.addLayer({
+                id: 'rm-halo',
+                type: 'circle',
+                source: 'restaurants',
+                filter: ['==', ['get', 'id'], ''],
+                paint: { 'circle-color': COLOR, 'circle-opacity': 0.3, 'circle-radius': 18 }
+            });
+
+            map.addLayer({
+                id: 'rm-points',
+                type: 'circle',
+                source: 'restaurants',
+                filter: ['!', ['has', 'point_count']],
+                paint: {
+                    'circle-color': COLOR,
+                    'circle-radius': ['interpolate', ['linear'], ['zoom'], 10, 6, 16, 11],
+                    'circle-stroke-width': 2.5,
+                    'circle-stroke-color': '#ffffff'
+                }
+            });
+
+            map.addLayer({
+                id: 'rm-point-labels',
+                type: 'symbol',
+                source: 'restaurants',
+                minzoom: 14.5,
+                filter: ['!', ['has', 'point_count']],
+                layout: {
+                    'text-field': ['get', 'name'],
+                    'text-font': ['Noto Sans Regular'],
+                    'text-size': 12,
+                    'text-offset': [0, 1.4],
+                    'text-anchor': 'top',
+                    'text-optional': true
+                },
+                paint: {
+                    'text-color': '#1f2937',
+                    'text-halo-color': '#ffffff',
+                    'text-halo-width': 1.5
+                }
+            });
+
+            // Edificios en 3D (si el estilo no los trae)
+            if (!map.getLayer('building-3d') && map.getSource('openmaptiles')) {
+                map.addLayer({
+                    id: 'rm-buildings-3d',
+                    type: 'fill-extrusion',
+                    source: 'openmaptiles',
+                    'source-layer': 'building',
+                    minzoom: 14,
+                    paint: {
+                        'fill-extrusion-color': '#e5e7eb',
+                        'fill-extrusion-height': ['coalesce', ['get', 'render_height'], 8],
+                        'fill-extrusion-base': ['coalesce', ['get', 'render_min_height'], 0],
+                        'fill-extrusion-opacity': 0.8
+                    }
+                }, 'rm-clusters');
+            }
+
+            // Interacción
+            map.on('click', 'rm-clusters', (e) => {
+                const f = e.features[0];
+                map.getSource('restaurants')
+                    .getClusterExpansionZoom(f.properties.cluster_id)
+                    .then((z) => map.easeTo({ center: f.geometry.coordinates, zoom: z + 0.5 }));
+            });
+
+            map.on('click', 'rm-points', (e) => openPopup(e.features[0]));
+
+            map.on('click', (e) => {
+                const hit = map.queryRenderedFeatures(e.point, { layers: ['rm-points', 'rm-clusters'] });
+                if (!hit.length) {
+                    popup.remove();
+                    setActive(null);
+                }
+            });
+
+            ['rm-clusters', 'rm-points'].forEach((layer) => {
+                map.on('mouseenter', layer, () => { map.getCanvas().style.cursor = 'pointer'; });
+                map.on('mouseleave', layer, () => { map.getCanvas().style.cursor = ''; });
+            });
+
+            map.on('mouseenter', 'rm-points', (e) => setActive(e.features[0].properties.id));
+            map.on('mouseleave', 'rm-points', () => { if (!popup.isOpen()) setActive(null); });
+
+            // Primera carga y sincronización con los filtros / tarjetas
+            indexCards();
+            pushData(readVisibleIds(), true);
+            map.resize();
+        });
+
+        // Tarjeta -> mapa: resalta el punto al pasar el mouse
+        if (grid) {
+            grid.addEventListener('mouseover', (e) => {
+                const card = e.target.closest('#resultsGrid > *');
+                if (card) setActive(cardId(card));
+            });
+            grid.addEventListener('mouseleave', () => { if (!popup.isOpen()) setActive(null); });
+
+            // Mapa <- filtros: cuando cambian las tarjetas visibles, se actualiza el mapa
+            let timer = null;
+            const schedule = () => {
+                clearTimeout(timer);
+                timer = setTimeout(() => {
+                    indexCards();
+                    pushData(readVisibleIds(), true);
+                }, 80);
+            };
+            new MutationObserver((muts) => {
+                if (muts.some((m) => m.target === grid || m.target.parentNode === grid)) schedule();
+            }).observe(grid, {
+                childList: true,
+                attributes: true,
+                attributeFilter: ['style', 'class', 'hidden'],
+                subtree: true
+            });
+        }
+
+        // Botones existentes
+        const byId = (id) => document.getElementById(id);
+        byId('zoomInBtn')?.addEventListener('click', () => map.zoomIn());
+        byId('zoomOutBtn')?.addEventListener('click', () => map.zoomOut());
+
+        byId('toggle3dBtn')?.addEventListener('click', (e) => {
+            is3d = !is3d;
+            e.currentTarget.classList.toggle('active', is3d);
+            map.easeTo({
+                pitch: is3d ? 60 : 0,
+                bearing: is3d ? -20 : 0,
+                zoom: is3d ? Math.max(map.getZoom(), 15) : map.getZoom(),
+                duration: 800
+            });
+        });
+
+        function locate() {
+            if (!navigator.geolocation) {
+                alert('Tu navegador no permite obtener la ubicación.');
+                return;
+            }
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    const ll = [pos.coords.longitude, pos.coords.latitude];
+                    if (!userMarker) {
+                        const dot = document.createElement('div');
+                        dot.className = 'rm-user-dot';
+                        userMarker = new maplibregl.Marker({ element: dot });
+                    }
+                    userMarker.setLngLat(ll).addTo(map);
+                    map.flyTo({ center: ll, zoom: 15 });
+                    api.userLocation = { lat: ll[1], lng: ll[0] };
+                    document.dispatchEvent(new CustomEvent('map:user-location', { detail: api.userLocation }));
+                },
+                () => alert('No pudimos obtener tu ubicación. Revisa los permisos del navegador.'),
+                { enableHighAccuracy: true, timeout: 8000 }
+            );
+        }
+        byId('locationBtn')?.addEventListener('click', locate);
+
+        // API pública por si quieres llamarla desde tu JS de filtros
+        const api = {
+            map,
+            userLocation: null,
+            setVisible: (ids) => pushData(ids ? new Set(ids.map(String)) : null, true),
+            highlight: setActive,
+            flyToRestaurant: (id) => {
+                const f = all.find((x) => x.properties.id === String(id));
+                if (f) { map.flyTo({ center: f.geometry.coordinates, zoom: 16 }); openPopup(f); }
+            }
+        };
+        window.mapGL = api;
+    }
+
+    window.addEventListener('load', init);
+})();
+</script>
+
+<!-- Asistente de IA (Qwen): búsqueda inteligente + chat -->
+<script src="{{ url_for('static', filename='js/ai-assistant.js') }}"></script>
+
+<!-- Recomendación Inteligente simple: un texto -> la IA responde con hasta 3 restaurantes -->
+<script>
+(function () {
+    'use strict';
+
+    const form = document.getElementById('aiRecForm');
+    if (!form) return;
+
+    const input = document.getElementById('aiRecText');
+    const btn = document.getElementById('aiRecBtn');
+    const out = document.getElementById('aiRecResult');
+    const idleHTML = btn.innerHTML;
+
+    function node(tag, text, style) {
+        const n = document.createElement(tag);
+        if (text != null) n.textContent = text;
+        if (style) n.style.cssText = style;
+        return n;
+    }
+
+    function appRestaurants() {
+        return (window.app && window.app.state && window.app.state.restaurants) || [];
+    }
+
+    function compactRestaurants() {
+        return appRestaurants().slice(0, 40).map(r => ({
+            id: r.id, name: r.name, district: r.district, avg_price: r.avg_price,
+            rating: r.rating, tags: r.tags, category_id: r.category_id,
+            promo: r.promo, distance_km: r.distance_km
+        }));
+    }
+
+    function showResult(reply, ids) {
+        out.textContent = '';
+        out.appendChild(node('p', reply, 'margin:0 0 12px;line-height:1.5;color:#374151;'));
+
+        const all = appRestaurants();
+        (ids || []).forEach(id => {
+            const r = all.find(x => String(x.id) === String(id));
+            if (!r) return;
+            const a = node('a', null,
+                'display:block;margin-bottom:8px;padding:10px 12px;border:1px solid #eceff3;' +
+                'border-left:3px solid var(--primary,#ff385c);border-radius:10px;' +
+                'text-decoration:none;color:#374151;font-size:13px;');
+            a.href = '/restaurant/' + encodeURIComponent(r.id);
+            a.appendChild(node('strong', r.name, 'display:block;color:#111827;font-size:14px;'));
+            a.appendChild(node('span',
+                (typeof MONEDA !== 'undefined' ? MONEDA : 'S/.') + r.avg_price +
+                ' · ★ ' + r.rating + (r.district ? ' · ' + r.district : '')));
+            out.appendChild(a);
+        });
+    }
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const text = input.value.trim();
+        if (!text) return;
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Pensando...';
+        out.textContent = '';
+
+        try {
+            const res = await fetch('/api/ai/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    messages: [{ role: 'user', content: text }],
+                    restaurants: compactRestaurants()
+                })
+            });
+            let data = {};
+            try { data = await res.json(); } catch (_) {}
+            if (!res.ok || !data.success) {
+                throw new Error(data.error || 'La IA no está disponible ahora. Intenta de nuevo.');
+            }
+            showResult(data.reply, data.restaurant_ids);
+        } catch (err) {
+            out.textContent = '';
+            out.appendChild(node('p', err.message, 'margin:0;color:#b91c1c;'));
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = idleHTML;
+        }
+    });
+})();
 </script>
 {% endblock %}
