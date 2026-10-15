@@ -16,12 +16,14 @@
                         <button class="fav-btn active" onclick="toggleFavorite({{ r.id }}, event)" title="Quitar de favoritos">
                             <i class="fas fa-heart"></i>
                         </button>
-                        {% if r.promo %}
-                            <div class="promo-badge"><i class="fas fa-tag"></i> Promoción</div>
-                        {% endif %}
-                        {% if r.rating >= 4.5 %}
-                            <div class="top-rated-badge"><i class="fas fa-star"></i> Top</div>
-                        {% endif %}
+                        <div class="badges">
+                            {% if r.promo %}
+                                <div class="promo-badge"><i class="fas fa-tag"></i> Promoción</div>
+                            {% endif %}
+                            {% if r.rating >= 4.5 %}
+                                <div class="top-rated-badge"><i class="fas fa-star"></i> Top</div>
+                            {% endif %}
+                        </div>
                     </div>
                     <div class="card-content">
                         <div class="card-header">
@@ -184,41 +186,53 @@
         transform: scale(1.05);
     }
     
-    .promo-badge {
+    /* Contenedor de insignias: una al lado de la otra, sin taparse */
+    .badges {
         position: absolute;
         top: 12px;
         left: 12px;
-        background: var(--primary);
-        color: var(--white);
-        padding: 4px 12px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        max-width: calc(100% - 64px); /* deja espacio para el botón de corazón */
+        z-index: 2;
+    }
+    
+    .badges .promo-badge,
+    .badges .top-rated-badge {
+        position: static !important;
+        top: auto !important;
+        left: auto !important;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 10px;
         border-radius: var(--radius-sm);
         font-size: 12px;
         font-weight: 600;
-        z-index: 2;
+        line-height: 1.2;
+        white-space: nowrap;
+    }
+    
+    .promo-badge {
+        background: var(--primary);
+        color: var(--white);
     }
     
     .top-rated-badge {
-        position: absolute;
-        top: 12px;
-        left: 12px;
         background: #FFB800;
         color: var(--dark);
-        padding: 4px 12px;
-        border-radius: var(--radius-sm);
-        font-size: 12px;
-        font-weight: 600;
-        z-index: 2;
     }
     
     .card-content {
-        padding: 16px;
+        padding: 18px 16px 20px;
     }
     
     .card-header {
         display: flex;
         justify-content: space-between;
         align-items: flex-start;
-        margin-bottom: 8px;
+        margin-bottom: 10px;
     }
     
     .card-header h3 {
@@ -249,7 +263,7 @@
         gap: 6px;
         font-size: 14px;
         color: var(--gray);
-        margin-bottom: 8px;
+        margin-bottom: 12px;
     }
     
     .card-location .dot {
@@ -264,7 +278,7 @@
         display: flex;
         align-items: baseline;
         gap: 6px;
-        margin-bottom: 12px;
+        margin-bottom: 14px;
     }
     
     .card-price .price {
@@ -281,12 +295,12 @@
     .card-tags {
         display: flex;
         flex-wrap: wrap;
-        gap: 6px;
-        margin-bottom: 12px;
+        gap: 8px;
+        margin-bottom: 16px;
     }
     
     .card-tags .tag {
-        padding: 2px 10px;
+        padding: 4px 12px;
         background: var(--light-gray);
         border-radius: 12px;
         font-size: 12px;
@@ -311,7 +325,6 @@
 </style>
 
 <script>
-// Función para eliminar de favoritos desde la página de favoritos
 function removeFromFavorites(restaurantId, event) {
     if (event) event.stopPropagation();
     
@@ -338,7 +351,6 @@ function removeFromFavorites(restaurantId, event) {
     }
 }
 
-// Sobrescribir toggleFavorite en la página de favoritos para confirmar
 document.addEventListener('DOMContentLoaded', function() {
     const originalToggle = window.toggleFavorite;
     if (window.location.pathname === '/auth/favorites') {

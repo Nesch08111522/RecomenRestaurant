@@ -4,7 +4,6 @@
 
 <header class="main-header">
   <div class="header-container">
-    <!-- Logo -->
     <div class="header-left">
       <a href="{{ url_for('main.index') }}" class="logo">
         <i class="fas fa-utensils"></i>
@@ -12,14 +11,13 @@
       </a>
     </div>
 
-    <!-- Barra de búsqueda (el div queda siempre para no mover el logo ni el menú) -->
     <div class="header-center">
       {% if show_search %}
       <form id="search-form" class="search-bar" action="{{ url_for('main.index') }}" method="get">
         <div class="search-group">
           <i class="fas fa-map-marker-alt"></i>
-          <select name="district" id="district-select" class="search-input">
-            <option value="">Todos los distritos</option>
+          <select name="district" id="district-select" class="search-input" aria-label="Distrito">
+            <option value="">Distrito</option>
             <option value="Centro Histórico">Centro Histórico</option>
             <option value="Huanchaco">Huanchaco</option>
             <option value="Victor Larco">Victor Larco</option>
@@ -29,7 +27,7 @@
 
         <div class="search-group">
           <i class="fas fa-utensils"></i>
-          <select name="category" id="category-select" class="search-input">
+          <select name="category" id="category-select" class="search-input" aria-label="Tipo de comida">
             <option value="">Tipo de comida</option>
             {% for cat in categories %}
               <option value="{{ cat.id }}">{{ cat.name }}</option>
@@ -39,22 +37,21 @@
 
         <div class="search-group">
           <i class="fas fa-search"></i>
-          <input type="text" name="q" placeholder="Buscar restaurante..." class="search-input" />
+          <input type="text" name="q" placeholder="Restaurante" class="search-input" aria-label="Buscar restaurante" />
         </div>
 
         <div class="search-group">
           <i class="fas fa-money-bill-wave"></i>
-          <input type="number" name="max_price" placeholder="Presupuesto máx." min="0" step="5" class="search-input" />
+          <input type="number" name="max_price" placeholder="Presupuesto" min="0" step="5" class="search-input" aria-label="Presupuesto máximo" />
         </div>
 
-        <button type="submit" class="search-btn"><i class="fas fa-search"></i></button>
+        <button type="submit" class="search-btn" aria-label="Buscar"><i class="fas fa-search"></i></button>
       </form>
       {% endif %}
     </div>
 
-    <!-- Menú de usuario -->
     <div class="header-right">
-      <button class="icon-btn notifications-btn" id="notificationsBtn" title="Notificaciones" onclick="toggleNotifications()">
+      <button class="icon-btn notifications-btn" id="notificationsBtn" title="Notificaciones" aria-label="Notificaciones" onclick="toggleNotifications()">
         <i class="fas fa-bell"></i>
         <span class="badge" id="notificationBadge">0</span>
       </button>
@@ -67,18 +64,17 @@
             <i class="fas fa-chevron-down"></i>
           </button>
           <div class="dropdown-menu" id="userDropdown">
-            <!-- Opciones generales -->
             <a href="{{ url_for('auth.profile') }}"><i class="fas fa-user"></i> Mi perfil</a>
             <a href="{{ url_for('auth.favorites') }}"><i class="fas fa-heart"></i> Favoritos</a>
             <a href="#" id="recommendationBtn" onclick="openRecommendationModal()"><i class="fas fa-robot"></i> Recomendación IA</a>
-            
-            <!-- Panel Admin -->
+
             {% if session.user.role == 'admin' %}
               <hr />
               <div class="dropdown-submenu">
-                <div class="dropdown-submenu-title">
-                  <i class="fas fa-tachometer-alt"></i> Administración
-                  <i class="fas fa-chevron-right" style="margin-left: auto; font-size: 12px;"></i>
+                <div class="dropdown-submenu-title" tabindex="0" role="button" aria-haspopup="true">
+                  <i class="fas fa-tachometer-alt"></i>
+                  <span>Administración</span>
+                  <i class="fas fa-chevron-right submenu-arrow"></i>
                 </div>
                 <div class="dropdown-submenu-items">
                   <a href="{{ url_for('admin.dashboard') }}"><i class="fas fa-chart-pie"></i> Dashboard</a>
@@ -89,8 +85,7 @@
                   <a href="{{ url_for('admin.moderation_dashboard') }}"><i class="fas fa-shield-alt"></i> Moderación</a>
                 </div>
               </div>
-            
-            <!-- Panel Empresario -->
+
             {% elif session.user.role == 'business_owner' %}
               <hr />
               <a href="{{ url_for('admin.dashboard') }}"><i class="fas fa-store"></i> Mis Restaurantes</a>
@@ -99,7 +94,7 @@
                 <i class="fas fa-utensils"></i> Gestionar Menú
               </a>
             {% endif %}
-            
+
             <hr />
             <a href="{{ url_for('auth.logout') }}"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</a>
           </div>
@@ -112,15 +107,14 @@
   </div>
 </header>
 
-<!-- Panel de notificaciones -->
 <div class="notification-panel" id="notificationPanel" style="display: none;">
   <div class="notification-header">
     <h3>Notificaciones</h3>
     <div class="actions">
-      <button onclick="markAllNotificationsRead()" title="Marcar todas como leídas">
+      <button onclick="markAllNotificationsRead()" title="Marcar todas como leídas" aria-label="Marcar todas como leídas">
         <i class="fas fa-check-double"></i>
       </button>
-      <button class="close-notifications" onclick="toggleNotifications()">
+      <button class="close-notifications" onclick="toggleNotifications()" aria-label="Cerrar notificaciones">
         <i class="fas fa-times"></i>
       </button>
     </div>
@@ -134,75 +128,346 @@
 </div>
 
 <style>
-  /* Submenú en el dropdown */
+  /* ---------- Submenú dentro del dropdown de usuario ---------- */
   .dropdown-submenu {
     position: relative;
   }
-  
+
   .dropdown-submenu-title {
     display: flex;
     align-items: center;
     gap: 12px;
     padding: 10px 20px;
     color: var(--dark);
-    transition: var(--transition);
-    cursor: pointer;
     font-size: 14px;
     font-weight: 500;
+    line-height: 1.4;
+    cursor: pointer;
+    transition: var(--transition);
   }
-  
-  .dropdown-submenu-title:hover {
+
+  .dropdown-submenu-title i:first-child {
+    width: 16px;
+    text-align: center;
+  }
+
+  .dropdown-submenu-title:hover,
+  .dropdown-submenu:focus-within .dropdown-submenu-title {
     background: var(--light-gray);
   }
-  
+
+  .dropdown-submenu-title:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: -2px;
+  }
+
+  .submenu-arrow {
+    margin-left: auto;
+    font-size: 12px;
+    transition: transform 0.3s ease;
+  }
+
+  .dropdown-submenu:hover .submenu-arrow,
+  .dropdown-submenu:focus-within .submenu-arrow {
+    transform: rotate(90deg);
+  }
+
+  /* Los ítems quedan indentados y con una guía lateral para mostrar jerarquía */
   .dropdown-submenu-items {
     display: none;
-    background: var(--white);
-    border-radius: var(--radius-sm);
+    margin: 2px 12px 6px 28px;
     padding: 4px 0;
-    margin: 4px 0;
+    border-left: 2px solid var(--light-gray);
+    background: var(--white);
   }
-  
+
+  .dropdown-submenu:hover .dropdown-submenu-items,
+  .dropdown-submenu:focus-within .dropdown-submenu-items {
+    display: block;
+  }
+
   .dropdown-submenu-items a {
-    padding-left: 36px !important;
-    font-size: 13px !important;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 14px !important;
+    border-radius: var(--radius-sm);
     color: var(--gray) !important;
+    font-size: 13px !important;
+    line-height: 1.4;
   }
-  
+
   .dropdown-submenu-items a i {
+    width: 16px;
+    text-align: center;
     font-size: 14px;
   }
-  
+
   .dropdown-submenu-items a:hover {
     background: var(--light-gray) !important;
     color: var(--dark) !important;
   }
-  
-  .dropdown-submenu:hover .dropdown-submenu-items {
-    display: block;
+
+  @media (prefers-reduced-motion: reduce) {
+    .submenu-arrow {
+      transition: none;
+    }
   }
-  
-  .dropdown-submenu:hover .dropdown-submenu-title {
-    background: var(--light-gray);
-  }
-  
-  .dropdown-submenu:hover .fa-chevron-right {
-    transform: rotate(90deg);
-  }
-  
-  .fa-chevron-right {
-    transition: transform 0.3s ease;
-  }
-  
-  /* Responsive */
+
+  /* ---------- Responsive ---------- */
   @media (max-width: 768px) {
     .dropdown-submenu-items {
       position: static;
       box-shadow: none;
+      margin: 2px 12px 6px 24px;
     }
-    
-    .dropdown-submenu-items a {
-      padding-left: 48px !important;
+  }
+
+  /* ---------- Barra de búsqueda del header ---------- */
+  .main-header .header-center {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    justify-content: center;
+    padding: 0 24px;
+  }
+
+  .main-header .header-center .search-bar {
+    display: grid;
+    grid-template-columns:
+      minmax(0, 1fr)      /* distrito */
+      minmax(0, 1.15fr)   /* tipo de comida */
+      minmax(0, 1.3fr)    /* restaurante */
+      minmax(0, 1fr)      /* presupuesto */
+      auto;               /* botón */
+    align-items: center;
+    width: 100%;
+    max-width: 860px;
+    gap: 0;
+    padding: 6px;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 999px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    transition: box-shadow 0.2s ease;
+  }
+
+  .main-header .header-center .search-bar:focus-within {
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.12);
+  }
+
+  /* ---------- Campos: icono + valor con aire real entre ambos ---------- */
+  .main-header .header-center .search-bar .search-group {
+    position: relative;
+    display: flex !important;
+    align-items: center;
+    gap: 12px !important;
+    min-width: 0;
+    height: 44px;
+    margin: 0 !important;
+    padding: 0 22px !important;
+    border: 0 !important;
+    border-radius: 999px !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    transition: background-color 0.15s ease;
+  }
+
+  /* El primer campo se separa más del borde curvo de la píldora */
+  .main-header .header-center .search-bar .search-group:first-child {
+    padding-left: 26px !important;
+  }
+
+  .main-header .header-center .search-bar .search-group:hover,
+  .main-header .header-center .search-bar .search-group:focus-within {
+    background: #f7f7f7 !important;
+  }
+
+  /* Divisor vertical entre campos */
+  .main-header .header-center .search-bar .search-group + .search-group::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 26%;
+    bottom: 26%;
+    width: 1px;
+    background: #e5e7eb;
+  }
+
+  /* El divisor se oculta junto al campo activo */
+  .main-header .header-center .search-bar .search-group:hover::before,
+  .main-header .header-center .search-bar .search-group:focus-within::before,
+  .main-header .header-center .search-bar .search-group:hover + .search-group::before,
+  .main-header .header-center .search-bar .search-group:focus-within + .search-group::before {
+    opacity: 0;
+  }
+
+  .main-header .header-center .search-bar .search-group > i {
+    flex-shrink: 0;
+    width: 18px;
+    margin: 0 !important;
+    text-align: center;
+    font-size: 15px;
+    color: var(--gray, #6b7280);
+    transition: color 0.15s ease;
+  }
+
+  .main-header .header-center .search-bar .search-group:focus-within > i {
+    color: var(--primary);
+  }
+
+  /* ---------- Inputs y selects ---------- */
+  .main-header .header-center .search-bar .search-input {
+    flex: 1;
+    width: 100%;
+    min-width: 0;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+    color: var(--dark, #1f2937);
+    font: inherit;
+    font-size: 14px;
+    line-height: 1.2;
+    text-overflow: ellipsis;
+    outline: none;
+  }
+
+  .main-header .header-center .search-bar .search-input::placeholder {
+    color: #9ca3af;
+    opacity: 1;
+  }
+
+  .main-header .header-center .search-bar select.search-input {
+    appearance: none;
+    -webkit-appearance: none;
+    padding-right: 20px !important;
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%236b7280' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right center;
+    background-size: 10px 6px;
+  }
+
+  /* Quita las flechitas del campo numérico */
+  .main-header .header-center .search-bar input[type="number"].search-input {
+    appearance: textfield;
+    -moz-appearance: textfield;
+  }
+  .main-header .header-center .search-bar input[type="number"].search-input::-webkit-outer-spin-button,
+  .main-header .header-center .search-bar input[type="number"].search-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  /* ---------- Botón ---------- */
+  .main-header .header-center .search-bar .search-btn {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    margin: 0 0 0 6px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: var(--primary);
+    color: #fff;
+    font-size: 15px;
+    cursor: pointer;
+    transition: filter 0.15s ease;
+  }
+
+  .main-header .header-center .search-bar .search-btn:hover {
+    filter: brightness(0.95);
+  }
+
+  .main-header .header-center .search-bar .search-btn:focus-visible {
+    outline: 3px solid #2563eb;
+    outline-offset: 2px;
+  }
+
+  /* ---------- Pantallas medianas: sin iconos para ganar espacio ---------- */
+  @media (max-width: 1100px) {
+    .main-header .header-center .search-bar .search-group {
+      padding: 0 16px !important;
+    }
+    .main-header .header-center .search-bar .search-group:first-child {
+      padding-left: 22px !important;
+    }
+    .main-header .header-center .search-bar .search-group > i {
+      display: none;
+    }
+  }
+
+  /* ---------- Móvil / tablet: cuadrícula 2x2 ---------- */
+  @media (max-width: 768px) {
+    .main-header .header-center {
+      padding: 0;
+    }
+
+    .main-header .header-center .search-bar {
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
+      padding: 8px;
+      border-radius: 20px;
+    }
+
+    .main-header .header-center .search-bar .search-group,
+    .main-header .header-center .search-bar .search-group:first-child {
+      padding: 0 14px !important;
+      border-radius: 12px !important;
+      background: #f7f7f7 !important;
+    }
+
+    .main-header .header-center .search-bar .search-group + .search-group::before {
+      display: none;
+    }
+
+    .main-header .header-center .search-bar .search-btn {
+      grid-column: 1 / -1;
+      width: 100%;
+      margin: 4px 0 0;
+      border-radius: 12px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .main-header .header-center .search-bar,
+    .main-header .header-center .search-bar .search-group,
+    .main-header .header-center .search-bar .search-btn {
+      transition: none;
+    }
+  }
+
+  /* ---------- Botones de sesión (Iniciar sesión / Registrarse) ---------- */
+  .main-header .header-right {
+    gap: 8px;
+  }
+
+  .main-header .header-right .btn-outline,
+  .main-header .header-right .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 38px;
+    padding: 0 16px !important;
+    border-radius: 999px !important;
+    font-size: 14px !important;
+    font-weight: 600;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  @media (max-width: 768px) {
+    .main-header .header-right .btn-outline,
+    .main-header .header-right .btn-primary {
+      height: 34px;
+      padding: 0 12px !important;
+      font-size: 13px !important;
     }
   }
 </style>
