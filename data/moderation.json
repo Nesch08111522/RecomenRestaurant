@@ -2097,7 +2097,7 @@
             "notes": [],
             "human_review_required": false
         },
-        "decision_source": "AI_PRECHECK",
+        "decision_source": "ADMIN_REVIEW",
         "flagged": false,
         "flags": [],
         "reversible": true,
@@ -2109,14 +2109,22 @@
                 "source": "AI_PRECHECK",
                 "notes": "Preevaluación automática; no sustituye la revisión administrativa.",
                 "timestamp": "2026-10-14T20:35:47.544966+00:00"
+            },
+            {
+                "from": "APROBADO_AUTOMATICAMENTE",
+                "to": "APROBADO_AUTOMATICAMENTE",
+                "actor_user_id": 1,
+                "source": "ADMIN_REVIEW",
+                "notes": "Bien",
+                "timestamp": "2026-10-15T18:49:12.521442+00:00"
             }
         ],
         "created_at": "2026-08-18T21:34:00.013817+00:00",
-        "updated_at": "2026-10-14T05:40:36.832354+00:00",
+        "updated_at": "2026-10-15T18:49:12.521442+00:00",
         "id": 15,
-        "admin_notes": "Aprobado",
+        "admin_notes": "Bien",
         "human_decision_by": 1,
-        "human_decision_at": "2026-08-18T21:34:00.041842+00:00"
+        "human_decision_at": "2026-10-15T18:49:12.521442+00:00"
     },
     {
         "content_type": "restaurant",
@@ -2944,5 +2952,361 @@
         "created_at": "2026-10-14T05:40:34.560149+00:00",
         "updated_at": "2026-10-14T05:40:37.560621+00:00",
         "id": 24
+    },
+    {
+        "content_type": "restaurant",
+        "content_id": 27,
+        "content_data": {
+            "name": "Utp",
+            "district": "Victor Larco",
+            "category_id": 7,
+            "lat": -8.1419,
+            "lng": -79.0436,
+            "avg_price": 6.5,
+            "rating": 3.2,
+            "open_time": "12:00",
+            "close_time": "22:00",
+            "image": "",
+            "description": "CAFE UTP",
+            "address": "Vista Alegre, Víctor Larco Herrera, Trujillo, La Libertad, 13009, Perú",
+            "phone": "906 963 631",
+            "promo": "",
+            "service_mode": "dine_in_and_delivery",
+            "tags": [
+                "postres",
+                "cafe"
+            ],
+            "features": [
+                "wifi",
+                "reservas",
+                "terraza",
+                "estacionamiento",
+                "pet friendly"
+            ],
+            "dietary_restrictions": [],
+            "owner_id": 5,
+            "owner_name": "Enrique",
+            "id": 27,
+            "dishes": [
+                120,
+                121,
+                122,
+                123,
+                124,
+                125,
+                126,
+                127
+            ],
+            "menu_intro": "Carta de restaurante peruano con platos como Ceviche de pescado, Causa limeña de pollo, Shambar, Arroz con pato, Lomo saltado, Pan con chicharrón, Suspiro limeño y Chicha morada."
+        },
+        "user_id": 1,
+        "reason": "Registro creado durante revisión administrativa",
+        "status": "approved",
+        "approval_status": "APROBADO_AUTOMATICAMENTE",
+        "ai_verdict": "PENDIENTE_REVISION",
+        "ai_confidence": 0.55,
+        "ai_evaluation": {
+            "model_version": "content-filter-rules-v2",
+            "content_type": "restaurant",
+            "route": "ASK_AI",
+            "ai_verdict": "PENDIENTE_REVISION",
+            "final_status": "PENDIENTE_REVISION",
+            "confidence": 0.55,
+            "rules": {
+                "required_fields": [
+                    "name",
+                    "description"
+                ],
+                "missing_fields": [],
+                "critical_signal": false,
+                "evasion_suspected": false,
+                "dictionary_can_judge": true,
+                "food_score": 14.29,
+                "banned_words": [],
+                "context_words": [],
+                "food_words_found": [
+                    "cafe",
+                    "postres"
+                ],
+                "coverage": {
+                    "script_ratio": 0.0,
+                    "known_ratio": 0.29,
+                    "foreign_markers": 0,
+                    "unknown_language": false
+                },
+                "inappropriate_tags": []
+            },
+            "issues": [
+                "Parece no estar relacionado con comida"
+            ],
+            "notes": [],
+            "human_review_required": true
+        },
+        "decision_source": "ADMIN_REVIEW",
+        "flagged": true,
+        "flags": [],
+        "reversible": true,
+        "status_history": [
+            {
+                "from": null,
+                "to": "PENDIENTE_REVISION",
+                "actor_user_id": null,
+                "source": "AI_PRECHECK",
+                "notes": "Preevaluación automática; no sustituye la revisión administrativa.",
+                "timestamp": "2026-10-15T17:07:10.966435+00:00"
+            },
+            {
+                "from": "PENDIENTE_REVISION",
+                "to": "APROBADO_AUTOMATICAMENTE",
+                "actor_user_id": 1,
+                "source": "ADMIN_REVIEW",
+                "notes": "Todo por la nota",
+                "timestamp": "2026-10-15T17:07:11.044961+00:00"
+            }
+        ],
+        "created_at": "2026-10-15T17:07:10.966435+00:00",
+        "updated_at": "2026-10-15T17:07:11.044961+00:00",
+        "id": 25,
+        "admin_notes": "Todo por la nota",
+        "human_decision_by": 1,
+        "human_decision_at": "2026-10-15T17:07:11.044961+00:00"
+    },
+    {
+        "content_type": "restaurant",
+        "content_id": 28,
+        "content_data": {
+            "name": "Pizza Rica",
+            "district": "Trujillo",
+            "category_id": 3,
+            "lat": -8.0996,
+            "lng": -79.0379,
+            "avg_price": 40.0,
+            "rating": 4.0,
+            "open_time": "12:00",
+            "close_time": "22:00",
+            "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-wdWaG3ApkfZHHpvS1cSSGZa1DE6YjjZkpm2-wrmw_WiDkcA1HbivXS5v&s=10",
+            "description": "Pizza estilo argentino",
+            "address": "380, Calle el Opalo, Urbanización Santa Inés, Trujillo, La Libertad, 13011, Perú",
+            "phone": "942038151",
+            "promo": "",
+            "service_mode": "delivery_only",
+            "tags": [
+                "tradicional",
+                "familiar"
+            ],
+            "features": [],
+            "dietary_restrictions": [],
+            "owner_id": 6,
+            "owner_name": "RicaPizza",
+            "id": 28,
+            "dishes": [
+                128,
+                129,
+                130,
+                131,
+                132,
+                133,
+                134,
+                135,
+                136,
+                137,
+                138,
+                139,
+                140
+            ],
+            "menu_intro": "Carta de pizzas con masa artesanal al estilo argentino, disponible en formatos medianos, grandes y personales, acompañada de opciones de combos con gaseosas."
+        },
+        "user_id": 1,
+        "reason": "Registro creado durante revisión administrativa",
+        "status": "approved",
+        "approval_status": "APROBADO_AUTOMATICAMENTE",
+        "ai_verdict": "PENDIENTE_REVISION",
+        "ai_confidence": 0.55,
+        "ai_evaluation": {
+            "model_version": "content-filter-rules-v2",
+            "content_type": "restaurant",
+            "route": "ASK_AI",
+            "ai_verdict": "PENDIENTE_REVISION",
+            "final_status": "PENDIENTE_REVISION",
+            "confidence": 0.55,
+            "rules": {
+                "required_fields": [
+                    "name",
+                    "description"
+                ],
+                "missing_fields": [],
+                "critical_signal": false,
+                "evasion_suspected": false,
+                "dictionary_can_judge": true,
+                "food_score": 10.67,
+                "banned_words": [],
+                "context_words": [],
+                "food_words_found": [
+                    "pizza"
+                ],
+                "coverage": {
+                    "script_ratio": 0.0,
+                    "known_ratio": 0.35,
+                    "foreign_markers": 0,
+                    "unknown_language": false
+                },
+                "inappropriate_tags": []
+            },
+            "issues": [
+                "Parece no estar relacionado con comida"
+            ],
+            "notes": [],
+            "human_review_required": true
+        },
+        "decision_source": "ADMIN_REVIEW",
+        "flagged": true,
+        "flags": [],
+        "reversible": true,
+        "status_history": [
+            {
+                "from": null,
+                "to": "PENDIENTE_REVISION",
+                "actor_user_id": null,
+                "source": "AI_PRECHECK",
+                "notes": "Preevaluación automática; no sustituye la revisión administrativa.",
+                "timestamp": "2026-10-15T18:51:06.802324+00:00"
+            },
+            {
+                "from": "PENDIENTE_REVISION",
+                "to": "APROBADO_AUTOMATICAMENTE",
+                "actor_user_id": 1,
+                "source": "ADMIN_REVIEW",
+                "notes": "bien",
+                "timestamp": "2026-10-15T18:51:06.843006+00:00"
+            }
+        ],
+        "created_at": "2026-10-15T18:51:06.802324+00:00",
+        "updated_at": "2026-10-15T18:51:06.843006+00:00",
+        "id": 26,
+        "admin_notes": "bien",
+        "human_decision_by": 1,
+        "human_decision_at": "2026-10-15T18:51:06.843006+00:00"
+    },
+    {
+        "content_type": "restaurant",
+        "content_id": 29,
+        "content_data": {
+            "name": "Mathias",
+            "district": "La Esperanza",
+            "category_id": 11,
+            "lat": -8.1,
+            "lng": -78.9948,
+            "avg_price": 12.0,
+            "rating": 4.0,
+            "open_time": "12:00",
+            "close_time": "22:00",
+            "image": "",
+            "description": "Mathias menu",
+            "address": "Pesqueda, Trujillo, La Libertad, 13007, Perú",
+            "phone": "998898989",
+            "promo": "",
+            "service_mode": "dine_in_only",
+            "tags": [
+                "criollo",
+                "familiar"
+            ],
+            "features": [],
+            "dietary_restrictions": [],
+            "owner_id": 7,
+            "owner_name": "Mathias",
+            "id": 29,
+            "dishes": [
+                141,
+                142,
+                143,
+                144,
+                145,
+                146,
+                147,
+                148,
+                149,
+                150,
+                151,
+                152,
+                153,
+                154,
+                155,
+                156,
+                157,
+                158
+            ],
+            "menu_intro": "Carta de restaurante peruano que incluye entradas como sopa, ceviche y papa a la huancaína, así como fondos variados de carne, pollo, mariscos y vegetales."
+        },
+        "user_id": 1,
+        "reason": "Registro creado durante revisión administrativa",
+        "status": "approved",
+        "approval_status": "APROBADO_AUTOMATICAMENTE",
+        "ai_verdict": "APROBADO_AUTOMATICAMENTE",
+        "ai_confidence": 0.9,
+        "ai_evaluation": {
+            "model_version": "content-filter-rules-v2",
+            "content_type": "restaurant",
+            "route": "AUTO_OK",
+            "ai_verdict": "APROBADO_AUTOMATICAMENTE",
+            "final_status": "APROBADO_AUTOMATICAMENTE",
+            "confidence": 0.9,
+            "rules": {
+                "required_fields": [
+                    "name",
+                    "description"
+                ],
+                "missing_fields": [],
+                "critical_signal": false,
+                "evasion_suspected": false,
+                "dictionary_can_judge": true,
+                "food_score": 23.0,
+                "banned_words": [],
+                "context_words": [],
+                "food_words_found": [
+                    "criollo",
+                    "menu"
+                ],
+                "coverage": {
+                    "script_ratio": 0.0,
+                    "known_ratio": 0.4,
+                    "foreign_markers": 0,
+                    "unknown_language": false
+                },
+                "inappropriate_tags": []
+            },
+            "issues": [],
+            "notes": [
+                "Contenido culinario verificado"
+            ],
+            "human_review_required": false
+        },
+        "decision_source": "ADMIN_REVIEW",
+        "flagged": false,
+        "flags": [],
+        "reversible": true,
+        "status_history": [
+            {
+                "from": null,
+                "to": "APROBADO_AUTOMATICAMENTE",
+                "actor_user_id": null,
+                "source": "AI_PRECHECK",
+                "notes": "Preevaluación automática; no sustituye la revisión administrativa.",
+                "timestamp": "2026-10-15T18:55:31.768371+00:00"
+            },
+            {
+                "from": "APROBADO_AUTOMATICAMENTE",
+                "to": "APROBADO_AUTOMATICAMENTE",
+                "actor_user_id": 1,
+                "source": "ADMIN_REVIEW",
+                "notes": "Bien",
+                "timestamp": "2026-10-15T18:55:31.810878+00:00"
+            }
+        ],
+        "created_at": "2026-10-15T18:55:31.768371+00:00",
+        "updated_at": "2026-10-15T18:55:31.810878+00:00",
+        "id": 27,
+        "admin_notes": "Bien",
+        "human_decision_by": 1,
+        "human_decision_at": "2026-10-15T18:55:31.810878+00:00"
     }
 ]

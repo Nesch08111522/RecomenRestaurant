@@ -44,5 +44,82 @@
         },
         "created_at": "2026-10-14T05:40:37.588687+00:00",
         "id": 3
+    },
+    {
+        "actor_user_id": 1,
+        "action": "ADMIN_USER_DELETE",
+        "resource_type": "user",
+        "resource_id": 4,
+        "request_id": "",
+        "ip_hash": "d72a839cb92de3ab9ec176ff6eeda8cad7beccc49644145534bcbee43644ace1",
+        "metadata": {
+            "username": "enriqeu"
+        },
+        "created_at": "2026-10-15T16:27:41.295228+00:00",
+        "id": 4
+    },
+    {
+        "actor_user_id": 1,
+        "action": "ADMIN_APPROVAL_DECISION",
+        "resource_type": "restaurant",
+        "resource_id": 27,
+        "request_id": "",
+        "ip_hash": "d72a839cb92de3ab9ec176ff6eeda8cad7beccc49644145534bcbee43644ace1",
+        "metadata": {
+            "action": "approve",
+            "status": "APROBADO_AUTOMATICAMENTE",
+            "moderation_id": 25,
+            "has_notes": true
+        },
+        "created_at": "2026-10-15T17:07:11.088036+00:00",
+        "id": 5
+    },
+    {
+        "actor_user_id": 1,
+        "action": "ADMIN_APPROVAL_DECISION",
+        "resource_type": "restaurant",
+        "resource_id": 25,
+        "request_id": "",
+        "ip_hash": "d72a839cb92de3ab9ec176ff6eeda8cad7beccc49644145534bcbee43644ace1",
+        "metadata": {
+            "action": "approve",
+            "status": "APROBADO_AUTOMATICAMENTE",
+            "moderation_id": 15,
+            "has_notes": true
+        },
+        "created_at": "2026-10-15T18:49:12.539308+00:00",
+        "id": 6
+    },
+    {
+        "actor_user_id": 1,
+        "action": "ADMIN_APPROVAL_DECISION",
+        "resource_type": "restaurant",
+        "resource_id": 28,
+        "request_id": "",
+        "ip_hash": "d72a839cb92de3ab9ec176ff6eeda8cad7beccc49644145534bcbee43644ace1",
+        "metadata": {
+            "action": "approve",
+            "status": "APROBADO_AUTOMATICAMENTE",
+            "moderation_id": 26,
+            "has_notes": true
+        },
+        "created_at": "2026-10-15T18:51:06.878243+00:00",
+        "id": 7
+    },
+    {
+        "actor_user_id": 1,
+        "action": "ADMIN_APPROVAL_DECISION",
+        "resource_type": "restaurant",
+        "resource_id": 29,
+        "request_id": "",
+        "ip_hash": "d72a839cb92de3ab9ec176ff6eeda8cad7beccc49644145534bcbee43644ace1",
+        "metadata": {
+            "action": "approve",
+            "status": "APROBADO_AUTOMATICAMENTE",
+            "moderation_id": 27,
+            "has_notes": true
+        },
+        "created_at": "2026-10-15T18:55:31.833397+00:00",
+        "id": 8
     }
 ]
