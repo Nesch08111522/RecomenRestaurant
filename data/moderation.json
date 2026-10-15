@@ -366,66 +366,47 @@
             "moderation_notes": "Aprobado"
         },
         "user_id": 1,
-        "reason": "Preevaluación automática",
-        "status": "approved",
-        "approval_status": "APROBADO_AUTOMATICAMENTE",
-        "ai_verdict": "APROBADO_AUTOMATICAMENTE",
-        "ai_confidence": 0.9,
+        "reason": "Filtro automático: Tag no relacionado con comida: turístico",
+        "status": "pending",
+        "flagged": true,
+        "flags": [],
+        "created_at": "2026-06-30T18:08:29.152276",
+        "updated_at": "2026-10-14T05:40:36.534919+00:00",
+        "id": 1,
+        "ai_verdict": "PENDIENTE_REVISION",
+        "ai_confidence": 0.55,
         "ai_evaluation": {
-            "model_version": "content-filter-rules-v2",
+            "model_version": "content-filter-rules-v1",
             "content_type": "restaurant",
-            "route": "AUTO_OK",
-            "ai_verdict": "APROBADO_AUTOMATICAMENTE",
-            "final_status": "APROBADO_AUTOMATICAMENTE",
-            "confidence": 0.9,
+            "ai_verdict": "PENDIENTE_REVISION",
+            "final_status": "PENDIENTE_REVISION",
+            "confidence": 0.55,
             "rules": {
                 "required_fields": [
                     "name",
-                    "description"
+                    "description",
+                    "category"
                 ],
-                "missing_fields": [],
+                "missing_fields": [
+                    "category"
+                ],
                 "critical_signal": false,
-                "evasion_suspected": false,
-                "dictionary_can_judge": true,
-                "food_score": 24.0,
+                "food_score": 22.22,
                 "banned_words": [],
-                "context_words": [],
                 "food_words_found": [
+                    "restaurante",
                     "comida",
-                    "criolla",
-                    "restaurante"
-                ],
-                "coverage": {
-                    "script_ratio": 0.0,
-                    "known_ratio": 0.65,
-                    "foreign_markers": 0,
-                    "unknown_language": false
-                },
-                "inappropriate_tags": []
+                    "tradicional",
+                    "familia"
+                ]
             },
-            "issues": [],
-            "notes": [
-                "Contenido culinario verificado"
+            "issues": [
+                "Contenido relacionado con comida verificado correctamente.",
+                "Campos requeridos ausentes: category"
             ],
-            "human_review_required": false
+            "human_review_required": true
         },
-        "decision_source": "AI_PRECHECK",
-        "flagged": false,
-        "flags": [],
-        "reversible": true,
-        "status_history": [
-            {
-                "from": null,
-                "to": "APROBADO_AUTOMATICAMENTE",
-                "actor_user_id": null,
-                "source": "AI_PRECHECK",
-                "notes": "Preevaluación automática; no sustituye la revisión administrativa.",
-                "timestamp": "2026-10-14T17:13:39.214428+00:00"
-            }
-        ],
-        "created_at": "2026-10-14T17:13:39.214428+00:00",
-        "updated_at": "2026-10-14T21:08:31.079541+00:00",
-        "id": 4
+        "approval_status": "PENDIENTE_REVISION"
     },
     {
         "content_type": "restaurant",
@@ -476,63 +457,45 @@
         "user_id": 1,
         "reason": "Preevaluación automática",
         "status": "pending",
-        "approval_status": "PENDIENTE_REVISION",
+        "flagged": true,
+        "flags": [],
+        "created_at": "2026-06-30T18:08:29.153805",
+        "updated_at": "2026-10-14T05:40:36.585018+00:00",
+        "id": 2,
         "ai_verdict": "PENDIENTE_REVISION",
         "ai_confidence": 0.55,
         "ai_evaluation": {
-            "model_version": "content-filter-rules-v2",
+            "model_version": "content-filter-rules-v1",
             "content_type": "restaurant",
-            "route": "ASK_AI",
             "ai_verdict": "PENDIENTE_REVISION",
             "final_status": "PENDIENTE_REVISION",
             "confidence": 0.55,
             "rules": {
                 "required_fields": [
                     "name",
-                    "description"
+                    "description",
+                    "category"
                 ],
-                "missing_fields": [],
+                "missing_fields": [
+                    "category"
+                ],
                 "critical_signal": false,
-                "evasion_suspected": false,
-                "dictionary_can_judge": true,
-                "food_score": 13.33,
+                "food_score": 22.22,
                 "banned_words": [],
-                "context_words": [],
                 "food_words_found": [
+                    "marisco",
                     "ceviche",
+                    "mariscos",
                     "mariscos"
-                ],
-                "coverage": {
-                    "script_ratio": 0.0,
-                    "known_ratio": 0.43,
-                    "foreign_markers": 0,
-                    "unknown_language": false
-                },
-                "inappropriate_tags": []
+                ]
             },
             "issues": [
-                "Parece no estar relacionado con comida"
+                "Contenido relacionado con comida verificado correctamente.",
+                "Campos requeridos ausentes: category"
             ],
-            "notes": [],
             "human_review_required": true
         },
-        "decision_source": "AI_PRECHECK",
-        "flagged": true,
-        "flags": [],
-        "reversible": true,
-        "status_history": [
-            {
-                "from": null,
-                "to": "PENDIENTE_REVISION",
-                "actor_user_id": null,
-                "source": "AI_PRECHECK",
-                "notes": "Preevaluación automática; no sustituye la revisión administrativa.",
-                "timestamp": "2026-10-14T17:13:39.252560+00:00"
-            }
-        ],
-        "created_at": "2026-10-14T17:13:39.252560+00:00",
-        "updated_at": "2026-10-14T21:08:31.140508+00:00",
-        "id": 5
+        "approval_status": "PENDIENTE_REVISION"
     },
     {
         "content_type": "restaurant",
@@ -1077,167 +1040,43 @@
         "user_id": 1,
         "reason": "Preevaluación automática",
         "status": "pending",
-        "approval_status": "PENDIENTE_REVISION",
+        "flagged": true,
+        "flags": [],
+        "created_at": "2026-06-30T18:08:29.155815",
+        "updated_at": "2026-10-14T05:40:36.734377+00:00",
+        "id": 3,
         "ai_verdict": "PENDIENTE_REVISION",
         "ai_confidence": 0.55,
         "ai_evaluation": {
-            "model_version": "content-filter-rules-v2",
+            "model_version": "content-filter-rules-v1",
             "content_type": "restaurant",
-            "route": "ASK_AI",
             "ai_verdict": "PENDIENTE_REVISION",
             "final_status": "PENDIENTE_REVISION",
             "confidence": 0.55,
             "rules": {
                 "required_fields": [
                     "name",
-                    "description"
+                    "description",
+                    "category"
                 ],
-                "missing_fields": [],
+                "missing_fields": [
+                    "category"
+                ],
                 "critical_signal": false,
-                "evasion_suspected": false,
-                "dictionary_can_judge": true,
-                "food_score": 13.33,
-                "banned_words": [],
-                "context_words": [],
-                "food_words_found": [
-                    "cafe",
-                    "postres"
-                ],
-                "coverage": {
-                    "script_ratio": 0.0,
-                    "known_ratio": 0.55,
-                    "foreign_markers": 0,
-                    "unknown_language": false
-                },
-                "inappropriate_tags": []
-            },
-            "issues": [
-                "Parece no estar relacionado con comida"
-            ],
-            "notes": [],
-            "human_review_required": true
-        },
-        "decision_source": "AI_PRECHECK",
-        "flagged": true,
-        "flags": [],
-        "reversible": true,
-        "status_history": [
-            {
-                "from": null,
-                "to": "PENDIENTE_REVISION",
-                "actor_user_id": null,
-                "source": "AI_PRECHECK",
-                "notes": "Preevaluación automática; no sustituye la revisión administrativa.",
-                "timestamp": "2026-10-14T17:13:39.534308+00:00"
-            }
-        ],
-        "created_at": "2026-10-14T17:13:39.534308+00:00",
-        "updated_at": "2026-10-14T21:08:31.446905+00:00",
-        "id": 11
-    },
-    {
-        "content_type": "restaurant",
-        "content_id": 9,
-        "content_data": {
-            "id": 9,
-            "name": "Verde & Sano",
-            "category_id": 8,
-            "district": "Victor Larco",
-            "lat": -8.1325,
-            "lng": -79.0425,
-            "avg_price": 28,
-            "rating": 4.3,
-            "open_time": "09:00",
-            "close_time": "20:00",
-            "tags": [
-                "saludable",
-                "ensaladas",
-                "jugos"
-            ],
-            "features": [
-                "delivery",
-                "llevar"
-            ],
-            "image": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=800",
-            "description": "Comida saludable y deliciosa para cuidar tu cuerpo.",
-            "address": "Av. Fátima 320",
-            "phone": "044-987654",
-            "promo": "15% off en ensaladas del día",
-            "reviews": 290,
-            "dietary_restrictions": [
-                "vegano",
-                "vegetariano",
-                "sin gluten"
-            ],
-            "owner_id": 3,
-            "owner_name": "Juan Empresario",
-            "verified": true,
-            "moderation_notes": "Bien",
-            "approval_status": "APROBADO_AUTOMATICAMENTE",
-            "moderated_at": "2026-10-14T15:55:27.936040+00:00",
-            "rejected": false,
-            "suspended": false,
-            "publication_status": "published"
-        },
-        "user_id": 1,
-        "reason": "Preevaluación automática",
-        "status": "approved",
-        "approval_status": "APROBADO_AUTOMATICAMENTE",
-        "ai_verdict": "APROBADO_AUTOMATICAMENTE",
-        "ai_confidence": 0.9,
-        "ai_evaluation": {
-            "model_version": "content-filter-rules-v2",
-            "content_type": "restaurant",
-            "route": "AUTO_OK",
-            "ai_verdict": "APROBADO_AUTOMATICAMENTE",
-            "final_status": "APROBADO_AUTOMATICAMENTE",
-            "confidence": 0.9,
-            "rules": {
-                "required_fields": [
-                    "name",
-                    "description"
-                ],
-                "missing_fields": [],
-                "critical_signal": false,
-                "evasion_suspected": false,
-                "dictionary_can_judge": true,
                 "food_score": 20.0,
                 "banned_words": [],
-                "context_words": [],
                 "food_words_found": [
-                    "comida",
-                    "ensaladas",
-                    "jugos"
-                ],
-                "coverage": {
-                    "script_ratio": 0.0,
-                    "known_ratio": 0.4,
-                    "foreign_markers": 0,
-                    "unknown_language": false
-                },
-                "inappropriate_tags": []
+                    "ingrediente",
+                    "chifa",
+                    "fusión"
+                ]
             },
-            "issues": [],
-            "notes": [],
-            "human_review_required": false
+            "issues": [
+                "Campos requeridos ausentes: category"
+            ],
+            "human_review_required": true
         },
-        "decision_source": "AI_PRECHECK",
-        "flagged": false,
-        "flags": [],
-        "reversible": true,
-        "status_history": [
-            {
-                "from": null,
-                "to": "APROBADO_AUTOMATICAMENTE",
-                "actor_user_id": null,
-                "source": "AI_PRECHECK",
-                "notes": "Preevaluación automática; no sustituye la revisión administrativa.",
-                "timestamp": "2026-10-14T17:13:39.584048+00:00"
-            }
-        ],
-        "created_at": "2026-10-14T17:13:39.584048+00:00",
-        "updated_at": "2026-10-14T21:08:31.499815+00:00",
-        "id": 12
+        "approval_status": "PENDIENTE_REVISION"
     },
     {
         "content_type": "restaurant",
@@ -1276,67 +1115,45 @@
             "verified": false,
             "moderation_notes": ""
         },
-        "user_id": 1,
-        "reason": "Preevaluación automática",
-        "status": "approved",
-        "approval_status": "APROBADO_AUTOMATICAMENTE",
-        "ai_verdict": "APROBADO_AUTOMATICAMENTE",
-        "ai_confidence": 0.9,
+        "user_id": 3,
+        "reason": "Filtro automático: Contenido no relacionado con comida, Tag no relacionado con comida: japonés, Tag no relacionado con comida: moderno",
+        "status": "pending",
+        "flagged": true,
+        "flags": [],
+        "created_at": "2026-06-30T18:08:29.157324",
+        "updated_at": "2026-10-14T05:40:36.783047+00:00",
+        "id": 4,
+        "ai_verdict": "PENDIENTE_REVISION",
+        "ai_confidence": 0.55,
         "ai_evaluation": {
-            "model_version": "content-filter-rules-v2",
+            "model_version": "content-filter-rules-v1",
             "content_type": "restaurant",
-            "route": "AUTO_OK",
-            "ai_verdict": "APROBADO_AUTOMATICAMENTE",
-            "final_status": "APROBADO_AUTOMATICAMENTE",
-            "confidence": 0.9,
+            "ai_verdict": "PENDIENTE_REVISION",
+            "final_status": "PENDIENTE_REVISION",
+            "confidence": 0.55,
             "rules": {
                 "required_fields": [
                     "name",
-                    "description"
+                    "description",
+                    "category"
                 ],
-                "missing_fields": [],
+                "missing_fields": [
+                    "category"
+                ],
                 "critical_signal": false,
-                "evasion_suspected": false,
-                "dictionary_can_judge": true,
-                "food_score": 21.43,
+                "food_score": 15.38,
                 "banned_words": [],
-                "context_words": [],
                 "food_words_found": [
-                    "sabor",
-                    "tacos",
-                    "tragos"
-                ],
-                "coverage": {
-                    "script_ratio": 0.0,
-                    "known_ratio": 0.5,
-                    "foreign_markers": 0,
-                    "unknown_language": false
-                },
-                "inappropriate_tags": []
+                    "cocina",
+                    "sushi"
+                ]
             },
-            "issues": [],
-            "notes": [
-                "Contenido culinario verificado"
+            "issues": [
+                "Campos requeridos ausentes: category"
             ],
-            "human_review_required": false
+            "human_review_required": true
         },
-        "decision_source": "AI_PRECHECK",
-        "flagged": false,
-        "flags": [],
-        "reversible": true,
-        "status_history": [
-            {
-                "from": null,
-                "to": "APROBADO_AUTOMATICAMENTE",
-                "actor_user_id": null,
-                "source": "AI_PRECHECK",
-                "notes": "Preevaluación automática; no sustituye la revisión administrativa.",
-                "timestamp": "2026-10-14T17:13:39.627304+00:00"
-            }
-        ],
-        "created_at": "2026-10-14T17:13:39.627304+00:00",
-        "updated_at": "2026-10-14T21:08:31.550117+00:00",
-        "id": 13
+        "approval_status": "PENDIENTE_REVISION"
     },
     {
         "content_type": "restaurant",
@@ -1375,63 +1192,44 @@
         "user_id": 1,
         "reason": "Preevaluación automática",
         "status": "pending",
-        "approval_status": "PENDIENTE_REVISION",
+        "flagged": true,
+        "flags": [],
+        "created_at": "2026-06-30T18:08:29.163392",
+        "updated_at": "2026-10-14T05:40:37.001905+00:00",
+        "id": 5,
         "ai_verdict": "PENDIENTE_REVISION",
         "ai_confidence": 0.55,
         "ai_evaluation": {
-            "model_version": "content-filter-rules-v2",
+            "model_version": "content-filter-rules-v1",
             "content_type": "restaurant",
-            "route": "ASK_AI",
             "ai_verdict": "PENDIENTE_REVISION",
             "final_status": "PENDIENTE_REVISION",
             "confidence": 0.55,
             "rules": {
                 "required_fields": [
                     "name",
-                    "description"
+                    "description",
+                    "category"
                 ],
-                "missing_fields": [],
+                "missing_fields": [
+                    "category"
+                ],
                 "critical_signal": false,
-                "evasion_suspected": false,
-                "dictionary_can_judge": true,
-                "food_score": 14.29,
+                "food_score": 27.27,
                 "banned_words": [],
-                "context_words": [],
                 "food_words_found": [
-                    "cevicheria",
-                    "ceviches"
-                ],
-                "coverage": {
-                    "script_ratio": 0.0,
-                    "known_ratio": 0.29,
-                    "foreign_markers": 0,
-                    "unknown_language": false
-                },
-                "inappropriate_tags": []
+                    "ceviche",
+                    "cevichería",
+                    "especial"
+                ]
             },
             "issues": [
-                "Parece no estar relacionado con comida"
+                "Contenido relacionado con comida verificado correctamente.",
+                "Campos requeridos ausentes: category"
             ],
-            "notes": [],
             "human_review_required": true
         },
-        "decision_source": "AI_PRECHECK",
-        "flagged": true,
-        "flags": [],
-        "reversible": true,
-        "status_history": [
-            {
-                "from": null,
-                "to": "PENDIENTE_REVISION",
-                "actor_user_id": null,
-                "source": "AI_PRECHECK",
-                "notes": "Preevaluación automática; no sustituye la revisión administrativa.",
-                "timestamp": "2026-10-14T17:13:39.671969+00:00"
-            }
-        ],
-        "created_at": "2026-10-14T17:13:39.671969+00:00",
-        "updated_at": "2026-10-14T21:08:31.597934+00:00",
-        "id": 14
+        "approval_status": "PENDIENTE_REVISION"
     },
     {
         "content_type": "restaurant",
@@ -1471,68 +1269,45 @@
             "moderation_notes": ""
         },
         "user_id": 1,
-        "reason": "Preevaluación automática",
-        "status": "approved",
-        "approval_status": "APROBADO_AUTOMATICAMENTE",
-        "ai_verdict": "APROBADO_AUTOMATICAMENTE",
-        "ai_confidence": 0.9,
+        "reason": "Filtro automático: Contenido no relacionado con comida, Tag no relacionado con comida: brasas",
+        "status": "pending",
+        "flagged": true,
+        "flags": [],
+        "created_at": "2026-06-30T18:08:29.167912",
+        "updated_at": "2026-10-14T05:40:37.050806+00:00",
+        "id": 6,
+        "ai_verdict": "PENDIENTE_REVISION",
+        "ai_confidence": 0.55,
         "ai_evaluation": {
-            "model_version": "content-filter-rules-v2",
+            "model_version": "content-filter-rules-v1",
             "content_type": "restaurant",
-            "route": "AUTO_OK",
-            "ai_verdict": "APROBADO_AUTOMATICAMENTE",
-            "final_status": "APROBADO_AUTOMATICAMENTE",
-            "confidence": 0.9,
+            "ai_verdict": "PENDIENTE_REVISION",
+            "final_status": "PENDIENTE_REVISION",
+            "confidence": 0.55,
             "rules": {
                 "required_fields": [
                     "name",
-                    "description"
+                    "description",
+                    "category"
                 ],
-                "missing_fields": [],
+                "missing_fields": [
+                    "category"
+                ],
                 "critical_signal": false,
-                "evasion_suspected": false,
-                "dictionary_can_judge": true,
-                "food_score": 40.0,
+                "food_score": 14.29,
                 "banned_words": [],
-                "context_words": [],
                 "food_words_found": [
-                    "cenas",
-                    "italiana",
-                    "pasta",
-                    "pastas",
-                    "vino"
-                ],
-                "coverage": {
-                    "script_ratio": 0.0,
-                    "known_ratio": 0.6,
-                    "foreign_markers": 0,
-                    "unknown_language": false
-                },
-                "inappropriate_tags": []
+                    "tradicional",
+                    "pollería"
+                ]
             },
-            "issues": [],
-            "notes": [
-                "Contenido culinario verificado"
+            "issues": [
+                "El contenido parece no estar relacionado con comida. Verifica que hable sobre restaurantes, platos o servicios culinarios.",
+                "Campos requeridos ausentes: category"
             ],
-            "human_review_required": false
+            "human_review_required": true
         },
-        "decision_source": "AI_PRECHECK",
-        "flagged": false,
-        "flags": [],
-        "reversible": true,
-        "status_history": [
-            {
-                "from": null,
-                "to": "APROBADO_AUTOMATICAMENTE",
-                "actor_user_id": null,
-                "source": "AI_PRECHECK",
-                "notes": "Preevaluación automática; no sustituye la revisión administrativa.",
-                "timestamp": "2026-10-14T17:13:39.726831+00:00"
-            }
-        ],
-        "created_at": "2026-10-14T17:13:39.726831+00:00",
-        "updated_at": "2026-10-14T21:08:31.653142+00:00",
-        "id": 15
+        "approval_status": "PENDIENTE_REVISION"
     },
     {
         "content_type": "restaurant",
@@ -1572,62 +1347,44 @@
         "user_id": 1,
         "reason": "Preevaluación automática",
         "status": "pending",
-        "approval_status": "PENDIENTE_REVISION",
+        "flagged": true,
+        "flags": [],
+        "created_at": "2026-06-30T18:08:29.169927",
+        "updated_at": "2026-10-14T05:40:37.136060+00:00",
+        "id": 7,
         "ai_verdict": "PENDIENTE_REVISION",
         "ai_confidence": 0.55,
         "ai_evaluation": {
-            "model_version": "content-filter-rules-v2",
+            "model_version": "content-filter-rules-v1",
             "content_type": "restaurant",
-            "route": "ASK_AI",
             "ai_verdict": "PENDIENTE_REVISION",
             "final_status": "PENDIENTE_REVISION",
             "confidence": 0.55,
             "rules": {
                 "required_fields": [
                     "name",
-                    "description"
+                    "description",
+                    "category"
                 ],
-                "missing_fields": [],
+                "missing_fields": [
+                    "category"
+                ],
                 "critical_signal": false,
-                "evasion_suspected": false,
-                "dictionary_can_judge": true,
-                "food_score": 11.43,
+                "food_score": 25.0,
                 "banned_words": [],
-                "context_words": [],
                 "food_words_found": [
-                    "chifa"
-                ],
-                "coverage": {
-                    "script_ratio": 0.0,
-                    "known_ratio": 0.43,
-                    "foreign_markers": 0,
-                    "unknown_language": false
-                },
-                "inappropriate_tags": []
+                    "chifa",
+                    "familia",
+                    "tradición"
+                ]
             },
             "issues": [
-                "Parece no estar relacionado con comida"
+                "Contenido relacionado con comida verificado correctamente.",
+                "Campos requeridos ausentes: category"
             ],
-            "notes": [],
             "human_review_required": true
         },
-        "decision_source": "AI_PRECHECK",
-        "flagged": true,
-        "flags": [],
-        "reversible": true,
-        "status_history": [
-            {
-                "from": null,
-                "to": "PENDIENTE_REVISION",
-                "actor_user_id": null,
-                "source": "AI_PRECHECK",
-                "notes": "Preevaluación automática; no sustituye la revisión administrativa.",
-                "timestamp": "2026-10-14T17:13:39.770959+00:00"
-            }
-        ],
-        "created_at": "2026-10-14T17:13:39.770959+00:00",
-        "updated_at": "2026-10-14T21:08:31.700203+00:00",
-        "id": 16
+        "approval_status": "PENDIENTE_REVISION"
     },
     {
         "content_type": "restaurant",
@@ -1665,64 +1422,45 @@
             "moderation_notes": ""
         },
         "user_id": 1,
-        "reason": "Preevaluación automática",
-        "status": "approved",
-        "approval_status": "APROBADO_AUTOMATICAMENTE",
-        "ai_verdict": "APROBADO_AUTOMATICAMENTE",
-        "ai_confidence": 0.9,
+        "reason": "Filtro automático: Contenido no relacionado con comida, Tag no relacionado con comida: informal",
+        "status": "pending",
+        "flagged": true,
+        "flags": [],
+        "created_at": "2026-06-30T18:08:29.172464",
+        "updated_at": "2026-10-14T05:40:37.181236+00:00",
+        "id": 8,
+        "ai_verdict": "PENDIENTE_REVISION",
+        "ai_confidence": 0.55,
         "ai_evaluation": {
-            "model_version": "content-filter-rules-v2",
+            "model_version": "content-filter-rules-v1",
             "content_type": "restaurant",
-            "route": "AUTO_OK",
-            "ai_verdict": "APROBADO_AUTOMATICAMENTE",
-            "final_status": "APROBADO_AUTOMATICAMENTE",
-            "confidence": 0.9,
+            "ai_verdict": "PENDIENTE_REVISION",
+            "final_status": "PENDIENTE_REVISION",
+            "confidence": 0.55,
             "rules": {
                 "required_fields": [
                     "name",
-                    "description"
+                    "description",
+                    "category"
                 ],
-                "missing_fields": [],
+                "missing_fields": [
+                    "category"
+                ],
                 "critical_signal": false,
-                "evasion_suspected": false,
-                "dictionary_can_judge": true,
-                "food_score": 20.0,
+                "food_score": 13.33,
                 "banned_words": [],
-                "context_words": [],
                 "food_words_found": [
                     "carne",
-                    "carnes",
                     "parrilla"
-                ],
-                "coverage": {
-                    "script_ratio": 0.0,
-                    "known_ratio": 0.58,
-                    "foreign_markers": 0,
-                    "unknown_language": false
-                },
-                "inappropriate_tags": []
+                ]
             },
-            "issues": [],
-            "notes": [],
-            "human_review_required": false
+            "issues": [
+                "El contenido parece no estar relacionado con comida. Verifica que hable sobre restaurantes, platos o servicios culinarios.",
+                "Campos requeridos ausentes: category"
+            ],
+            "human_review_required": true
         },
-        "decision_source": "AI_PRECHECK",
-        "flagged": false,
-        "flags": [],
-        "reversible": true,
-        "status_history": [
-            {
-                "from": null,
-                "to": "APROBADO_AUTOMATICAMENTE",
-                "actor_user_id": null,
-                "source": "AI_PRECHECK",
-                "notes": "Preevaluación automática; no sustituye la revisión administrativa.",
-                "timestamp": "2026-10-14T17:13:39.826574+00:00"
-            }
-        ],
-        "created_at": "2026-10-14T17:13:39.826574+00:00",
-        "updated_at": "2026-10-14T21:08:31.771613+00:00",
-        "id": 17
+        "approval_status": "PENDIENTE_REVISION"
     },
     {
         "content_type": "restaurant",
@@ -1764,62 +1502,43 @@
         "user_id": 1,
         "reason": "Preevaluación automática",
         "status": "pending",
-        "approval_status": "PENDIENTE_REVISION",
+        "flagged": true,
+        "flags": [],
+        "created_at": "2026-06-30T18:08:29.174501",
+        "updated_at": "2026-10-14T05:40:37.215059+00:00",
+        "id": 9,
         "ai_verdict": "PENDIENTE_REVISION",
         "ai_confidence": 0.55,
         "ai_evaluation": {
-            "model_version": "content-filter-rules-v2",
+            "model_version": "content-filter-rules-v1",
             "content_type": "restaurant",
-            "route": "ASK_AI",
             "ai_verdict": "PENDIENTE_REVISION",
             "final_status": "PENDIENTE_REVISION",
             "confidence": 0.55,
             "rules": {
                 "required_fields": [
                     "name",
-                    "description"
+                    "description",
+                    "category"
                 ],
-                "missing_fields": [],
+                "missing_fields": [
+                    "category"
+                ],
                 "critical_signal": false,
-                "evasion_suspected": false,
-                "dictionary_can_judge": true,
-                "food_score": 8.67,
+                "food_score": 12.5,
                 "banned_words": [],
-                "context_words": [],
                 "food_words_found": [
-                    "cafe"
-                ],
-                "coverage": {
-                    "script_ratio": 0.0,
-                    "known_ratio": 0.44,
-                    "foreign_markers": 0,
-                    "unknown_language": false
-                },
-                "inappropriate_tags": []
+                    "café",
+                    "café"
+                ]
             },
             "issues": [
-                "Parece no estar relacionado con comida"
+                "El contenido parece no estar relacionado con comida. Verifica que hable sobre restaurantes, platos o servicios culinarios.",
+                "Campos requeridos ausentes: category"
             ],
-            "notes": [],
             "human_review_required": true
         },
-        "decision_source": "AI_PRECHECK",
-        "flagged": true,
-        "flags": [],
-        "reversible": true,
-        "status_history": [
-            {
-                "from": null,
-                "to": "PENDIENTE_REVISION",
-                "actor_user_id": null,
-                "source": "AI_PRECHECK",
-                "notes": "Preevaluación automática; no sustituye la revisión administrativa.",
-                "timestamp": "2026-10-14T17:13:39.880934+00:00"
-            }
-        ],
-        "created_at": "2026-10-14T17:13:39.880934+00:00",
-        "updated_at": "2026-10-14T21:08:31.838823+00:00",
-        "id": 18
+        "approval_status": "PENDIENTE_REVISION"
     },
     {
         "content_type": "restaurant",
@@ -1861,62 +1580,44 @@
         "user_id": 1,
         "reason": "Preevaluación automática",
         "status": "pending",
-        "approval_status": "PENDIENTE_REVISION",
+        "flagged": true,
+        "flags": [],
+        "created_at": "2026-06-30T18:08:29.176976",
+        "updated_at": "2026-10-14T05:40:37.252484+00:00",
+        "id": 10,
         "ai_verdict": "PENDIENTE_REVISION",
         "ai_confidence": 0.55,
         "ai_evaluation": {
-            "model_version": "content-filter-rules-v2",
+            "model_version": "content-filter-rules-v1",
             "content_type": "restaurant",
-            "route": "ASK_AI",
             "ai_verdict": "PENDIENTE_REVISION",
             "final_status": "PENDIENTE_REVISION",
             "confidence": 0.55,
             "rules": {
                 "required_fields": [
                     "name",
-                    "description"
+                    "description",
+                    "category"
                 ],
-                "missing_fields": [],
+                "missing_fields": [
+                    "category"
+                ],
                 "critical_signal": false,
-                "evasion_suspected": false,
-                "dictionary_can_judge": true,
-                "food_score": 10.67,
+                "food_score": 23.08,
                 "banned_words": [],
-                "context_words": [],
                 "food_words_found": [
-                    "sushi"
-                ],
-                "coverage": {
-                    "script_ratio": 0.0,
-                    "known_ratio": 0.53,
-                    "foreign_markers": 0,
-                    "unknown_language": false
-                },
-                "inappropriate_tags": []
+                    "sushi",
+                    "delivery",
+                    "fresco"
+                ]
             },
             "issues": [
-                "Parece no estar relacionado con comida"
+                "Contenido relacionado con comida verificado correctamente.",
+                "Campos requeridos ausentes: category"
             ],
-            "notes": [],
             "human_review_required": true
         },
-        "decision_source": "AI_PRECHECK",
-        "flagged": true,
-        "flags": [],
-        "reversible": true,
-        "status_history": [
-            {
-                "from": null,
-                "to": "PENDIENTE_REVISION",
-                "actor_user_id": null,
-                "source": "AI_PRECHECK",
-                "notes": "Preevaluación automática; no sustituye la revisión administrativa.",
-                "timestamp": "2026-10-14T17:13:39.937378+00:00"
-            }
-        ],
-        "created_at": "2026-10-14T17:13:39.937378+00:00",
-        "updated_at": "2026-10-14T21:08:31.906784+00:00",
-        "id": 19
+        "approval_status": "PENDIENTE_REVISION"
     },
     {
         "content_type": "restaurant",
@@ -1958,64 +1659,45 @@
             "suspended": false,
             "publication_status": "unpublished"
         },
-        "user_id": 1,
-        "reason": "Preevaluación automática",
-        "status": "approved",
-        "approval_status": "APROBADO_AUTOMATICAMENTE",
-        "ai_verdict": "APROBADO_AUTOMATICAMENTE",
-        "ai_confidence": 0.9,
+        "user_id": 3,
+        "reason": "Filtro automático: Contenido no relacionado con comida, Tag no relacionado con comida: rápido",
+        "status": "pending",
+        "flagged": true,
+        "flags": [],
+        "created_at": "2026-06-30T18:08:29.180020",
+        "updated_at": "2026-10-14T05:40:37.330559+00:00",
+        "id": 11,
+        "ai_verdict": "PENDIENTE_REVISION",
+        "ai_confidence": 0.55,
         "ai_evaluation": {
-            "model_version": "content-filter-rules-v2",
+            "model_version": "content-filter-rules-v1",
             "content_type": "restaurant",
-            "route": "AUTO_OK",
-            "ai_verdict": "APROBADO_AUTOMATICAMENTE",
-            "final_status": "APROBADO_AUTOMATICAMENTE",
-            "confidence": 0.9,
+            "ai_verdict": "PENDIENTE_REVISION",
+            "final_status": "PENDIENTE_REVISION",
+            "confidence": 0.55,
             "rules": {
                 "required_fields": [
                     "name",
-                    "description"
+                    "description",
+                    "category"
                 ],
-                "missing_fields": [],
+                "missing_fields": [
+                    "category"
+                ],
                 "critical_signal": false,
-                "evasion_suspected": false,
-                "dictionary_can_judge": true,
-                "food_score": 15.33,
+                "food_score": 15.38,
                 "banned_words": [],
-                "context_words": [],
                 "food_words_found": [
                     "pizza",
-                    "pizzas"
-                ],
-                "coverage": {
-                    "script_ratio": 0.0,
-                    "known_ratio": 0.47,
-                    "foreign_markers": 0,
-                    "unknown_language": false
-                },
-                "inappropriate_tags": []
+                    "delivery"
+                ]
             },
-            "issues": [],
-            "notes": [],
-            "human_review_required": false
+            "issues": [
+                "Campos requeridos ausentes: category"
+            ],
+            "human_review_required": true
         },
-        "decision_source": "AI_PRECHECK",
-        "flagged": false,
-        "flags": [],
-        "reversible": true,
-        "status_history": [
-            {
-                "from": null,
-                "to": "APROBADO_AUTOMATICAMENTE",
-                "actor_user_id": null,
-                "source": "AI_PRECHECK",
-                "notes": "Preevaluación automática; no sustituye la revisión administrativa.",
-                "timestamp": "2026-10-14T17:13:39.995850+00:00"
-            }
-        ],
-        "created_at": "2026-10-14T17:13:39.995850+00:00",
-        "updated_at": "2026-10-14T21:08:31.966748+00:00",
-        "id": 20
+        "approval_status": "PENDIENTE_REVISION"
     },
     {
         "content_type": "restaurant",
@@ -2059,62 +1741,43 @@
         "user_id": 1,
         "reason": "Preevaluación automática",
         "status": "pending",
-        "approval_status": "PENDIENTE_REVISION",
+        "flagged": true,
+        "flags": [],
+        "created_at": "2026-06-30T18:08:29.182545",
+        "updated_at": "2026-10-14T05:40:37.414890+00:00",
+        "id": 12,
         "ai_verdict": "PENDIENTE_REVISION",
         "ai_confidence": 0.55,
         "ai_evaluation": {
-            "model_version": "content-filter-rules-v2",
+            "model_version": "content-filter-rules-v1",
             "content_type": "restaurant",
-            "route": "ASK_AI",
             "ai_verdict": "PENDIENTE_REVISION",
             "final_status": "PENDIENTE_REVISION",
             "confidence": 0.55,
             "rules": {
                 "required_fields": [
                     "name",
-                    "description"
+                    "description",
+                    "category"
                 ],
-                "missing_fields": [],
+                "missing_fields": [
+                    "category"
+                ],
                 "critical_signal": false,
-                "evasion_suspected": false,
-                "dictionary_can_judge": true,
-                "food_score": 10.67,
+                "food_score": 6.06,
                 "banned_words": [],
-                "context_words": [],
                 "food_words_found": [
-                    "comida"
-                ],
-                "coverage": {
-                    "script_ratio": 0.0,
-                    "known_ratio": 0.46,
-                    "foreign_markers": 1,
-                    "unknown_language": false
-                },
-                "inappropriate_tags": []
+                    "comida",
+                    "familia"
+                ]
             },
             "issues": [
-                "Parece no estar relacionado con comida"
+                "El contenido parece no estar relacionado con comida. Verifica que hable sobre restaurantes, platos o servicios culinarios.",
+                "Campos requeridos ausentes: category"
             ],
-            "notes": [],
             "human_review_required": true
         },
-        "decision_source": "AI_PRECHECK",
-        "flagged": true,
-        "flags": [],
-        "reversible": true,
-        "status_history": [
-            {
-                "from": null,
-                "to": "PENDIENTE_REVISION",
-                "actor_user_id": null,
-                "source": "AI_PRECHECK",
-                "notes": "Preevaluación automática; no sustituye la revisión administrativa.",
-                "timestamp": "2026-10-14T17:13:40.050364+00:00"
-            }
-        ],
-        "created_at": "2026-10-14T17:13:40.050364+00:00",
-        "updated_at": "2026-10-14T19:24:19.430645+00:00",
-        "id": 21
+        "approval_status": "PENDIENTE_REVISION"
     },
     {
         "content_type": "restaurant",
@@ -2152,67 +1815,47 @@
             "verified": false,
             "moderation_notes": ""
         },
-        "user_id": 1,
-        "reason": "Preevaluación automática",
-        "status": "approved",
-        "approval_status": "APROBADO_AUTOMATICAMENTE",
-        "ai_verdict": "APROBADO_AUTOMATICAMENTE",
-        "ai_confidence": 0.9,
+        "user_id": 3,
+        "reason": "Filtro automático: Tag no relacionado con comida: criolla",
+        "status": "pending",
+        "flagged": true,
+        "flags": [],
+        "created_at": "2026-06-30T18:08:29.184581",
+        "updated_at": "2026-10-14T05:40:37.459708+00:00",
+        "id": 13,
+        "ai_verdict": "PENDIENTE_REVISION",
+        "ai_confidence": 0.55,
         "ai_evaluation": {
-            "model_version": "content-filter-rules-v2",
+            "model_version": "content-filter-rules-v1",
             "content_type": "restaurant",
-            "route": "AUTO_OK",
-            "ai_verdict": "APROBADO_AUTOMATICAMENTE",
-            "final_status": "APROBADO_AUTOMATICAMENTE",
-            "confidence": 0.9,
+            "ai_verdict": "PENDIENTE_REVISION",
+            "final_status": "PENDIENTE_REVISION",
+            "confidence": 0.55,
             "rules": {
                 "required_fields": [
                     "name",
-                    "description"
+                    "description",
+                    "category"
                 ],
-                "missing_fields": [],
+                "missing_fields": [
+                    "category"
+                ],
                 "critical_signal": false,
-                "evasion_suspected": false,
-                "dictionary_can_judge": true,
-                "food_score": 23.57,
+                "food_score": 30.0,
                 "banned_words": [],
-                "context_words": [],
                 "food_words_found": [
+                    "restaurante",
                     "comida",
-                    "criolla",
-                    "restaurante"
-                ],
-                "coverage": {
-                    "script_ratio": 0.0,
-                    "known_ratio": 0.57,
-                    "foreign_markers": 0,
-                    "unknown_language": false
-                },
-                "inappropriate_tags": []
+                    "familia"
+                ]
             },
-            "issues": [],
-            "notes": [
-                "Contenido culinario verificado"
+            "issues": [
+                "Contenido relacionado con comida verificado correctamente.",
+                "Campos requeridos ausentes: category"
             ],
-            "human_review_required": false
+            "human_review_required": true
         },
-        "decision_source": "AI_PRECHECK",
-        "flagged": false,
-        "flags": [],
-        "reversible": true,
-        "status_history": [
-            {
-                "from": null,
-                "to": "APROBADO_AUTOMATICAMENTE",
-                "actor_user_id": null,
-                "source": "AI_PRECHECK",
-                "notes": "Preevaluación automática; no sustituye la revisión administrativa.",
-                "timestamp": "2026-10-14T17:13:40.104539+00:00"
-            }
-        ],
-        "created_at": "2026-10-14T17:13:40.104539+00:00",
-        "updated_at": "2026-10-14T19:24:19.476835+00:00",
-        "id": 22
+        "approval_status": "PENDIENTE_REVISION"
     },
     {
         "content_type": "restaurant",
@@ -2251,62 +1894,43 @@
         "user_id": 1,
         "reason": "Preevaluación automática",
         "status": "pending",
-        "approval_status": "PENDIENTE_REVISION",
+        "flagged": true,
+        "flags": [],
+        "created_at": "2026-06-30T18:08:29.187126",
+        "updated_at": "2026-10-14T05:40:37.510888+00:00",
+        "id": 14,
         "ai_verdict": "PENDIENTE_REVISION",
         "ai_confidence": 0.55,
         "ai_evaluation": {
-            "model_version": "content-filter-rules-v2",
+            "model_version": "content-filter-rules-v1",
             "content_type": "restaurant",
-            "route": "ASK_AI",
             "ai_verdict": "PENDIENTE_REVISION",
             "final_status": "PENDIENTE_REVISION",
             "confidence": 0.55,
             "rules": {
                 "required_fields": [
                     "name",
-                    "description"
+                    "description",
+                    "category"
                 ],
-                "missing_fields": [],
+                "missing_fields": [
+                    "category"
+                ],
                 "critical_signal": false,
-                "evasion_suspected": false,
-                "dictionary_can_judge": true,
-                "food_score": 8.67,
+                "food_score": 11.11,
                 "banned_words": [],
-                "context_words": [],
                 "food_words_found": [
-                    "comida"
-                ],
-                "coverage": {
-                    "script_ratio": 0.0,
-                    "known_ratio": 0.37,
-                    "foreign_markers": 1,
-                    "unknown_language": false
-                },
-                "inappropriate_tags": []
+                    "comida",
+                    "familia"
+                ]
             },
             "issues": [
-                "Parece no estar relacionado con comida"
+                "El contenido parece no estar relacionado con comida. Verifica que hable sobre restaurantes, platos o servicios culinarios.",
+                "Campos requeridos ausentes: category"
             ],
-            "notes": [],
             "human_review_required": true
         },
-        "decision_source": "AI_PRECHECK",
-        "flagged": true,
-        "flags": [],
-        "reversible": true,
-        "status_history": [
-            {
-                "from": null,
-                "to": "PENDIENTE_REVISION",
-                "actor_user_id": null,
-                "source": "AI_PRECHECK",
-                "notes": "Preevaluación automática; no sustituye la revisión administrativa.",
-                "timestamp": "2026-10-14T17:13:40.152956+00:00"
-            }
-        ],
-        "created_at": "2026-10-14T17:13:40.152956+00:00",
-        "updated_at": "2026-10-14T21:08:32.021968+00:00",
-        "id": 23
+        "approval_status": "PENDIENTE_REVISION"
     },
     {
         "content_type": "restaurant",
@@ -2340,7 +1964,7 @@
             "id": 24
         },
         "user_id": 1,
-        "reason": "Preevaluación automática",
+        "reason": "Registro creado durante revisión administrativa",
         "status": "pending",
         "approval_status": "PENDIENTE_REVISION",
         "ai_verdict": "PENDIENTE_REVISION",
@@ -2487,8 +2111,838 @@
                 "timestamp": "2026-10-14T20:35:47.544966+00:00"
             }
         ],
-        "created_at": "2026-10-14T20:35:47.544966+00:00",
-        "updated_at": "2026-10-14T21:08:32.065993+00:00",
-        "id": 25
+        "created_at": "2026-08-18T21:34:00.013817+00:00",
+        "updated_at": "2026-10-14T05:40:36.832354+00:00",
+        "id": 15,
+        "admin_notes": "Aprobado",
+        "human_decision_by": 1,
+        "human_decision_at": "2026-08-18T21:34:00.041842+00:00"
+    },
+    {
+        "content_type": "restaurant",
+        "content_id": 3,
+        "content_data": {
+            "id": 3,
+            "name": "Sabor Norteño",
+            "category_id": 5,
+            "district": "Victor Larco",
+            "lat": -8.1345,
+            "lng": -79.0432,
+            "avg_price": 35,
+            "rating": 4.5,
+            "open_time": "12:00",
+            "close_time": "17:00",
+            "tags": [
+                "criollo",
+                "económico",
+                "familiar"
+            ],
+            "features": [
+                "delivery",
+                "mesas al aire libre"
+            ],
+            "image": "https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=800",
+            "description": "Auténtico sabor de la libertad en el corazón de California.",
+            "address": "Av. Larco 1250",
+            "phone": "044-321456",
+            "promo": "2x1 en refrescos",
+            "reviews": 450,
+            "dietary_restrictions": [],
+            "owner_id": 1,
+            "owner_name": "Administrador",
+            "verified": true,
+            "moderation_notes": "Agregar mas detalles",
+            "moderated_at": "2026-06-30T18:20:14.219089"
+        },
+        "user_id": 1,
+        "reason": "Preevaluación automática",
+        "status": "pending",
+        "approval_status": "PENDIENTE_REVISION",
+        "ai_verdict": "PENDIENTE_REVISION",
+        "ai_confidence": 0.55,
+        "ai_evaluation": {
+            "model_version": "content-filter-rules-v1",
+            "content_type": "restaurant",
+            "ai_verdict": "PENDIENTE_REVISION",
+            "final_status": "PENDIENTE_REVISION",
+            "confidence": 0.55,
+            "rules": {
+                "required_fields": [
+                    "name",
+                    "description",
+                    "category"
+                ],
+                "missing_fields": [
+                    "category"
+                ],
+                "critical_signal": false,
+                "food_score": 40.0,
+                "banned_words": [],
+                "food_words_found": [
+                    "criollo",
+                    "norteño",
+                    "familia",
+                    "té",
+                    "sabor"
+                ]
+            },
+            "issues": [
+                "Contenido relacionado con comida verificado correctamente.",
+                "Campos requeridos ausentes: category"
+            ],
+            "human_review_required": true
+        },
+        "decision_source": "AI_PRECHECK",
+        "flagged": true,
+        "flags": [],
+        "reversible": true,
+        "status_history": [
+            {
+                "from": null,
+                "to": "PENDIENTE_REVISION",
+                "actor_user_id": null,
+                "source": "AI_PRECHECK",
+                "notes": "Preevaluación automática; sujeta a revisión administrativa cuando corresponda.",
+                "timestamp": "2026-10-14T05:40:33.632047+00:00"
+            }
+        ],
+        "created_at": "2026-10-14T05:40:33.632047+00:00",
+        "updated_at": "2026-10-14T05:40:36.637320+00:00",
+        "id": 16
+    },
+    {
+        "content_type": "restaurant",
+        "content_id": 4,
+        "content_data": {
+            "id": 4,
+            "name": "Pizzería San Remo",
+            "category_id": 3,
+            "district": "Centro Histórico",
+            "lat": -8.1105,
+            "lng": -79.031,
+            "avg_price": 30,
+            "rating": 4.4,
+            "open_time": "17:00",
+            "close_time": "23:30",
+            "tags": [
+                "pizza",
+                "artesanal",
+                "italiana"
+            ],
+            "features": [
+                "delivery",
+                "wifi"
+            ],
+            "image": "https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=800",
+            "description": "Pizzas a la leña con la receta tradicional italiana.",
+            "address": "Jr. Pizarro 712",
+            "phone": "044-201589",
+            "promo": null,
+            "reviews": 620,
+            "dietary_restrictions": [
+                "opción vegetariana"
+            ],
+            "owner_id": 1,
+            "owner_name": "Administrador",
+            "verified": true,
+            "moderation_notes": "Mejorar informacion",
+            "moderated_at": "2026-06-30T18:37:23.843196"
+        },
+        "user_id": 1,
+        "reason": "Preevaluación automática",
+        "status": "pending",
+        "approval_status": "PENDIENTE_REVISION",
+        "ai_verdict": "PENDIENTE_REVISION",
+        "ai_confidence": 0.55,
+        "ai_evaluation": {
+            "model_version": "content-filter-rules-v1",
+            "content_type": "restaurant",
+            "ai_verdict": "PENDIENTE_REVISION",
+            "final_status": "PENDIENTE_REVISION",
+            "confidence": 0.55,
+            "rules": {
+                "required_fields": [
+                    "name",
+                    "description",
+                    "category"
+                ],
+                "missing_fields": [
+                    "category"
+                ],
+                "critical_signal": false,
+                "food_score": 26.67,
+                "banned_words": [],
+                "food_words_found": [
+                    "receta",
+                    "tradicional",
+                    "pizza",
+                    "italiana"
+                ]
+            },
+            "issues": [
+                "Contenido relacionado con comida verificado correctamente.",
+                "Campos requeridos ausentes: category"
+            ],
+            "human_review_required": true
+        },
+        "decision_source": "AI_PRECHECK",
+        "flagged": true,
+        "flags": [],
+        "reversible": true,
+        "status_history": [
+            {
+                "from": null,
+                "to": "PENDIENTE_REVISION",
+                "actor_user_id": null,
+                "source": "AI_PRECHECK",
+                "notes": "Preevaluación automática; sujeta a revisión administrativa cuando corresponda.",
+                "timestamp": "2026-10-14T05:40:33.672463+00:00"
+            }
+        ],
+        "created_at": "2026-10-14T05:40:33.672463+00:00",
+        "updated_at": "2026-10-14T05:40:36.686553+00:00",
+        "id": 17
+    },
+    {
+        "content_type": "restaurant",
+        "content_id": 8,
+        "content_data": {
+            "id": 8,
+            "name": "Garden Café",
+            "category_id": 7,
+            "district": "Centro Histórico",
+            "lat": -8.1115,
+            "lng": -79.0295,
+            "avg_price": 20,
+            "rating": 4.5,
+            "open_time": "08:00",
+            "close_time": "21:00",
+            "tags": [
+                "café",
+                "postres",
+                "tranquilo"
+            ],
+            "features": [
+                "wifi",
+                "terraza",
+                "pet friendly"
+            ],
+            "image": "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?q=80&w=800",
+            "description": "Un oasis en el centro de la ciudad para disfrutar de un buen café.",
+            "address": "Jr. San Martín 560",
+            "phone": "044-123789",
+            "promo": "Combo desayuno S/.15",
+            "reviews": 380,
+            "dietary_restrictions": [
+                "opción vegana",
+                "leche de almendras"
+            ],
+            "owner_id": 1,
+            "owner_name": "Administrador",
+            "verified": false,
+            "moderation_notes": ""
+        },
+        "user_id": 1,
+        "reason": "Preevaluación automática",
+        "status": "pending",
+        "approval_status": "PENDIENTE_REVISION",
+        "ai_verdict": "PENDIENTE_REVISION",
+        "ai_confidence": 0.55,
+        "ai_evaluation": {
+            "model_version": "content-filter-rules-v1",
+            "content_type": "restaurant",
+            "ai_verdict": "PENDIENTE_REVISION",
+            "final_status": "PENDIENTE_REVISION",
+            "confidence": 0.55,
+            "rules": {
+                "required_fields": [
+                    "name",
+                    "description",
+                    "category"
+                ],
+                "missing_fields": [
+                    "category"
+                ],
+                "critical_signal": false,
+                "food_score": 26.32,
+                "banned_words": [],
+                "food_words_found": [
+                    "postre",
+                    "fruta",
+                    "café",
+                    "café",
+                    "postre"
+                ]
+            },
+            "issues": [
+                "Contenido relacionado con comida verificado correctamente.",
+                "Campos requeridos ausentes: category"
+            ],
+            "human_review_required": true
+        },
+        "decision_source": "AI_PRECHECK",
+        "flagged": true,
+        "flags": [],
+        "reversible": true,
+        "status_history": [
+            {
+                "from": null,
+                "to": "PENDIENTE_REVISION",
+                "actor_user_id": null,
+                "source": "AI_PRECHECK",
+                "notes": "Preevaluación automática; sujeta a revisión administrativa cuando corresponda.",
+                "timestamp": "2026-10-14T05:40:33.847511+00:00"
+            }
+        ],
+        "created_at": "2026-10-14T05:40:33.847511+00:00",
+        "updated_at": "2026-10-14T05:40:36.880591+00:00",
+        "id": 18
+    },
+    {
+        "content_type": "restaurant",
+        "content_id": 9,
+        "content_data": {
+            "id": 9,
+            "name": "Verde & Sano",
+            "category_id": 8,
+            "district": "Victor Larco",
+            "lat": -8.1325,
+            "lng": -79.0425,
+            "avg_price": 28,
+            "rating": 4.3,
+            "open_time": "09:00",
+            "close_time": "20:00",
+            "tags": [
+                "saludable",
+                "ensaladas",
+                "jugos"
+            ],
+            "features": [
+                "delivery",
+                "llevar"
+            ],
+            "image": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=800",
+            "description": "Comida saludable y deliciosa para cuidar tu cuerpo.",
+            "address": "Av. Fátima 320",
+            "phone": "044-987654",
+            "promo": "15% off en ensaladas del día",
+            "reviews": 290,
+            "dietary_restrictions": [
+                "vegano",
+                "vegetariano",
+                "sin gluten"
+            ],
+            "owner_id": 3,
+            "owner_name": "Juan Empresario",
+            "verified": false,
+            "moderation_notes": ""
+        },
+        "user_id": 1,
+        "reason": "Preevaluación automática",
+        "status": "pending",
+        "approval_status": "PENDIENTE_REVISION",
+        "ai_verdict": "PENDIENTE_REVISION",
+        "ai_confidence": 0.55,
+        "ai_evaluation": {
+            "model_version": "content-filter-rules-v1",
+            "content_type": "restaurant",
+            "ai_verdict": "PENDIENTE_REVISION",
+            "final_status": "PENDIENTE_REVISION",
+            "confidence": 0.55,
+            "rules": {
+                "required_fields": [
+                    "name",
+                    "description",
+                    "category"
+                ],
+                "missing_fields": [
+                    "category"
+                ],
+                "critical_signal": false,
+                "food_score": 35.71,
+                "banned_words": [],
+                "food_words_found": [
+                    "comida",
+                    "saludable",
+                    "ensalada",
+                    "jugos",
+                    "jugo"
+                ]
+            },
+            "issues": [
+                "Contenido relacionado con comida verificado correctamente.",
+                "Campos requeridos ausentes: category"
+            ],
+            "human_review_required": true
+        },
+        "decision_source": "AI_PRECHECK",
+        "flagged": true,
+        "flags": [],
+        "reversible": true,
+        "status_history": [
+            {
+                "from": null,
+                "to": "PENDIENTE_REVISION",
+                "actor_user_id": null,
+                "source": "AI_PRECHECK",
+                "notes": "Preevaluación automática; sujeta a revisión administrativa cuando corresponda.",
+                "timestamp": "2026-10-14T05:40:33.890291+00:00"
+            }
+        ],
+        "created_at": "2026-10-14T05:40:33.890291+00:00",
+        "updated_at": "2026-10-14T05:40:36.920400+00:00",
+        "id": 19
+    },
+    {
+        "content_type": "restaurant",
+        "content_id": 10,
+        "content_data": {
+            "id": 10,
+            "name": "Tacos & Tequila",
+            "category_id": 10,
+            "district": "Victor Larco",
+            "lat": -8.136,
+            "lng": -79.045,
+            "avg_price": 35,
+            "rating": 4.4,
+            "open_time": "18:00",
+            "close_time": "01:00",
+            "tags": [
+                "mexicano",
+                "tacos",
+                "tragos"
+            ],
+            "features": [
+                "música en vivo",
+                "barra"
+            ],
+            "image": "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?q=80&w=800",
+            "description": "El verdadero sabor de México en Trujillo.",
+            "address": "Av. Larco 1500",
+            "phone": "044-654321",
+            "promo": "Margaritas 2x1 los jueves",
+            "reviews": 410,
+            "dietary_restrictions": [
+                "opción vegetariana"
+            ],
+            "owner_id": 1,
+            "owner_name": "Administrador",
+            "verified": false,
+            "moderation_notes": ""
+        },
+        "user_id": 1,
+        "reason": "Preevaluación automática",
+        "status": "pending",
+        "approval_status": "PENDIENTE_REVISION",
+        "ai_verdict": "PENDIENTE_REVISION",
+        "ai_confidence": 0.55,
+        "ai_evaluation": {
+            "model_version": "content-filter-rules-v1",
+            "content_type": "restaurant",
+            "ai_verdict": "PENDIENTE_REVISION",
+            "final_status": "PENDIENTE_REVISION",
+            "confidence": 0.55,
+            "rules": {
+                "required_fields": [
+                    "name",
+                    "description",
+                    "category"
+                ],
+                "missing_fields": [
+                    "category"
+                ],
+                "critical_signal": false,
+                "food_score": 30.77,
+                "banned_words": [],
+                "food_words_found": [
+                    "taco",
+                    "tacos",
+                    "tragos",
+                    "sabor"
+                ]
+            },
+            "issues": [
+                "Contenido relacionado con comida verificado correctamente.",
+                "Campos requeridos ausentes: category"
+            ],
+            "human_review_required": true
+        },
+        "decision_source": "AI_PRECHECK",
+        "flagged": true,
+        "flags": [],
+        "reversible": true,
+        "status_history": [
+            {
+                "from": null,
+                "to": "PENDIENTE_REVISION",
+                "actor_user_id": null,
+                "source": "AI_PRECHECK",
+                "notes": "Preevaluación automática; sujeta a revisión administrativa cuando corresponda.",
+                "timestamp": "2026-10-14T05:40:33.928821+00:00"
+            }
+        ],
+        "created_at": "2026-10-14T05:40:33.928821+00:00",
+        "updated_at": "2026-10-14T05:40:36.961688+00:00",
+        "id": 20
+    },
+    {
+        "content_type": "restaurant",
+        "content_id": 13,
+        "content_data": {
+            "id": 13,
+            "name": "Pasta & Vino",
+            "category_id": 3,
+            "district": "Victor Larco",
+            "lat": -8.138,
+            "lng": -79.047,
+            "avg_price": 50,
+            "rating": 4.7,
+            "open_time": "18:30",
+            "close_time": "23:30",
+            "tags": [
+                "italiana",
+                "romántico",
+                "vinos"
+            ],
+            "features": [
+                "reservas",
+                "música suave"
+            ],
+            "image": "https://images.unsplash.com/photo-1574071318508-1cdbad80ad38?q=80&w=800",
+            "description": "Cenas elegantes con pastas hechas en casa.",
+            "address": "Calle Los Laureles 123",
+            "phone": "044-778899",
+            "promo": "Copa de vino de cortesía",
+            "reviews": 280,
+            "dietary_restrictions": [
+                "opción vegetariana"
+            ],
+            "owner_id": 3,
+            "owner_name": "Juan Empresario",
+            "verified": false,
+            "moderation_notes": ""
+        },
+        "user_id": 1,
+        "reason": "Preevaluación automática",
+        "status": "pending",
+        "approval_status": "PENDIENTE_REVISION",
+        "ai_verdict": "PENDIENTE_REVISION",
+        "ai_confidence": 0.55,
+        "ai_evaluation": {
+            "model_version": "content-filter-rules-v1",
+            "content_type": "restaurant",
+            "ai_verdict": "PENDIENTE_REVISION",
+            "final_status": "PENDIENTE_REVISION",
+            "confidence": 0.55,
+            "rules": {
+                "required_fields": [
+                    "name",
+                    "description",
+                    "category"
+                ],
+                "missing_fields": [
+                    "category"
+                ],
+                "critical_signal": false,
+                "food_score": 46.15,
+                "banned_words": [],
+                "food_words_found": [
+                    "cena",
+                    "pasta",
+                    "italiana",
+                    "vinos",
+                    "romántico"
+                ]
+            },
+            "issues": [
+                "Contenido relacionado con comida verificado correctamente.",
+                "Campos requeridos ausentes: category"
+            ],
+            "human_review_required": true
+        },
+        "decision_source": "AI_PRECHECK",
+        "flagged": true,
+        "flags": [],
+        "reversible": true,
+        "status_history": [
+            {
+                "from": null,
+                "to": "PENDIENTE_REVISION",
+                "actor_user_id": null,
+                "source": "AI_PRECHECK",
+                "notes": "Preevaluación automática; sujeta a revisión administrativa cuando corresponda.",
+                "timestamp": "2026-10-14T05:40:34.046247+00:00"
+            }
+        ],
+        "created_at": "2026-10-14T05:40:34.046247+00:00",
+        "updated_at": "2026-10-14T05:40:37.095384+00:00",
+        "id": 21
+    },
+    {
+        "content_type": "restaurant",
+        "content_id": 18,
+        "content_data": {
+            "id": 18,
+            "name": "El Rocoto",
+            "category_id": 5,
+            "district": "Trujillo",
+            "lat": -8.108,
+            "lng": -79.038,
+            "avg_price": 30,
+            "rating": 4.5,
+            "open_time": "12:00",
+            "close_time": "17:00",
+            "tags": [
+                "picantería",
+                "criollo",
+                "tradicional"
+            ],
+            "features": [
+                "patio"
+            ],
+            "image": "https://images.unsplash.com/photo-1589113103553-4958034060ee?q=80&w=800",
+            "description": "Sabor de antaño con los mejores picantes.",
+            "address": "Av. Húsares de Junín 890",
+            "phone": "044-225588",
+            "promo": null,
+            "reviews": 460,
+            "dietary_restrictions": [],
+            "owner_id": 1,
+            "owner_name": "Administrador",
+            "verified": false,
+            "moderation_notes": ""
+        },
+        "user_id": 1,
+        "reason": "Preevaluación automática",
+        "status": "pending",
+        "approval_status": "PENDIENTE_REVISION",
+        "ai_verdict": "PENDIENTE_REVISION",
+        "ai_confidence": 0.55,
+        "ai_evaluation": {
+            "model_version": "content-filter-rules-v1",
+            "content_type": "restaurant",
+            "ai_verdict": "PENDIENTE_REVISION",
+            "final_status": "PENDIENTE_REVISION",
+            "confidence": 0.55,
+            "rules": {
+                "required_fields": [
+                    "name",
+                    "description",
+                    "category"
+                ],
+                "missing_fields": [
+                    "category"
+                ],
+                "critical_signal": false,
+                "food_score": 33.33,
+                "banned_words": [],
+                "food_words_found": [
+                    "tradicional",
+                    "criollo",
+                    "rocoto",
+                    "sabor"
+                ]
+            },
+            "issues": [
+                "Contenido relacionado con comida verificado correctamente.",
+                "Campos requeridos ausentes: category"
+            ],
+            "human_review_required": true
+        },
+        "decision_source": "AI_PRECHECK",
+        "flagged": true,
+        "flags": [],
+        "reversible": true,
+        "status_history": [
+            {
+                "from": null,
+                "to": "PENDIENTE_REVISION",
+                "actor_user_id": null,
+                "source": "AI_PRECHECK",
+                "notes": "Preevaluación automática; sujeta a revisión administrativa cuando corresponda.",
+                "timestamp": "2026-10-14T05:40:34.276809+00:00"
+            }
+        ],
+        "created_at": "2026-10-14T05:40:34.276809+00:00",
+        "updated_at": "2026-10-14T05:40:37.290392+00:00",
+        "id": 22
+    },
+    {
+        "content_type": "restaurant",
+        "content_id": 20,
+        "content_data": {
+            "id": 20,
+            "name": "Bio Market & Café",
+            "category_id": 8,
+            "district": "Victor Larco",
+            "lat": -8.137,
+            "lng": -79.046,
+            "avg_price": 32,
+            "rating": 4.6,
+            "open_time": "08:30",
+            "close_time": "21:00",
+            "tags": [
+                "orgánico",
+                "saludable",
+                "tienda"
+            ],
+            "features": [
+                "wifi",
+                "pet friendly"
+            ],
+            "image": "https://images.unsplash.com/photo-1543332164-6e82f355badc?q=80&w=800",
+            "description": "Productos orgánicos y platos saludables preparados al momento.",
+            "address": "Calle Las Hortensias 450",
+            "phone": "044-448800",
+            "promo": "10% de descuento para clientes frecuentes",
+            "reviews": 240,
+            "dietary_restrictions": [
+                "vegano",
+                "sin gluten",
+                "keto"
+            ],
+            "owner_id": 3,
+            "owner_name": "Juan Empresario",
+            "verified": false,
+            "moderation_notes": ""
+        },
+        "user_id": 1,
+        "reason": "Preevaluación automática",
+        "status": "pending",
+        "approval_status": "PENDIENTE_REVISION",
+        "ai_verdict": "PENDIENTE_REVISION",
+        "ai_confidence": 0.55,
+        "ai_evaluation": {
+            "model_version": "content-filter-rules-v1",
+            "content_type": "restaurant",
+            "ai_verdict": "PENDIENTE_REVISION",
+            "final_status": "PENDIENTE_REVISION",
+            "confidence": 0.55,
+            "rules": {
+                "required_fields": [
+                    "name",
+                    "description",
+                    "category"
+                ],
+                "missing_fields": [
+                    "category"
+                ],
+                "critical_signal": false,
+                "food_score": 26.67,
+                "banned_words": [],
+                "food_words_found": [
+                    "plato",
+                    "saludable",
+                    "café",
+                    "café"
+                ]
+            },
+            "issues": [
+                "Contenido relacionado con comida verificado correctamente.",
+                "Campos requeridos ausentes: category"
+            ],
+            "human_review_required": true
+        },
+        "decision_source": "AI_PRECHECK",
+        "flagged": true,
+        "flags": [],
+        "reversible": true,
+        "status_history": [
+            {
+                "from": null,
+                "to": "PENDIENTE_REVISION",
+                "actor_user_id": null,
+                "source": "AI_PRECHECK",
+                "notes": "Preevaluación automática; sujeta a revisión administrativa cuando corresponda.",
+                "timestamp": "2026-10-14T05:40:34.366998+00:00"
+            }
+        ],
+        "created_at": "2026-10-14T05:40:34.366998+00:00",
+        "updated_at": "2026-10-14T05:40:37.369640+00:00",
+        "id": 23
+    },
+    {
+        "content_type": "restaurant",
+        "content_id": 24,
+        "content_data": {
+            "name": "La tia Veneno",
+            "category_id": 8,
+            "district": "Trujillo",
+            "lat": -8.100688,
+            "lng": -79.038575,
+            "avg_price": 10.0,
+            "rating": 4.0,
+            "open_time": "12:00",
+            "close_time": "22:00",
+            "tags": [
+                "fascinante"
+            ],
+            "features": [
+                "wifi",
+                "reservas",
+                "estacionamiento"
+            ],
+            "image": "",
+            "description": "Comida saludable al paso",
+            "address": "Calle las Gemas, Urbanización Santa Inés, Trujillo, Province of Trujillo, La Libertad, 13011, Peru",
+            "phone": "999999999",
+            "promo": "90% si traes a tu mascota",
+            "dietary_restrictions": [],
+            "owner_id": 3,
+            "owner_name": "Juan Empresario",
+            "id": 24
+        },
+        "user_id": 1,
+        "reason": "Preevaluación automática",
+        "status": "pending",
+        "approval_status": "PENDIENTE_REVISION",
+        "ai_verdict": "PENDIENTE_REVISION",
+        "ai_confidence": 0.55,
+        "ai_evaluation": {
+            "model_version": "content-filter-rules-v1",
+            "content_type": "restaurant",
+            "ai_verdict": "PENDIENTE_REVISION",
+            "final_status": "PENDIENTE_REVISION",
+            "confidence": 0.55,
+            "rules": {
+                "required_fields": [
+                    "name",
+                    "description",
+                    "category"
+                ],
+                "missing_fields": [
+                    "category"
+                ],
+                "critical_signal": false,
+                "food_score": 25.0,
+                "banned_words": [],
+                "food_words_found": [
+                    "comida",
+                    "saludable"
+                ]
+            },
+            "issues": [
+                "Contenido relacionado con comida verificado correctamente.",
+                "Campos requeridos ausentes: category"
+            ],
+            "human_review_required": true
+        },
+        "decision_source": "AI_PRECHECK",
+        "flagged": true,
+        "flags": [],
+        "reversible": true,
+        "status_history": [
+            {
+                "from": null,
+                "to": "PENDIENTE_REVISION",
+                "actor_user_id": null,
+                "source": "AI_PRECHECK",
+                "notes": "Preevaluación automática; sujeta a revisión administrativa cuando corresponda.",
+                "timestamp": "2026-10-14T05:40:34.560149+00:00"
+            }
+        ],
+        "created_at": "2026-10-14T05:40:34.560149+00:00",
+        "updated_at": "2026-10-14T05:40:37.560621+00:00",
+        "id": 24
     }
 ]
