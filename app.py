@@ -5,6 +5,15 @@ import uuid
 from flask import Flask, jsonify, render_template, request
 from flask_wtf.csrf import CSRFError
 
+# Load local secrets before importing configuration and route modules. Existing
+# process environment variables take precedence over values in the local file.
+try:
+    from dotenv import load_dotenv
+except ImportError:  # The app still runs with process-level environment variables.
+    load_dotenv = None
+if load_dotenv:
+    load_dotenv(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env"), override=False)
+
 from config import Config
 from context_processors import inject_globals
 from utils.security import csrf
