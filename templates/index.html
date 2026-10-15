@@ -62,6 +62,7 @@
     </div>
 </div>
 
+<!-- Recomendación Inteligente (versión simple: un cuadro de texto + un botón) -->
 <div class="modal" id="recommendationModal">
     <div class="modal-content">
         <div class="modal-header">
@@ -69,58 +70,39 @@
             <span class="close-modal">&times;</span>
         </div>
         <div class="modal-body">
-            <form id="recommendationForm">
+            <form id="aiRecForm">
                 <div class="form-group">
-                    <label>Ubicación actual</label>
-                    <input type="text" id="userLocation" placeholder="Ej: Trujillo, Centro" class="form-input" />
-                    <button type="button" id="detectLocationBtn" class="btn-small"><i class="fas fa-crosshairs"></i> Detectar</button>
+                    <label for="aiRecText">¿Qué se te antoja?</label>
+                    <textarea id="aiRecText" class="form-input" rows="3" maxlength="300" required
+                        placeholder="Ej: una cena romántica y económica para esta noche"></textarea>
                 </div>
+                <button type="submit" id="aiRecBtn" class="btn-primary btn-block">
+                    <i class="fas fa-magic"></i> Recomiéndame
+                </button>
+            </form>
 
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Presupuesto ({{ MONEDA }})</label>
-                        <input type="number" id="userBudget" placeholder="50" min="0" class="form-input" />
-                    </div>
-                    <div class="form-group">
-                        <label>Hora de visita</label>
-                        <input type="time" id="visitTime" class="form-input" />
-                    </div>
-                </div>
+            <div id="aiRecResult" style="margin-top:16px;"></div>
 
-                <div class="form-group">
-                    <label>Tipo de comida preferido</label>
-                    <select id="userFoodPreference" class="form-input">
+            <!-- Formulario anterior: oculto para no romper app.js.
+                 Cuando confirme que app.js no lo usa, puede borrar este div. -->
+            <div style="display:none">
+                <form id="recommendationForm">
+                    <input type="text" id="userLocation" name="location" />
+                    <button type="button" id="detectLocationBtn"></button>
+                    <input type="number" id="userBudget" name="budget" />
+                    <input type="time" id="visitTime" name="visit_time" />
+                    <select id="userFoodPreference" name="food_preference">
                         <option value="">Selecciona...</option>
                         {% for cat in categories %}
                             <option value="{{ cat.id }}">{{ cat.name }}</option>
                         {% endfor %}
                     </select>
-                </div>
-
-                <div class="form-group">
-                    <label>Restricciones alimenticias</label>
-                    <div class="checkbox-group">
-                        <label class="checkbox-label"><input type="checkbox" value="vegano" />Vegano</label>
-                        <label class="checkbox-label"><input type="checkbox" value="vegetariano" />Vegetariano</label>
-                        <label class="checkbox-label"><input type="checkbox" value="celiaco" />Celíaco</label>
-                        <label class="checkbox-label"><input type="checkbox" value="sin gluten" />Sin gluten</label>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Objetivo de la salida</label>
-                    <select id="outingGoal" class="form-input">
+                    <select id="outingGoal" name="goal">
                         <option value="almuerzo">Almuerzo</option>
-                        <option value="cena">Cena</option>
-                        <option value="romantica">Cena romántica</option>
-                        <option value="negocios">Reunión de negocios</option>
-                        <option value="familia">Familia</option>
-                        <option value="amigos">Amigos</option>
                     </select>
-                </div>
-
-                <button type="submit" class="btn-primary btn-block"><i class="fas fa-magic"></i> Obtener recomendaciones</button>
-            </form>
+                    <button type="submit"></button>
+                </form>
+            </div>
         </div>
     </div>
 </div>
@@ -135,6 +117,7 @@
     </div>
 </div>
 
+<!-- Estilos mínimos del mapa nuevo (no tocan tamaños de tarjetas, filtros ni layout) -->
 <style>
     .map-control-btn.active {
         background: var(--primary);
@@ -181,16 +164,15 @@
 
 {% block scripts %}
 <script>
-    // ✅ Datos iniciales para el mapa y la búsqueda - Corregido
-    // Usar JSON.parse para asegurar que los datos se conviertan correctamente
+    // ✅ Datos iniciales para el mapa y la búsqueda
     const INITIAL_COORDS = {{ CENTER_COORDS | tojson | safe }};
     const RESTAURANTS_DATA = {{ restaurants | tojson | safe }};
     const CATEGORIES_DATA = {{ categories | tojson | safe }};
     const USER_PROFILE = {{ user_profile | tojson | safe }};
-    
+
     // ✅ Agregar MONEDA a las variables globales
     const MONEDA = '{{ MONEDA }}';
-    
+
     // Configuración de la aplicación
     const APP_CONFIG = {
         city: '{{ CIUDAD }}',
@@ -199,7 +181,7 @@
         secondaryColor: '{{ SECONDARY_COLOR }}',
         maxRadius: {{ RADIO_MAXIMO_KM }}
     };
-    
+
     // ✅ Para depuración - verificar que los datos se cargaron correctamente
     console.log('✅ INITIAL_COORDS:', INITIAL_COORDS);
     console.log('✅ RESTAURANTS_DATA:', RESTAURANTS_DATA.length, 'restaurantes');
@@ -618,6 +600,97 @@
     }
 
     window.addEventListener('load', init);
+})();
+</script>
+
+<!-- Asistente de IA (Qwen): búsqueda inteligente + chat -->
+<script src="{{ url_for('static', filename='js/ai-assistant.js') }}"></script>
+
+<!-- Recomendación Inteligente simple: un texto -> la IA responde con hasta 3 restaurantes -->
+<script>
+(function () {
+    'use strict';
+
+    const form = document.getElementById('aiRecForm');
+    if (!form) return;
+
+    const input = document.getElementById('aiRecText');
+    const btn = document.getElementById('aiRecBtn');
+    const out = document.getElementById('aiRecResult');
+    const idleHTML = btn.innerHTML;
+
+    function node(tag, text, style) {
+        const n = document.createElement(tag);
+        if (text != null) n.textContent = text;
+        if (style) n.style.cssText = style;
+        return n;
+    }
+
+    function appRestaurants() {
+        return (window.app && window.app.state && window.app.state.restaurants) || [];
+    }
+
+    function compactRestaurants() {
+        return appRestaurants().slice(0, 40).map(r => ({
+            id: r.id, name: r.name, district: r.district, avg_price: r.avg_price,
+            rating: r.rating, tags: r.tags, category_id: r.category_id,
+            promo: r.promo, distance_km: r.distance_km
+        }));
+    }
+
+    function showResult(reply, ids) {
+        out.textContent = '';
+        out.appendChild(node('p', reply, 'margin:0 0 12px;line-height:1.5;color:#374151;'));
+
+        const all = appRestaurants();
+        (ids || []).forEach(id => {
+            const r = all.find(x => String(x.id) === String(id));
+            if (!r) return;
+            const a = node('a', null,
+                'display:block;margin-bottom:8px;padding:10px 12px;border:1px solid #eceff3;' +
+                'border-left:3px solid var(--primary,#ff385c);border-radius:10px;' +
+                'text-decoration:none;color:#374151;font-size:13px;');
+            a.href = '/restaurant/' + encodeURIComponent(r.id);
+            a.appendChild(node('strong', r.name, 'display:block;color:#111827;font-size:14px;'));
+            a.appendChild(node('span',
+                (typeof MONEDA !== 'undefined' ? MONEDA : 'S/.') + r.avg_price +
+                ' · ★ ' + r.rating + (r.district ? ' · ' + r.district : '')));
+            out.appendChild(a);
+        });
+    }
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const text = input.value.trim();
+        if (!text) return;
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Pensando...';
+        out.textContent = '';
+
+        try {
+            const res = await fetch('/api/ai/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    messages: [{ role: 'user', content: text }],
+                    restaurants: compactRestaurants()
+                })
+            });
+            let data = {};
+            try { data = await res.json(); } catch (_) {}
+            if (!res.ok || !data.success) {
+                throw new Error(data.error || 'La IA no está disponible ahora. Intenta de nuevo.');
+            }
+            showResult(data.reply, data.restaurant_ids);
+        } catch (err) {
+            out.textContent = '';
+            out.appendChild(node('p', err.message, 'margin:0;color:#b91c1c;'));
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = idleHTML;
+        }
+    });
 })();
 </script>
 {% endblock %}
