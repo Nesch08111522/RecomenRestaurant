@@ -43,6 +43,17 @@ def _restaurant_service_mode(restaurant):
     return 'dine_in_only'
 
 
+@admin_bp.app_context_processor
+def inject_sidebar_restaurants():
+    user = session.get("user") or {}
+    role = user.get("role")
+    if role == "admin":
+        return {"restaurants": RestaurantModel.all()}
+    if role == "business_owner":
+        return {"restaurants": RestaurantModel.get_by_owner(user.get("id"))}
+    return {}
+
+
 def _fresh_session_user():
     """Revalida el rol contra el almacenamiento antes de autorizar."""
     raw_id = session.get('user_id')
