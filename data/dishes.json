@@ -2933,5 +2933,630 @@
         "tags": [],
         "created_at": "2026-10-15T07:34:35.778989",
         "id": 90
+    },
+    {
+        "restaurant_id": 2,
+        "name": "Causa limeña de pollo",
+        "price": 18.0,
+        "category": "Entrada",
+        "menu_date": null,
+        "day_of_week": null,
+        "meal_time": "almuerzo",
+        "description": "Masa fría de papa amarilla con ají amarillo, rellena de pollo deshilachado y palta.",
+        "ingredients": [
+            "papa amarilla",
+            "pollo",
+            "mayonesa",
+            "palta",
+            "ají amarillo",
+            "limón"
+        ],
+        "dietary_info": [
+            "sin gluten",
+            "contiene huevo"
+        ],
+        "preparation_time": 20,
+        "spiciness": 0,
+        "is_recommended": false,
+        "is_available": true,
+        "tags": [],
+        "created_at": "2026-10-15T08:06:42.858201",
+        "id": 91
+    },
+    {
+        "restaurant_id": 2,
+        "name": "Shambar",
+        "price": 16.0,
+        "category": "Fondo",
+        "menu_date": "2026-10-19",
+        "day_of_week": "lunes",
+        "meal_time": "almuerzo",
+        "description": "Sopa norteña espesa de trigo con legumbres y carnes, típica de los días lunes.",
+        "ingredients": [
+            "trigo",
+            "habas",
+            "arvejas",
+            "garbanzos",
+            "jamón",
+            "tocino",
+            "carne de cerdo",
+            "ají panca"
+        ],
+        "dietary_info": [
+            "contiene gluten",
+            "contiene cerdo"
+        ],
+        "preparation_time": 20,
+        "spiciness": 0,
+        "is_recommended": false,
+        "is_available": true,
+        "tags": [],
+        "created_at": "2026-10-15T08:06:42.858379",
+        "id": 92
+    },
+    {
+        "restaurant_id": 2,
+        "name": "Arroz con pato",
+        "price": 28.0,
+        "category": "Fondo",
+        "menu_date": null,
+        "day_of_week": null,
+        "meal_time": "almuerzo",
+        "description": "Pato macerado y guisado en cerveza negra y culantro, servido con arroz verde.",
+        "ingredients": [
+            "pato",
+            "arroz",
+            "culantro",
+            "cerveza negra",
+            "arvejas",
+            "zanahoria",
+            "ají amarillo"
+        ],
+        "dietary_info": [
+            "contiene gluten"
+        ],
+        "preparation_time": 20,
+        "spiciness": 0,
+        "is_recommended": false,
+        "is_available": true,
+        "tags": [],
+        "created_at": "2026-10-15T08:06:42.858443",
+        "id": 93
+    },
+    {
+        "restaurant_id": 2,
+        "name": "Lomo saltado",
+        "price": 30.0,
+        "category": "Fondo",
+        "menu_date": null,
+        "day_of_week": null,
+        "meal_time": "cena",
+        "description": "Lomo de res salteado al wok con cebolla y tomate, acompañado de papas fritas y arroz.",
+        "ingredients": [
+            "lomo de res",
+            "cebolla",
+            "tomate",
+            "sillao",
+            "vinagre",
+            "ají amarillo",
+            "papa",
+            "arroz"
+        ],
+        "dietary_info": [
+            "contiene gluten",
+            "contiene soya"
+        ],
+        "preparation_time": 20,
+        "spiciness": 0,
+        "is_recommended": false,
+        "is_available": true,
+        "tags": [],
+        "created_at": "2026-10-15T08:06:42.858505",
+        "id": 94
+    },
+    {
+        "restaurant_id": 2,
+        "name": "Pan con chicharrón",
+        "price": 12.0,
+        "category": "Fondo",
+        "menu_date": null,
+        "day_of_week": null,
+        "meal_time": "desayuno",
+        "description": "Pan francés con chicharrón de cerdo, camote frito y salsa criolla.",
+        "ingredients": [
+            "pan francés",
+            "cerdo",
+            "camote",
+            "cebolla roja",
+            "limón",
+            "ají"
+        ],
+        "dietary_info": [
+            "contiene gluten",
+            "contiene cerdo"
+        ],
+        "preparation_time": 20,
+        "spiciness": 0,
+        "is_recommended": false,
+        "is_available": true,
+        "tags": [],
+        "created_at": "2026-10-15T08:06:42.858560",
+        "id": 95
+    },
+    {
+        "restaurant_id": 2,
+        "name": "Suspiro limeño",
+        "price": 12.0,
+        "category": "Postre",
+        "menu_date": null,
+        "day_of_week": null,
+        "meal_time": "cena",
+        "description": "Dulce cremoso de leche con yemas, coronado con merengue al oporto.",
+        "ingredients": [
+            "leche condensada",
+            "leche evaporada",
+            "yemas",
+            "merengue",
+            "oporto",
+            "canela"
+        ],
+        "dietary_info": [
+            "sin gluten",
+            "contiene lácteos",
+            "contiene huevo",
+            "contiene alcohol"
+        ],
+        "preparation_time": 20,
+        "spiciness": 0,
+        "is_recommended": false,
+        "is_available": true,
+        "tags": [],
+        "created_at": "2026-10-15T08:06:42.858614",
+        "id": 96
+    },
+    {
+        "restaurant_id": 2,
+        "name": "Chicha morada",
+        "price": 8.0,
+        "category": "Bebida",
+        "menu_date": null,
+        "day_of_week": null,
+        "meal_time": "almuerzo",
+        "description": "Refresco peruano de maíz morado hervido con piña, canela y clavo de olor.",
+        "ingredients": [
+            "maíz morado",
+            "piña",
+            "canela",
+            "clavo de olor",
+            "limón",
+            "azúcar"
+        ],
+        "dietary_info": [
+            "vegano",
+            "sin gluten",
+            "sin lácteos"
+        ],
+        "preparation_time": 20,
+        "spiciness": 0,
+        "is_recommended": false,
+        "is_available": true,
+        "tags": [],
+        "created_at": "2026-10-15T08:06:42.858669",
+        "id": 97
+    },
+    {
+        "restaurant_id": 2,
+        "name": "Pescado Sudado",
+        "price": 26.0,
+        "category": "Fondo",
+        "menu_date": null,
+        "day_of_week": null,
+        "meal_time": "almuerzo",
+        "description": "Diego estuvo aca",
+        "ingredients": [
+            "pescado",
+            "tomate",
+            "cebolla roja",
+            "ají amarillo",
+            "culantro",
+            "chicha de jora",
+            "yuca",
+            "arroz"
+        ],
+        "dietary_info": [
+            "sin gluten",
+            "sin lácteos"
+        ],
+        "preparation_time": 30,
+        "spiciness": 1,
+        "is_recommended": false,
+        "is_available": true,
+        "tags": [],
+        "created_at": "2026-10-15T08:10:30.718743",
+        "id": 98
+    },
+    {
+        "restaurant_id": 2,
+        "name": "Tequeños de queso",
+        "price": 14.0,
+        "category": "Entrada",
+        "menu_date": null,
+        "day_of_week": null,
+        "meal_time": "cena",
+        "description": "Palitos de masa wantán rellenos de queso fresco, fritos y servidos con salsa de palta.",
+        "ingredients": [
+            "masa wantán",
+            "queso fresco",
+            "palta",
+            "limón",
+            "aceite"
+        ],
+        "dietary_info": [
+            "contiene gluten",
+            "contiene lácteos",
+            "vegetariano"
+        ],
+        "preparation_time": 15,
+        "spiciness": 0,
+        "is_recommended": false,
+        "is_available": true,
+        "tags": [],
+        "created_at": "2026-10-15T08:10:30.718802",
+        "id": 99
+    },
+    {
+        "restaurant_id": 2,
+        "name": "Ají de gallina",
+        "price": 24.0,
+        "category": "Fondo",
+        "menu_date": null,
+        "day_of_week": null,
+        "meal_time": "almuerzo",
+        "description": "Pollo deshilachado en crema de ají amarillo, pan y nueces, con papa y arroz.",
+        "ingredients": [
+            "pollo",
+            "ají amarillo",
+            "pan",
+            "leche evaporada",
+            "nueces",
+            "queso parmesano",
+            "papa",
+            "arroz"
+        ],
+        "dietary_info": [
+            "contiene gluten",
+            "contiene lácteos",
+            "contiene frutos secos"
+        ],
+        "preparation_time": 45,
+        "spiciness": 2,
+        "is_recommended": false,
+        "is_available": true,
+        "tags": [],
+        "created_at": "2026-10-15T08:10:30.718847",
+        "id": 100
+    },
+    {
+        "restaurant_id": 2,
+        "name": "Tallarines verdes con bistec",
+        "price": 25.0,
+        "category": "Fondo",
+        "menu_date": null,
+        "day_of_week": null,
+        "meal_time": "almuerzo",
+        "description": "Espagueti en salsa cremosa de albahaca y espinaca, acompañado de bistec a la parrilla.",
+        "ingredients": [
+            "espagueti",
+            "albahaca",
+            "espinaca",
+            "queso fresco",
+            "leche evaporada",
+            "bistec de res"
+        ],
+        "dietary_info": [
+            "contiene gluten",
+            "contiene lácteos"
+        ],
+        "preparation_time": 35,
+        "spiciness": 0,
+        "is_recommended": false,
+        "is_available": true,
+        "tags": [],
+        "created_at": "2026-10-15T08:10:30.718882",
+        "id": 101
+    },
+    {
+        "restaurant_id": 2,
+        "name": "Rocoto relleno",
+        "price": 22.0,
+        "category": "Fondo",
+        "menu_date": null,
+        "day_of_week": null,
+        "meal_time": "almuerzo",
+        "description": "Rocoto picante relleno de carne y maní, gratinado con queso y pastel de papa.",
+        "ingredients": [
+            "rocoto",
+            "carne molida",
+            "cebolla",
+            "maní",
+            "huevo",
+            "queso",
+            "papa"
+        ],
+        "dietary_info": [
+            "contiene lácteos",
+            "contiene huevo",
+            "contiene maní"
+        ],
+        "preparation_time": 60,
+        "spiciness": 4,
+        "is_recommended": false,
+        "is_available": true,
+        "tags": [],
+        "created_at": "2026-10-15T08:10:30.718917",
+        "id": 102
+    },
+    {
+        "restaurant_id": 2,
+        "name": "Cabrito a la norteña",
+        "price": 38.0,
+        "category": "Fondo",
+        "menu_date": "2026-10-18",
+        "day_of_week": "domingo",
+        "meal_time": "almuerzo",
+        "description": "Cabrito guisado en chicha de jora y culantro, servido con frejoles y arroz.",
+        "ingredients": [
+            "cabrito",
+            "chicha de jora",
+            "culantro",
+            "ajo",
+            "frejol canario",
+            "arroz"
+        ],
+        "dietary_info": [
+            "sin gluten",
+            "sin lácteos"
+        ],
+        "preparation_time": 90,
+        "spiciness": 1,
+        "is_recommended": false,
+        "is_available": true,
+        "tags": [],
+        "created_at": "2026-10-15T08:10:30.719038",
+        "id": 103
+    },
+    {
+        "restaurant_id": 2,
+        "name": "Ensalada de quinua",
+        "price": 16.0,
+        "category": "Entrada",
+        "menu_date": null,
+        "day_of_week": null,
+        "meal_time": "almuerzo",
+        "description": "Quinua tricolor con palta, tomate cherry, choclo y vinagreta de limón.",
+        "ingredients": [
+            "quinua",
+            "palta",
+            "tomate cherry",
+            "choclo",
+            "cebolla morada",
+            "limón",
+            "aceite de oliva"
+        ],
+        "dietary_info": [
+            "vegano",
+            "sin gluten",
+            "sin lácteos"
+        ],
+        "preparation_time": 15,
+        "spiciness": 0,
+        "is_recommended": false,
+        "is_available": true,
+        "tags": [],
+        "created_at": "2026-10-15T08:10:30.719075",
+        "id": 104
+    },
+    {
+        "restaurant_id": 2,
+        "name": "Caldo de gallina",
+        "price": 15.0,
+        "category": "Fondo",
+        "menu_date": null,
+        "day_of_week": null,
+        "meal_time": "desayuno",
+        "description": "Caldo reconfortante de gallina con fideos, papa y huevo duro.",
+        "ingredients": [
+            "gallina",
+            "fideos",
+            "papa",
+            "huevo",
+            "apio",
+            "cebolla china",
+            "culantro"
+        ],
+        "dietary_info": [
+            "contiene gluten",
+            "contiene huevo"
+        ],
+        "preparation_time": 40,
+        "spiciness": 0,
+        "is_recommended": false,
+        "is_available": true,
+        "tags": [],
+        "created_at": "2026-10-15T08:10:30.719107",
+        "id": 105
+    },
+    {
+        "restaurant_id": 2,
+        "name": "Tamal criollo",
+        "price": 8.0,
+        "category": "Fondo",
+        "menu_date": null,
+        "day_of_week": null,
+        "meal_time": "desayuno",
+        "description": "Tamal de maíz relleno de cerdo y aceituna, envuelto en hoja de plátano.",
+        "ingredients": [
+            "maíz",
+            "cerdo",
+            "aceituna",
+            "maní",
+            "ají panca",
+            "hoja de plátano"
+        ],
+        "dietary_info": [
+            "contiene cerdo",
+            "contiene maní",
+            "sin gluten"
+        ],
+        "preparation_time": 20,
+        "spiciness": 1,
+        "is_recommended": false,
+        "is_available": true,
+        "tags": [],
+        "created_at": "2026-10-15T08:10:30.719138",
+        "id": 106
+    },
+    {
+        "restaurant_id": 2,
+        "name": "King Kong de manjar",
+        "price": 10.0,
+        "category": "Postre",
+        "menu_date": null,
+        "day_of_week": null,
+        "meal_time": "cena",
+        "description": "Capas de galleta con manjar blanco, dulce de piña y maní.",
+        "ingredients": [
+            "harina de trigo",
+            "manjar blanco",
+            "dulce de piña",
+            "maní",
+            "mantequilla"
+        ],
+        "dietary_info": [
+            "contiene gluten",
+            "contiene lácteos",
+            "contiene maní"
+        ],
+        "preparation_time": 25,
+        "spiciness": 0,
+        "is_recommended": false,
+        "is_available": true,
+        "tags": [],
+        "created_at": "2026-10-15T08:10:30.719173",
+        "id": 107
+    },
+    {
+        "restaurant_id": 2,
+        "name": "Mazamorra morada",
+        "price": 7.0,
+        "category": "Postre",
+        "menu_date": "2026-10-24",
+        "day_of_week": "sabado",
+        "meal_time": "almuerzo",
+        "description": "Postre espeso de maíz morado con frutas secas y canela.",
+        "ingredients": [
+            "maíz morado",
+            "camote",
+            "membrillo",
+            "piña",
+            "guinda",
+            "canela",
+            "clavo de olor",
+            "chuño"
+        ],
+        "dietary_info": [
+            "vegano",
+            "sin gluten",
+            "sin lácteos"
+        ],
+        "preparation_time": 50,
+        "spiciness": 0,
+        "is_recommended": false,
+        "is_available": true,
+        "tags": [],
+        "created_at": "2026-10-15T08:10:30.719252",
+        "id": 108
+    },
+    {
+        "restaurant_id": 2,
+        "name": "Emoliente",
+        "price": 5.0,
+        "category": "Bebida",
+        "menu_date": null,
+        "day_of_week": null,
+        "meal_time": "desayuno",
+        "description": "Bebida caliente de cebada, linaza y hierbas medicinales con limón.",
+        "ingredients": [
+            "cebada",
+            "linaza",
+            "cola de caballo",
+            "boldo",
+            "limón",
+            "azúcar"
+        ],
+        "dietary_info": [
+            "vegano",
+            "sin gluten",
+            "sin lácteos"
+        ],
+        "preparation_time": 20,
+        "spiciness": 0,
+        "is_recommended": false,
+        "is_available": true,
+        "tags": [],
+        "created_at": "2026-10-15T08:10:30.719289",
+        "id": 109
+    },
+    {
+        "restaurant_id": 2,
+        "name": "Pisco sour",
+        "price": 20.0,
+        "category": "Bebida",
+        "menu_date": null,
+        "day_of_week": null,
+        "meal_time": "cena",
+        "description": "Coctel de pisco con limón, jarabe de goma, clara de huevo y gotas de amargo.",
+        "ingredients": [
+            "pisco",
+            "limón",
+            "jarabe de goma",
+            "clara de huevo",
+            "amargo de angostura"
+        ],
+        "dietary_info": [
+            "sin gluten",
+            "contiene huevo",
+            "contiene alcohol"
+        ],
+        "preparation_time": 5,
+        "spiciness": 0,
+        "is_recommended": false,
+        "is_available": true,
+        "tags": [],
+        "created_at": "2026-10-15T08:10:30.719330",
+        "id": 110
+    },
+    {
+        "restaurant_id": 2,
+        "name": "Prueba",
+        "price": 26.0,
+        "category": "Fondo",
+        "menu_date": null,
+        "day_of_week": null,
+        "meal_time": "almuerzo",
+        "description": "Plato con agua, sin mariscos, nivel de picante 5 y tiempo de preparación de 60 minutos de sabor.",
+        "ingredients": [
+            "Agua"
+        ],
+        "dietary_info": [
+            "sin mariscos"
+        ],
+        "preparation_time": 60,
+        "spiciness": 5,
+        "is_recommended": false,
+        "is_available": true,
+        "tags": [],
+        "created_at": "2026-10-15T08:13:38.756596",
+        "id": 111
     }
 ]
