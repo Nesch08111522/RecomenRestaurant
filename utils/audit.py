@@ -8,12 +8,12 @@ from typing import Any
 from flask import has_request_context, request, session
 
 from config import Config
-from models.base import JSONModel
+from models.base import DataModel
 from utils.security import normalize_text
 
 
-class AuditEventModel(JSONModel):
-    file_path = Config.AUDIT_EVENTS_FILE
+class AuditEventModel(DataModel):
+    collection = "audit_events"
 
 
 SENSITIVE_ACTIONS = {

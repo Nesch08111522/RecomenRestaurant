@@ -3,19 +3,18 @@
 Modelo para gestionar reseñas de restaurantes
 Paradigma: Orientado a Objetos
 """
-from models.base import JSONModel
-from config import Config
+from models.base import DataModel
 from datetime import datetime
 import logging
 
 logger = logging.getLogger(__name__)
 
-class ReviewModel(JSONModel):
+class ReviewModel(DataModel):
     """
     Modelo para gestionar reseñas de restaurantes
-    Hereda de JSONModel para persistencia en archivo JSON
+    Persists reviews in Supabase PostgreSQL.
     """
-    file_path = Config.REVIEWS_FILE if hasattr(Config, 'REVIEWS_FILE') else None
+    collection = "reviews"
     
     @classmethod
     def get_by_restaurant(cls, restaurant_id):
@@ -26,8 +25,6 @@ class ReviewModel(JSONModel):
         Returns:
             list: Lista de reseñas del restaurante ordenadas por fecha
         """
-        if not cls.file_path:
-            return []
         data = cls._load_data()
         reviews = [r for r in data if r.get('restaurant_id') == restaurant_id]
         # Ordenar por fecha descendente (más recientes primero)
@@ -43,8 +40,6 @@ class ReviewModel(JSONModel):
         Returns:
             list: Lista de reseñas del usuario
         """
-        if not cls.file_path:
-            return []
         data = cls._load_data()
         return [r for r in data if r.get('user_id') == user_id]
     
@@ -104,9 +99,6 @@ class ReviewModel(JSONModel):
         Returns:
             dict: La reseña creada
         """
-        if not cls.file_path:
-            return None
-        
         review_data = {
             'user_id': user_id,
             'restaurant_id': restaurant_id,
@@ -128,9 +120,6 @@ class ReviewModel(JSONModel):
         Returns:
             dict: La reseña actualizada o None si no existe
         """
-        if not cls.file_path:
-            return None
-        
         review = cls.get_by_id(review_id)
         if not review:
             return None
@@ -150,8 +139,6 @@ class ReviewModel(JSONModel):
         Returns:
             bool: True si se eliminó, False en caso contrario
         """
-        if not cls.file_path:
-            return False
         return cls.delete(review_id)
     
     @classmethod
@@ -163,8 +150,6 @@ class ReviewModel(JSONModel):
         Returns:
             list: Lista de reseñas recientes
         """
-        if not cls.file_path:
-            return []
         data = cls._load_data()
         sorted_reviews = sorted(data, key=lambda x: x.get('created_at', ''), reverse=True)
         return sorted_reviews[:limit]

@@ -1,5 +1,11 @@
 # SmartResto
 
+## Supabase como almacenamiento
+
+La aplicaciÃ³n guarda todos sus datos operativos en Supabase PostgreSQL, en la tabla flexible `public.app_records` (JSONB). No hay respaldo ni lectura en archivos JSON durante la ejecuciÃ³n. Para configurar la base, ejecuta [`database/app_records.sql`](database/app_records.sql) en Supabase, define `DATABASE_URL`, `DATABASE_SSLMODE=require` y `DATA_BACKEND=postgresql` en `.env`, y luego inicia Flask. El arranque valida la conexiÃ³n y la tabla.
+
+Para pasar los datos iniciales locales a Supabase, usa `python migrations/import_json_documents.py --dry-run` para ver el conteo y luego ejecuta `python migrations/import_json_documents.py`. El importador conserva IDs y archivos fuente; las filas que ya existan en la base no se sobrescriben. Consulta [DATABASE_MIGRATION.md](DATABASE_MIGRATION.md) para los detalles.
+
 Aplicación web de recomendaciones y gestión de restaurantes construida con Flask.
 
 ## Crear una carta con Qwen

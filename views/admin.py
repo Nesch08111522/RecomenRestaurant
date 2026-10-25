@@ -11,8 +11,6 @@ from utils.security import normalize_text, session_identity, valid_coordinate
 from utils.audit import record_event, AuditEventModel
 from analytics.metrics import build_bi_snapshot
 from functools import wraps
-import json
-import os
 import datetime
 from typing import Any, Dict, List, Optional, Union
 import logging
@@ -186,13 +184,7 @@ def dashboard():
         avg_price = sum(r.get('avg_price', 0) for r in restaurants) / total_rest if total_rest > 0 else 0
         total_promos = sum(1 for r in restaurants if r.get('promo'))
         
-        categories = []
-        if os.path.exists(Config.CATEGORIES_FILE):
-            try:
-                with open(Config.CATEGORIES_FILE, 'r', encoding='utf-8') as f:
-                    categories = json.load(f)
-            except:
-                categories = []
+        categories = CategoryModel.all()
         
         cat_dict = {cat['id']: cat['name'] for cat in categories}
         for r in restaurants:
@@ -242,13 +234,7 @@ def restaurants():
     else:
         restaurants = RestaurantModel.get_by_owner(user_id)
     
-    categories = []
-    if os.path.exists(Config.CATEGORIES_FILE):
-        try:
-            with open(Config.CATEGORIES_FILE, 'r', encoding='utf-8') as f:
-                categories = json.load(f)
-        except:
-            categories = []
+    categories = CategoryModel.all()
     
     cat_dict = {cat['id']: cat['name'] for cat in categories}
     
@@ -301,13 +287,7 @@ def new_restaurant():
         flash('Restaurante creado exitosamente', 'success')
         return redirect(url_for('admin.restaurants'))
     
-    categories = []
-    if os.path.exists(Config.CATEGORIES_FILE):
-        try:
-            with open(Config.CATEGORIES_FILE, 'r', encoding='utf-8') as f:
-                categories = json.load(f)
-        except:
-            categories = []
+    categories = CategoryModel.all()
     
     districts = getattr(Config, 'DISTRITOS', ['Trujillo', 'Victor Larco', 'La Esperanza', 'Huanchaco', 'Moche'])
     
@@ -332,13 +312,7 @@ def edit_restaurant(id):
         flash('Restaurante no encontrado', 'error')
         return redirect(url_for('admin.restaurants'))
 
-    categories = []
-    if os.path.exists(Config.CATEGORIES_FILE):
-        try:
-            with open(Config.CATEGORIES_FILE, 'r', encoding='utf-8') as f:
-                categories = json.load(f)
-        except:
-            categories = []
+    categories = CategoryModel.all()
 
     districts = getattr(Config, 'DISTRITOS', ['Trujillo', 'Victor Larco', 'La Esperanza', 'Huanchaco', 'Moche'])
 
@@ -503,13 +477,7 @@ def analytics_api():
         restaurants = RestaurantModel.all()
         
         # Cargar categorías para obtener nombres
-        categories = []
-        if os.path.exists(Config.CATEGORIES_FILE):
-            try:
-                with open(Config.CATEGORIES_FILE, 'r', encoding='utf-8') as f:
-                    categories = json.load(f)
-            except:
-                categories = []
+        categories = CategoryModel.all()
         
         cat_names = {cat['id']: cat['name'] for cat in categories}
         
@@ -569,11 +537,7 @@ def analytics_api():
 def bi_overview_api():
     """Snapshot BI versionado, derivado de datos existentes y sin PII sensible."""
     try:
-        categories = []
-        if os.path.exists(Config.CATEGORIES_FILE):
-            with open(Config.CATEGORIES_FILE, 'r', encoding='utf-8') as file:
-                payload = json.load(file)
-                categories = payload if isinstance(payload, list) else []
+        categories = CategoryModel.all()
         snapshot = build_bi_snapshot(
             users=UserModel.all(),
             restaurants=RestaurantModel.all(),
@@ -683,14 +647,7 @@ def manage_user(id: int):
 @admin_required
 def categories():
     """Lista de categorías - Solo admin"""
-    categories = []
-    if os.path.exists(Config.CATEGORIES_FILE):
-        try:
-            with open(Config.CATEGORIES_FILE, 'r', encoding='utf-8') as f:
-                categories = json.load(f)
-        except:
-            categories = []
-    
+    categories = CategoryModel.all()
     return render_template('admin/categories.html', categories=categories)
 
 @admin_bp.route('/category', methods=['POST'])
@@ -708,18 +665,7 @@ def new_category():
         flash('Nombre y slug son requeridos', 'error')
         return redirect(url_for('admin.categories'))
     
-    categories = []
-    if os.path.exists(Config.CATEGORIES_FILE):
-        with open(Config.CATEGORIES_FILE, 'r', encoding='utf-8') as f:
-            categories = json.load(f)
-    
-    max_id = max([cat.get('id', 0) for cat in categories], default=0)
-    data['id'] = max_id + 1
-    
-    categories.append(data)
-    
-    with open(Config.CATEGORIES_FILE, 'w', encoding='utf-8') as f:
-        json.dump(categories, f, indent=2, ensure_ascii=False)
+    CategoryModel.create(data)
     
     flash('Categoría creada exitosamente', 'success')
     return redirect(url_for('admin.categories'))
@@ -728,17 +674,8 @@ def new_category():
 @admin_required
 def delete_category(id: int):
     """Eliminar categoría - Solo admin"""
-    categories = []
-    if os.path.exists(Config.CATEGORIES_FILE):
-        with open(Config.CATEGORIES_FILE, 'r', encoding='utf-8') as f:
-            categories = json.load(f)
-    
-    categories = [cat for cat in categories if cat.get('id') != id]
-    
-    with open(Config.CATEGORIES_FILE, 'w', encoding='utf-8') as f:
-        json.dump(categories, f, indent=2, ensure_ascii=False)
-    
-    return jsonify({'success': True})
+    deleted = CategoryModel.delete(id)
+    return jsonify({'success': deleted}), 200 if deleted else 404
 
 # ============================================
 # ESTADÍSTICAS - Solo admin
