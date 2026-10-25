@@ -1,19 +1,11 @@
 # context_processors.py
 from config import Config
-import json
-import os
+from models.category import CategoryModel
 from flask import session
 
 def inject_globals():
     """Inyecta variables globales en todos los templates"""
-    categories = []
-    if os.path.exists(Config.CATEGORIES_FILE):
-        try:
-            with open(Config.CATEGORIES_FILE, 'r', encoding='utf-8') as f:
-                categories = json.load(f)
-        except Exception as e:
-            print(f"Error cargando categorías: {e}")
-            categories = []
+    categories = CategoryModel.all()
     
     return {
         'APP_NAME': Config.NOMBRE_APP,

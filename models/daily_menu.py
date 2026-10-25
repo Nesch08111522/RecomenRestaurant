@@ -1,14 +1,13 @@
 # models/daily_menu.py
-from models.base import JSONModel
-from config import Config
+from models.base import DataModel
 from datetime import datetime
 import logging
 
 logger = logging.getLogger(__name__)
 
-class DailyMenuModel(JSONModel):
+class DailyMenuModel(DataModel):
     """Modelo para gestionar menús diarios"""
-    file_path = Config.DAILY_MENU_FILE
+    collection = "daily_menu"
     
     @classmethod
     def get_by_restaurant(cls, restaurant_id):

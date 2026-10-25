@@ -1,14 +1,13 @@
 # models/dish.py
-from models.base import JSONModel
-from config import Config
+from models.base import DataModel
 from datetime import datetime
 import logging
 
 logger = logging.getLogger(__name__)
 
-class DishModel(JSONModel):
+class DishModel(DataModel):
     """Modelo para gestionar platos de restaurantes"""
-    file_path = Config.DISHES_FILE
+    collection = "dishes"
     
     @classmethod
     def get_by_restaurant(cls, restaurant_id):

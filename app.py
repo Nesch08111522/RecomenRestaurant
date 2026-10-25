@@ -39,7 +39,9 @@ def create_app(test_config=None):
 
     if not app.config.get("TESTING"):
         Config.validate()
-    Config.ensure_data_dir()
+        from database.connection import check_application_schema
+
+        check_application_schema()
     csrf.init_app(app)
 
     app.register_blueprint(main_bp)

@@ -1,5 +1,5 @@
 # models/__init__.py
-from models.base import JSONModel
+from models.base import DataModel
 from models.user import UserModel
 from models.restaurant import RestaurantModel
 from models.favorite import FavoriteModel
@@ -9,9 +9,10 @@ from models.daily_menu import DailyMenuModel
 from models.notification import NotificationModel
 from models.review import ReviewModel
 from models.moderation import ModerationModel 
+from models.reservation import ReservationModel
 
 __all__ = [
-    'JSONModel',
+    'DataModel',
     'UserModel',
     'RestaurantModel',
     'FavoriteModel',
@@ -20,5 +21,6 @@ __all__ = [
     'DailyMenuModel',
     'NotificationModel',
     'ReviewModel',
-    'ModerationModel'  
+    'ModerationModel',
+    'ReservationModel',
 ]

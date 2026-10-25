@@ -1,23 +1,15 @@
-"""
-models/user.py
-Modelo de usuarios (guarda en JSON). Este archivo solo define UserModel:
-no importa nada de views/ ni se importa a sí mismo.
-"""
+"""User model backed by the Supabase PostgreSQL document collection."""
 
-from models.base import JSONModel
-from config import Config
+from models.base import DataModel
 from werkzeug.security import generate_password_hash, check_password_hash
-import logging
-
-logger = logging.getLogger(__name__)
 
 
-class UserModel(JSONModel):
-    file_path = Config.USERS_FILE
+class UserModel(DataModel):
+    collection = "users"
 
     @classmethod
     def authenticate(cls, username, password):
-        """Autenticar usuario por username y password"""
+        """Authenticate a user by username and password."""
         data = cls._load_data()
         user = next((u for u in data if u.get("username") == username), None)
 
@@ -27,13 +19,13 @@ class UserModel(JSONModel):
 
     @classmethod
     def get_by_username(cls, username):
-        """Obtener usuario por username"""
+        """Find a user by username."""
         data = cls._load_data()
         return next((u for u in data if u.get("username") == username), None)
 
     @classmethod
     def register(cls, username, password, email, name, role="user"):
-        """Registrar un nuevo usuario"""
+        """Register a new user."""
         if cls.get_by_username(username):
             return None
 
@@ -96,23 +88,10 @@ class UserModel(JSONModel):
     # ---------- NUEVOS (los usa views/admin.py) ----------
     @classmethod
     def update_user(cls, user_id, changes):
-        """Actualiza campos de un usuario y guarda el JSON. Devuelve el usuario o None."""
-        data = cls._load_data()
-        for u in data:
-            if u.get("id") == user_id:
-                u.update(changes)
-                cls._save_data(
-                    data
-                )  # <- si tu JSONModel usa otro nombre, cámbialo aquí
-                return u
-        return None
+        """Update a user and return the saved record, or None."""
+        return cls.update(user_id, changes)
 
     @classmethod
     def delete_user(cls, user_id):
-        """Elimina un usuario por id y guarda el JSON. Devuelve True/False."""
-        data = cls._load_data()
-        nueva = [u for u in data if u.get("id") != user_id]
-        if len(nueva) == len(data):
-            return False
-        cls._save_data(nueva)  # <- igual que arriba
-        return True
+        """Delete a user by ID."""
+        return cls.delete(user_id)
