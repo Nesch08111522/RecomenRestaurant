@@ -1,869 +1,2168 @@
-{# templates/owner/restaurant_form.html
+{# templates/admin/restaurant_form.html
+
    Plantilla ÚNICA para crear y editar restaurantes (incluye modalidad de atención).
-   - Crear:  render_template('owner/restaurant_form.html', categories=..., districts=...)
-   - Editar: render_template('owner/restaurant_form.html', restaurant=r, categories=..., districts=...) #}
+
+   - Crear:  render_template('admin/restaurant_form.html', categories=..., districts=...)
+
+   - Editar: render_template('admin/restaurant_form.html', restaurant=r, categories=..., districts=...) #}
+
 {% extends 'owner/base.html' %}
 
 {% block owner_content %}
+
 {# Nota: no se usa el literal none/null a propósito (algunos formateadores lo reescriben a "null", que no existe en Jinja). #}
+
 {% if restaurant is defined and restaurant %}
+
   {% set is_edit = true %}
+
   {% set r = restaurant %}
+
 {% else %}
+
   {% set is_edit = false %}
+
   {% set r = false %}
+
 {% endif %}
 
 {# ---- Valores del formulario (se calculan una sola vez, sin ifs en línea) ---- #}
+
 {% if is_edit %}
+
   {% set form_action = url_for('admin.update_restaurant', id=r.id) %}
+
   {% set form_mode = 'edit' %}
+
 {% else %}
+
   {% set form_action = url_for('admin.new_restaurant') %}
+
   {% set form_mode = 'create' %}
+
 {% endif %}
 
 {% if is_edit and r.name %}{% set f_name = r.name %}{% else %}{% set f_name = '' %}{% endif %}
+
 {% if is_edit and r.avg_price is defined and r.avg_price|string not in ['None', ''] %}{% set f_price = r.avg_price %}{% else %}{% set f_price = '' %}{% endif %}
+
 {% if is_edit %}{% if r.rating is defined and r.rating|string not in ['None', ''] %}{% set f_rating = r.rating %}{% else %}{% set f_rating = '' %}{% endif %}{% else %}{% set f_rating = 4.0 %}{% endif %}
+
 {% if is_edit and r.open_time %}{% set f_open = r.open_time|string %}{% set f_open = f_open[:5] %}{% else %}{% set f_open = '12:00' %}{% endif %}
+
 {% if is_edit and r.close_time %}{% set f_close = r.close_time|string %}{% set f_close = f_close[:5] %}{% else %}{% set f_close = '22:00' %}{% endif %}
+
 {% if is_edit and r.address %}{% set f_address = r.address %}{% else %}{% set f_address = '' %}{% endif %}
+
 {% if is_edit and r.phone %}{% set f_phone = r.phone %}{% else %}{% set f_phone = '' %}{% endif %}
+
 {% if is_edit and r.image %}{% set f_image = r.image %}{% else %}{% set f_image = '' %}{% endif %}
+
 {% if is_edit and r.description %}{% set f_description = r.description %}{% else %}{% set f_description = '' %}{% endif %}
+
 {% if is_edit and r.promo %}{% set f_promo = r.promo %}{% else %}{% set f_promo = '' %}{% endif %}
+
 {% if is_edit and r.tags %}{% set f_tags = r.tags %}{% else %}{% set f_tags = [] %}{% endif %}
+
 {% if is_edit and r.features %}{% set f_features = r.features %}{% else %}{% set f_features = [] %}{% endif %}
+
 {% if is_edit and r.dietary_restrictions %}{% set f_dietary = r.dietary_restrictions %}{% else %}{% set f_dietary = [] %}{% endif %}
+
 {# Modalidad: en edición la ruta ya la normaliza (infiere para registros antiguos); en creación nada preseleccionado. #}
+
 {% if is_edit and r.service_mode %}{% set f_service_mode = r.service_mode %}{% else %}{% set f_service_mode = '' %}{% endif %}
 
 {% if is_edit and r.lat is defined and r.lat|string not in ['None', ''] %}{% set lat_value = r.lat|float %}{% else %}{% set lat_value = -8.1118 %}{% endif %}
+
 {% if is_edit and r.lng is defined and r.lng|string not in ['None', ''] %}{% set lng_value = r.lng|float %}{% else %}{% set lng_value = -79.0287 %}{% endif %}
+
 {% set lat_text = '%.6f'|format(lat_value) %}
+
 {% set lng_text = '%.6f'|format(lng_value) %}
 
 {% macro tag_field(name, label, values, suggestions, placeholder) %}
+
   {% if values %}{% set joined = values|join(', ') %}{% else %}{% set joined = '' %}{% endif %}
+
   <div class="form-group">
+
     <label for="{{ name }}-field">{{ label }}</label>
+
     <div class="tag-wrap" data-suggestions="{{ suggestions|join('|') }}">
+
       <div class="tag-box">
+
         <input type="text" id="{{ name }}-field" class="tag-field" placeholder="{{ placeholder }}" autocomplete="off">
+
       </div>
+
       <input type="hidden" name="{{ name }}" value="{{ joined }}">
+
       <div class="tag-suggestions" aria-label="Sugerencias"></div>
+
     </div>
+
     <small class="field-hint">Escribe y presiona Enter o coma para agregar.</small>
+
   </div>
+
 {% endmacro %}
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
 <div class="admin-container">
+
   <div class="admin-header">
+
     <h1>{% if is_edit %}<i class="fas fa-edit"></i> Editar restaurante{% else %}<i class="fas fa-plus"></i> Nuevo restaurante{% endif %}</h1>
+
     <p>{% if is_edit %}Actualiza la información de {{ r.name }}.{% else %}Completa la información del nuevo restaurante.{% endif %}</p>
+
   </div>
 
+<!-- IMPORTACIÓN IA: colocar ANTES del formulario -->
+
+<section class="ai-import" id="aiImport">
+
+  <h2>✨ Carga inteligente de restaurante</h2>
+
+  <p>Sube una foto, Word o Excel. Revisa los datos antes de aplicarlos; nada se guarda automáticamente.</p>
+
+  <input type="file" id="aiFile" accept=".jpg,.jpeg,.png,.webp,.docx,.xlsx">
+
+  <button type="button" id="aiAnalyze">Analizar con IA</button>
+
+  <p id="aiStatus" role="status" aria-live="polite"></p>
+
+  <div id="aiReview" hidden>
+
+    <h3>Vista previa de datos detectados</h3>
+
+    <p id="aiProvider"></p>
+
+    <div id="aiRows"></div>
+
+    <button type="button" id="aiApply">Aplicar campos seleccionados</button>
+
+  </div>
+
+</section>
+
+<style>
+
+.ai-import{background:var(--white,#fff);border:1px solid #d7e2ed;border-radius:14px;padding:22px;margin:20px 0;box-shadow:0 3px 12px #0000000a}
+
+.ai-import h2{font-size:19px;margin:0 0 8px}.ai-import p{color:#64748b}
+
+.ai-import input[type=file]{display:block;width:100%;margin:12px 0;padding:12px;border:1px dashed #94a3b8;border-radius:8px}
+
+.ai-import button{background:#2563eb;color:white;border:0;border-radius:8px;padding:10px 16px;cursor:pointer;margin:6px 0}
+
+.ai-import button:disabled{opacity:.5;cursor:wait}.ai-review-row{display:grid;grid-template-columns:24px minmax(130px,1fr) 2fr;gap:10px;align-items:start;border-bottom:1px solid #e2e8f0;padding:10px 0}
+
+.ai-review-row input[type=text],.ai-review-row textarea{width:100%;padding:8px;border:1px solid #cbd5e1;border-radius:6px;box-sizing:border-box}
+
+@media(max-width:650px){.ai-review-row{grid-template-columns:24px 1fr}.ai-review-row .ai-value{grid-column:2}}
+
+</style>
 
 <form method="POST" action="{{ form_action }}" class="admin-form" id="restaurantForm" data-mode="{{ form_mode }}">
 
   {% if csrf_token is defined %}
+
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
   {% endif %}
 
   <!-- ===== Información básica ===== -->
+
   <section class="form-section">
+
     <h2 class="section-title">Información básica</h2>
 
     <div class="form-row">
+
       <div class="form-group">
+
         <label for="nameInput">Nombre del restaurante <span class="req">*</span></label>
+
         <input type="text" id="nameInput" name="name" class="form-input" value="{{ f_name }}" required autofocus>
+
       </div>
+
       <div class="form-group">
+
         <label for="categoryInput">Categoría <span class="req">*</span></label>
+
         <select id="categoryInput" name="category_id" class="form-input" required>
-          <option value="">Seleccionar...</option>
+<option value="">Seleccionar...</option>
+
           {% for cat in categories %}
+
             {% if is_edit and cat.id == r.category_id %}
+
               <option value="{{ cat.id }}" selected>{{ cat.name }}</option>
+
             {% else %}
+
               <option value="{{ cat.id }}">{{ cat.name }}</option>
+
             {% endif %}
+
           {% endfor %}
+
         </select>
+
+        <div class="category-dynamic" id="categoryDynamic">
+
+          <label for="categoryProposal">¿No encuentras la categoría?</label>
+
+          <div class="category-dynamic-row">
+
+            <input type="text" id="categoryProposal" class="form-input"
+
+                   placeholder="Ej.: Comida coreana" maxlength="80" autocomplete="off">
+
+            {% if session.get('user', {}).get('role') == 'admin' %}
+
+            <button type="button" id="createAiCategory" class="btn-location">+ Crear categoría</button>
+
+            {% endif %}
+
+          </div>
+
+          <p id="categoryAiMessage" class="field-hint" role="status" aria-live="polite">
+
+            Puedes elegir una categoría existente. Si no existe, un administrador puede crearla aquí.
+
+          </p>
+
+        </div>
+
       </div>
+
     </div>
 
     <div class="form-row">
+
       <div class="form-group">
+
         <label for="districtInput">Distrito <span class="req">*</span></label>
+
         <select id="districtInput" name="district" class="form-input" required>
+
           <option value="">Seleccionar...</option>
+
           {% for district in districts %}
+
             {% if is_edit and district == r.district %}
+
               <option value="{{ district }}" selected>{{ district }}</option>
+
             {% else %}
+
               <option value="{{ district }}">{{ district }}</option>
+
             {% endif %}
+
           {% endfor %}
+
         </select>
+
       </div>
+
       <div class="form-group">
+
         <label for="priceInput">Precio promedio ({{ MONEDA }}) <span class="req">*</span></label>
+
         <input type="number" id="priceInput" name="avg_price" class="form-input" step="0.5" min="0"
+
                value="{{ f_price }}" required>
+
       </div>
+
     </div>
 
     <!-- Modalidad de atención -->
+
     <fieldset class="service-mode-fieldset" aria-describedby="serviceModeStatus">
+
       <legend>Modalidad de atención <span class="req">*</span></legend>
+
       <div class="service-mode-options">
+
         <label class="service-mode-option">
+
           <input class="service-mode-radio" type="radio" name="service_mode" value="dine_in_only" required {% if f_service_mode == 'dine_in_only' %}checked{% endif %}>
+
           <span class="service-mode-card">
+
             <img src="{{ url_for('static', filename='images/service-dine-in.svg') }}" alt="">
+
             <span class="service-mode-copy">
+
               <strong>Solo local</strong>
+
               <small>Atención y consumo dentro del restaurante.</small>
+
             </span>
+
           </span>
+
         </label>
+
         <label class="service-mode-option">
+
           <input class="service-mode-radio" type="radio" name="service_mode" value="dine_in_and_delivery" required {% if f_service_mode == 'dine_in_and_delivery' %}checked{% endif %}>
+
           <span class="service-mode-card">
+
             <img src="{{ url_for('static', filename='images/service-dine-in-delivery.svg') }}" alt="">
+
             <span class="service-mode-copy">
+
               <strong>Local y delivery</strong>
+
               <small>Atiende en mesa y recibe pedidos a domicilio.</small>
+
             </span>
+
           </span>
+
         </label>
+
         <label class="service-mode-option">
+
           <input class="service-mode-radio" type="radio" name="service_mode" value="delivery_only" required {% if f_service_mode == 'delivery_only' %}checked{% endif %}>
+
           <span class="service-mode-card">
+
             <img src="{{ url_for('static', filename='images/service-delivery-only.svg') }}" alt="">
+
             <span class="service-mode-copy">
+
               <strong>Solo delivery</strong>
+
               <small>Prepara y entrega pedidos a domicilio.</small>
+
             </span>
+
           </span>
+
         </label>
+
       </div>
+
       <p class="service-mode-status" id="serviceModeStatus">Selecciona una modalidad. Puedes cambiarla haciendo clic en otra tarjeta.</p>
+
     </fieldset>
 
     <div class="form-row">
+
       <div class="form-group">
+
         <label for="ratingInput">Rating</label>
+
         <input type="number" id="ratingInput" name="rating" class="form-input" step="0.1" min="0" max="5"
+
                value="{{ f_rating }}">
+
       </div>
+
       <div class="form-group">
+
         <label for="openTime">Horario <span class="req">*</span></label>
+
         <div class="time-group">
+
           <input type="time" id="openTime" name="open_time" class="form-input"
+
                  value="{{ f_open }}" required aria-label="Hora de apertura">
+
           <span>a</span>
+
           <input type="time" id="closeTime" name="close_time" class="form-input"
+
                  value="{{ f_close }}" required aria-label="Hora de cierre">
+
         </div>
+
       </div>
+
     </div>
+
   </section>
 
   <!-- ===== Ubicación ===== -->
+
   <section class="form-section">
+
     <h2 class="section-title">Ubicación</h2>
 
     <div class="form-group">
+
       <div class="label-row">
+
         <label for="addressInput">Dirección <span class="req">*</span></label>
+
         <button type="button" class="link-btn" id="useMapAddress"><i class="fas fa-crosshairs"></i> Usar dirección del pin</button>
+
       </div>
+
       <input type="text" id="addressInput" name="address" class="form-input" value="{{ f_address }}" required>
+
       <small class="field-hint">
+
         {% if is_edit %}Tu dirección no se cambia al mover el pin, salvo que uses el botón de arriba.{% else %}Se completa sola al mover el pin; puedes escribirla tú si prefieres.{% endif %}
+
       </small>
+
     </div>
 
     <div class="form-group">
+
       <label for="searchLocation">Ubicación en el mapa</label>
+
       <div class="location-input-group">
+
         <div class="search-wrap">
+
           <input type="search" id="searchLocation" class="form-input" placeholder="Buscar ubicación (ej: Plaza de Armas Trujillo)" autocomplete="off" aria-controls="searchResults">
+
           <ul id="searchResults" class="search-results" hidden></ul>
+
         </div>
+
         <button type="button" class="btn-location" id="searchLocationBtn"><i class="fas fa-search"></i> Buscar</button>
+
         <button type="button" class="btn-location btn-location-success" id="getCurrentLocationBtn"><i class="fas fa-crosshairs"></i> Mi ubicación</button>
+
       </div>
 
       <div id="location-map" role="application" aria-label="Mapa para elegir la ubicación del restaurante"></div>
+
       <p id="mapStatus" class="map-status" aria-live="polite"></p>
 
       <div class="coord-info">
+
         Latitud: <span id="latDisplay">{{ lat_text }}</span> |
+
         Longitud: <span id="lngDisplay">{{ lng_text }}</span>
+
         <span class="hint">Haz clic en el mapa o arrastra el pin.</span>
+
       </div>
+
       <input type="hidden" name="lat" id="latInput" value="{{ lat_text }}">
+
       <input type="hidden" name="lng" id="lngInput" value="{{ lng_text }}">
+
     </div>
+
   </section>
 
   <!-- ===== Contacto y presentación ===== -->
+
   <section class="form-section">
+
     <h2 class="section-title">Contacto y presentación</h2>
 
     <div class="form-row">
+
       <div class="form-group">
+
         <label for="phoneInput">Teléfono</label>
+
         <input type="tel" id="phoneInput" name="phone" class="form-input" value="{{ f_phone }}" placeholder="044-123456">
+
       </div>
+
       <div class="form-group">
+
         <label for="imageInput">Imagen (URL)</label>
+
         <input type="url" id="imageInput" name="image" class="form-input" value="{{ f_image }}" placeholder="https://images.unsplash.com/photo-...">
+
       </div>
+
     </div>
 
     <div class="image-preview" id="imagePreviewWrap" hidden>
+
       <img id="imagePreview" alt="Vista previa de la imagen del restaurante">
+
     </div>
 
     <div class="form-group">
+
       <div class="label-row">
+
         <label for="descriptionInput">Descripción</label>
+
         <small class="field-hint" id="descCount">0 caracteres</small>
+
       </div>
+
       <textarea id="descriptionInput" name="description" class="form-input" rows="3">{{ f_description }}</textarea>
+
     </div>
+
   </section>
 
   <!-- ===== Etiquetas y promoción ===== -->
+
   <section class="form-section">
+
     <h2 class="section-title">Etiquetas y promoción</h2>
 
     <div class="form-row">
+
       {{ tag_field('tags', 'Tags', f_tags,
+
                    ['tradicional', 'mariscos', 'familiar', 'parrillas', 'criollo', 'postres'],
+
                    'tradicional, mariscos, familiar') }}
+
       {# 'delivery' ya no se sugiere: ahora lo define la modalidad de atención. #}
+
       {{ tag_field('features', 'Características', f_features,
+
                    ['wifi', 'estacionamiento', 'reservas', 'terraza', 'pet friendly'],
+
                    'wifi, estacionamiento, reservas') }}
+
     </div>
 
     <div class="form-row">
+
       {{ tag_field('dietary_restrictions', 'Restricciones dietéticas', f_dietary,
+
                    ['vegano', 'vegetariano', 'sin gluten', 'sin lactosa', 'halal'],
+
                    'vegano, sin gluten') }}
+
       <div class="form-group">
+
         <label for="promoInput">Promoción (opcional)</label>
+
         <input type="text" id="promoInput" name="promo" class="form-input" value="{{ f_promo }}" placeholder="10% de descuento en almuerzos">
+
       </div>
+
     </div>
+
   </section>
 
   <div class="form-actions">
+
     <a href="{{ url_for('admin.restaurants') }}" class="btn-secondary">Cancelar</a>
+
     <button type="submit" class="btn-primary" id="submitBtn">{% if is_edit %}Guardar cambios{% else %}Guardar restaurante{% endif %}</button>
+
   </div>
+
 </form>
+
 </div>
 
-
 <style>
+
+  /* Categorías dinámicas: compatible con creación y edición */
+
+  .category-dynamic { margin-top: 12px; padding: 14px; border: 1px solid #dbeafe; border-radius: 10px; background: #f8fbff; }
+
+  .category-dynamic > label { font-weight: 600; font-size: 13px; }
+
+  .category-dynamic-row { display: flex; gap: 8px; align-items: center; }
+
+  .category-dynamic-row input { flex: 1; min-width: 0; }
+
+  .category-dynamic-row button { white-space: nowrap; }
+
+  .category-dynamic .field-hint { margin-bottom: 0; }
+
+  @media(max-width: 560px) { .category-dynamic-row { flex-direction: column; align-items: stretch; } }
+
   .admin-container { max-width: 860px; margin: 0 auto; padding: 0 20px; }
+
   .admin-header { margin-bottom: 28px; }
+
   .admin-header h1 { font-size: 28px; font-weight: 700; }
+
   .admin-header p { color: var(--gray); }
 
   .admin-form {
+
     background: var(--white);
+
     border-radius: var(--radius);
+
     padding: 8px 32px 32px;
+
     box-shadow: var(--shadow);
+
   }
 
   .form-section { padding: 24px 0 8px; border-bottom: 1px solid var(--light-gray); }
+
   .form-section:last-of-type { border-bottom: none; }
+
   .section-title { font-size: 16px; font-weight: 600; margin-bottom: 18px; }
 
   .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
   .form-group { margin-bottom: 20px; min-width: 0; }
+
   .form-group label { display: block; margin-bottom: 6px; font-weight: 500; font-size: 14px; }
+
   .label-row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 6px; }
+
   .label-row label { margin-bottom: 0; }
+
   .req { color: var(--primary); }
+
   .field-hint { display: block; margin-top: 6px; font-size: 12px; color: var(--gray); }
+
   .label-row .field-hint { margin-top: 0; }
 
   .form-input {
+
     width: 100%;
+
     padding: 10px 14px;
+
     border: 1px solid var(--light-gray);
+
     border-radius: var(--radius-sm);
+
     font-size: 14px;
+
     transition: var(--transition);
+
     font-family: var(--font-main);
+
     background: var(--white);
+
   }
+
   .form-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
+
   textarea.form-input { resize: vertical; min-height: 80px; }
 
   .time-group { display: flex; align-items: center; gap: 8px; }
+
   .time-group input { flex: 1; }
 
   /* Modalidad de atención */
+
   .service-mode-fieldset { border: none; padding: 0; margin: 0 0 20px; min-width: 0; }
+
   .service-mode-fieldset legend { padding: 0; margin-bottom: 8px; font-weight: 500; font-size: 14px; }
+
   .service-mode-options { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+
   .service-mode-option { position: relative; display: block; cursor: pointer; margin: 0; }
+
   .service-mode-radio { position: absolute; opacity: 0; width: 1px; height: 1px; }
+
   .service-mode-card {
+
     display: flex; flex-direction: column; align-items: center; gap: 8px; height: 100%;
+
     padding: 14px 12px; text-align: center;
+
     border: 1px solid var(--light-gray); border-radius: var(--radius-sm); background: var(--white);
+
     transition: var(--transition);
+
   }
+
   .service-mode-card img { width: 48px; height: 48px; object-fit: contain; }
+
   .service-mode-copy { display: flex; flex-direction: column; gap: 2px; }
+
   .service-mode-copy strong { font-size: 14px; }
+
   .service-mode-copy small { font-size: 12px; color: var(--gray); line-height: 1.3; }
+
   .service-mode-option:hover .service-mode-card { border-color: var(--primary); }
+
   .service-mode-radio:checked + .service-mode-card {
+
     border-color: var(--primary); background: var(--primary-light); box-shadow: 0 0 0 2px var(--primary);
+
   }
+
   .service-mode-radio:focus-visible + .service-mode-card { outline: 2px solid var(--primary); outline-offset: 2px; }
+
   .service-mode-status { margin: 8px 0 0; font-size: 12px; color: var(--gray); }
+
   .service-mode-status[data-type="ok"] { color: #047857; }
 
   .link-btn {
+
     background: none; border: none; padding: 0; cursor: pointer;
+
     color: var(--primary); font-size: 13px; font-weight: 500; font-family: inherit;
+
   }
+
   .link-btn:hover { text-decoration: underline; }
+
   .link-btn i { margin-right: 4px; }
 
   /* Mapa */
+
   #location-map {
+
     height: 320px; width: 100%;
+
     border-radius: var(--radius-sm);
+
     border: 1px solid var(--light-gray);
+
     margin-top: 8px;
+
     z-index: 0;
+
   }
+
   .location-input-group { display: flex; gap: 10px; align-items: flex-start; flex-wrap: wrap; }
+
   .search-wrap { position: relative; flex: 1; min-width: 200px; }
+
   .search-results {
+
     position: absolute; left: 0; right: 0; top: calc(100% + 4px);
+
     margin: 0; padding: 4px; list-style: none;
+
     background: var(--white);
+
     border: 1px solid var(--light-gray);
+
     border-radius: var(--radius-sm);
+
     box-shadow: var(--shadow);
+
     z-index: 1000; max-height: 260px; overflow-y: auto;
+
   }
+
   .search-results[hidden] { display: none; }
+
   .search-results button {
+
     display: block; width: 100%; text-align: left;
+
     padding: 9px 10px; border: none; background: none; cursor: pointer;
+
     font: inherit; font-size: 13px; line-height: 1.35; border-radius: 6px; color: var(--dark);
+
   }
+
   .search-results button:hover,
+
   .search-results button:focus-visible { background: var(--light-gray); outline: none; }
 
   .btn-location {
+
     padding: 10px 16px; background: var(--primary); color: #fff; border: none;
+
     border-radius: var(--radius-sm); cursor: pointer; font-size: 14px;
+
     transition: var(--transition); white-space: nowrap; font-family: inherit;
+
   }
+
   .btn-location:hover { background: var(--primary-dark); }
+
   .btn-location:disabled { opacity: .6; cursor: wait; }
+
   .btn-location i { margin-right: 6px; }
+
   .btn-location-success { background: #10B981; }
+
   .btn-location-success:hover { background: #059669; }
 
   .map-status { min-height: 20px; margin: 8px 0 0; font-size: 13px; color: var(--gray); }
+
   .map-status[data-type="error"] { color: #b91c1c; }
+
   .map-status[data-type="warn"] { color: #92400e; }
+
   .map-status[data-type="ok"] { color: #047857; }
 
   .coord-info { font-size: 13px; color: var(--gray); margin-top: 4px; }
+
   .coord-info span { font-weight: 600; color: var(--dark); }
+
   .coord-info .hint { font-weight: 400; color: #6b7280; font-size: 12px; margin-left: 12px; }
 
   /* Vista previa de imagen */
+
   .image-preview { margin: -6px 0 20px; }
+
   .image-preview img {
+
     display: block; max-height: 160px; max-width: 100%;
+
     border-radius: var(--radius-sm); border: 1px solid var(--light-gray); object-fit: cover;
+
   }
 
   /* Tags */
+
   .tag-box {
+
     display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
+
     padding: 6px 8px; min-height: 42px; cursor: text;
+
     border: 1px solid var(--light-gray); border-radius: var(--radius-sm); background: var(--white);
+
     transition: var(--transition);
+
   }
+
   .tag-box:focus-within { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
+
   .tag-chip {
+
     display: inline-flex; align-items: center; gap: 4px;
+
     padding: 3px 4px 3px 10px; border-radius: 999px;
+
     background: var(--primary-light); color: var(--dark); font-size: 13px;
+
   }
+
   .tag-chip button {
+
     border: none; background: none; cursor: pointer; width: 20px; height: 20px;
+
     border-radius: 50%; line-height: 1; font-size: 15px; color: inherit;
+
   }
+
   .tag-chip button:hover { background: rgba(0, 0, 0, .1); }
+
   .tag-field { flex: 1; min-width: 120px; border: none; outline: none; font: inherit; font-size: 14px; padding: 4px; background: transparent; }
+
   .tag-suggestions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+
   .tag-suggestions button {
+
     padding: 2px 10px; font-size: 12px; font-family: inherit; cursor: pointer;
+
     border: 1px dashed var(--light-gray); border-radius: 999px; background: none; color: var(--gray);
+
   }
+
   .tag-suggestions button:hover { border-color: var(--primary); color: var(--primary); }
 
   .form-actions {
+
     display: flex; justify-content: flex-end; gap: 12px;
+
     margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--light-gray);
+
   }
+
   .btn-secondary {
+
     padding: 10px 24px; background: var(--light-gray); border: none; border-radius: var(--radius-sm);
+
     cursor: pointer; transition: var(--transition); font-weight: 500; text-decoration: none; color: var(--dark);
+
     font-family: inherit; font-size: 14px;
+
   }
+
   .btn-secondary:hover { background: #d5d5d5; }
+
   .btn-primary {
+
     padding: 10px 24px; background: var(--primary); color: var(--white); border: none;
+
     border-radius: var(--radius-sm); cursor: pointer; transition: var(--transition);
+
     font-weight: 500; font-family: inherit; font-size: 14px;
+
   }
+
   .btn-primary:hover:not(:disabled) { background: var(--primary-dark); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(255, 56, 92, .3); }
+
   .btn-primary:disabled { opacity: .7; cursor: wait; }
 
   .toast-stack { position: fixed; right: 20px; bottom: 20px; display: flex; flex-direction: column; gap: 8px; z-index: 3000; }
+
   .toast {
+
     padding: 12px 16px; border-radius: var(--radius-sm); background: var(--dark); color: #fff;
+
     font-size: 14px; box-shadow: var(--shadow); max-width: 320px; transition: opacity .3s, transform .3s;
+
   }
+
   .toast-error { background: #b91c1c; }
+
   .toast-ok { background: #047857; }
+
   .toast-out { opacity: 0; transform: translateY(6px); }
 
   :is(button, a, input, select, textarea):focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 
   @media (max-width: 768px) {
+
     .form-row { grid-template-columns: 1fr; gap: 0; }
+
     .service-mode-options { grid-template-columns: 1fr; }
+
     .service-mode-card { flex-direction: row; text-align: left; }
+
     .admin-form { padding: 4px 18px 24px; }
+
     .location-input-group { flex-direction: column; align-items: stretch; }
+
     .search-wrap { min-width: 0; }
+
     .btn-location { width: 100%; }
+
     .form-actions { flex-direction: column-reverse; }
+
     .form-actions > * { width: 100%; text-align: center; }
+
   }
+
 </style>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 <script>
+
   document.addEventListener('DOMContentLoaded', function () {
+
     'use strict';
 
     const DEFAULT_CENTER = [-8.1118, -79.0287]; // Trujillo
 
     const $ = (id) => document.getElementById(id);
+
     const form = $('restaurantForm');
+
     const IS_EDIT = form.dataset.mode === 'edit';
+
     const submitBtn = $('submitBtn');
+
     const submitLabel = submitBtn.innerHTML;
+
     const addressInput = $('addressInput');
+
     const latInput = $('latInput');
+
     const lngInput = $('lngInput');
+
     const latDisplay = $('latDisplay');
+
     const lngDisplay = $('lngDisplay');
+
     const mapStatus = $('mapStatus');
+
     const searchInput = $('searchLocation');
+
     const searchBtn = $('searchLocationBtn');
+
     const geoBtn = $('getCurrentLocationBtn');
+
     const resultsList = $('searchResults');
 
     let dirty = false;
+
     let submitting = false;
+
     // En edición no pisamos la dirección existente cuando se mueve el pin.
+
     let addressTouched = IS_EDIT;
 
     const markDirty = () => { dirty = true; };
 
     /* ---------- Avisos ---------- */
+
     function toast(msg, type) {
+
       let stack = $('toastStack');
+
       if (!stack) {
+
         stack = document.createElement('div');
+
         stack.id = 'toastStack';
+
         stack.className = 'toast-stack';
+
         stack.setAttribute('aria-live', 'polite');
+
         document.body.appendChild(stack);
+
       }
+
       const t = document.createElement('div');
+
       t.className = 'toast toast-' + (type || 'info');
+
       t.textContent = msg;
+
       stack.appendChild(t);
+
       setTimeout(() => {
+
         t.classList.add('toast-out');
+
         setTimeout(() => t.remove(), 300);
+
       }, 3500);
+
     }
 
     function setStatus(msg, type) {
+
       mapStatus.textContent = msg || '';
+
       mapStatus.dataset.type = type || '';
+
     }
 
     /* ---------- Modalidad de atención ---------- */
+
     const modeStatus = $('serviceModeStatus');
+
     const modeDefaultText = modeStatus.textContent;
+
     function updateModeStatus() {
+
       const checked = form.querySelector('input[name="service_mode"]:checked');
+
       if (checked) {
+
         const label = checked.closest('.service-mode-option').querySelector('strong').textContent;
+
         modeStatus.textContent = 'Modalidad seleccionada: ' + label + '.';
+
         modeStatus.dataset.type = 'ok';
+
       } else {
+
         modeStatus.textContent = modeDefaultText;
+
         modeStatus.dataset.type = '';
+
       }
+
     }
+
     form.querySelectorAll('input[name="service_mode"]').forEach((radio) => {
+
       radio.addEventListener('change', updateModeStatus);
+
     });
+
     updateModeStatus();
 
     /* ---------- Mapa ---------- */
+
     if (typeof L === 'undefined') {
+
       setStatus('No se pudo cargar el mapa. Revisa tu conexión y recarga la página.', 'error');
+
       [searchBtn, geoBtn, searchInput].forEach((el) => { el.disabled = true; });
+
       return;
+
     }
 
     const startLat = parseFloat(latInput.value);
+
     const startLng = parseFloat(lngInput.value);
+
     const start = Number.isFinite(startLat) && Number.isFinite(startLng) ? [startLat, startLng] : DEFAULT_CENTER;
 
     const map = L.map('location-map').setView(start, IS_EDIT ? 16 : 15);
+
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+
       maxZoom: 19,
+
       attribution: '&copy; Colaboradores de OpenStreetMap'
+
     }).addTo(map);
+
     const marker = L.marker(start, { draggable: true }).addTo(map);
+
     setTimeout(() => map.invalidateSize(), 200);
 
     function setCoords(lat, lng, opts) {
+
       opts = opts || {};
+
       lat = Number(lat);
+
       lng = Number(lng);
+
       if (!Number.isFinite(lat) || !Number.isFinite(lng) || Math.abs(lat) > 90 || Math.abs(lng) > 180) return;
+
       marker.setLatLng([lat, lng]);
+
       latInput.value = lat.toFixed(6);
+
       lngInput.value = lng.toFixed(6);
+
       latDisplay.textContent = lat.toFixed(6);
+
       lngDisplay.textContent = lng.toFixed(6);
+
       if (opts.pan) map.setView([lat, lng], opts.zoom || Math.max(map.getZoom(), 16));
+
       if (opts.reverse) reverseGeocode(lat, lng, false);
+
       markDirty();
+
     }
 
     marker.on('dragend', () => {
+
       const p = marker.getLatLng();
+
       setCoords(p.lat, p.lng, { reverse: true });
+
     });
+
     map.on('click', (e) => setCoords(e.latlng.lat, e.latlng.lng, { reverse: true }));
 
     /* ---------- Geocodificación inversa (con debounce y cancelación) ---------- */
+
     let revTimer = null;
+
     let revCtrl = null;
 
     function reverseGeocode(lat, lng, force) {
+
       if (!force && addressTouched) return;
+
       clearTimeout(revTimer);
+
       revTimer = setTimeout(async () => {
+
         if (revCtrl) revCtrl.abort();
+
         revCtrl = new AbortController();
+
         setStatus('Obteniendo dirección…');
+
         try {
+
           const url = 'https://nominatim.openstreetmap.org/reverse?format=jsonv2&accept-language=es&lat=' + lat + '&lon=' + lng;
+
           const res = await fetch(url, { signal: revCtrl.signal, headers: { Accept: 'application/json' } });
+
           if (!res.ok) throw new Error('HTTP ' + res.status);
+
           const data = await res.json();
+
           if (data && data.display_name && (force || !addressTouched)) {
+
             addressInput.value = data.display_name;
+
             if (force) addressTouched = false;
+
             setStatus('Dirección actualizada desde el mapa.', 'ok');
+
           } else {
+
             setStatus('');
+
           }
+
         } catch (err) {
+
           if (err.name !== 'AbortError') setStatus('No se pudo obtener la dirección. Puedes escribirla manualmente.', 'warn');
+
         }
+
       }, 700);
+
     }
 
     addressInput.addEventListener('input', () => { addressTouched = true; });
+
     $('useMapAddress').addEventListener('click', () => {
+
       const p = marker.getLatLng();
+
       reverseGeocode(p.lat, p.lng, true);
+
       markDirty();
+
     });
 
     /* ---------- Búsqueda de lugares ---------- */
+
     let searchCtrl = null;
 
     function hideResults() {
+
       resultsList.hidden = true;
+
       resultsList.innerHTML = '';
+
     }
 
     function pickResult(item) {
+
       setCoords(item.lat, item.lon, { pan: true, zoom: 17 });
+
       if (item.display_name) {
+
         addressInput.value = item.display_name;
+
         addressTouched = false;
+
       }
+
       hideResults();
+
       setStatus('Ubicación seleccionada. Ajusta el pin si hace falta.', 'ok');
+
     }
 
     function showResults(items) {
+
       resultsList.innerHTML = '';
+
       items.forEach((item) => {
+
         const li = document.createElement('li');
+
         const b = document.createElement('button');
+
         b.type = 'button';
+
         b.textContent = item.display_name;
+
         b.addEventListener('click', () => pickResult(item));
+
         li.appendChild(b);
+
         resultsList.appendChild(li);
+
       });
+
       resultsList.hidden = false;
+
     }
 
     async function searchPlaces() {
+
       const q = searchInput.value.trim();
+
       if (q.length < 3) {
+
         setStatus('Escribe al menos 3 caracteres para buscar.', 'warn');
+
         return;
+
       }
+
       if (searchCtrl) searchCtrl.abort();
+
       searchCtrl = new AbortController();
+
       searchBtn.disabled = true;
+
       setStatus('Buscando…');
+
       try {
+
         // countrycodes=pe limita los resultados a Perú. Quítalo si necesitas buscar en otros países.
+
         const url = 'https://nominatim.openstreetmap.org/search?format=jsonv2&limit=5&accept-language=es&countrycodes=pe&q=' + encodeURIComponent(q);
+
         const res = await fetch(url, { signal: searchCtrl.signal, headers: { Accept: 'application/json' } });
+
         if (!res.ok) throw new Error('HTTP ' + res.status);
+
         const results = await res.json();
+
         if (!results.length) {
+
           hideResults();
+
           setStatus('No se encontró la ubicación. Prueba con otro nombre o agrega la ciudad.', 'warn');
+
         } else if (results.length === 1) {
+
           pickResult(results[0]);
+
         } else {
+
           showResults(results);
+
           setStatus('Elige un resultado de la lista.');
+
         }
+
       } catch (err) {
+
         if (err.name !== 'AbortError') setStatus('No se pudo buscar. Revisa tu conexión e inténtalo de nuevo.', 'error');
+
       } finally {
+
         searchBtn.disabled = false;
+
       }
+
     }
 
     searchBtn.addEventListener('click', searchPlaces);
+
     searchInput.addEventListener('keydown', (e) => {
+
       if (e.key === 'Enter') { e.preventDefault(); searchPlaces(); }
+
       if (e.key === 'Escape') hideResults();
+
     });
+
     document.addEventListener('click', (e) => {
+
       if (!e.target.closest('.search-wrap')) hideResults();
+
     });
 
     /* ---------- Mi ubicación ---------- */
+
     geoBtn.addEventListener('click', () => {
+
       if (!navigator.geolocation) {
+
         setStatus('Tu navegador no soporta geolocalización.', 'error');
+
         return;
+
       }
+
       geoBtn.disabled = true;
+
       setStatus('Obteniendo tu ubicación…');
+
       navigator.geolocation.getCurrentPosition(
+
         (pos) => {
+
           geoBtn.disabled = false;
+
           setCoords(pos.coords.latitude, pos.coords.longitude, { pan: true, zoom: 17, reverse: true });
+
           setStatus('Ubicación actual seleccionada.', 'ok');
+
         },
+
         (err) => {
+
           geoBtn.disabled = false;
+
           const msgs = {
+
             1: 'Permiso denegado. Habilita la ubicación en tu navegador (requiere HTTPS o localhost).',
+
             2: 'No se pudo determinar tu ubicación.',
+
             3: 'Se agotó el tiempo de espera. Inténtalo de nuevo.'
+
           };
+
           setStatus(msgs[err.code] || 'Error al obtener la ubicación.', 'error');
+
         },
+
         { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+
       );
+
     });
 
     /* ---------- Campos de etiquetas (chips) ---------- */
+
     function initTagField(wrap) {
+
       const box = wrap.querySelector('.tag-box');
+
       const field = wrap.querySelector('.tag-field');
+
       const hidden = wrap.querySelector('input[type="hidden"]');
+
       const sugBox = wrap.querySelector('.tag-suggestions');
+
       const suggestions = (wrap.dataset.suggestions || '').split('|').filter(Boolean);
+
       const tags = [];
 
       const clean = (s) => s.trim().replace(/\s+/g, ' ');
+
       const has = (t) => tags.some((x) => x.toLowerCase() === t.toLowerCase());
 
       function render() {
+
         box.querySelectorAll('.tag-chip').forEach((n) => n.remove());
+
         tags.forEach((t, i) => {
+
           const chip = document.createElement('span');
+
           chip.className = 'tag-chip';
+
           chip.appendChild(document.createTextNode(t));
+
           const x = document.createElement('button');
+
           x.type = 'button';
+
           x.setAttribute('aria-label', 'Quitar ' + t);
+
           x.innerHTML = '&times;';
+
           x.addEventListener('click', () => { tags.splice(i, 1); render(); markDirty(); });
+
           chip.appendChild(x);
+
           box.insertBefore(chip, field);
+
         });
+
         hidden.value = tags.join(', ');
 
         sugBox.innerHTML = '';
+
         suggestions.filter((s) => !has(s)).forEach((s) => {
+
           const b = document.createElement('button');
+
           b.type = 'button';
+
           b.textContent = '+ ' + s;
+
           b.addEventListener('click', () => add(s));
+
           sugBox.appendChild(b);
+
         });
+
       }
 
       function add(raw) {
+
         let changed = false;
+
         raw.split(',').forEach((piece) => {
+
           const t = clean(piece);
+
           if (t && !has(t)) { tags.push(t); changed = true; }
+
         });
+
         if (changed) { render(); markDirty(); }
+
       }
 
       function flush() {
+
         if (field.value.trim()) add(field.value);
+
         field.value = '';
+
       }
 
       field.addEventListener('keydown', (e) => {
+
         if (e.key === 'Enter' || e.key === ',') {
+
           e.preventDefault();
+
           flush();
+
         } else if (e.key === 'Backspace' && !field.value && tags.length) {
+
           tags.pop();
+
           render();
+
           markDirty();
+
         }
+
       });
+
       field.addEventListener('input', () => {
+
         if (field.value.includes(',')) flush();
+
       });
+
       field.addEventListener('blur', flush);
+
       box.addEventListener('click', (e) => { if (e.target === box) field.focus(); });
 
       add(hidden.value);
+
       render();
+
+      wrap.addEventListener('ai:set-tags', (event) => {
+
+        const values = Array.isArray(event.detail) ? event.detail : String(event.detail || '').split(',');
+
+        tags.splice(0, tags.length);
+
+        values.forEach(item => {
+
+          const t = clean(String(item));
+
+          if (t && !has(t)) tags.push(t);
+
+        });
+
+        field.value = '';
+
+        render();
+
+        markDirty();
+
+      });
+
       return { flush: flush };
+
     }
 
     const tagFields = Array.from(document.querySelectorAll('.tag-wrap')).map(initTagField);
+
     dirty = false; // la carga inicial de chips no cuenta como cambio
 
     /* ---------- Vista previa de imagen ---------- */
+
     const imageInput = $('imageInput');
+
     const preview = $('imagePreview');
+
     const previewWrap = $('imagePreviewWrap');
+
     let previewTimer = null;
 
     function updatePreview() {
+
       const url = imageInput.value.trim();
+
       if (!url) {
+
         previewWrap.hidden = true;
+
         preview.removeAttribute('src');
+
         return;
+
       }
+
       preview.src = url;
+
     }
+
     preview.addEventListener('load', () => { previewWrap.hidden = false; });
+
     preview.addEventListener('error', () => { previewWrap.hidden = true; });
+
     imageInput.addEventListener('input', () => {
+
       clearTimeout(previewTimer);
+
       previewTimer = setTimeout(updatePreview, 400);
+
     });
+
     updatePreview();
 
     /* ---------- Contador de descripción ---------- */
+
     const desc = $('descriptionInput');
+
     const descCount = $('descCount');
+
     function updateCount() { descCount.textContent = desc.value.length + ' caracteres'; }
+
     desc.addEventListener('input', updateCount);
+
     updateCount();
 
     /* ---------- Cambios sin guardar y envío ---------- */
+
     form.addEventListener('input', (e) => { if (e.target.id !== 'searchLocation' && !e.target.classList.contains('tag-field')) markDirty(); });
+
     form.addEventListener('change', (e) => { if (e.target.id !== 'searchLocation') markDirty(); });
 
     window.addEventListener('beforeunload', (e) => {
+
       if (dirty && !submitting) {
+
         e.preventDefault();
+
         e.returnValue = '';
+
       }
+
     });
 
     form.addEventListener('submit', (e) => {
+
       tagFields.forEach((t) => t.flush());
+
       const lat = parseFloat(latInput.value);
+
       const lng = parseFloat(lngInput.value);
+
       if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+
         e.preventDefault();
+
         toast('Selecciona una ubicación válida en el mapa.', 'error');
+
         $('location-map').scrollIntoView({ behavior: 'smooth', block: 'center' });
+
         return;
+
       }
+
       submitting = true;
+
       submitBtn.disabled = true;
+
       submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando…';
+
     });
 
     // Si el usuario vuelve con el botón "atrás", se restablece el botón.
+
     window.addEventListener('pageshow', (e) => {
+
       if (e.persisted) {
+
         submitting = false;
+
         submitBtn.disabled = false;
+
         submitBtn.innerHTML = submitLabel;
+
       }
+
     });
+
   });
+
+</script>
+
+<script>
+
+document.addEventListener('DOMContentLoaded', () => {
+
+  'use strict';
+
+  const file = document.getElementById('aiFile');
+
+  const analyze = document.getElementById('aiAnalyze');
+
+  const status = document.getElementById('aiStatus');
+
+  const review = document.getElementById('aiReview');
+
+  const rows = document.getElementById('aiRows');
+
+  const form = document.getElementById('restaurantForm');
+
+  const apply = document.getElementById('aiApply');
+
+  const provider = document.getElementById('aiProvider');
+
+  const analyzeUrl = {{ url_for('admin.analyze_restaurant_upload') | tojson }};
+
+  // Las categorías nuevas se guardan únicamente tras confirmación del administrador.
+
+  const categorySelect = document.getElementById('categoryInput');
+
+  const categoryProposal = document.getElementById('categoryProposal');
+
+  const categoryMessage = document.getElementById('categoryAiMessage');
+
+  const categoryCreate = document.getElementById('createAiCategory');
+
+  const categoryCreateUrl = {% if session.get('user', {}).get('role') == 'admin' %}{{ url_for('admin.create_dynamic_category') | tojson }}{% else %}null{% endif %};
+
+  function normalizeCategory(value) {
+
+    return String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+
+      .trim().toLocaleLowerCase('es').replace(/\s+/g, ' ');
+
+  }
+
+  function findCategoryByName(name) {
+
+    return Array.from(categorySelect.options).find(option =>
+
+      option.value && normalizeCategory(option.textContent) === normalizeCategory(name));
+
+  }
+
+  function chooseCategory(option) {
+
+    categorySelect.value = option.value;
+
+    categorySelect.dispatchEvent(new Event('change', { bubbles: true }));
+
+  }
+
+  function proposeCategory(name) {
+
+    const proposed = String(name || '').trim().slice(0, 80);
+
+    if (!proposed) return;
+
+    categoryProposal.value = proposed;
+
+    const found = findCategoryByName(proposed);
+
+    if (found) {
+
+      chooseCategory(found);
+
+      categoryMessage.textContent = 'La categoría ya existe y fue seleccionada.';
+
+    } else {
+
+      categoryMessage.textContent = categoryCreate
+
+        ? 'Categoría propuesta por IA. Comprueba si ya existe una equivalente antes de crearla.'
+
+        : 'Categoría propuesta por IA. Solicita al administrador que la registre.';
+
+    }
+
+  }
+
+  categoryProposal?.addEventListener('input', () => {
+
+    const found = findCategoryByName(categoryProposal.value);
+
+    if (found) {
+
+      categoryMessage.textContent = 'Ya existe esta categoría. Puedes seleccionarla del listado.';
+
+    } else {
+
+      categoryMessage.textContent = categoryCreate
+
+        ? 'Revisa las categorías existentes antes de crear una nueva.'
+
+        : 'Solo un administrador puede crear categorías nuevas.';
+
+    }
+
+  });
+
+  categoryCreate?.addEventListener('click', async () => {
+
+    const name = categoryProposal.value.trim().replace(/\s+/g, ' ');
+
+    if (name.length < 2 || name.length > 80) {
+
+      categoryMessage.textContent = 'Escribe un nombre de 2 a 80 caracteres.';
+
+      return;
+
+    }
+
+    const existing = findCategoryByName(name);
+
+    if (existing) {
+
+      chooseCategory(existing);
+
+      categoryMessage.textContent = 'La categoría ya existía y fue seleccionada.';
+
+      return;
+
+    }
+
+    if (!window.confirm(`¿Crear la categoría "${name}"? Comprueba antes que no exista una equivalente.`)) return;
+
+    const csrf = form.querySelector('input[name="csrf_token"]');
+
+    const headers = { 'Content-Type': 'application/json', 'Accept': 'application/json' };
+
+    if (csrf) headers['X-CSRFToken'] = csrf.value;
+
+    categoryCreate.disabled = true;
+
+    try {
+
+      const response = await fetch(categoryCreateUrl, {
+
+        method: 'POST', credentials: 'same-origin', headers,
+
+        body: JSON.stringify({ name })
+
+      });
+
+      const type = response.headers.get('content-type') || '';
+
+      if (!type.includes('application/json')) {
+
+        throw new Error('El servidor no devolvió JSON. Revisa tu sesión, permisos y CSRF.');
+
+      }
+
+      const result = await response.json();
+
+      if (!response.ok || !result.success || !result.category?.id) {
+
+        throw new Error(result.error || 'No se pudo crear la categoría.');
+
+      }
+
+      const category = result.category;
+
+      let option = Array.from(categorySelect.options).find(o => o.value === String(category.id));
+
+      if (!option) {
+
+        option = new Option(category.name, String(category.id));
+
+        categorySelect.add(option);
+
+      }
+
+      chooseCategory(option);
+
+      categoryMessage.textContent = result.created
+
+        ? 'Categoría creada y seleccionada. Guarda el restaurante cuando termines.'
+
+        : 'La categoría ya existía y fue seleccionada.';
+
+    } catch (error) {
+
+      categoryMessage.textContent = error.message || 'No se pudo crear la categoría.';
+
+    } finally {
+
+      categoryCreate.disabled = false;
+
+    }
+
+  });
+
+  const labels = {
+
+    name: 'Nombre', category_id: 'Categoría',
+
+    category_suggestion: 'Categoría sugerida (revisar)',
+
+    district: 'Distrito', district_suggestion: 'Distrito sugerido (revisar)',
+
+    avg_price: 'Precio promedio', service_mode: 'Modalidad',
+
+    open_time: 'Apertura', close_time: 'Cierre', address: 'Dirección',
+
+    phone: 'Teléfono', description: 'Descripción', promo: 'Promoción',
+
+    tags: 'Etiquetas', features: 'Características',
+
+    dietary_restrictions: 'Restricciones dietéticas'
+
+  };
+
+  const suggestions = new Set(['category_suggestion', 'district_suggestion']);
+
+  if (!file || !analyze || !status || !review || !rows || !form || !apply) return;
+
+  const showStatus = (message, error = false) => {
+
+    status.textContent = message;
+
+    status.style.color = error ? '#b91c1c' : '#475569';
+
+  };
+
+  analyze.addEventListener('click', async () => {
+
+    if (!file.files.length) {
+
+      showStatus('Selecciona una fotografía, Word o Excel.', true);
+
+      return;
+
+    }
+
+    const selectedFile = file.files[0];
+
+    const allowed = /\.(jpg|jpeg|png|webp|docx|xlsx)$/i;
+
+    if (!allowed.test(selectedFile.name)) {
+
+      showStatus('Formato no permitido. Usa JPG, PNG, WEBP, DOCX o XLSX.', true);
+
+      return;
+
+    }
+
+    if (selectedFile.size > 10 * 1024 * 1024) {
+
+      showStatus('El archivo supera 10 MB.', true);
+
+      return;
+
+    }
+
+    const body = new FormData();
+
+    body.append('file', selectedFile);
+
+    const csrf = form.querySelector('input[name="csrf_token"]');
+
+    if (csrf) body.append('csrf_token', csrf.value);
+
+    analyze.disabled = true;
+
+    review.hidden = true;
+
+    rows.replaceChildren();
+
+    showStatus('Analizando archivo…');
+
+    try {
+
+      const response = await fetch(analyzeUrl, {
+
+        method: 'POST',
+
+        body: body,
+
+        credentials: 'same-origin',
+
+        headers: { 'Accept': 'application/json' }
+
+      });
+
+      const contentType = response.headers.get('content-type') || '';
+
+      if (!contentType.toLowerCase().includes('application/json')) {
+
+        const raw = await response.text();
+
+        console.error('El servidor devolvió HTML:', {
+
+          status: response.status, url: response.url,
+
+          redirected: response.redirected, contentType,
+
+          preview: raw.slice(0, 1200)
+
+        });
+
+        if (response.redirected || response.status === 401) {
+
+          throw new Error('La sesión expiró o Flask redirigió la solicitud. Inicia sesión de nuevo.');
+
+        }
+
+        if (response.status === 400 || response.status === 403) {
+
+          throw new Error('Solicitud rechazada (HTTP ' + response.status + '). Comprueba el token CSRF y los permisos.');
+
+        }
+
+        throw new Error('Flask devolvió HTML (HTTP ' + response.status + '). Revisa la terminal del servidor y la consola.');
+
+      }
+
+      const result = await response.json();
+
+      if (!response.ok || result.success === false || !result.data) {
+
+        throw new Error(result.error || result.message || 'El análisis no devolvió datos válidos.');
+
+      }
+
+      if (result.data.category_suggestion) {
+
+        proposeCategory(result.data.category_suggestion);
+
+      } else if (result.data.category_id) {
+
+        categoryProposal.value = '';
+
+        categoryMessage.textContent = 'La IA encontró una categoría registrada. Revisa la vista previa para aplicarla.';
+
+      }
+
+      let count = 0;
+
+      Object.entries(result.data).forEach(([key, val]) => {
+
+        if (!Object.prototype.hasOwnProperty.call(labels, key) || val == null || val === '') return;
+
+        const row = document.createElement('label');
+
+        row.className = 'ai-review-row';
+
+        const check = document.createElement('input');
+
+        check.type = 'checkbox';
+
+        check.checked = !suggestions.has(key);
+
+        check.disabled = suggestions.has(key);
+
+        const title = document.createElement('strong');
+
+        title.textContent = labels[key];
+
+        const value = document.createElement('textarea');
+
+        value.className = 'ai-value';
+
+        value.rows = 1;
+
+        value.dataset.field = key;
+
+        value.value = Array.isArray(val) ? val.join(', ') : String(val);
+
+        row.append(check, title, value);
+
+        rows.append(row);
+
+        count++;
+
+      });
+
+      if (!count) throw new Error('No se encontraron campos de restaurante en el documento.');
+
+      provider.textContent = 'Analizado por ' + (result.provider || 'IA') + '. Verifica los datos antes de aplicarlos.';
+
+      review.hidden = false;
+
+      showStatus('Análisis terminado. Revisa y selecciona los campos.');
+
+    } catch (error) {
+
+      console.error('Error al analizar restaurante:', error);
+
+      showStatus(error.message || 'No se pudo analizar el archivo.', true);
+
+    } finally {
+
+      analyze.disabled = false;
+
+    }
+
+  });
+
+  apply.addEventListener('click', () => {
+
+    let applied = 0;
+
+    const skipped = [];
+
+    rows.querySelectorAll('.ai-review-row').forEach(row => {
+
+      if (!row.querySelector('input[type="checkbox"]').checked) return;
+
+      const editor = row.querySelector('.ai-value');
+
+      const key = editor.dataset.field;
+
+      const value = editor.value.trim();
+
+      if (!value || suggestions.has(key)) return;
+
+      if (key === 'service_mode') {
+
+        const radio = Array.from(form.querySelectorAll('input[name="service_mode"]'))
+
+          .find(item => item.value === value);
+
+        if (!radio) { skipped.push(labels[key]); return; }
+
+        radio.checked = true;
+
+        radio.dispatchEvent(new Event('change', { bubbles: true }));
+
+        applied++;
+
+        return;
+
+      }
+
+      if (['tags', 'features', 'dietary_restrictions'].includes(key)) {
+
+        const hidden = form.querySelector('input[type="hidden"][name="' + key + '"]');
+
+        const wrap = hidden && hidden.closest('.tag-wrap');
+
+        if (!wrap) { skipped.push(labels[key]); return; }
+
+        wrap.dispatchEvent(new CustomEvent('ai:set-tags', {
+
+          detail: value.split(',').map(s => s.trim()).filter(Boolean)
+
+        }));
+
+        applied++;
+
+        return;
+
+      }
+
+      const target = form.elements.namedItem(key);
+
+      if (!target || !('tagName' in target)) { skipped.push(labels[key]); return; }
+
+      if (target.tagName === 'SELECT') {
+
+        const match = Array.from(target.options).find(o => o.value === value);
+
+        if (!match) { skipped.push(labels[key]); return; }
+
+      }
+
+      target.value = value;
+
+      target.dispatchEvent(new Event('input', { bubbles: true }));
+
+      target.dispatchEvent(new Event('change', { bubbles: true }));
+
+      applied++;
+
+    });
+
+    const note = skipped.length ? ' Revisa manualmente: ' + skipped.join(', ') + '.' : '';
+
+    showStatus(applied + ' campos aplicados. Verifica los datos y guarda cuando estén correctos.' + note);
+
+    if (applied) form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  });
+
+});
+
 </script>
 
 {% endblock %}
