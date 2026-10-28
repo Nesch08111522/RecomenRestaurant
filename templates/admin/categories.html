@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="cat-admin">
+    <div class="cat-head">
+        <h1><i class="fas fa-tags"></i> Categorías</h1>
+        <span class="cat-count">{{ categories|length }} categoría{{ '' if categories|length == 1 else 's' }}</span>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <div class="cat-flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+    {% endwith %}
+
+    <form class="cat-form" method="post" action="{{ url_for('admin.new_category') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <h2>Nueva categoría</h2>
+        <div class="cat-grid">
+            <label>Nombre *
+                <input type="text" name="name" required maxlength="60" placeholder="Ej: Cevichería">
+            </label>
+            <label>Slug *
+                <input type="text" name="slug" required maxlength="60" placeholder="Ej: cheviceria" pattern="[a-z0-9\-]+">
+            </label>
+            <label>Icono (Font Awesome)
+                <input type="text" name="icon" value="utensils" maxlength="40" placeholder="Ej: fish, pizza-slice, utensils">
+            </label>
+            <label>URL de imagen (opcional)
+                <input type="url" name="image_url" maxlength="500" placeholder="https://...">
+            </label>
+        </div>
+        <button type="submit" class="cat-btn"><i class="fas fa-plus"></i> Crear categoría</button>
+    </form>
+
+    <div class="cat-table-wrap">
+        <table class="cat-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Icono</th>
+                    <th>Nombre</th>
+                    <th>Slug</th>
+                    <th>Imagen</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cat in categories %}
+                <tr data-id="{{ cat.id }}">
+                    <td>{{ cat.id }}</td>
+                    <td><i class="fas fa-{{ cat.icon or 'utensils' }}"></i></td>
+                    <td>{{ cat.name }}</td>
+                    <td>{{ cat.slug }}</td>
+                    <td>{% if cat.image_url %}<a href="{{ cat.image_url }}" target="_blank" rel="noopener">Ver</a>{% else %}—{% endif %}</td>
+                    <td><button type="button" class="cat-del" data-id="{{ cat.id }}" data-name="{{ cat.name }}"><i class="fas fa-trash"></i></button></td>
+                </tr>
+                {% else %}
+                <tr><td colspan="6" class="cat-empty">Aún no hay categorías.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+    .cat-admin { max-width: 960px; margin: 32px auto; padding: 0 20px; }
+    .cat-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 16px; }
+    .cat-head h1 { font-size: 24px; margin: 0; }
+    .cat-count { color: #6b7280; font-size: 14px; }
+    .cat-flash { padding: 10px 14px; border-radius: 10px; margin-bottom: 12px; background: #f3f4f6; font-size: 14px; }
+    .cat-flash.success { background: #ecfdf5; color: #047857; }
+    .cat-flash.error { background: #fef2f2; color: #b91c1c; }
+    .cat-flash.warning { background: #fffbeb; color: #b45309; }
+    .cat-form { background: #fff; border: 1px solid #eceff3; border-radius: 14px; padding: 18px; margin-bottom: 20px; }
+    .cat-form h2 { font-size: 16px; margin: 0 0 12px; }
+    .cat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin-bottom: 14px; }
+    .cat-grid label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #374151; }
+    .cat-grid input { padding: 9px 12px; border: 1px solid #e5e7eb; border-radius: 10px; font-size: 14px; }
+    .cat-btn { border: none; cursor: pointer; color: #fff; padding: 10px 18px; border-radius: 999px; font-weight: 600; background: var(--primary, #ff385c); }
+    .cat-table-wrap { background: #fff; border: 1px solid #eceff3; border-radius: 14px; overflow-x: auto; }
+    .cat-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    .cat-table th, .cat-table td { padding: 12px 14px; text-align: left; border-bottom: 1px solid #f1f3f5; }
+    .cat-table th { background: #f9fafb; font-size: 12px; text-transform: uppercase; color: #6b7280; }
+    .cat-table tr:last-child td { border-bottom: none; }
+    .cat-table i.fas { color: var(--primary, #ff385c); }
+    .cat-empty { text-align: center; color: #6b7280; padding: 24px; }
+    .cat-del { border: none; background: none; cursor: pointer; color: #b91c1c; font-size: 15px; }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+    const base = "{{ url_for('admin.new_category') }}";   // /admin/category
+    const token = "{{ csrf_token() }}";
+
+    document.querySelectorAll('.cat-del').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const id = btn.dataset.id;
+            if (!confirm('¿Eliminar la categoría "' + btn.dataset.name + '"?')) return;
+            try {
+                const res = await fetch(base + '/' + encodeURIComponent(id), {
+                    method: 'DELETE',
+                    headers: { 'X-CSRFToken': token }
+                });
+                if (!res.ok) throw new Error();
+                btn.closest('tr').remove();
+            } catch (e) {
+                alert('No se pudo eliminar la categoría. Intenta de nuevo.');
+            }
+        });
+    });
+})();
+</script>
+{% endblock %}

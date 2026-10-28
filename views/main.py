@@ -9,9 +9,14 @@ from flask import (
     redirect,
     url_for,
 )
+
+from flask import Blueprint, request, jsonify
+from utils.ia_qwen import obtener_recomendacion_ia
+
 from werkzeug.routing import BuildError
 from urllib.parse import quote
 from models.restaurant import RestaurantModel
+from models.category import CategoryModel
 from models.dish import DishModel
 from models.daily_menu import DailyMenuModel
 from models.user import UserModel
@@ -30,14 +35,13 @@ from models.review import ReviewModel
 from config import Config
 from utils.security import csrf, valid_coordinate
 from utils.geo import normalize_coordinates
-import json
-import os
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 
 # Configurar logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+LIMA_TIMEZONE = timezone(timedelta(hours=-5))
 
 main_bp = Blueprint("main", __name__)
 
@@ -51,28 +55,13 @@ except Exception as e:
 
 
 def load_categories():
-    """Carga las categorías desde el archivo JSON con caché"""
-    categories = []
-    if os.path.exists(Config.CATEGORIES_FILE):
-        try:
-            with open(Config.CATEGORIES_FILE, "r", encoding="utf-8") as f:
-                categories = json.load(f)
-        except Exception as e:
-            logger.error(f"Error cargando categorías: {e}")
-    return categories
+    """Load categories from the configured PostgreSQL collection."""
+    return CategoryModel.all()
 
 
 def load_dishes(restaurant_id):
-    """Carga los platos de un restaurante específico"""
-    dishes = []
-    if os.path.exists(Config.DISHES_FILE):
-        try:
-            with open(Config.DISHES_FILE, "r", encoding="utf-8") as f:
-                all_dishes = json.load(f)
-            dishes = [d for d in all_dishes if d.get("restaurant_id") == restaurant_id]
-        except Exception as e:
-            logger.error(f"Error cargando platos para restaurante {restaurant_id}: {e}")
-    return dishes
+    """Load a restaurant's dishes from the PostgreSQL collection."""
+    return DishModel.get_by_restaurant(restaurant_id)
 
 
 def get_user_profile():
@@ -160,8 +149,13 @@ def detail(restaurant_id):
                     404,
                 )
 
-        # Obtener platos del restaurante
-        dishes = load_dishes(restaurant_id)
+        # Show permanent carta items and only the variable dishes scheduled for
+        # today. Future dates remain hidden until they become active.
+        today_iso = datetime.now(LIMA_TIMEZONE).date().isoformat()
+        dishes = [
+            dish for dish in load_dishes(restaurant_id)
+            if not dish.get("menu_date") or dish.get("menu_date") == today_iso
+        ]
 
         # Obtener menú del día
         daily_menu = DailyMenuModel.get_active(restaurant_id)
@@ -737,3 +731,20 @@ def not_found_error(error):
 @main_bp.app_errorhandler(500)
 def internal_error(error):
     return render_template("500.html", message="Error interno del servidor"), 500
+
+
+@main_bp.route("/api/preguntar-ia", methods=["POST"])
+def preguntar_ia():
+    # Recibimos los datos en formato JSON desde el frontend
+    datos = request.get_json()
+    
+    if not datos or "pregunta" not in datos:
+        return jsonify({"error": "No se proporcionó ninguna pregunta"}), 400
+    
+    pregunta_usuario = datos["pregunta"]
+    
+    # Llamamos a nuestro servicio de IA
+    respuesta_ia = obtener_recomendacion_ia(pregunta_usuario)
+    
+    # Devolvemos la respuesta al frontend
+    return jsonify({"respuesta": respuesta_ia})

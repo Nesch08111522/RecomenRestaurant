@@ -1,4 +1,252 @@
-<div class="restaurant-card" 
+{% if loop is not defined or loop.first %}
+<style>
+    /* ===== Tarjeta de restaurante (diseño mejorado) ===== */
+    .restaurant-card.rc {
+        background: var(--white, #fff);
+        border: 1px solid rgba(17, 24, 39, 0.06);
+        border-radius: 18px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(17, 24, 39, 0.06);
+        transition: transform .25s ease, box-shadow .25s ease;
+    }
+
+    .restaurant-card.rc:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 14px 30px rgba(17, 24, 39, 0.14);
+    }
+
+    /* Imagen */
+    .restaurant-card.rc .card-image img {
+        transition: transform .5s ease;
+    }
+
+    .restaurant-card.rc:hover .card-image img {
+        transform: scale(1.06);
+    }
+
+    /* Sombra suave arriba para que se lean las insignias y el corazón */
+    .restaurant-card.rc .card-image::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, rgba(0, 0, 0, .30) 0%, rgba(0, 0, 0, 0) 38%);
+        pointer-events: none;
+        z-index: 1;
+    }
+
+    /* Insignias */
+    .restaurant-card.rc .rc-badges {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        z-index: 3;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        max-width: calc(100% - 66px);
+        background: none !important;
+        padding: 0 !important;
+    }
+
+    .restaurant-card.rc .rc-badge {
+        position: static !important;
+        display: inline-flex !important;
+        align-items: center;
+        gap: 5px;
+        padding: 5px 11px !important;
+        border-radius: 999px !important;
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 1.2;
+        white-space: nowrap;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, .18);
+    }
+
+    .restaurant-card.rc .rc-badge-promo {
+        background: linear-gradient(135deg, var(--primary, #ff385c), #ff6b81) !important;
+        color: #fff !important;
+    }
+
+    .restaurant-card.rc .rc-badge-top {
+        background: linear-gradient(135deg, #ffc107, #ff9800) !important;
+        color: #3b2a00 !important;
+    }
+
+    /* Corazón de favoritos (rojo) */
+    .restaurant-card.rc .fav-btn {
+        position: absolute !important;
+        top: 12px !important;
+        right: 12px !important;
+        z-index: 3;
+        width: 38px;
+        height: 38px;
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        border: none;
+        border-radius: 50% !important;
+        background: rgba(255, 255, 255, .95) !important;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, .22);
+        cursor: pointer;
+        transition: transform .2s ease, box-shadow .2s ease;
+    }
+
+    .restaurant-card.rc .fav-btn i {
+        color: #e11d48 !important;
+        font-size: 17px;
+    }
+
+    .restaurant-card.rc .fav-btn:hover {
+        transform: scale(1.12);
+        box-shadow: 0 5px 14px rgba(225, 29, 72, .35);
+    }
+
+    .restaurant-card.rc .fav-btn.active i {
+        font-weight: 900; /* corazón relleno */
+    }
+
+    /* Contenido */
+    .restaurant-card.rc .card-content {
+        padding: 18px 18px 16px;
+    }
+
+    .restaurant-card.rc .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 10px;
+        margin-bottom: 8px;
+    }
+
+    .restaurant-card.rc .card-header h3 {
+        margin: 0;
+        font-size: 17px;
+        font-weight: 700;
+        line-height: 1.3;
+        color: var(--dark, #111827);
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .restaurant-card.rc .rating {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        flex-shrink: 0;
+        padding: 3px 9px;
+        border-radius: 999px;
+        background: #fff7e0;
+        font-size: 13px;
+        font-weight: 700;
+        color: #7a5800;
+    }
+
+    .restaurant-card.rc .rating i {
+        color: #ffb800;
+        font-size: 12px;
+    }
+
+    .restaurant-card.rc .card-location {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-bottom: 12px;
+        font-size: 13.5px;
+        color: var(--gray, #6b7280);
+    }
+
+    .restaurant-card.rc .card-location i {
+        color: var(--primary, #ff385c);
+    }
+
+    .restaurant-card.rc .card-location .distance {
+        font-weight: 600;
+    }
+
+    .restaurant-card.rc .card-price {
+        display: flex;
+        align-items: baseline;
+        gap: 6px;
+        margin-bottom: 14px;
+    }
+
+    .restaurant-card.rc .card-price .price {
+        font-size: 20px;
+        font-weight: 800;
+        color: var(--dark, #111827);
+    }
+
+    .restaurant-card.rc .card-price .price-label {
+        font-size: 13px;
+        color: var(--gray, #6b7280);
+    }
+
+    .restaurant-card.rc .card-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 14px;
+    }
+
+    .restaurant-card.rc .card-tags .tag {
+        padding: 5px 12px;
+        border-radius: 999px;
+        background: #f3f4f6;
+        font-size: 12px;
+        font-weight: 500;
+        color: #4b5563;
+        text-transform: capitalize;
+    }
+
+    /* Justificación de la IA */
+    .restaurant-card.rc .ia-justification {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        margin-bottom: 14px;
+        padding: 10px 12px;
+        border-radius: 12px;
+        background: #fff1f3;
+        border-left: 3px solid var(--primary, #ff385c);
+        font-size: 12.5px;
+        line-height: 1.45;
+        color: #4b5563;
+    }
+
+    .restaurant-card.rc .ia-justification i {
+        margin-top: 2px;
+        color: var(--primary, #ff385c);
+    }
+
+    /* Enlace */
+    .restaurant-card.rc .card-link {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 4px;
+        padding-top: 14px;
+        border-top: 1px solid #f0f0f0;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--primary, #ff385c);
+        text-decoration: none;
+    }
+
+    .restaurant-card.rc .card-link i {
+        transition: transform .2s ease;
+    }
+
+    .restaurant-card.rc .card-link:hover i {
+        transform: translateX(5px);
+    }
+</style>
+{% endif %}
+
+<div class="restaurant-card rc" 
      data-id="{{ r.id }}" 
      data-lat="{{ r.lat }}" 
      data-lng="{{ r.lng }}"
@@ -8,17 +256,19 @@
     <div class="card-image">
         <img src="{{ r.image }}" alt="{{ r.name }}" loading="lazy">
         
-        {% if r.promo %}
-            <div class="promo-badge">
-                <i class="fas fa-tag"></i> Promoción
-            </div>
-        {% endif %}
-        
-        {% if r.rating >= 4.5 %}
-            <div class="top-rated-badge">
-                <i class="fas fa-star"></i> Top
-            </div>
-        {% endif %}
+        <div class="rc-badges">
+            {% if r.promo %}
+                <div class="rc-badge rc-badge-promo">
+                    <i class="fas fa-tag"></i> Promoción
+                </div>
+            {% endif %}
+            
+            {% if r.rating >= 4.5 %}
+                <div class="rc-badge rc-badge-top">
+                    <i class="fas fa-star"></i> Top
+                </div>
+            {% endif %}
+        </div>
         
         <button class="fav-btn" onclick="toggleFavorite({{ r.id }}, event)" title="Agregar a favoritos">
             <i class="far fa-heart"></i>
@@ -37,8 +287,10 @@
         <div class="card-location">
             <i class="fas fa-map-marker-alt"></i>
             <span>{{ r.district }}</span>
-            <span class="dot">•</span>
-            <span class="distance">{{ r.distance_km|round(1) if r.distance_km else '?' }} km</span>
+            {% if r.distance_km %}
+                <span class="dot">•</span>
+                <span class="distance">{{ r.distance_km|round(1) }} km</span>
+            {% endif %}
         </div>
         
         <div class="card-price">
@@ -60,7 +312,7 @@
         {% endif %}
         
         <a href="{{ url_for('main.detail', restaurant_id=r.id) }}" class="card-link">
-            Ver detalles <i class="fas fa-arrow-right"></i>
+            <span>Ver detalles</span> <i class="fas fa-arrow-right"></i>
         </a>
     </div>
 </div>

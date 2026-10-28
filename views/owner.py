@@ -3,6 +3,7 @@ from flask import Blueprint, Response, render_template, session, redirect, url_f
 from models.restaurant import RestaurantModel
 from models.dish import DishModel
 from models.daily_menu import DailyMenuModel
+from models.category import CategoryModel
 from models.user import UserModel
 from config import Config
 from utils.security import normalize_text
@@ -119,13 +120,7 @@ def dashboard():
     restaurants = RestaurantModel.get_by_owner(user_id)
     
     # Agregar nombre de categoría a cada restaurante
-    categories = []
-    if os.path.exists(Config.CATEGORIES_FILE):
-        try:
-            with open(Config.CATEGORIES_FILE, 'r', encoding='utf-8') as f:
-                categories = json.load(f)
-        except:
-            categories = []
+    categories = CategoryModel.all()
     
     cat_dict = {cat['id']: cat['name'] for cat in categories}
     for r in restaurants:
@@ -275,7 +270,7 @@ def download_menu_template(restaurant_id, file_format):
 @owner_bp.route('/menu/<int:restaurant_id>/import', methods=['POST'])
 @owner_required
 def import_menu_preview(restaurant_id):
-    """Read a filled template and ask Qwen to draft a carta for review."""
+    """Read a filled Word/Excel template and ask Qwen through Groq for a reviewable draft."""
     user_id = session['user'].get('id')
     restaurant = RestaurantModel.get_by_id(restaurant_id)
     if not restaurant or not RestaurantModel.is_owner(user_id, restaurant_id):
@@ -309,13 +304,14 @@ def import_menu_preview(restaurant_id):
         draft=draft,
         dish_categories=DISH_CATEGORIES,
         meal_times=MEAL_TIMES,
+        today_date_iso=datetime.now(LIMA_TIMEZONE).date().isoformat(),
     )
 
 
 @owner_bp.route('/menu/<int:restaurant_id>/import/apply', methods=['POST'])
 @owner_required
 def import_menu_apply(restaurant_id):
-    """Validate the reviewed Qwen draft and add it to the restaurant's carta."""
+    """Validate the reviewed draft and save each dish as carta or for its selected date."""
     user_id = session['user'].get('id')
     restaurant = RestaurantModel.get_by_id(restaurant_id)
     if not restaurant or not RestaurantModel.is_owner(user_id, restaurant_id):
@@ -338,6 +334,18 @@ def import_menu_apply(restaurant_id):
             category = normalize_text(request.form.get(f'dish_{index}_category'), max_length=30)
             meal_time = normalize_text(request.form.get(f'dish_{index}_meal_time'), max_length=20).lower()
             description = normalize_text(request.form.get(f'dish_{index}_description'), max_length=1000)
+            menu_type = normalize_text(request.form.get(f'dish_{index}_menu_type'), max_length=20).lower()
+            raw_menu_date = normalize_text(request.form.get(f'dish_{index}_menu_date'), max_length=20)
+            if menu_type not in {'carta', 'variable'}:
+                raise ValueError(f'Selecciona si {name or "uno de los platos"} pertenece a la carta o al menú variable.')
+            menu_date = None
+            if menu_type == 'variable':
+                parsed_menu_date = _parse_menu_date(raw_menu_date)
+                if parsed_menu_date is None:
+                    raise ValueError(f'Selecciona una fecha válida para el menú variable de {name or "uno de los platos"}.')
+                if _menu_date_is_past(parsed_menu_date):
+                    raise ValueError(f'La fecha del menú variable de {name or "uno de los platos"} no puede estar en el pasado.')
+                menu_date = parsed_menu_date.isoformat()
             if (not name or price is None or category not in VALID_DISH_CATEGORIES
                     or meal_time not in VALID_MEAL_TIMES):
                 raise ValueError(f'Revisa el nombre, precio, categoría y horario de {name or "uno de los platos"}.')
@@ -360,8 +368,8 @@ def import_menu_apply(restaurant_id):
                 'name': name,
                 'price': round(price, 2),
                 'category': category,
-                'menu_date': None,
-                'day_of_week': None,
+                'menu_date': menu_date,
+                'day_of_week': WEEKDAY_VALUES[_parse_menu_date(menu_date).weekday()] if menu_date else None,
                 'meal_time': meal_time,
                 'description': description,
                 'ingredients': _string_list(source_ingredients, limit=50, item_length=100),
@@ -374,21 +382,23 @@ def import_menu_apply(restaurant_id):
                 'created_at': datetime.utcnow().isoformat(),
             })
 
-        existing_names = {
-            normalize_text(dish.get('name'), max_length=120).casefold()
+        existing_dish_keys = {
+            (normalize_text(dish.get('name'), max_length=120).casefold(), dish.get('menu_date') or None)
             for dish in DishModel.get_by_restaurant(restaurant_id)
         }
         imported_ids = []
+        imported_dishes = []
         skipped_duplicates = 0
-        seen_names = set(existing_names)
+        seen_dish_keys = set(existing_dish_keys)
         for dish_data in reviewed_dishes:
-            key = dish_data['name'].casefold()
-            if key in seen_names:
+            key = (dish_data['name'].casefold(), dish_data['menu_date'])
+            if key in seen_dish_keys:
                 skipped_duplicates += 1
                 continue
             saved_dish = DishModel.create(dish_data)
             imported_ids.append(saved_dish.get('id'))
-            seen_names.add(key)
+            imported_dishes.append(dish_data)
+            seen_dish_keys.add(key)
 
         restaurant_dishes = restaurant.get('dishes', [])
         if not isinstance(restaurant_dishes, list):
@@ -396,16 +406,37 @@ def import_menu_apply(restaurant_id):
         restaurant_dishes.extend(dish_id for dish_id in imported_ids if dish_id not in restaurant_dishes)
         updates = {'dishes': restaurant_dishes}
         updates['menu_intro'] = intro
+        imported_carta_count = sum(1 for dish in imported_dishes if not dish['menu_date'])
+        imported_variable_count = len(imported_dishes) - imported_carta_count
+        current_menu_type = _restaurant_menu_type(restaurant)
+        # Expose the section that was previously disabled by a single-mode
+        # restaurant when this import introduces dishes for the other mode.
+        if imported_ids and (
+            (imported_carta_count and current_menu_type == 'daily')
+            or (imported_variable_count and current_menu_type == 'fixed')
+        ):
+            updates['menu_type'] = 'mixed'
         RestaurantModel.update(restaurant_id, updates)
 
         if imported_ids:
-            message = f'Se agregaron {len(imported_ids)} platos a la carta.'
+            imported_parts = []
+            if imported_carta_count:
+                imported_parts.append(f'{imported_carta_count} de carta permanente')
+            if imported_variable_count:
+                imported_parts.append(f'{imported_variable_count} de menú variable')
+            message = f'Se agregaron {len(imported_ids)} platos: {" y ".join(imported_parts)}.'
             if skipped_duplicates:
                 message += f' Se omitieron {skipped_duplicates} duplicados.'
+            if updates.get('menu_type') == 'mixed':
+                message += ' El tipo de menú cambió a mixto para mostrar ambas secciones.'
             flash(message, 'success')
         elif skipped_duplicates:
-            flash('Todos los platos del archivo ya estaban en la carta; no se agregaron duplicados.', 'info')
-        return redirect(url_for('owner.menu_management', restaurant_id=restaurant_id))
+            flash('Todos los platos del archivo ya existían para ese tipo y fecha; no se agregaron duplicados.', 'info')
+        imported_dates = sorted({dish['menu_date'] for dish in imported_dishes if dish['menu_date']})
+        redirect_args = {'restaurant_id': restaurant_id}
+        if imported_dates:
+            redirect_args['date'] = imported_dates[0]
+        return redirect(url_for('owner.menu_management', **redirect_args))
     except (json.JSONDecodeError, ValueError) as exc:
         flash(str(exc) or 'El borrador de carta no es válido. Vuelve a cargar el archivo.', 'error')
         return redirect(url_for('owner.menu_management', restaurant_id=restaurant_id))

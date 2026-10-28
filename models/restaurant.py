@@ -1,8 +1,7 @@
-from models.base import JSONModel
-from config import Config
+from models.base import DataModel
 
-class RestaurantModel(JSONModel):
-    file_path = Config.RESTAURANTS_FILE
+class RestaurantModel(DataModel):
+    collection = "restaurants"
 
     @classmethod
     def search(cls, query):

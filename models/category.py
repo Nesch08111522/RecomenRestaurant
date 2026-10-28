@@ -1,9 +1,8 @@
 # models/category.py
-from models.base import JSONModel
-from config import Config
+from models.base import DataModel
 
-class CategoryModel(JSONModel):
-    file_path = Config.CATEGORIES_FILE
+class CategoryModel(DataModel):
+    collection = "categories"
     
     @classmethod
     def get_by_id(cls, category_id):

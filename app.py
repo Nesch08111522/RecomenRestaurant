@@ -12,7 +12,9 @@ try:
 except ImportError:  # The app still runs with process-level environment variables.
     load_dotenv = None
 if load_dotenv:
-    load_dotenv(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env"), override=False)
+    load_dotenv(
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env"), override=False
+    )
 
 from config import Config
 from context_processors import inject_globals
@@ -21,6 +23,10 @@ from views.admin import admin_bp
 from views.auth import auth_bp
 from views.main import main_bp
 from views.owner import owner_bp
+
+# Asistente de IA (Qwen / Ollama). Si guardó ai_routes.py en la carpeta views/,
+# use:  from views.ai_routes import ai_bp
+from views.ai_routes import ai_bp
 
 logger = logging.getLogger(__name__)
 
@@ -33,13 +39,21 @@ def create_app(test_config=None):
 
     if not app.config.get("TESTING"):
         Config.validate()
-    Config.ensure_data_dir()
+        from database.connection import check_application_schema
+
+        check_application_schema()
     csrf.init_app(app)
 
     app.register_blueprint(main_bp)
     app.register_blueprint(auth_bp, url_prefix="/auth")
     app.register_blueprint(admin_bp, url_prefix="/admin")
     app.register_blueprint(owner_bp, url_prefix="/owner")
+
+    # Rutas /api/ai/interpret y /api/ai/chat. Se eximen de CSRF porque el JS
+    # no envía token y estas rutas solo consultan (no modifican datos);
+    # ai_routes.py ya limita a 20 consultas por minuto por IP.
+    app.register_blueprint(ai_bp)
+    csrf.exempt(ai_bp)
 
     @app.context_processor
     def inject():
@@ -49,15 +63,22 @@ def create_app(test_config=None):
     def add_security_headers(response):
         response.headers.setdefault("X-Content-Type-Options", "nosniff")
         response.headers.setdefault("X-Frame-Options", "SAMEORIGIN")
-        response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
+        response.headers.setdefault(
+            "Referrer-Policy", "strict-origin-when-cross-origin"
+        )
         response.headers.setdefault("Permissions-Policy", "geolocation=(self)")
-        response.headers.setdefault("X-Request-ID", request.headers.get("X-Request-ID", str(uuid.uuid4())))
+        response.headers.setdefault(
+            "X-Request-ID", request.headers.get("X-Request-ID", str(uuid.uuid4()))
+        )
         return response
 
     @app.errorhandler(CSRFError)
     def handle_csrf_error(error):
         if request.is_json or request.path.startswith("/api/"):
-            return jsonify({"error": "Solicitud no autorizada", "code": "csrf_invalid"}), 400
+            return (
+                jsonify({"error": "Solicitud no autorizada", "code": "csrf_invalid"}),
+                400,
+            )
         return render_template("500.html"), 400
 
     @app.errorhandler(404)
@@ -68,7 +89,9 @@ def create_app(test_config=None):
 
     @app.errorhandler(500)
     def internal_error(error):
-        logger.exception("Error interno request_id=%s", request.headers.get("X-Request-ID"))
+        logger.exception(
+            "Error interno request_id=%s", request.headers.get("X-Request-ID")
+        )
         if request.is_json or request.path.startswith("/api/"):
             return jsonify({"error": "Error interno del servidor"}), 500
         return render_template("500.html"), 500

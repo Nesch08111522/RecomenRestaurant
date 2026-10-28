@@ -1,5 +1,5 @@
 {# templates/owner/restaurant_form.html
-   Plantilla ÚNICA para crear y editar restaurantes.
+   Plantilla ÚNICA para crear y editar restaurantes (incluye modalidad de atención).
    - Crear:  render_template('owner/restaurant_form.html', categories=..., districts=...)
    - Editar: render_template('owner/restaurant_form.html', restaurant=r, categories=..., districts=...) #}
 {% extends 'owner/base.html' %}
@@ -17,8 +17,10 @@
 {# ---- Valores del formulario (se calculan una sola vez, sin ifs en línea) ---- #}
 {% if is_edit %}
   {% set form_action = url_for('admin.update_restaurant', id=r.id) %}
+  {% set form_mode = 'edit' %}
 {% else %}
   {% set form_action = url_for('admin.new_restaurant') %}
+  {% set form_mode = 'create' %}
 {% endif %}
 
 {% if is_edit and r.name %}{% set f_name = r.name %}{% else %}{% set f_name = '' %}{% endif %}
@@ -34,6 +36,8 @@
 {% if is_edit and r.tags %}{% set f_tags = r.tags %}{% else %}{% set f_tags = [] %}{% endif %}
 {% if is_edit and r.features %}{% set f_features = r.features %}{% else %}{% set f_features = [] %}{% endif %}
 {% if is_edit and r.dietary_restrictions %}{% set f_dietary = r.dietary_restrictions %}{% else %}{% set f_dietary = [] %}{% endif %}
+{# Modalidad: en edición la ruta ya la normaliza (infiere para registros antiguos); en creación nada preseleccionado. #}
+{% if is_edit and r.service_mode %}{% set f_service_mode = r.service_mode %}{% else %}{% set f_service_mode = '' %}{% endif %}
 
 {% if is_edit and r.lat is defined and r.lat|string not in ['None', ''] %}{% set lat_value = r.lat|float %}{% else %}{% set lat_value = -8.1118 %}{% endif %}
 {% if is_edit and r.lng is defined and r.lng|string not in ['None', ''] %}{% set lng_value = r.lng|float %}{% else %}{% set lng_value = -79.0287 %}{% endif %}
@@ -114,6 +118,44 @@
                value="{{ f_price }}" required>
       </div>
     </div>
+
+    <!-- Modalidad de atención -->
+    <fieldset class="service-mode-fieldset" aria-describedby="serviceModeStatus">
+      <legend>Modalidad de atención <span class="req">*</span></legend>
+      <div class="service-mode-options">
+        <label class="service-mode-option">
+          <input class="service-mode-radio" type="radio" name="service_mode" value="dine_in_only" required {% if f_service_mode == 'dine_in_only' %}checked{% endif %}>
+          <span class="service-mode-card">
+            <img src="{{ url_for('static', filename='images/service-dine-in.svg') }}" alt="">
+            <span class="service-mode-copy">
+              <strong>Solo local</strong>
+              <small>Atención y consumo dentro del restaurante.</small>
+            </span>
+          </span>
+        </label>
+        <label class="service-mode-option">
+          <input class="service-mode-radio" type="radio" name="service_mode" value="dine_in_and_delivery" required {% if f_service_mode == 'dine_in_and_delivery' %}checked{% endif %}>
+          <span class="service-mode-card">
+            <img src="{{ url_for('static', filename='images/service-dine-in-delivery.svg') }}" alt="">
+            <span class="service-mode-copy">
+              <strong>Local y delivery</strong>
+              <small>Atiende en mesa y recibe pedidos a domicilio.</small>
+            </span>
+          </span>
+        </label>
+        <label class="service-mode-option">
+          <input class="service-mode-radio" type="radio" name="service_mode" value="delivery_only" required {% if f_service_mode == 'delivery_only' %}checked{% endif %}>
+          <span class="service-mode-card">
+            <img src="{{ url_for('static', filename='images/service-delivery-only.svg') }}" alt="">
+            <span class="service-mode-copy">
+              <strong>Solo delivery</strong>
+              <small>Prepara y entrega pedidos a domicilio.</small>
+            </span>
+          </span>
+        </label>
+      </div>
+      <p class="service-mode-status" id="serviceModeStatus">Selecciona una modalidad. Puedes cambiarla haciendo clic en otra tarjeta.</p>
+    </fieldset>
 
     <div class="form-row">
       <div class="form-group">
@@ -209,8 +251,9 @@
       {{ tag_field('tags', 'Tags', f_tags,
                    ['tradicional', 'mariscos', 'familiar', 'parrillas', 'criollo', 'postres'],
                    'tradicional, mariscos, familiar') }}
+      {# 'delivery' ya no se sugiere: ahora lo define la modalidad de atención. #}
       {{ tag_field('features', 'Características', f_features,
-                   ['wifi', 'estacionamiento', 'reservas', 'delivery', 'terraza', 'pet friendly'],
+                   ['wifi', 'estacionamiento', 'reservas', 'terraza', 'pet friendly'],
                    'wifi, estacionamiento, reservas') }}
     </div>
 
@@ -274,6 +317,30 @@
 
   .time-group { display: flex; align-items: center; gap: 8px; }
   .time-group input { flex: 1; }
+
+  /* Modalidad de atención */
+  .service-mode-fieldset { border: none; padding: 0; margin: 0 0 20px; min-width: 0; }
+  .service-mode-fieldset legend { padding: 0; margin-bottom: 8px; font-weight: 500; font-size: 14px; }
+  .service-mode-options { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .service-mode-option { position: relative; display: block; cursor: pointer; margin: 0; }
+  .service-mode-radio { position: absolute; opacity: 0; width: 1px; height: 1px; }
+  .service-mode-card {
+    display: flex; flex-direction: column; align-items: center; gap: 8px; height: 100%;
+    padding: 14px 12px; text-align: center;
+    border: 1px solid var(--light-gray); border-radius: var(--radius-sm); background: var(--white);
+    transition: var(--transition);
+  }
+  .service-mode-card img { width: 48px; height: 48px; object-fit: contain; }
+  .service-mode-copy { display: flex; flex-direction: column; gap: 2px; }
+  .service-mode-copy strong { font-size: 14px; }
+  .service-mode-copy small { font-size: 12px; color: var(--gray); line-height: 1.3; }
+  .service-mode-option:hover .service-mode-card { border-color: var(--primary); }
+  .service-mode-radio:checked + .service-mode-card {
+    border-color: var(--primary); background: var(--primary-light); box-shadow: 0 0 0 2px var(--primary);
+  }
+  .service-mode-radio:focus-visible + .service-mode-card { outline: 2px solid var(--primary); outline-offset: 2px; }
+  .service-mode-status { margin: 8px 0 0; font-size: 12px; color: var(--gray); }
+  .service-mode-status[data-type="ok"] { color: #047857; }
 
   .link-btn {
     background: none; border: none; padding: 0; cursor: pointer;
@@ -395,6 +462,8 @@
 
   @media (max-width: 768px) {
     .form-row { grid-template-columns: 1fr; gap: 0; }
+    .service-mode-options { grid-template-columns: 1fr; }
+    .service-mode-card { flex-direction: row; text-align: left; }
     .admin-form { padding: 4px 18px 24px; }
     .location-input-group { flex-direction: column; align-items: stretch; }
     .search-wrap { min-width: 0; }
@@ -457,6 +526,21 @@
     function setStatus(msg, type) {
       mapStatus.textContent = msg || '';
       mapStatus.dataset.type = type || '';
+    }
+
+    /* ---------- Modalidad de atención ---------- */
+    const modeStatus = $('serviceModeStatus');
+    const modeDefaultText = modeStatus.textContent;
+    function updateModeStatus() {
+      const checked = form.querySelector('input[name="service_mode"]:checked');
+      if (checked) {
+        const label = checked.closest('.service-mode-option').querySelector('strong').textContent;
+        modeStatus.textContent = 'Modalidad seleccionada: ' + label + '.';
+        modeStatus.dataset.type = 'ok';
+      } else {
+        modeStatus.textContent = modeDefaultText;
+        modeStatus.dataset.type = '';
+      }
     }
     form.querySelectorAll('input[name="service_mode"]').forEach((radio) => {
       radio.addEventListener('change', updateModeStatus);

@@ -1,11 +1,3 @@
-/**
- * SmartResto - Aplicación Principal
- * Paradigma: Imperativo / Orientado a Objetos
- */
-
-// ============================================
-// APP CONTROLLER
-// ============================================
 class AppController {
     constructor() {
         this.state = {
@@ -22,7 +14,8 @@ class AppController {
     }
 
     init() {
-        // Inicializar elementos del DOM
+        this.injectCardStyles();
+
         this.elements = {
             resultsGrid: document.getElementById('resultsGrid'),
             resultsCount: document.getElementById('resultsCount'),
@@ -39,19 +32,14 @@ class AppController {
             userDropdown: document.getElementById('userDropdown')
         };
 
-        // Cargar estado guardado
         this.loadState();
 
-        // ✅ Cargar favoritos desde el servidor
         this.loadFavorites();
 
-        // Inicializar eventos
         this.bindEvents();
 
-        // Cargar datos iniciales
         this.loadRestaurants();
 
-        // Inicializar tema
         this.applyTheme();
     }
 
@@ -61,13 +49,11 @@ class AppController {
             this.state.theme = savedTheme;
         }
 
-        // ✅ Cargar favoritos de localStorage como respaldo
         const savedFavorites = localStorage.getItem('favorites');
         if (savedFavorites) {
             this.state.favorites = JSON.parse(savedFavorites);
         }
 
-        // Cargar ubicación guardada
         const savedLat = localStorage.getItem('userLat');
         const savedLng = localStorage.getItem('userLng');
         if (savedLat && savedLng) {
@@ -84,52 +70,43 @@ class AppController {
     }
 
     bindEvents() {
-        // Toggle tema
         this.elements.themeToggle?.addEventListener('click', () => {
             this.toggleTheme();
         });
 
-        // Búsqueda
         this.elements.searchForm?.addEventListener('submit', (e) => {
             e.preventDefault();
             this.handleSearch();
         });
 
-        // Ubicación - Con manejo de errores mejorado
         this.elements.locationBtn?.addEventListener('click', () => {
             console.log('🟢 Botón de ubicación clickeado');
             this.getUserLocation();
         });
 
-        // Carga infinita
         this.elements.loadMoreBtn?.addEventListener('click', () => {
             this.loadMoreRestaurants();
         });
 
-        // Modal de recomendación
         this.elements.recommendationBtn?.addEventListener('click', (e) => {
             e.preventDefault();
             console.log('🔍 Botón de recomendación clickeado');
             this.openRecommendationModal();
         });
 
-        // Cerrar modal con el botón X
         document.querySelector('.close-modal')?.addEventListener('click', () => {
             this.closeRecommendationModal();
         });
 
-        // Formulario de recomendación
         this.elements.recommendationForm?.addEventListener('submit', (e) => {
             e.preventDefault();
             this.getRecommendations();
         });
 
-        // Notificaciones
         this.elements.notificationBtn?.addEventListener('click', () => {
             this.toggleNotifications();
         });
 
-        // Dropdown usuario
         this.elements.userMenuBtn?.addEventListener('click', (e) => {
             e.stopPropagation();
             this.elements.userDropdown?.classList.toggle('show');
@@ -139,21 +116,18 @@ class AppController {
             this.elements.userDropdown?.classList.remove('show');
         });
 
-        // Filtros
         document.querySelectorAll('.filter-chip').forEach(chip => {
             chip.addEventListener('click', () => {
                 this.applyFilter(chip);
             });
         });
 
-        // Vista
         document.querySelectorAll('.view-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 this.changeView(btn.dataset.view);
             });
         });
 
-        // Scroll infinito
         const resultsColumn = document.querySelector('.results-column');
         if (resultsColumn) {
             resultsColumn.addEventListener('scroll', () => {
@@ -161,7 +135,6 @@ class AppController {
             });
         }
 
-        // Cerrar modal al hacer clic fuera
         const modal = this.elements.recommendationModal;
         if (modal) {
             modal.addEventListener('click', (e) => {
@@ -171,10 +144,6 @@ class AppController {
             });
         }
     }
-
-    // ============================================
-    // MÉTODOS DE LA APLICACIÓN
-    // ============================================
 
     loadRestaurants() {
         if (typeof RESTAURANTS_DATA !== 'undefined') {
@@ -209,6 +178,212 @@ class AppController {
         }
     }
 
+    injectCardStyles() {
+        if (document.getElementById('rc-card-styles')) return;
+
+        const style = document.createElement('style');
+        style.id = 'rc-card-styles';
+        style.textContent = `
+            .restaurant-card.rc {
+                background: var(--white, #fff);
+                border: 1px solid rgba(17, 24, 39, 0.06);
+                border-radius: 18px;
+                overflow: hidden;
+                box-shadow: 0 2px 10px rgba(17, 24, 39, 0.06);
+                transition: transform .25s ease, box-shadow .25s ease;
+            }
+            .restaurant-card.rc:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 14px 30px rgba(17, 24, 39, 0.14);
+            }
+
+            .restaurant-card.rc .card-image img { transition: transform .5s ease; }
+            .restaurant-card.rc:hover .card-image img { transform: scale(1.06); }
+
+            .restaurant-card.rc .card-image::after {
+                content: '';
+                position: absolute;
+                inset: 0;
+                background: linear-gradient(180deg, rgba(0,0,0,.30) 0%, rgba(0,0,0,0) 38%);
+                pointer-events: none;
+                z-index: 1;
+            }
+
+            .restaurant-card.rc .rc-badges {
+                position: absolute;
+                top: 12px;
+                left: 12px;
+                z-index: 3;
+                display: flex;
+                flex-wrap: wrap;
+                gap: 6px;
+                max-width: calc(100% - 66px);
+                background: none !important;
+                padding: 0 !important;
+            }
+            .restaurant-card.rc .rc-badge {
+                position: static !important;
+                display: inline-flex !important;
+                align-items: center;
+                gap: 5px;
+                padding: 5px 11px !important;
+                border-radius: 999px !important;
+                font-size: 12px;
+                font-weight: 700;
+                line-height: 1.2;
+                white-space: nowrap;
+                box-shadow: 0 2px 8px rgba(0,0,0,.18);
+            }
+            .restaurant-card.rc .rc-badge-promo {
+                background: linear-gradient(135deg, var(--primary, #ff385c), #ff6b81) !important;
+                color: #fff !important;
+            }
+            .restaurant-card.rc .rc-badge-top {
+                background: linear-gradient(135deg, #ffc107, #ff9800) !important;
+                color: #3b2a00 !important;
+            }
+
+            .restaurant-card.rc .fav-btn {
+                position: absolute !important;
+                top: 12px !important;
+                right: 12px !important;
+                z-index: 3;
+                width: 38px;
+                height: 38px;
+                display: flex !important;
+                align-items: center;
+                justify-content: center;
+                padding: 0;
+                border: none;
+                border-radius: 50% !important;
+                background: rgba(255,255,255,.95) !important;
+                box-shadow: 0 3px 10px rgba(0,0,0,.22);
+                cursor: pointer;
+                transition: transform .2s ease, box-shadow .2s ease;
+            }
+            .restaurant-card.rc .fav-btn i {
+                color: #e11d48 !important;
+                font-size: 17px;
+            }
+            .restaurant-card.rc .fav-btn:hover {
+                transform: scale(1.12);
+                box-shadow: 0 5px 14px rgba(225, 29, 72, .35);
+            }
+
+            .restaurant-card.rc .card-content { padding: 18px 18px 16px; }
+
+            .restaurant-card.rc .card-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                gap: 10px;
+                margin-bottom: 8px;
+            }
+            .restaurant-card.rc .card-header h3 {
+                margin: 0;
+                font-size: 17px;
+                font-weight: 700;
+                line-height: 1.3;
+                color: var(--dark, #111827);
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+            .restaurant-card.rc .rating {
+                display: inline-flex;
+                align-items: center;
+                gap: 4px;
+                flex-shrink: 0;
+                padding: 3px 9px;
+                border-radius: 999px;
+                background: #fff7e0;
+                font-size: 13px;
+                font-weight: 700;
+                color: #7a5800;
+            }
+            .restaurant-card.rc .rating i { color: #ffb800; font-size: 12px; }
+
+            .restaurant-card.rc .card-location {
+                display: flex;
+                align-items: center;
+                flex-wrap: wrap;
+                gap: 6px;
+                margin-bottom: 12px;
+                font-size: 13.5px;
+                color: var(--gray, #6b7280);
+            }
+            .restaurant-card.rc .card-location i { color: var(--primary, #ff385c); }
+            .restaurant-card.rc .card-location .distance { font-weight: 600; }
+
+            .restaurant-card.rc .card-price {
+                display: flex;
+                align-items: baseline;
+                gap: 6px;
+                margin-bottom: 14px;
+            }
+            .restaurant-card.rc .card-price .price {
+                font-size: 20px;
+                font-weight: 800;
+                color: var(--dark, #111827);
+            }
+            .restaurant-card.rc .card-price .price-label {
+                font-size: 13px;
+                color: var(--gray, #6b7280);
+            }
+
+            .restaurant-card.rc .card-tags {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+                margin-bottom: 14px;
+            }
+            .restaurant-card.rc .card-tags .tag {
+                padding: 5px 12px;
+                border-radius: 999px;
+                background: #f3f4f6;
+                font-size: 12px;
+                font-weight: 500;
+                color: #4b5563;
+                text-transform: capitalize;
+            }
+
+            .restaurant-card.rc .ia-justification {
+                display: flex;
+                align-items: flex-start;
+                gap: 8px;
+                margin-bottom: 14px;
+                padding: 10px 12px;
+                border-radius: 12px;
+                background: #fff1f3;
+                border-left: 3px solid var(--primary, #ff385c);
+                font-size: 12.5px;
+                line-height: 1.45;
+                color: #4b5563;
+            }
+            .restaurant-card.rc .ia-justification i {
+                margin-top: 2px;
+                color: var(--primary, #ff385c);
+            }
+
+            .restaurant-card.rc .card-link {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin-top: 4px;
+                padding-top: 14px;
+                border-top: 1px solid #f0f0f0;
+                font-size: 14px;
+                font-weight: 600;
+                color: var(--primary, #ff385c);
+                text-decoration: none;
+            }
+            .restaurant-card.rc .card-link i { transition: transform .2s ease; }
+            .restaurant-card.rc .card-link:hover i { transform: translateX(5px); }
+        `;
+        document.head.appendChild(style);
+    }
+
     renderRestaurantCard(restaurant) {
         const tags = restaurant.tags?.slice(0, 3).map(t =>
             `<span class="tag">${t}</span>`
@@ -222,21 +397,24 @@ class AppController {
             : '';
 
         const promo = restaurant.promo
-            ? `<div class="promo-badge"><i class="fas fa-tag"></i> Promoción</div>`
+            ? `<div class="rc-badge rc-badge-promo"><i class="fas fa-tag"></i> Promoción</div>`
             : '';
 
         const topRated = restaurant.rating >= 4.5
-            ? `<div class="top-rated-badge"><i class="fas fa-star"></i> Top</div>`
+            ? `<div class="rc-badge rc-badge-top"><i class="fas fa-star"></i> Top</div>`
             : '';
 
-        // ✅ Verificar si está en favoritos
         const isFavorite = this.state.favorites.includes(restaurant.id) ? 'fas' : 'far';
 
-        // Usar MONEDA desde variable global
         const currency = typeof MONEDA !== 'undefined' ? MONEDA : 'S/.';
 
+        const distance = restaurant.distance_km
+            ? `<span class="dot">•</span>
+               <span class="distance">${Number(restaurant.distance_km).toFixed(1)} km</span>`
+            : '';
+
         return `
-            <div class="restaurant-card" 
+            <div class="restaurant-card rc" 
                  data-id="${restaurant.id}" 
                  data-lat="${restaurant.lat}" 
                  data-lng="${restaurant.lng}"
@@ -245,9 +423,13 @@ class AppController {
                 
                 <div class="card-image">
                     <img src="${restaurant.image}" alt="${restaurant.name}" loading="lazy">
-                    ${promo}
-                    ${topRated}
-                    <button class="fav-btn" onclick="toggleFavorite(${restaurant.id}, event)">
+                    
+                    <div class="rc-badges">
+                        ${promo}
+                        ${topRated}
+                    </div>
+                    
+                    <button class="fav-btn" onclick="toggleFavorite(${restaurant.id}, event)" title="Agregar a favoritos">
                         <i class="${isFavorite} fa-heart"></i>
                     </button>
                 </div>
@@ -264,8 +446,7 @@ class AppController {
                     <div class="card-location">
                         <i class="fas fa-map-marker-alt"></i>
                         <span>${restaurant.district}</span>
-                        <span class="dot">•</span>
-                        <span class="distance">${restaurant.distance_km ? restaurant.distance_km.toFixed(1) : '?'} km</span>
+                        ${distance}
                     </div>
                     
                     <div class="card-price">
@@ -278,16 +459,12 @@ class AppController {
                     ${justifications}
                     
                     <a href="/restaurant/${restaurant.id}" class="card-link">
-                        Ver detalles <i class="fas fa-arrow-right"></i>
+                        <span>Ver detalles</span> <i class="fas fa-arrow-right"></i>
                     </a>
                 </div>
             </div>
         `;
     }
-
-    // ============================================
-    // BÚSQUEDA Y FILTROS
-    // ============================================
 
     async handleSearch() {
         const formData = new FormData(this.elements.searchForm);
@@ -298,7 +475,6 @@ class AppController {
             search_query: formData.get('q')
         };
 
-        // Incluir ubicación si está disponible
         if (this.state.userLocation) {
             filters.lat = this.state.userLocation.lat;
             filters.lng = this.state.userLocation.lng;
@@ -341,7 +517,6 @@ class AppController {
         } else if (filter === 'top-rated') {
             filtered = filtered.sort((a, b) => b.rating - a.rating);
         } else if (filter === 'nearby') {
-            // Usar ubicación guardada o solicitar nueva
             if (this.state.userLocation) {
                 filtered = this.sortByDistance(filtered, this.state.userLocation);
                 this.state.filteredRestaurants = filtered;
@@ -394,13 +569,6 @@ class AppController {
         return currentTime >= restaurant.open_time && currentTime <= restaurant.close_time;
     }
 
-    // ============================================
-    // FAVORITOS - CORREGIDO CON SERVIDOR
-    // ============================================
-
-    /**
-     * Carga los favoritos del usuario desde el servidor
-     */
     async loadFavorites() {
         try {
             const response = await fetch('/auth/api/favorites');
@@ -419,9 +587,6 @@ class AppController {
         }
     }
 
-    /**
-     * Alterna un favorito (agregar/quitar) usando la API del servidor
-     */
     async toggleFavorite(restaurantId, event) {
         if (event) event.stopPropagation();
 
@@ -448,7 +613,6 @@ class AppController {
                 throw new Error(data.error || 'Error al procesar la solicitud');
             }
 
-            // Actualizar estado local
             if (data.favorites) {
                 this.state.favorites = data.favorites;
             } else {
@@ -474,10 +638,6 @@ class AppController {
         }
     }
 
-    // ============================================
-    // TEMA - CORREGIDO
-    // ============================================
-
     toggleTheme() {
         this.state.theme = this.state.theme === 'light' ? 'dark' : 'light';
         this.applyTheme();
@@ -498,9 +658,6 @@ class AppController {
                 : '<i class="fas fa-moon"></i>';
         }
     }
-    // ============================================
-    // MODAL DE RECOMENDACIÓN
-    // ============================================
 
     openRecommendationModal() {
         const modal = this.elements.recommendationModal;
@@ -537,7 +694,6 @@ class AppController {
             goal: formData.get('goal') || ''
         };
 
-        // Incluir ubicación si está disponible
         if (this.state.userLocation) {
             data.lat = this.state.userLocation.lat;
             data.lng = this.state.userLocation.lng;
@@ -572,9 +728,6 @@ class AppController {
         }
     }
 
-    // ============================================
-    // UBICACIÓN
-    // ============================================
 
     async getUserLocation() {
         console.log('🟢 Intentando obtener ubicación...');
@@ -590,14 +743,12 @@ class AppController {
             return null;
         }
 
-        // Verificar si el navegador soporta geolocalización
         if (!navigator.geolocation) {
             console.error('❌ Geolocalización no soportada');
             this.showLocationError('Tu navegador no soporta geolocalización');
             return null;
         }
 
-        // Verificar el estado del permiso
         if (navigator.permissions && navigator.permissions.query) {
             try {
                 const permissionStatus = await navigator.permissions.query({ name: 'geolocation' });
@@ -847,9 +998,6 @@ class AppController {
         }
     }
 
-    // ============================================
-    // MAPA
-    // ============================================
 
     updateMapMarkers(restaurants) {
         if (typeof window.updateMarkers === 'function') {
@@ -865,10 +1013,6 @@ class AppController {
             console.warn('⚠️ Función centerMap no disponible');
         }
     }
-
-    // ============================================
-    // NOTIFICACIONES - CORREGIDO
-    // ============================================
 
     toggleNotifications() {
         const panel = this.elements.notificationPanel;
@@ -894,13 +1038,11 @@ class AppController {
 
             if (list) {
                 if (data.notifications && data.notifications.length > 0) {
-                    // Actualizar badge
                     if (badge) {
                         badge.textContent = data.unread_count || 0;
                         badge.style.display = data.unread_count > 0 ? 'flex' : 'none';
                     }
 
-                    // Renderizar notificaciones
                     list.innerHTML = data.notifications.map(n => `
                         <div class="notification-item ${n.read ? 'read' : 'unread'}" 
                              data-id="${n.id}"
@@ -942,10 +1084,6 @@ class AppController {
         }
     }
 
-    // ============================================
-    // UTILIDADES
-    // ============================================
-
     calculateDistance(lat1, lng1, lat2, lng2) {
         if (!lat1 || !lng1 || !lat2 || !lng2) return 999;
         const R = 6371;
@@ -967,7 +1105,6 @@ class AppController {
     }
 
     handleScroll() {
-        // Implementar scroll infinito
     }
 
     changeView(view) {
@@ -985,10 +1122,6 @@ class AppController {
         }
     }
 }
-
-// ============================================
-// INICIALIZACIÓN
-// ============================================
 
 document.addEventListener('DOMContentLoaded', () => {
     window.app = new AppController();
@@ -1014,13 +1147,6 @@ window.resetMarker = function (restaurantId) {
     }
 };
 
-// ============================================
-// FUNCIONES GLOBALES PARA NOTIFICACIONES
-// ============================================
-
-/**
- * Abre o cierra el panel de notificaciones
- */
 window.toggleNotifications = function () {
     if (window.app) {
         window.app.toggleNotifications();
@@ -1029,9 +1155,6 @@ window.toggleNotifications = function () {
     }
 };
 
-/**
- * Marca una notificación como leída
- */
 window.markNotificationRead = async function (id) {
     try {
         const response = await fetch(`/api/notifications/${id}/read`, {
@@ -1045,7 +1168,6 @@ window.markNotificationRead = async function (id) {
             throw new Error('Error al marcar como leída');
         }
 
-        // Recargar notificaciones
         if (window.app) {
             await window.app.loadNotifications();
             const badge = document.getElementById('notificationBadge');
@@ -1062,9 +1184,6 @@ window.markNotificationRead = async function (id) {
     }
 };
 
-/**
- * Marca todas las notificaciones como leídas
- */
 window.markAllNotificationsRead = async function () {
     try {
         const response = await fetch('/api/notifications/read-all', {
@@ -1091,7 +1210,6 @@ window.markAllNotificationsRead = async function () {
     }
 };
 
-// Función global para abrir el modal desde el header
 window.openRecommendationModal = function () {
     if (window.app) {
         window.app.openRecommendationModal();

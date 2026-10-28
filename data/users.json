@@ -44,5 +44,53 @@
             "restrictions": [],
             "history": []
         }
+    },
+    {
+        "username": "Enrique12",
+        "password": "scrypt:32768:8:1$QdQojeCQvNMF7MON$7c99c0db8c9f14b3810cd64a063e49040bf925b7d498a88abb4f728570c4f6e4d4cf7c1a247969d73980baee3d2bfdb915a0d92f6e4e5f5c346687ce3aa0a8f8",
+        "role": "business_owner",
+        "profile": {
+            "name": "Enrique",
+            "email": "dfgt.545@gmail.com",
+            "preferences": [],
+            "restrictions": []
+        },
+        "id": 5
+    },
+    {
+        "username": "RicaPizza",
+        "password": "scrypt:32768:8:1$UdHGMMbUwJaHdZBe$97ceeecd661fdfc5cc92f17004acc8648f4bbd4f5555e86fbe8ffb9b905fdd4b296e01e0717e0c5968bc6e299255ef5af88fbd8ff4624bb369ba692e6b9b54a7",
+        "role": "business_owner",
+        "profile": {
+            "name": "RicaPizza",
+            "email": "ricapizza@gmail.com",
+            "preferences": [],
+            "restrictions": []
+        },
+        "id": 6
+    },
+    {
+        "username": "Mathias",
+        "password": "scrypt:32768:8:1$GnkgFnW7swEPFgCD$318c6d1ca5738a300f64549d10587f177a3e43996c32e72e4eac6a4da1369b6272ba03bf4e8edcf9b4f3445b7079a1260702e3aa289eb794b673f2041c58a700",
+        "role": "business_owner",
+        "profile": {
+            "name": "Mathias",
+            "email": "mathias@gmail.com",
+            "preferences": [],
+            "restrictions": []
+        },
+        "id": 7
+    },
+    {
+        "username": "Pollos",
+        "password": "scrypt:32768:8:1$JRLrTClSo44CSabg$a13c61ad5942977fd0e5b8c962b34160223b5e29c2498e5730babf912984c742ac8cf16c7db8970894573f7276164a71d50eb4cb916708f01334801a0032c989",
+        "role": "business_owner",
+        "profile": {
+            "name": "Miguel",
+            "email": "pollos@gmail.com",
+            "preferences": [],
+            "restrictions": []
+        },
+        "id": 8
     }
 ]
