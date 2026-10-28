@@ -16,6 +16,7 @@ from utils.ia_qwen import obtener_recomendacion_ia
 from werkzeug.routing import BuildError
 from urllib.parse import quote
 from models.restaurant import RestaurantModel
+from models.category import CategoryModel
 from models.dish import DishModel
 from models.daily_menu import DailyMenuModel
 from models.user import UserModel
@@ -34,8 +35,6 @@ from models.review import ReviewModel
 from config import Config
 from utils.security import csrf, valid_coordinate
 from utils.geo import normalize_coordinates
-import json
-import os
 import logging
 from datetime import datetime, timedelta, timezone
 
@@ -56,28 +55,13 @@ except Exception as e:
 
 
 def load_categories():
-    """Carga las categorías desde el archivo JSON con caché"""
-    categories = []
-    if os.path.exists(Config.CATEGORIES_FILE):
-        try:
-            with open(Config.CATEGORIES_FILE, "r", encoding="utf-8") as f:
-                categories = json.load(f)
-        except Exception as e:
-            logger.error(f"Error cargando categorías: {e}")
-    return categories
+    """Load categories from the configured PostgreSQL collection."""
+    return CategoryModel.all()
 
 
 def load_dishes(restaurant_id):
-    """Carga los platos de un restaurante específico"""
-    dishes = []
-    if os.path.exists(Config.DISHES_FILE):
-        try:
-            with open(Config.DISHES_FILE, "r", encoding="utf-8") as f:
-                all_dishes = json.load(f)
-            dishes = [d for d in all_dishes if d.get("restaurant_id") == restaurant_id]
-        except Exception as e:
-            logger.error(f"Error cargando platos para restaurante {restaurant_id}: {e}")
-    return dishes
+    """Load a restaurant's dishes from the PostgreSQL collection."""
+    return DishModel.get_by_restaurant(restaurant_id)
 
 
 def get_user_profile():

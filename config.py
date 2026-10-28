@@ -1,5 +1,4 @@
 import os
-from pathlib import Path
 
 
 class Config:
@@ -25,7 +24,7 @@ class Config:
     # --- FLASK CONFIG ---
     # No se incluye una clave operativa en el código fuente. El arranque debe
     # recibir SECRET_KEY desde el entorno o fallar de forma explícita.
-    SECRET_KEY = os.environ.get("SECRET_KEY","5ecc7f3e536e2bad1344fa792a5df89ff1cc4bc959717b59e813f93cf3437a1d")
+    SECRET_KEY = os.environ.get("SECRET_KEY")
     DEBUG = os.environ.get("FLASK_DEBUG", "0").lower() in {"1", "true", "yes"}
     TESTING = os.environ.get("FLASK_TESTING", "0").lower() in {"1", "true", "yes"}
     JSON_AS_ASCII = False
@@ -36,29 +35,10 @@ class Config:
     PERMANENT_SESSION_LIFETIME = int(os.environ.get("SESSION_LIFETIME_SECONDS", "3600"))
     WTF_CSRF_TIME_LIMIT = int(os.environ.get("WTF_CSRF_TIME_LIMIT", "3600"))
 
-    # PostgreSQL se activa de forma opt-in después de migrar y validar datos.
-    DATA_BACKEND = os.environ.get("DATA_BACKEND", "json").lower()
+    # Persistencia exclusiva en Supabase/PostgreSQL; no hay backend de archivos.
+    DATA_BACKEND = os.environ.get("DATA_BACKEND", "postgresql").lower()
     DATABASE_URL = os.environ.get("DATABASE_URL")
-
-    # --- RUTAS DE DATOS ---
-    DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
-    RESTAURANTS_FILE = os.path.join(DATA_DIR, "restaurants.json")
-    CATEGORIES_FILE = os.path.join(DATA_DIR, "categories.json")
-    USERS_FILE = os.path.join(DATA_DIR, "users.json")
-    DISHES_FILE = os.path.join(DATA_DIR, "dishes.json")
-    FAVORITES_FILE = os.path.join(DATA_DIR, "favorites.json")
-    HISTORY_FILE = os.path.join(DATA_DIR, "history.json")
-    PROMOTIONS_FILE = os.path.join(DATA_DIR, "promotions.json")
-    REVIEWS_FILE = os.path.join(DATA_DIR, "reviews.json")
-    NOTIFICATIONS_FILE = os.path.join(DATA_DIR, "notifications.json")
-    DAILY_MENU_FILE = os.path.join(DATA_DIR, "daily_menu.json")
-    MODERATION_FILE = os.path.join(DATA_DIR, "moderation.json")
-    AUDIT_EVENTS_FILE = os.path.join(DATA_DIR, "audit_events.json")
-
-    @classmethod
-    def ensure_data_dir(cls):
-        """Asegura que el directorio de datos existe."""
-        Path(cls.DATA_DIR).mkdir(parents=True, exist_ok=True)
+    DATABASE_SSLMODE = os.environ.get("DATABASE_SSLMODE", "require").lower()
 
     @classmethod
     def validate(cls):
@@ -70,3 +50,17 @@ class Config:
             )
         if len(cls.SECRET_KEY) < 32:
             raise RuntimeError("SECRET_KEY debe contener al menos 32 caracteres.")
+        if cls.DATA_BACKEND not in {"postgres", "postgresql"}:
+            raise RuntimeError(
+                "SmartResto usa exclusivamente Supabase/PostgreSQL. "
+                "Configura DATA_BACKEND=postgresql."
+            )
+        if not cls.DATABASE_URL:
+            raise RuntimeError(
+                "DATABASE_URL no está configurada. Copia la URI PostgreSQL de "
+                "Supabase al entorno del servidor; no la incluyas en el código."
+            )
+        if not cls.DATABASE_URL.lower().startswith(("postgres://", "postgresql://")):
+            raise RuntimeError("DATABASE_URL debe ser una URI postgres:// o postgresql://.")
+        if cls.DATABASE_SSLMODE not in {"require", "verify-ca", "verify-full"}:
+            raise RuntimeError("DATABASE_SSLMODE debe ser require, verify-ca o verify-full.")

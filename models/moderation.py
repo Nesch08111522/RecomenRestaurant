@@ -3,8 +3,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import Any
 
-from config import Config
-from models.base import JSONModel
+from models.base import DataModel
 from utils.content_filter import ContentFilter
 
 
@@ -27,10 +26,10 @@ CONTROLLED_TO_LEGACY = {
 }
 
 
-class ModerationModel(JSONModel):
+class ModerationModel(DataModel):
     """Moderación trazable y reversible, con compatibilidad para JSON legacy."""
 
-    file_path = Config.MODERATION_FILE
+    collection = "moderation"
 
     @classmethod
     def normalize_state(cls, entry: dict[str, Any]) -> str:
@@ -209,8 +208,7 @@ class ModerationModel(JSONModel):
 from datetime import datetime, timezone
 from typing import Any
 
-from config import Config
-from models.base import JSONModel
+from models.base import DataModel
 from utils.content_filter import ContentFilter, AUTO_OK, HUMAN, ASK_AI
 
 APPROVAL_AUTOMATIC = "APROBADO_AUTOMATICAMENTE"
@@ -240,10 +238,10 @@ CONTROLLED_TO_LEGACY = {
 }
 
 
-class ModerationModel(JSONModel):
+class ModerationModel(DataModel):
     """Moderación trazable, reversible y compatible con registros antiguos."""
 
-    file_path = Config.MODERATION_FILE
+    collection = "moderation"
 
     @classmethod
     def normalize_state(cls, entry: dict[str, Any]) -> str:

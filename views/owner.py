@@ -3,6 +3,7 @@ from flask import Blueprint, Response, render_template, session, redirect, url_f
 from models.restaurant import RestaurantModel
 from models.dish import DishModel
 from models.daily_menu import DailyMenuModel
+from models.category import CategoryModel
 from models.user import UserModel
 from config import Config
 from utils.security import normalize_text
@@ -119,13 +120,7 @@ def dashboard():
     restaurants = RestaurantModel.get_by_owner(user_id)
     
     # Agregar nombre de categoría a cada restaurante
-    categories = []
-    if os.path.exists(Config.CATEGORIES_FILE):
-        try:
-            with open(Config.CATEGORIES_FILE, 'r', encoding='utf-8') as f:
-                categories = json.load(f)
-        except:
-            categories = []
+    categories = CategoryModel.all()
     
     cat_dict = {cat['id']: cat['name'] for cat in categories}
     for r in restaurants:
