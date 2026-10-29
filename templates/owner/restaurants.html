@@ -43,7 +43,6 @@
         <table class="admin-table">
             <thead>
                 <tr>
-                    <th>ID</th>
                     <th>Nombre</th>
                     <th>Categoría</th>
                     <th>Distrito</th>
@@ -57,7 +56,6 @@
             <tbody id="restaurantsTableBody">
                 {% for r in restaurants %}
                     <tr data-id="{{ r.id }}" data-category="{{ r.category_id }}" data-district="{{ r.district }}">
-                        <td>{{ r.id }}</td>
                         <td class="restaurant-name">{{ r.name }}</td>
                         <td>{{ r.category_name or 'Sin categoría' }}</td>
                         <td>{{ r.district }}</td>

@@ -52,6 +52,18 @@
                 <button type="submit" class="btn-primary"><i class="fas fa-wand-magic-sparkles" aria-hidden="true"></i> Analizar y crear borrador</button>
             </div>
         </form>
+        <div class="photo-import-panel">
+            <h3><i class="fas fa-camera" aria-hidden="true"></i> Importar fotografías con Gemini</h3>
+            <p>Selecciona de 1 a 6 fotos nítidas de la misma carta. Revisarás los platos y precios antes de guardarlos.</p>
+            <form id="photoImportForm" method="post" enctype="multipart/form-data" action="{{ url_for('owner.import_menu_preview', restaurant_id=restaurant.id) }}">
+                <label class="photo-upload-label" for="menuPhotos"><i class="fas fa-images" aria-hidden="true"></i> Seleccionar fotografías</label>
+                <input id="menuPhotos" name="menu_photos" type="file" accept="image/jpeg,image/png,image/webp" multiple required>
+                <div id="photoPreviewGrid" class="photo-preview-grid" aria-live="polite"></div>
+                <div id="photoImportStatus" role="status" aria-live="polite"></div>
+                <button id="photoAnalyzeButton" type="submit" class="btn-primary"><i class="fas fa-wand-magic-sparkles" aria-hidden="true"></i> Analizar fotografías</button>
+            </form>
+            <p class="menu-import-privacy">Las fotografías se comprimen en tu navegador y nuevamente en el servidor; se envían a Gemini para su análisis, sin almacenarlas como archivos del restaurante. Revisa siempre los resultados.</p>
+        </div>
         <p class="menu-import-privacy">Se procesan archivos Excel y Word de hasta 2 MB en memoria; el archivo no se guarda en la aplicación. Solo los datos extraídos de los platos se envían a Qwen mediante Groq para crear un borrador revisable. El plan gratuito tiene cuotas y la función puede quedar temporalmente limitada al agotarlas. Aprueba el borrador antes de agregar los platos a la carta pública.</p>
     </section>
 
@@ -1520,4 +1532,24 @@
     .menu-import-privacy { margin: 14px 0 0; color: #6b7280; font-size: 12px; line-height: 1.5; }
     @media (max-width: 600px) { .menu-import-card { padding: 18px; } .menu-import-actions { flex-wrap: wrap; } .menu-import-upload-row { align-items: stretch; flex-direction: column; } }
 </style>
+<style>
+.photo-import-panel{margin-top:20px;padding:18px;border:1px solid #e5e7eb;border-radius:12px;background:#fafafa}
+.photo-import-panel h3{margin:0 0 8px;font-size:17px}.photo-import-panel>p{color:#64748b;font-size:13px;line-height:1.5}
+.photo-upload-label{display:inline-flex!important;align-items:center;gap:8px;padding:10px 14px;border:1px dashed #db2777;border-radius:9px;color:#9d174d;cursor:pointer;background:#fff}
+#menuPhotos{display:block;width:100%;max-width:100%;margin:10px 0;font-size:13px}.photo-preview-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:10px;margin:12px 0}
+.photo-preview-item{border:1px solid #e5e7eb;border-radius:9px;overflow:hidden;background:white}.photo-preview-item img{display:block;width:100%;height:100px;object-fit:cover}.photo-preview-item span{display:block;padding:5px;font-size:11px;overflow-wrap:anywhere}
+#photoImportStatus{margin:10px 0;font-size:13px;color:#475569}#photoImportStatus.is-error{color:#b91c1c}#photoAnalyzeButton:disabled{opacity:.6;cursor:wait}
+@media(max-width:600px){.photo-import-panel{padding:12px}#photoAnalyzeButton{width:100%}}
+</style>
+<script>
+(()=>{
+const form=document.getElementById('photoImportForm');if(!form)return;
+const input=document.getElementById('menuPhotos'),grid=document.getElementById('photoPreviewGrid'),status=document.getElementById('photoImportStatus'),button=document.getElementById('photoAnalyzeButton');
+let busy=false,urls=[];
+const show=(message,error=false)=>{status.textContent=message;status.classList.toggle('is-error',error)};
+input.addEventListener('change',()=>{urls.forEach(URL.revokeObjectURL);urls=[];grid.replaceChildren();const files=[...input.files];if(files.length>6){show('Selecciona como máximo 6 fotografías.',true);return}show(files.length?`${files.length} fotografía(s) seleccionada(s).`:'');for(const file of files){const box=document.createElement('div'),img=document.createElement('img'),label=document.createElement('span'),url=URL.createObjectURL(file);urls.push(url);box.className='photo-preview-item';img.src=url;img.alt='Vista previa de '+file.name;label.textContent=file.name;box.append(img,label);grid.append(box)}});
+async function compress(file){if(file.size>8*1024*1024)throw Error(`${file.name} supera 8 MB.`);if(!['image/jpeg','image/png','image/webp'].includes(file.type))throw Error(`Formato no válido: ${file.name}`);const bitmap=await createImageBitmap(file);try{const scale=Math.min(1,2000/Math.max(bitmap.width,bitmap.height));const canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(bitmap.width*scale));canvas.height=Math.max(1,Math.round(bitmap.height*scale));const ctx=canvas.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.drawImage(bitmap,0,0,canvas.width,canvas.height);const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/jpeg',.84));if(!blob)throw Error('No se pudo comprimir '+file.name);return new File([blob],file.name.replace(/\.[^.]+$/,'.jpg'),{type:'image/jpeg'})}finally{bitmap.close()}}
+form.addEventListener('submit',async event=>{event.preventDefault();if(busy)return;const files=[...input.files];if(!files.length||files.length>6){show('Selecciona entre 1 y 6 fotografías.',true);return}busy=true;button.disabled=true;const original=button.innerHTML;try{const data=new FormData();for(let i=0;i<files.length;i++){show(`Comprimiendo fotografía ${i+1} de ${files.length}…`);data.append('menu_photos',await compress(files[i]))}show('Analizando fotografías con Gemini. Puede tardar unos segundos…');const response=await fetch(form.action,{method:'POST',body:data,credentials:'same-origin'});const html=await response.text();if(!response.ok)throw Error('El servidor no pudo procesar las imágenes. Revisa los mensajes de la aplicación.');document.open();document.write(html);document.close()}catch(error){show(error.message||'Error al analizar fotografías.',true);button.disabled=false;button.innerHTML=original;busy=false}});
+})();
+</script>
 {% endblock %}

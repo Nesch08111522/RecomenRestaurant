@@ -342,97 +342,98 @@ def restaurants():
 @admin_bp.route("/restaurant/analyze-file", methods=["POST"])
 @admin_or_owner_required
 def analyze_restaurant_upload():
-    """Analiza una ficha sin guardar cambios en base de datos."""
+    """
+    Analiza documentos de restaurantes mediante IA.
+
+    Detecta categorías existentes y propone nuevas.
+    """
+
     from utils.restaurant_import_ai import analyze_restaurant_file
 
     uploaded = request.files.get("file")
+
     if not uploaded:
-        return jsonify({"success": False, "error": "Selecciona un archivo"}), 400
+        return jsonify({"success": False, "error": "Selecciona un archivo."}), 400
+
     try:
+        # Analizar documento
         extracted, provider = analyze_restaurant_file(uploaded)
 
-        # Obtener categorías y distritos existentes
+        # Obtener distritos
         districts = getattr(
             Config,
             "DISTRITOS",
             ["Trujillo", "Victor Larco", "La Esperanza", "Huanchaco", "Moche"],
         )
 
+        # ==================================
+        # DETECTAR CATEGORÍA
+        # ==================================
+
         category_name = extracted.pop("category", None)
 
         if category_name:
-            category_name = normalize_text(
-                category_name,
-                max_length=100
-            )
 
+            category_name = normalize_text(category_name, max_length=100)
+
+            # Buscar categoría registrada
             match = CategoryModel.get_by_name(category_name)
 
             if match:
                 extracted["category_id"] = match["id"]
 
             else:
+                # Categoría nueva detectada por IA
                 extracted["category_suggestion"] = category_name
+
+        # ==================================
+        # VALIDAR DISTRITO
+        # ==================================
 
         district_name = extracted.get("district")
 
         if district_name:
-            district_name = normalize_text(
-                district_name,
-                max_length=100
-            )
+
+            district_name = normalize_text(district_name, max_length=100)
 
             match = next(
                 (
                     district
                     for district in districts
-                    if normalize_text(
-                        district,
-                        max_length=100
-                    ).casefold() == district_name.casefold()
+                    if normalize_text(district, max_length=100).casefold()
+                    == district_name.casefold()
                 ),
-                None
+                None,
             )
 
             if match:
                 extracted["district"] = match
 
             else:
-                # Distrito no reconocido
                 extracted.pop("district", None)
+
                 extracted["district_suggestion"] = district_name
 
-        return jsonify({
-            "success": True,
-            "data": extracted,
-            "provider": provider
-        })
+        # ==================================
+        # RESPUESTA AL FRONTEND
+        # ==================================
+
+        return jsonify({"success": True, "data": extracted, "provider": provider})
 
     except ValueError as exc:
-        return jsonify({
-            "success": False,
-            "error": str(exc)
-        }), 400
+        return jsonify({"success": False, "error": str(exc)}), 400
 
-    except Exception:
-        logger.exception(
-            "Error analizando archivo de restaurante"
-        )
-
-        return jsonify({
-            "success": False,
-            "error": (
-                "No fue posible analizar el archivo. "
-                "Revisa la configuración de IA."
-            )
-        }), 503
     except Exception:
         logger.exception("Error analizando archivo de restaurante")
+
         return (
             jsonify(
                 {
                     "success": False,
-                    "error": "No fue posible analizar el archivo. Revisa la configuración de IA.",
+                    "error": (
+                        "No fue posible analizar el archivo. "
+                        "Revisa la configuración de IA."
+                    ),
                 }
             ),
             503,
@@ -440,9 +441,15 @@ def analyze_restaurant_upload():
 
 
 @admin_bp.route("/api/categories", methods=["POST"])
-@admin_required
+@admin_or_owner_required
 def create_dynamic_category():
-    """Crea una categoría desde el formulario, previa confirmación."""
+    """
+    Permite crear categorías dinámicas.
+
+    Roles permitidos:
+    - admin
+    - business_owner
+    """
 
     data = request.get_json(silent=True)
 
@@ -452,10 +459,10 @@ def create_dynamic_category():
     name = data.get("name")
 
     try:
+        # Crear o recuperar categoría
         category, created = CategoryModel.create_dynamic(name)
 
-        # Recuperamos el registro por nombre para no depender
-        # del valor que devuelva DataModel.create().
+        # Recuperar categoría almacenada
         saved = CategoryModel.get_by_name(name)
 
         if not saved and isinstance(category, dict):
