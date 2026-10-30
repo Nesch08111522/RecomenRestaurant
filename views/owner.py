@@ -295,6 +295,140 @@ def menu_management(restaurant_id):
     )
 
 
+@owner_bp.route("/menu/<int:restaurant_id>/audit", methods=["POST"])
+@owner_required
+def audit_restaurant_menu(restaurant_id):
+    """Auditoría informativa, bajo demanda, sin modificar los platos."""
+    from utils.menu_auditor import auditar_plato
+    from utils.menu_auditor_ai import auditar_plato_con_ia
+
+    user_id = (session.get("user") or {}).get("id")
+    if not RestaurantModel.is_owner(user_id, restaurant_id):
+        return jsonify({"error": "No tienes permiso para auditar esta carta."}), 403
+    if not RestaurantModel.get_by_id(restaurant_id):
+        return jsonify({"error": "Restaurante no encontrado."}), 404
+    data = _json_payload()
+    if data is None:
+        return jsonify({"error": "Se requiere un objeto JSON."}), 400
+    if set(data) - {"scope", "date", "use_ai"}:
+        return jsonify({"error": "Parámetros no permitidos."}), 400
+    scope = data.get("scope", "current")
+    if scope not in ("current", "all"):
+        return jsonify({"error": "Alcance de auditoría inválido."}), 400
+    use_ai = data.get("use_ai", False)
+    if not isinstance(use_ai, bool):
+        return jsonify({"error": "use_ai debe ser booleano."}), 400
+    selected_date = data.get("date")
+    if selected_date is not None and _parse_menu_date(selected_date) is None:
+        return jsonify({"error": "Fecha inválida."}), 400
+    if not selected_date:
+        selected_date = datetime.now(LIMA_TIMEZONE).date().isoformat()
+    dishes = DishModel.get_by_restaurant(restaurant_id)
+    if scope == "current":
+        dishes = [
+            d
+            for d in dishes
+            if not d.get("menu_date") or d.get("menu_date") == selected_date
+        ]
+    if len(dishes) > 100:
+        return (
+            jsonify({"error": "La auditoría admite hasta 100 platos por solicitud."}),
+            400,
+        )
+    results = []
+    ai_used = 0
+    for dish in dishes:
+        base_audit = auditar_plato(dish)
+        ambiguous = any(
+            o.get("code") in ("ambiguous_ingredients", "unverifiable_label")
+            for o in base_audit["observations"]
+        )
+        if (
+            use_ai
+            and ai_used < 5
+            and base_audit["result"] != "incoherente"
+            and ambiguous
+        ):
+            audit = auditar_plato_con_ia(dish)
+            if audit["ai"]["used"]:
+                ai_used += 1
+        else:
+            audit = {
+                **base_audit,
+                "ai": {"used": False, "status": "not_needed", "suggestion": None},
+            }
+        results.append(audit)
+    return jsonify(
+        {
+            "success": True,
+            "scope": scope,
+            "date": selected_date,
+            "total": len(results),
+            "incoherentes": sum(x["result"] == "incoherente" for x in results),
+            "desconocidos": sum(x["result"] == "desconocido" for x in results),
+            "ai_calls": ai_used,
+            "results": results,
+            "notice": "Auditoría orientativa de información declarada; no certifica inocuidad, higiene ni ausencia de alérgenos. No se modificó ningún plato.",
+        }
+    )
+
+
+@owner_bp.route("/menu/<int:restaurant_id>/audit/suggestion", methods=["POST"])
+@owner_required
+def suggest_menu_dish_correction(restaurant_id):
+    """Sugerencia de Qwen solicitada expresamente por el dueño; nunca guarda cambios."""
+    from utils.menu_auditor_ai import sugerir_correccion_con_ia
+    from utils.menu_auditor import auditar_plato
+
+    user_id = (session.get("user") or {}).get("id")
+    if not RestaurantModel.is_owner(user_id, restaurant_id):
+        return jsonify({"error": "No tienes permiso para consultar este plato."}), 403
+    data = _json_payload()
+    if data is None or set(data) != {"dish_id"}:
+        return jsonify({"error": "Envía únicamente dish_id."}), 400
+    try:
+        dish_id = int(data["dish_id"])
+    except (TypeError, ValueError):
+        return jsonify({"error": "Identificador inválido."}), 400
+    if dish_id <= 0:
+        return jsonify({"error": "Identificador inválido."}), 400
+    dish = DishModel.get_by_id(dish_id)
+    if not dish or str(dish.get("restaurant_id")) != str(restaurant_id):
+        return jsonify({"error": "Plato no encontrado."}), 404
+    if auditar_plato(dish)["result"] != "incoherente":
+        return (
+            jsonify({"error": "Este plato no tiene contradicciones detectadas."}),
+            400,
+        )
+    now = datetime.now(timezone.utc).timestamp()
+    last = session.get("last_dish_ai_suggestion", 0)
+    if isinstance(last, (int, float)) and now - last < 20:
+        return (
+            jsonify(
+                {"error": "Espera 20 segundos antes de pedir otra sugerencia con IA."}
+            ),
+            429,
+        )
+    session["last_dish_ai_suggestion"] = now
+    try:
+        suggestion = sugerir_correccion_con_ia(dish)
+    except Exception:
+        logger.exception("Error al solicitar sugerencia de corrección")
+        return (
+            jsonify(
+                {"error": "La IA no está disponible. Utiliza la sugerencia rápida."}
+            ),
+            503,
+        )
+    return jsonify(
+        {
+            "success": True,
+            "suggestion": suggestion,
+            "notice": "Sugerencia orientativa. Verifica la receta antes de modificar sus etiquetas.",
+        }
+    )
+
+
 @owner_bp.route("/menu/<int:restaurant_id>/template/<file_format>")
 @owner_required
 def download_menu_template(restaurant_id, file_format):

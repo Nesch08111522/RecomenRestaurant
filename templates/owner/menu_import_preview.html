@@ -75,12 +75,15 @@
                         <textarea id="dishDescription{{ loop.index0 }}" name="dish_{{ loop.index0 }}_description" maxlength="1000" rows="3">{{ dish.description }}</textarea>
                     </div>
 
-                    {% if dish.ingredients %}
-                        <p class="review-source-data"><strong>Ingredientes indicados:</strong> {{ dish.ingredients|join(', ') }}</p>
-                    {% endif %}
-                    {% if dish.dietary_info %}
-                        <p class="review-source-data"><strong>Información dietética indicada:</strong> {{ dish.dietary_info|join(', ') }}</p>
-                    {% endif %}
+                    <div class="review-field">
+                        <label class="field-label" for="dishIngredients{{ loop.index0 }}">Ingredientes (editables)</label>
+                        <textarea id="dishIngredients{{ loop.index0 }}" name="dish_{{ loop.index0 }}_ingredients" maxlength="6000" rows="2" placeholder="Ej.: arroz, cebolla, tomate">{{ (dish.ingredients or [])|join(', ') }}</textarea>
+                        <small class="review-source-data">Solo se extraen ingredientes escritos en la fotografía. Verifica y completa los que falten.</small>
+                    </div>
+                    <div class="review-field">
+                        <label class="field-label" for="dishDietary{{ loop.index0 }}">Información dietética declarada (editable)</label>
+                        <textarea id="dishDietary{{ loop.index0 }}" name="dish_{{ loop.index0 }}_dietary_info" maxlength="2000" rows="2" placeholder="Solo información confirmada por el restaurante">{{ (dish.dietary_info or [])|join(', ') }}</textarea>
+                    </div>
                 </article>
             {% endfor %}
         </div>
