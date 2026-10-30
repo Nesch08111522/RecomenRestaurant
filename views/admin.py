@@ -1063,48 +1063,31 @@ def moderation_dashboard():
     # Estadísticas
     stats = moderation_model.get_stats()
 
-    # Contenido pendiente
+    from utils.moderation_explain import (
+        evaluar_restaurante,
+        estado_pendiente,
+        motivo_contenido,
+    )
+
     pending = moderation_model.get_pending_reviews()
-
-    # Contenido marcado
     flagged = moderation_model.get_flagged_content()
-
-    # ✅ Obtener restaurantes PENDIENTES de aprobación
-    pending_restaurants = RestaurantModel.get_pending()
-
-    # Verificar automáticamente restaurantes pendientes
-    auto_flagged = []
-    for restaurant in pending_restaurants:
-        result = ContentFilter.filter_restaurant(restaurant)
-        if not result["is_ok"]:
-            real_issues = []
-            for issue in result["issues"]:
-                if (
-                    "no relacionado con comida" in issue
-                    and result["result"]["food_score"] > 20
-                ):
-                    continue
-                real_issues.append(issue)
-
-            if real_issues:
-                auto_flagged.append(
-                    {
-                        "restaurant": restaurant,
-                        "issues": real_issues,
-                        "result": result,
-                        "food_score": result["result"]["food_score"],
-                    }
-                )
-
-    # ✅ Restaurantes pendientes que NO tienen problemas (se pueden aprobar fácilmente)
-    clean_pending = []
-    for restaurant in pending_restaurants:
-        if restaurant.get("id") not in [
-            item["restaurant"]["id"] for item in auto_flagged
-        ]:
-            clean_pending.append(restaurant)
-
-    auto_flagged.sort(key=lambda x: x.get("food_score", 0))
+    pending_restaurants = [
+        r for r in RestaurantModel.get_pending() if estado_pendiente(r)
+    ]
+    evaluations = [evaluar_restaurante(r, ContentFilter) for r in pending_restaurants]
+    auto_flagged = sorted(
+        (r for r in evaluations if r["needs_review"]), key=lambda x: x["food_score"]
+    )
+    clean_pending = [r["restaurant"] for r in evaluations if not r["needs_review"]]
+    pending_ids = {str(r.get("id")) for r in pending_restaurants}
+    pending = [
+        dict(item, display_reason=motivo_contenido(item))
+        for item in pending
+        if not (
+            item.get("content_type") == "restaurant"
+            and str(item.get("content_id")) in pending_ids
+        )
+    ]
 
     return render_template(
         "admin/moderation.html",

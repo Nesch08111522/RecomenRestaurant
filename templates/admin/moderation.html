@@ -2,12 +2,13 @@
 
 {% block content %}
 <div class="mod">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
     <!-- Header -->
     <header class="m-head">
         <div>
             <h1><i class="fas fa-shield-alt"></i> Moderación</h1>
-            <p>Gestiona el contenido y verifica restaurantes</p>
+            <p>Revisa cada solicitud, conoce por qué está pendiente y toma decisiones informadas.</p>
         </div>
         <div class="m-head-actions">
             <button type="button" class="m-btn primary" id="btnAuto">
@@ -90,7 +91,7 @@
                 <span class="m-badge" data-badge></span>
             </div>
         </div>
-        <p class="m-hint">Sin problemas detectados. Puedes aprobarlos de uno en uno o en bloque.</p>
+        <p class="m-hint">Estos restaurantes no tienen alertas del filtro preliminar. Aún necesitan la aprobación de un administrador.</p>
 
         <div class="m-grid">
             {% for r in clean_pending %}
@@ -107,6 +108,7 @@
                     <li title="Rating" class="rating">⭐ {{ r.rating }}</li>
                     <li title="Precio promedio">💰 {{ MONEDA }}{{ r.avg_price }}</li>
                 </ul>
+                <div class="m-status-note ready"><i class="fas fa-info-circle"></i><div><strong>¿Por qué está pendiente?</strong><span>El registro todavía no ha sido aprobado por un administrador. El filtro preliminar no detectó observaciones; esto no sustituye la verificación manual.</span></div></div>
                 <div class="m-actions">
                     <button type="button" class="m-btn ok grow" data-action="approve"><i class="fas fa-check"></i> Aprobar</button>
                     <a href="/restaurant/{{ r.id }}" target="_blank" rel="noopener" class="m-btn info"><i class="fas fa-eye"></i> Ver</a>
@@ -124,7 +126,7 @@
             <h3><i class="fas fa-exclamation-triangle" style="color:#dc2626"></i> Problemas detectados</h3>
             <span class="m-badge danger" data-badge></span>
         </div>
-        <p class="m-hint">Requieren revisión manual antes de aprobarse.</p>
+        <p class="m-hint">El filtro preliminar encontró las siguientes observaciones. Verifica los datos antes de decidir.</p>
 
         <div class="m-grid">
             {% for item in auto_flagged %}
@@ -140,9 +142,12 @@
                 <ul class="m-meta">
                     <li title="Dueño">👤 {{ item.restaurant.owner_name or 'Desconocido' }}</li>
                 </ul>
+                <div class="m-status-note review"><i class="fas fa-exclamation-circle"></i><div><strong>¿Por qué necesita revisión?</strong><span>Se detectaron {{ item.issues|length }} observación(es) que requieren verificación manual. No equivalen a una infracción confirmada.</span></div></div>
                 <ul class="m-issues">
                     {% for issue in item.issues %}
-                    <li><i class="fas fa-times"></i> {{ issue }}</li>
+                    <li><i class="fas fa-exclamation-triangle"></i> {{ issue }}</li>
+                    {% else %}
+                    <li><i class="fas fa-info-circle"></i> El filtro marcó este registro, pero no proporcionó un motivo detallado.</li>
                     {% endfor %}
                 </ul>
                 <div class="m-actions">
@@ -172,10 +177,10 @@
             'avg_price': 'Precio promedio',
             'cuisine_type': 'Cocina',
             'dietary_restrictions': 'Restricciones dietéticas',
-            'features': 'Servicios'
+            'features': 'Servicios', 'promo': 'Promoción', 'open_time': 'Apertura', 'close_time': 'Cierre', 'owner_name': 'Propietario', 'image': 'Imagen', 'lat': 'Latitud', 'lng': 'Longitud', 'dishes': 'Platos'
         } %}
         {# Campos que no se muestran en el resumen (siguen visibles en el JSON técnico). #}
-        {% set hidden_keys = ['id', 'name', 'owner_id', 'status', 'created_at', 'updated_at'] %}
+        {% set hidden_keys = ['id', 'name', 'owner_id', 'status', 'created_at', 'updated_at', 'image', 'lat', 'lng', 'dishes', 'category_id'] %}
 
         <div class="m-list">
             {% for item in pending %}
@@ -191,9 +196,9 @@
                     <span class="m-date">{{ item.created_at[:10] }}</span>
                 </div>
 
-                {% if item.reason %}
-                <p class="m-reason">⚠️ {{ item.reason }}</p>
-                {% endif %}
+                <div class="m-status-note pending"><i class="fas fa-clock"></i><div><strong>¿Por qué está pendiente?</strong>
+                    <span>{{ item.display_reason or item.reason or "En espera de revisión administrativa." }}</span>
+                </div></div>
 
                 <dl class="m-facts">
                     {% for key, val in d.items() if key not in hidden_keys and val not in [none, '', []] %}
@@ -210,10 +215,12 @@
                     {% endfor %}
                 </dl>
 
-                <details class="m-raw">
+                <details class="m-raw"><summary>Ver datos adicionales y técnicos</summary><pre>{{ item.content_data|tojson(indent=2) }}</pre></details>
+                {# Los datos completos siguen accesibles, sin saturar la tarjeta. #}
+                <div hidden>
                     <summary>Ver datos técnicos (JSON)</summary>
                     <pre>{{ item.content_data|tojson(indent=2) }}</pre>
-                </details>
+                </details></div>
 
                 <div class="m-actions">
                     <button type="button" class="m-btn ok" data-action="approve"><i class="fas fa-check"></i> Aprobar</button>
@@ -407,6 +414,27 @@
     .m-date { margin-left: auto; font-size: 13px; color: var(--m-gray); }
     .m-reason { font-size: 14px; color: var(--warn-fg); background: var(--warn-bg); padding: 8px 12px; border-radius: 6px; }
 
+    .m-status-note { display:flex; align-items:flex-start; gap:10px; padding:12px; border-radius:10px; border:1px solid #e5e7eb; background:#f8fafc; font-size:13px; line-height:1.5; }
+    .m-status-note > i { flex-shrink:0; margin-top:3px; }
+    .m-status-note > div { min-width:0; display:grid; gap:3px; }
+    .m-status-note strong { color:#1f2937; font-size:13px; }
+    .m-status-note span { color:#475569; overflow-wrap:anywhere; }
+    .m-status-note.ready { background:#f0fdf4; border-color:#bbf7d0; }
+    .m-status-note.ready > i { color:#16a34a; }
+    .m-status-note.review { background:#fff7ed; border-color:#fed7aa; }
+    .m-status-note.review > i { color:#ea580c; }
+    .m-status-note.pending { background:#fffbeb; border-color:#fde68a; }
+    .m-status-note.pending > i { color:#d97706; }
+    .m-card { gap:12px; }
+    .m-card .m-actions { padding-top:4px; }
+    .m-card .m-btn, .m-row .m-btn { min-height:36px; }
+    .m-issues li { align-items:flex-start; line-height:1.45; }
+    .m-issues li i { margin-top:3px; }
+    .m-section { border-radius:16px; box-shadow:0 5px 18px rgba(15,23,42,.04); }
+    .m-card, .m-row { border-radius:12px; }
+    .m-head h1 { letter-spacing:-.025em; }
+    @media (max-width:480px) { .m-status-note { padding:10px; } }
+
     /* Resumen legible de datos */
     .m-facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px 20px; margin: 0; }
     .m-fact { min-width: 0; }
@@ -521,7 +549,14 @@
     async function post(url, body) {
         const res = await fetch(url, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
+            headers: (() => {
+                const headers = { 'Content-Type': 'application/json' };
+                const token = document.querySelector('meta[name="csrf-token"]')?.content
+                    || document.querySelector('input[name="csrf_token"]')?.value;
+                if (token) headers['X-CSRFToken'] = token;
+                return headers;
+            })(),
             body: JSON.stringify(body || {})
         });
         const text = await res.text();
