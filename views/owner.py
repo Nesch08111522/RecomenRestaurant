@@ -10,6 +10,7 @@ from flask import (
     jsonify,
     request,
 )
+from geopy import exc
 from models.restaurant import RestaurantModel
 from models.dish import DishModel
 from models.daily_menu import DailyMenuModel
@@ -376,57 +377,98 @@ def audit_restaurant_menu(restaurant_id):
 @owner_bp.route("/menu/<int:restaurant_id>/audit/suggestion", methods=["POST"])
 @owner_required
 def suggest_menu_dish_correction(restaurant_id):
-    """Sugerencia de Qwen solicitada expresamente por el dueño; nunca guarda cambios."""
+    """Solicita sugerencias de IA para corregir contradicciones sin modificar el plato."""
     from utils.menu_auditor_ai import sugerir_correccion_con_ia
     from utils.menu_auditor import auditar_plato
 
     user_id = (session.get("user") or {}).get("id")
+
     if not RestaurantModel.is_owner(user_id, restaurant_id):
-        return jsonify({"error": "No tienes permiso para consultar este plato."}), 403
+        return (
+            jsonify(
+                {
+                    "success": False,
+                    "error": "No tienes permiso para consultar este plato.",
+                }
+            ),
+            403,
+        )
+
     data = _json_payload()
+
     if data is None or set(data) != {"dish_id"}:
-        return jsonify({"error": "Envía únicamente dish_id."}), 400
+        return jsonify({"success": False, "error": "Envía únicamente dish_id."}), 400
+
     try:
         dish_id = int(data["dish_id"])
     except (TypeError, ValueError):
-        return jsonify({"error": "Identificador inválido."}), 400
+        return jsonify({"success": False, "error": "Identificador inválido."}), 400
+
     if dish_id <= 0:
-        return jsonify({"error": "Identificador inválido."}), 400
+        return jsonify({"success": False, "error": "Identificador inválido."}), 400
+
     dish = DishModel.get_by_id(dish_id)
+
     if not dish or str(dish.get("restaurant_id")) != str(restaurant_id):
-        return jsonify({"error": "Plato no encontrado."}), 404
+        return jsonify({"success": False, "error": "Plato no encontrado."}), 404
+
     if auditar_plato(dish)["result"] != "incoherente":
         return (
-            jsonify({"error": "Este plato no tiene contradicciones detectadas."}),
+            jsonify(
+                {
+                    "success": False,
+                    "error": "Este plato no tiene contradicciones detectadas.",
+                }
+            ),
             400,
         )
+
     now = datetime.now(timezone.utc).timestamp()
     last = session.get("last_dish_ai_suggestion", 0)
+
     if isinstance(last, (int, float)) and now - last < 20:
         return (
             jsonify(
-                {"error": "Espera 20 segundos antes de pedir otra sugerencia con IA."}
+                {
+                    "success": False,
+                    "error": "Espera 20 segundos antes de pedir otra sugerencia con IA.",
+                }
             ),
             429,
         )
-    session["last_dish_ai_suggestion"] = now
+
     try:
         suggestion = sugerir_correccion_con_ia(dish)
-    except Exception:
-        logger.exception("Error al solicitar sugerencia de corrección")
+
+        session["last_dish_ai_suggestion"] = now
+
         return (
             jsonify(
-                {"error": "La IA no está disponible. Utiliza la sugerencia rápida."}
+                {
+                    "success": True,
+                    "suggestion": suggestion,
+                    "notice": (
+                        "Sugerencia orientativa. Verifica la receta antes "
+                        "de modificar sus etiquetas."
+                    ),
+                }
+            ),
+            200,
+        )
+
+    except Exception as exc:
+        logger.exception("Error al solicitar sugerencia IA para plato %s", dish_id)
+
+        return (
+            jsonify(
+                {
+                    "success": False,
+                    "error": "No se pudo generar la sugerencia con IA.",
+                    "fallback": "Utiliza la sugerencia rápida.",
+                }
             ),
             503,
         )
-    return jsonify(
-        {
-            "success": True,
-            "suggestion": suggestion,
-            "notice": "Sugerencia orientativa. Verifica la receta antes de modificar sus etiquetas.",
-        }
-    )
 
 
 @owner_bp.route("/menu/<int:restaurant_id>/template/<file_format>")
