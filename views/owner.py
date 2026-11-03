@@ -340,16 +340,7 @@ def audit_restaurant_menu(restaurant_id):
     ai_used = 0
     for dish in dishes:
         base_audit = auditar_plato(dish)
-        ambiguous = any(
-            o.get("code") in ("ambiguous_ingredients", "unverifiable_label")
-            for o in base_audit["observations"]
-        )
-        if (
-            use_ai
-            and ai_used < 5
-            and base_audit["result"] != "incoherente"
-            and ambiguous
-        ):
+        if use_ai and ai_used < 5 and base_audit["result"] != "incoherente":
             audit = auditar_plato_con_ia(dish)
             if audit["ai"]["used"]:
                 ai_used += 1

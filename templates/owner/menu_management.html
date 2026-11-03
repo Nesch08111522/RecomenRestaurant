@@ -129,7 +129,7 @@
                     <input id="menuAuditAI" type="checkbox">
                     <span>
                         <strong>Análisis inteligente con IA</strong>
-                        <small>Consulta opcional para aclarar ingredientes dudosos.</small>
+                        <small>Descripciones y consejos de presentación; aclara ingredientes dudosos.</small>
                     </span>
                     <i class="fas fa-robot"></i>
                 </label>
@@ -1693,19 +1693,40 @@ updateScheduleView();
                 }
 
                 if (dish.ai?.status === 'ok' && dish.ai.suggestion) {
+                    const aiBox = document.createElement('div');
+                    aiBox.className = 'menu-audit-ai-result';
+                    createText(aiBox, 'strong', 'Ideas para mejorar este plato');
                     if (dish.ai.suggestion.summary) {
-                        createText(card, 'p', `Sugerencia de IA: ${dish.ai.suggestion.summary}`);
+                        createText(aiBox, 'p', dish.ai.suggestion.summary);
                     }
 
                     if (Array.isArray(dish.ai.suggestion.questions)) {
-                        const questions = document.createElement('ul');
-
-                        dish.ai.suggestion.questions.forEach(question => {
-                            createText(questions, 'li', question);
-                        });
-
-                        card.appendChild(questions);
+                        if (dish.ai.suggestion.questions.length) {
+                            createText(aiBox, 'strong', 'Para aclarar');
+                            const questions = document.createElement('ul');
+                            dish.ai.suggestion.questions.forEach(question => createText(questions, 'li', question));
+                            aiBox.appendChild(questions);
+                        }
                     }
+
+                    if (dish.ai.suggestion.description_suggestion) {
+                        createText(aiBox, 'strong', 'Descripción propuesta');
+                        createText(aiBox, 'p', dish.ai.suggestion.description_suggestion);
+                        const useDescription = createText(aiBox, 'button', 'Revisar y usar descripción', 'menu-audit-edit');
+                        useDescription.type = 'button';
+                        useDescription.addEventListener('click', () => {
+                            editDish(dish.dish_id);
+                            document.getElementById('dishDescription').value = dish.ai.suggestion.description_suggestion;
+                        });
+                    }
+
+                    if (Array.isArray(dish.ai.suggestion.presentation_tips)) {
+                        createText(aiBox, 'strong', 'Consejos de presentación');
+                        const tips = document.createElement('ul');
+                        dish.ai.suggestion.presentation_tips.forEach(tip => createText(tips, 'li', tip));
+                        aiBox.appendChild(tips);
+                    }
+                    card.appendChild(aiBox);
                 }
 
                 if (result === 'incoherente') {

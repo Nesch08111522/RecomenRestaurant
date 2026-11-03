@@ -16,7 +16,8 @@ class TestAuditorMenuIA(unittest.TestCase):
             {
                 "summary": "Falta conocer la salsa.",
                 "questions": ["¿La salsa contiene lácteos?"],
-                "needs_owner_confirmation": True,
+                "description_suggestion": "Tallarines con pasta y salsa declaradas por el restaurante.",
+                "presentation_tips": ["Indica qué salsa se utiliza."],
             }
         )
 
@@ -37,13 +38,14 @@ class TestAuditorMenuIA(unittest.TestCase):
         self.assertEqual(result["result"], "incoherente")
         mock.assert_not_called()
 
-    def test_no_consulta_sin_etiqueta(self):
-        mock = Mock()
+    def test_consulta_para_aportar_mejoras_aunque_no_haya_etiqueta(self):
+        mock = Mock(return_value=self.answer)
         result = auditar_plato_con_ia(
             {"name": "Arroz", "ingredients": ["arroz"]}, consultar_ia=mock
         )
-        self.assertEqual(result["ai"]["status"], "not_needed")
-        mock.assert_not_called()
+        self.assertEqual(result["ai"]["status"], "ok")
+        self.assertTrue(result["ai"]["suggestion"]["description_suggestion"])
+        mock.assert_called_once()
 
     def test_fallo_de_proveedor_no_rompe_auditoria(self):
         mock = Mock(side_effect=RuntimeError("sin servicio"))
