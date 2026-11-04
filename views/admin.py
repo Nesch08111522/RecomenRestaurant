@@ -16,6 +16,7 @@ from models.dish import DishModel
 from models.daily_menu import DailyMenuModel
 from models.review import ReviewModel
 from models.category import CategoryModel
+from models.notification import NotificationModel
 from config import Config
 from utils.security import normalize_text, session_identity, valid_coordinate
 from utils.audit import record_event, AuditEventModel
@@ -1068,17 +1069,60 @@ def moderation_dashboard():
         estado_pendiente,
         motivo_contenido,
     )
+    from utils.admin_menu_audit import audit_restaurant_menu
 
     pending = moderation_model.get_pending_reviews()
     flagged = moderation_model.get_flagged_content()
-    pending_restaurants = [
-        r for r in RestaurantModel.get_pending() if estado_pendiente(r)
-    ]
-    evaluations = [evaluar_restaurante(r, ContentFilter) for r in pending_restaurants]
+    all_restaurants = RestaurantModel.all()
+    restaurants_by_id = {str(r.get("id")): r for r in all_restaurants if r.get("id") is not None}
+    # Las solicitudes de moderación son la fuente principal de la cola. La
+    # colección restaurants se usa para enriquecer su tarjeta y para recuperar
+    # registros legacy que todavía no tienen una entrada de moderación.
+    pending_restaurants = []
+    pending_ids = set()
+    for entry in pending:
+        if entry.get("content_type") != "restaurant":
+            continue
+        content_id = str(entry.get("content_id"))
+        restaurant = restaurants_by_id.get(content_id)
+        if restaurant is None:
+            continue
+        if content_id not in pending_ids:
+            pending_restaurants.append(restaurant)
+            pending_ids.add(content_id)
+    for restaurant in all_restaurants:
+        rid = str(restaurant.get("id"))
+        if rid not in pending_ids and estado_pendiente(restaurant):
+            pending_restaurants.append(restaurant)
+            pending_ids.add(rid)
+    evaluations = []
+    for restaurant in pending_restaurants:
+        evaluation = evaluar_restaurante(restaurant, ContentFilter)
+        district = str(restaurant.get("district") or "").casefold()
+        peer_prices = [
+            peer.get("avg_price") for peer in all_restaurants
+            if str(peer.get("district") or "").casefold() == district
+            and peer.get("id") != restaurant.get("id")
+        ]
+        menu_audit = audit_restaurant_menu(
+            restaurant,
+            DishModel.get_by_restaurant(restaurant.get("id")),
+            peer_prices,
+        )
+        evaluation["menu_audit"] = menu_audit
+        for finding in menu_audit["findings"]:
+            evaluation["issues"].extend(f"{finding['name']}: {message}" for message in finding["observations"])
+        if menu_audit["price_note"] and "atípico" in menu_audit["price_note"]:
+            evaluation["issues"].append(menu_audit["price_note"])
+        evaluation["needs_review"] = bool(evaluation["issues"])
+        evaluations.append(evaluation)
     auto_flagged = sorted(
         (r for r in evaluations if r["needs_review"]), key=lambda x: x["food_score"]
     )
-    clean_pending = [r["restaurant"] for r in evaluations if not r["needs_review"]]
+    clean_pending = [
+        dict(r["restaurant"], food_score=r["food_score"], menu_audit=r["menu_audit"])
+        for r in evaluations if not r["needs_review"]
+    ]
     pending_ids = {str(r.get("id")) for r in pending_restaurants}
     pending = [
         dict(item, display_reason=motivo_contenido(item))
@@ -1088,7 +1132,9 @@ def moderation_dashboard():
             and str(item.get("content_id")) in pending_ids
         )
     ]
-
+    # El contador debe coincidir con las solicitudes que efectivamente se muestran,
+    # incluidas las entradas legacy pendientes sin fila formal de moderación.
+    stats["pending"] = len(auto_flagged) + len(clean_pending) + len(pending)
     return render_template(
         "admin/moderation.html",
         stats=stats,
@@ -1135,7 +1181,7 @@ def review_restaurant(id):
             (
                 item
                 for item in entries
-                if item.get("content_id") == id
+                if str(item.get("content_id")) == str(id)
                 and item.get("content_type") == "restaurant"
             ),
             None,
@@ -1236,6 +1282,54 @@ def restaurant_moderation_history(id):
             "history": entry.get("status_history", []),
         }
     )
+
+
+@admin_bp.route("/moderation/restaurant/<int:id>/notify-owner", methods=["POST"])
+@admin_required
+def notify_restaurant_owner(id):
+    """Envía recomendaciones redactadas por el admin al dueño del restaurante."""
+    data = request.get_json(silent=True)
+    if not isinstance(data, dict) or set(data) != {"message"}:
+        return jsonify(success=False, error="Envía únicamente el mensaje."), 400
+
+    message = normalize_text(data.get("message"), max_length=1600)
+    if len(message) < 15:
+        return jsonify(success=False, error="Escribe una recomendación de al menos 15 caracteres."), 400
+
+    restaurant = RestaurantModel.get_by_id(id)
+    if not restaurant:
+        return jsonify(success=False, error="Restaurante no encontrado."), 404
+
+    try:
+        owner_id = int(restaurant.get("owner_id"))
+    except (TypeError, ValueError):
+        return jsonify(success=False, error="Este restaurante no tiene un empresario asociado."), 409
+    owner = UserModel.get_by_id(owner_id)
+    if not owner or owner.get("role") != "business_owner":
+        return jsonify(success=False, error="No se encontró el empresario responsable."), 409
+
+    notification = NotificationModel.create_notification(
+        user_id=owner_id,
+        title="Recomendaciones para tu restaurante",
+        message=message,
+        type_="info",
+        link=url_for("owner.menu_management", restaurant_id=id),
+    )
+    try:
+        record_event(
+            "ADMIN_OWNER_IMPROVEMENT_NOTIFICATION",
+            resource_type="restaurant",
+            resource_id=id,
+            metadata={
+                "recipient_user_id": owner_id,
+                "notification_id": notification.get("id") if isinstance(notification, dict) else None,
+                "message_length": len(message),
+            },
+            actor_user_id=int(session.get("user_id")),
+        )
+    except Exception:
+        logger.exception("No se pudo registrar la auditoría de notificación al empresario")
+    return jsonify(success=True, message="La notificación se envió al empresario.")
 
 
 @admin_bp.route("/moderation/auto-filter", methods=["POST"])

@@ -805,6 +805,17 @@ a {
     margin-top: 4px;
 }
 
+.notification-open-link {
+    align-self: center;
+    flex-shrink: 0;
+    color: var(--primary);
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.notification-open-link:hover { text-decoration: underline; }
+
 .notification-dot {
     width: 8px;
     height: 8px;

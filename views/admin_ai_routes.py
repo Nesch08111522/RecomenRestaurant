@@ -12,11 +12,28 @@ from utils.admin_ai import (
     analyze,
     canonical_payload,
     provider_settings,
+    interpret_moderation_query,
 )
 from views.admin import _fresh_session_user
 
 logger = logging.getLogger(__name__)
 admin_ai_bp = Blueprint("admin_ai", __name__, url_prefix="/admin/api/ai")
+
+
+def _missing_audit_table(exc):
+    return getattr(exc, "sqlstate", None) == "42P01"
+
+
+def _audit_error_response(exc):
+    if _missing_audit_table(exc):
+        logger.error("Falta la tabla public.ai_decisions; aplica database/ai_decisions.sql")
+        return jsonify(
+            success=False,
+            error="Falta instalar la tabla de auditoría de IA. Ejecuta database/ai_decisions.sql en el SQL Editor de Supabase.",
+            code="ai_audit_schema_missing",
+        ), 503
+    logger.exception("No se pudo reservar auditoría de IA")
+    return jsonify(success=False, error="Auditoría no disponible", code="ai_audit_unavailable"), 503
 
 
 def admin_ai_required(fn):
@@ -82,9 +99,8 @@ def analyze_text():
                 ),
                 429,
             )
-    except Exception:
-        logger.exception("No se pudo reservar auditoría de IA")
-        return jsonify(success=False, error="Auditoría no disponible"), 503
+    except Exception as exc:
+        return _audit_error_response(exc)
     state, output, confidence, code = "unavailable", None, None, None
     try:
         cached = AIDecisionModel.find_recent(
@@ -131,3 +147,51 @@ def analyze_text():
     return jsonify(
         success=True, cached=(state == "cache"), decision_id=reservation, result=output
     )
+
+
+@admin_ai_bp.post("/moderation-query")
+@admin_ai_required
+def moderation_query():
+    """Convierte lenguaje natural en filtros cerrados; nunca ejecuta acciones."""
+    if not request.is_json:
+        return jsonify(success=False, error="Se requiere application/json"), 415
+    data = request.get_json(silent=True)
+    if not isinstance(data, dict) or set(data) != {"text"} or not isinstance(data["text"], str):
+        return jsonify(success=False, error="Envía únicamente text como cadena"), 400
+    text = data["text"].strip()
+    if not 5 <= len(text) <= 500:
+        return jsonify(success=False, error="La consulta debe tener entre 5 y 500 caracteres"), 400
+    from models.restaurant import RestaurantModel
+
+    districts = sorted({str(r.get("district", "")).strip() for r in RestaurantModel.get_pending() if r.get("district")})
+    clean, digest = canonical_payload(text)
+    actor = int(session["user_id"])
+    started = time.monotonic()
+    try:
+        _, _, model, _ = provider_settings()
+        reservation = AIDecisionModel.reserve(actor_user_id=actor, tipo="filtro_moderacion", entrada_hash=digest)
+        if reservation is None:
+            return jsonify(success=False, error="Límite de 10 solicitudes por minuto", code="rate_limit"), 429
+    except AIUnavailable as exc:
+        return jsonify(success=False, error="Proveedor no configurado", code=exc.code), 503
+    except Exception as exc:
+        return _audit_error_response(exc)
+
+    state, output, code = "ok", None, None
+    try:
+        parsed, model = interpret_moderation_query(clean, districts)
+        output = parsed.model_dump()
+    except (AIUnavailable, AIResponseInvalid) as exc:
+        state = "unavailable" if isinstance(exc, AIUnavailable) else "error"
+        code = getattr(exc, "code", "invalid_ai_response")
+    except Exception:
+        logger.exception("Error al convertir consulta de moderación")
+        state, code = "unavailable", "provider_unavailable"
+    try:
+        AIDecisionModel.finish(reservation, estado=state, entrada_resumida={"length": len(clean), "sha256": digest}, salida_ia=output, modelo=model, latencia_ms=int((time.monotonic() - started) * 1000), error_codigo=code)
+    except Exception:
+        logger.exception("Error al registrar consulta de moderación")
+        return jsonify(success=False, error="No se pudo registrar el análisis"), 503
+    if state != "ok":
+        return jsonify(success=False, error="No se pudo interpretar la consulta", code=code), 503
+    return jsonify(success=True, filters=output)

@@ -54,6 +54,15 @@
 
     <!-- Barra de búsqueda, orden y pestañas -->
     <section class="m-toolbar">
+        <div class="m-toolbar-row m-ai-query">
+            <label class="m-search" style="flex:1">
+                <i class="fas fa-wand-magic-sparkles"></i>
+                <input type="search" id="naturalQuery" placeholder="Ej.: restaurantes de Trujillo con problemas y score menor a 30" aria-label="Filtrar moderación con lenguaje natural">
+            </label>
+            <button type="button" class="m-btn primary" id="runNaturalQuery"><i class="fas fa-filter"></i> Aplicar filtro</button>
+            <button type="button" class="m-btn ghost" id="clearNaturalQuery">Limpiar</button>
+            <span id="naturalQueryStatus" role="status" aria-live="polite"></span>
+        </div>
         <div class="m-toolbar-row">
             <label class="m-search">
                 <i class="fas fa-search"></i>
@@ -96,7 +105,8 @@
         <div class="m-grid">
             {% for r in clean_pending %}
             <article class="item m-card ok" data-kind="restaurant" data-id="{{ r.id }}"
-                     data-i="{{ loop.index0 }}" data-name="{{ r.name }}" data-rating="{{ r.rating }}">
+                     data-i="{{ loop.index0 }}" data-name="{{ r.name }}" data-rating="{{ r.rating }}"
+                     data-district="{{ r.district|default('', true) }}" data-score="{{ r.food_score|default(0) }}" data-issues="0">
                 <div class="m-card-top">
                     <label class="m-check"><input type="checkbox" class="sel" aria-label="Seleccionar {{ r.name }}"></label>
                     <h4>{{ r.name }}</h4>
@@ -109,7 +119,16 @@
                     <li title="Precio promedio">💰 {{ MONEDA }}{{ r.avg_price }}</li>
                 </ul>
                 <div class="m-status-note ready"><i class="fas fa-info-circle"></i><div><strong>¿Por qué está pendiente?</strong><span>El registro todavía no ha sido aprobado por un administrador. El filtro preliminar no detectó observaciones; esto no sustituye la verificación manual.</span></div></div>
+                {% if r.menu_audit %}
+                <div class="m-menu-audit">
+                    <strong>Revisión de carta</strong>
+                    <span>{{ r.menu_audit.reviewed }} platos revisados · {{ r.menu_audit.unknown }} por verificar</span>
+                    {% if r.menu_audit.price_note %}<small>{{ r.menu_audit.price_note }}</small>{% endif %}
+                    {% if r.menu_audit.unknown %}<small>La información incompleta no se considera segura ni verificada.</small>{% endif %}
+                </div>
+                {% endif %}
                 <div class="m-actions">
+                    {% if r.owner_id %}<button type="button" class="m-btn ghost" data-notify-owner>Notificar mejoras</button>{% endif %}
                     <button type="button" class="m-btn ok grow" data-action="approve"><i class="fas fa-check"></i> Aprobar</button>
                     <a href="/restaurant/{{ r.id }}" target="_blank" rel="noopener" class="m-btn info"><i class="fas fa-eye"></i> Ver</a>
                 </div>
@@ -132,7 +151,8 @@
             {% for item in auto_flagged %}
             <article class="item m-card bad" data-kind="restaurant" data-id="{{ item.restaurant.id }}"
                      data-i="{{ loop.index0 }}" data-name="{{ item.restaurant.name }}"
-                     data-rating="{{ item.restaurant.rating or 0 }}" data-score="{{ item.food_score }}">
+                     data-rating="{{ item.restaurant.rating or 0 }}" data-score="{{ item.food_score }}"
+                     data-district="{{ item.restaurant.district|default('', true) }}" data-issues="1">
                 <div class="m-card-top">
                     <h4>{{ item.restaurant.name }}</h4>
                     <span class="m-id">#{{ item.restaurant.id }}</span>
@@ -150,7 +170,24 @@
                     <li><i class="fas fa-info-circle"></i> El filtro marcó este registro, pero no proporcionó un motivo detallado.</li>
                     {% endfor %}
                 </ul>
+                {% if item.menu_audit %}
+                <div class="m-menu-audit">
+                    <strong><i class="fas fa-utensils"></i> Auditoría de carta</strong>
+                    <span>{{ item.menu_audit.reviewed }} platos · {{ item.menu_audit.unknown }} por verificar</span>
+                    {% for finding in item.menu_audit.findings %}
+                    <div><b>{{ finding.name }}</b><ul>{% for observation in finding.observations %}<li>{{ observation }}</li>{% endfor %}</ul></div>
+                    {% endfor %}
+                    {% if item.menu_audit.price_note %}<small>{{ item.menu_audit.price_note }}</small>{% endif %}
+                    {% if item.menu_audit.unknown %}<small>Los datos incompletos quedan como desconocidos; no indican que el plato sea seguro.</small>{% endif %}
+                </div>
+                {% endif %}
+                <div class="m-copilot">
+                    <button type="button" class="m-btn ghost" data-ai-review><i class="fas fa-robot"></i> Explicar con Qwen</button>
+                    <div class="m-copilot-result" hidden></div>
+                    <small>Propuesta orientativa; la decisión sigue siendo tuya.</small>
+                </div>
                 <div class="m-actions">
+                    {% if item.restaurant.owner_id %}<button type="button" class="m-btn ghost" data-notify-owner>Notificar mejoras</button>{% endif %}
                     <button type="button" class="m-btn ok grow" data-action="approve"><i class="fas fa-check"></i> Aprobar</button>
                     <button type="button" class="m-btn no grow" data-action="reject"><i class="fas fa-times"></i> Rechazar</button>
                     <a href="/restaurant/{{ item.restaurant.id }}" target="_blank" rel="noopener" class="m-btn info"><i class="fas fa-eye"></i> Ver</a>
@@ -337,6 +374,13 @@
     /* Toolbar */
     .m-toolbar { background: #fff; border: 1px solid var(--m-line); border-radius: 12px; padding: 14px 16px; margin-bottom: 20px; box-shadow: 0 1px 4px rgba(0,0,0,.05); }
     .m-toolbar-row { display: flex; gap: 12px; flex-wrap: wrap; }
+    .m-ai-query { align-items: center; margin-bottom: 12px; }
+    #naturalQueryStatus { flex-basis: 100%; color: var(--gray); font-size: 12px; }
+    .m-copilot,.m-menu-audit { margin: 12px 0; padding: 12px 14px; border: 1px solid #dbe4f0; border-radius: 10px; background: #f8fafc; display: grid; gap: 8px; }
+    .m-copilot small,.m-menu-audit small,.m-menu-audit span { color: var(--gray); font-size: 12px; }
+    .m-copilot-result { padding-top: 8px; border-top: 1px solid #dbe4f0; }
+    .m-copilot-result p { margin: 6px 0; }
+    .m-copilot-result ul,.m-menu-audit ul { margin: 6px 0 0; padding-left: 20px; }
     .m-search, .m-sort {
         display: flex; align-items: center; gap: 8px; padding: 0 12px;
         background: #fafbfc; border: 1px solid var(--m-light); border-radius: 8px; color: var(--m-gray);
@@ -528,6 +572,7 @@
     const noRes    = $('#noRes');
     const bulk     = $('#bulk');
     const state    = { tab: 'all' };
+    let naturalFilters = null;
 
     /* ---------- Utilidades ---------- */
     const norm = s => (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
@@ -569,13 +614,14 @@
 
     /* ---------- Modal ---------- */
     const dlg = $('#dlg');
-    function ask({ title, text = '', notes = false, confirm = 'Confirmar', tone = 'primary' }) {
+    function ask({ title, text = '', notes = false, confirm = 'Confirmar', tone = 'primary', initialNotes = '', notesPlaceholder = 'Notas (opcional)' }) {
         return new Promise(resolve => {
             $('#dlgTitle').textContent = title;
             $('#dlgText').textContent = text;
             const area = $('#dlgNotes');
             area.hidden = !notes;
-            area.value = '';
+            area.value = initialNotes;
+            area.placeholder = notesPlaceholder;
             const ok = $('#dlgOk');
             ok.textContent = confirm;
             ok.className = 'm-btn ' + tone;
@@ -600,7 +646,18 @@
             let vis = 0;
 
             items.forEach(it => {
-                const match = !q || haystack(it).includes(q);
+                const textMatch = !q || haystack(it).includes(q);
+                let aiMatch = true;
+                if (naturalFilters) {
+                    aiMatch = it.dataset.kind === 'restaurant';
+                    if (naturalFilters.district) aiMatch = aiMatch && norm(it.dataset.district) === norm(naturalFilters.district);
+                    if (naturalFilters.max_score !== null && naturalFilters.max_score !== undefined) {
+                        const score = Number(it.dataset.score);
+                        aiMatch = aiMatch && (naturalFilters.score_operator === 'lt' ? score < naturalFilters.max_score : score <= naturalFilters.max_score);
+                    }
+                    if (naturalFilters.has_issues !== null && naturalFilters.has_issues !== undefined) aiMatch = aiMatch && (it.dataset.issues === '1') === naturalFilters.has_issues;
+                }
+                const match = textMatch && aiMatch;
                 it.hidden = !match;
                 if (match) vis++;
             });
@@ -636,6 +693,33 @@
     }
 
     search.addEventListener('input', debounce(apply));
+    $('#runNaturalQuery').addEventListener('click', async () => {
+        const input = $('#naturalQuery');
+        const status = $('#naturalQueryStatus');
+        if (!input.value.trim()) { status.textContent = 'Escribe qué restaurantes quieres ver.'; return; }
+        const button = $('#runNaturalQuery');
+        button.disabled = true;
+        status.textContent = 'Interpretando filtros…';
+        try {
+            const data = await post('/admin/api/ai/moderation-query', { text: input.value.trim() });
+            naturalFilters = data.filters;
+            apply();
+            const applied = [
+                data.filters.district && `Distrito: ${data.filters.district}`,
+                data.filters.max_score !== null && `Score ${data.filters.score_operator === 'lt' ? '<' : '≤'} ${data.filters.max_score}`,
+                data.filters.has_issues !== null && (data.filters.has_issues ? 'Con alertas' : 'Sin alertas')
+            ].filter(Boolean);
+            status.textContent = applied.length ? `Filtros aplicados: ${applied.join(' · ')}` : 'No se reconocieron filtros; prueba indicando distrito, alertas o un score máximo.';
+        } catch (error) {
+            status.textContent = error.message;
+        } finally { button.disabled = false; }
+    });
+    $('#clearNaturalQuery').addEventListener('click', () => {
+        naturalFilters = null;
+        $('#naturalQuery').value = '';
+        $('#naturalQueryStatus').textContent = '';
+        apply();
+    });
     document.addEventListener('keydown', e => {
         const typing = /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName);
         if (e.key === '/' && !typing && !dlg.open) { e.preventDefault(); search.focus(); search.select(); }
@@ -705,6 +789,57 @@
     }
 
     root.addEventListener('click', e => {
+        const notifyButton = e.target.closest('[data-notify-owner]');
+        if (notifyButton) {
+            const card = notifyButton.closest('.item');
+            const recommendations = $$('.m-issues li', card).map(li => li.textContent.trim());
+            const initialNotes = recommendations.length
+                ? `Hola, te compartimos estas oportunidades de mejora para tu restaurante:\n\n${recommendations.map((item, index) => `${index + 1}. ${item}`).join('\n')}`
+                : 'Hola, te recomendamos completar y revisar la información de ingredientes y descripciones de tu carta para que tus clientes reciban detalles más claros.';
+            ask({
+                title: `Enviar recomendaciones · ${labelOf(card)}`,
+                text: 'Revisa el mensaje. El empresario lo recibirá en su panel de notificaciones.',
+                notes: true,
+                initialNotes,
+                notesPlaceholder: 'Escribe recomendaciones claras y respetuosas…',
+                confirm: 'Enviar notificación',
+                tone: 'primary'
+            }).then(async message => {
+                if (message === null) return;
+                if (message.length < 15) { toast('Escribe una recomendación más detallada.', 'error'); return; }
+                notifyButton.disabled = true;
+                try {
+                    const data = await post(`/admin/moderation/restaurant/${card.dataset.id}/notify-owner`, { message });
+                    toast(data.message || 'Notificación enviada.');
+                } catch (error) {
+                    toast(error.message, 'error');
+                } finally { notifyButton.disabled = false; }
+            });
+            return;
+        }
+        const aiButton = e.target.closest('[data-ai-review]');
+        if (aiButton) {
+            const card = aiButton.closest('.item');
+            const resultBox = $('.m-copilot-result', card);
+            const issueText = $$('.m-issues li', card).map(li => li.textContent.trim()).join('; ');
+            aiButton.disabled = true;
+            resultBox.hidden = false;
+            resultBox.textContent = 'Qwen está preparando una explicación…';
+            post('/admin/api/ai/analyze', { text: `Restaurante: ${card.dataset.name}. Distrito: ${card.dataset.district}. Score de comida: ${card.dataset.score}. Alertas del filtro: ${issueText}` })
+                .then(data => {
+                    resultBox.replaceChildren();
+                    const decision = document.createElement('strong');
+                    decision.textContent = `Propuesta: ${data.result.decision} · Confianza ${Math.round(data.result.confidence * 100)}%`;
+                    const summary = document.createElement('p');
+                    summary.textContent = data.result.summary;
+                    const reasons = document.createElement('ul');
+                    data.result.reasons.forEach(reason => { const li = document.createElement('li'); li.textContent = reason; reasons.appendChild(li); });
+                    resultBox.append(decision, summary, reasons);
+                })
+                .catch(error => { resultBox.textContent = error.message; })
+                .finally(() => { aiButton.disabled = false; });
+            return;
+        }
         const btn = e.target.closest('[data-action]');
         if (!btn) return;
         review(btn.closest('.item'), btn.dataset.action);

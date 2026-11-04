@@ -10,7 +10,7 @@ class NotificationModel(DataModel):
     def get_by_user(cls, user_id, limit=10):
         """Obtener notificaciones de un usuario"""
         data = cls._load_data()
-        user_notifications = [n for n in data if n.get('user_id') == user_id]
+        user_notifications = [n for n in data if str(n.get('user_id')) == str(user_id)]
         user_notifications.sort(key=lambda x: x.get('timestamp', ''), reverse=True)
         return user_notifications[:limit]
     
@@ -18,20 +18,20 @@ class NotificationModel(DataModel):
     def get_unread_count(cls, user_id):
         """Contar notificaciones no leídas"""
         data = cls._load_data()
-        return len([n for n in data if n.get('user_id') == user_id and not n.get('read', False)])
+        return len([n for n in data if str(n.get('user_id')) == str(user_id) and not n.get('read', False)])
     
     @classmethod
     def mark_as_read(cls, user_id, notification_id):
         """Marcar una notificación como leída"""
         notification = cls.get_by_id(notification_id)
-        if not notification or notification.get('user_id') != user_id:
+        if not notification or str(notification.get('user_id')) != str(user_id):
             return False
         return bool(cls.update(notification_id, {'read': True}))
     
     @classmethod
     def mark_all_as_read(cls, user_id):
         """Marcar todas las notificaciones como leídas"""
-        notifications = [n for n in cls._load_data() if n.get('user_id') == user_id]
+        notifications = [n for n in cls._load_data() if str(n.get('user_id')) == str(user_id)]
         for notification in notifications:
             cls.update(notification.get('id'), {'read': True})
         return bool(notifications)

@@ -1043,21 +1043,58 @@ class AppController {
                         badge.style.display = data.unread_count > 0 ? 'flex' : 'none';
                     }
 
-                    list.innerHTML = data.notifications.map(n => `
-                        <div class="notification-item ${n.read ? 'read' : 'unread'}" 
-                             data-id="${n.id}"
-                             onclick="markNotificationRead(${n.id})">
-                            <div class="notification-icon ${n.type}">
-                                <i class="fas fa-${n.type === 'promo' ? 'tag' : n.type === 'favorite' ? 'heart' : 'bell'}"></i>
-                            </div>
-                            <div class="notification-content">
-                                <div class="notification-title">${n.title}</div>
-                                <div class="notification-message">${n.message}</div>
-                                <div class="notification-time">${new Date(n.timestamp).toLocaleDateString()}</div>
-                            </div>
-                            ${!n.read ? '<div class="notification-dot"></div>' : ''}
-                        </div>
-                    `).join('');
+                    list.replaceChildren();
+                    data.notifications.forEach(n => {
+                        const type = ['promo', 'favorite', 'reservation', 'info'].includes(n.type) ? n.type : 'info';
+                        const icons = { promo: 'tag', favorite: 'heart', reservation: 'calendar-check', info: 'bell' };
+                        const item = document.createElement('div');
+                        item.className = `notification-item ${n.read ? 'read' : 'unread'}`;
+                        item.dataset.id = String(n.id);
+                        if (!n.read) item.addEventListener('click', () => window.markNotificationRead?.(n.id));
+
+                        const icon = document.createElement('div');
+                        icon.className = `notification-icon ${type}`;
+                        const iconGlyph = document.createElement('i');
+                        iconGlyph.className = `fas fa-${icons[type]}`;
+                        icon.appendChild(iconGlyph);
+
+                        const content = document.createElement('div');
+                        content.className = 'notification-content';
+                        const title = document.createElement('div');
+                        title.className = 'notification-title';
+                        title.textContent = String(n.title || 'Notificación');
+                        const message = document.createElement('div');
+                        message.className = 'notification-message';
+                        message.textContent = String(n.message || '');
+                        const time = document.createElement('div');
+                        time.className = 'notification-time';
+                        const parsedDate = new Date(n.timestamp);
+                        time.textContent = Number.isNaN(parsedDate.getTime()) ? '' : parsedDate.toLocaleDateString();
+                        content.append(title, message, time);
+
+                        item.append(icon, content);
+                        if (typeof n.link === 'string' && n.link.startsWith('/') && !n.link.startsWith('//')) {
+                            const link = document.createElement('a');
+                            link.className = 'notification-open-link';
+                            link.href = n.link;
+                            link.textContent = 'Ver detalles';
+                            link.addEventListener('click', async event => {
+                                event.stopPropagation();
+                                if (!n.read) {
+                                    event.preventDefault();
+                                    await window.markNotificationRead?.(n.id);
+                                    window.location.assign(n.link);
+                                }
+                            });
+                            item.appendChild(link);
+                        }
+                        if (!n.read) {
+                            const dot = document.createElement('div');
+                            dot.className = 'notification-dot';
+                            item.appendChild(dot);
+                        }
+                        list.appendChild(item);
+                    });
                 } else {
                     list.innerHTML = `
                         <div class="notification-empty">

@@ -16,6 +16,12 @@ def _normalizar(value):
     return "".join(ch for ch in text if not unicodedata.combining(ch))
 
 
+def _affirmative(value):
+    if isinstance(value, str):
+        return value.strip().casefold() in {"1", "true", "yes", "si", "sí", "on"}
+    return value is True or (isinstance(value, (int, float)) and value == 1)
+
+
 def estado_pendiente(restaurante):
     if not isinstance(restaurante, dict):
         return False
@@ -24,11 +30,7 @@ def estado_pendiente(restaurante):
     )
     if status in _REJECTED or status in _APPROVED:
         return False
-    return not bool(
-        restaurante.get("verified")
-        or restaurante.get("rejected")
-        or restaurante.get("suspended")
-    )
+    return not any(_affirmative(restaurante.get(key)) for key in ("verified", "rejected", "suspended"))
 
 
 def evaluar_restaurante(restaurante, filtro):
