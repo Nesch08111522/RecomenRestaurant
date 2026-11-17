@@ -162,7 +162,7 @@ def profile():
     user = session.get('user')
     if not user:
         flash('Debes iniciar sesión para ver tu perfil', 'warning')
-        return redirect(url_for('auth.login'))
+        return redirect(url_for('auth.login', next=request.path))
     
     logger.info(f"👤 Cargando perfil de: {user.get('username')}")
     

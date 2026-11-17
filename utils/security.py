@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from urllib.parse import urljoin, urlparse
 
-from flask import g, request, session
+from flask import flash, g, request, session
 from flask_wtf.csrf import CSRFProtect
 
 from models.user import UserModel
@@ -75,6 +75,7 @@ def fresh_session_user():
     user = UserModel.get_by_id(user_id)
     if not UserModel.is_active(user) or session.get('auth_epoch', 0) != user.get('auth_epoch', 0):
         session.clear()
+        flash("Tu sesión expiró o se cerró en otro dispositivo. Inicia sesión de nuevo.", "warning")
         return None
     g.account_record = user
     identity = session_identity(user)
