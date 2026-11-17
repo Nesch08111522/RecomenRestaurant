@@ -141,7 +141,7 @@ def index():
         )
     except Exception as e:
         logger.exception(f"Error en index: {e}")
-        return render_template("index.html", restaurants=[], categories=[], stats={})
+        abort(500)
 
 
 @main_bp.route("/restaurant/<int:restaurant_id>")
@@ -292,6 +292,9 @@ def reserve(restaurant_id):
             time=time_str,
             guests=guests,
         )
+    except ValueError as error:
+        flash(str(error), "warning")
+        return redirect(detail_url)
     except Exception:
         logger.exception("Error guardando reserva")
         reservation = None
@@ -657,7 +660,15 @@ def add_review():
             )
             if not restaurant or not restaurant.get("verified"):
                 return jsonify({"error": "Restaurante no disponible"}), 404
+            from models.market import records
+            purchases = [o for o in records("market_orders",uid=session["user"]["id"],rid=restaurant_id,state="Entregado",paid=True)
+                         if not o.get("refunded") and not o.get("review")]
+            if not purchases:
+                return jsonify({"error":"Se requiere una compra pagada y entregada sin valoración previa."}), 403
+            order = purchases[0]
             review = ReviewModel.add_review(session["user"]["id"], restaurant_id, rating, comment.strip())
+            ReviewModel.update(review["id"], {"verified_purchase":True,"order_id":order["id"]})
+            PostgresDocumentRepository.update("market_orders",order["id"],{"review":review["id"]})
             stats = ReviewModel.get_rating_stats(restaurant_id)
             RestaurantModel.update(restaurant_id, {"rating": stats["average"]})
 

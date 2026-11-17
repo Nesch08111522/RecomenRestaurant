@@ -5,7 +5,7 @@ from utils.llm_provider import AIUnavailable, settings
 logger = logging.getLogger(__name__)
 
 class QwenIAError(RuntimeError):
-    """Error de configuración o respuesta al consultar Qwen a través de Groq."""
+    """Error de configuración o respuesta al consultar IA a través de OpenRouter."""
 
 
 DEFAULT_SYSTEM_PROMPT = (
@@ -15,7 +15,7 @@ DEFAULT_SYSTEM_PROMPT = (
 
 
 def obtener_respuesta_ia(pregunta, system_prompt=None, max_tokens=1200):
-    """Consulta el modelo Qwen servido por Groq y devuelve el texto generado."""
+    """Consulta el modelo configurado en OpenRouter y devuelve el texto generado."""
     try:
         provider = settings()
         with provider.client() as client:
@@ -30,22 +30,22 @@ def obtener_respuesta_ia(pregunta, system_prompt=None, max_tokens=1200):
             )
         content = response.choices[0].message.content
         if not isinstance(content, str) or not content.strip():
-            raise QwenIAError("Qwen no devolvió una respuesta de texto.")
+            raise QwenIAError("El modelo no devolvió una respuesta de texto.")
         return content.strip()
     except AIUnavailable as exc:
         raise QwenIAError("El proveedor de texto no está configurado correctamente.") from exc
     except QwenIAError:
         raise
     except Exception as exc:
-        logger.exception("Error al consultar Qwen/Groq")
+        logger.exception("Error al consultar OpenRouter")
         if getattr(exc, "status_code", None) == 429:
             raise QwenIAError(
-                "Se alcanzó el límite gratuito de Groq. Inténtalo más tarde."
+                "Se alcanzó el límite del proveedor de IA. Inténtalo más tarde."
             ) from exc
         if getattr(exc, "status_code", None) in {401, 403}:
             raise QwenIAError(
-                "Groq rechazó la clave. Revócala si fue expuesta y configura una clave nueva en .env."
+                "OpenRouter rechazó la clave. Revócala si fue expuesta y configura una clave nueva en .env."
             ) from exc
         raise QwenIAError(
-            "No se pudo conectar con Qwen/Groq. Revisa la clave, el modelo y la conexión."
+            "No se pudo conectar con OpenRouter. Revisa la clave, el modelo y la conexión."
         ) from exc

@@ -54,6 +54,8 @@ def create_app(test_config=None):
 
     app.register_blueprint(ai_bp)
     app.register_blueprint(market_bp)
+    from views.ecosystem import bp as ecosystem_bp
+    app.register_blueprint(ecosystem_bp)
     app.register_blueprint(communication_bp)
 
     app.register_blueprint(admin_ai_bp)
@@ -88,8 +90,8 @@ def create_app(test_config=None):
     def is_api_request():
         return (
             request.is_json
-            or request.path.startswith("/api/")
-            or request.path.startswith("/admin/api/")
+            or "/api/" in request.path
+            or request.accept_mimetypes.best == "application/json"
         )
 
     @app.errorhandler(CSRFError)
@@ -143,16 +145,16 @@ def create_app(test_config=None):
     @app.errorhandler(405)
     def method_not_allowed(error):
         if is_api_request():
-            return (
-                jsonify(
+            response = jsonify(
                     {
                         "success": False,
                         "error": "Método HTTP no permitido.",
                         "code": "method_not_allowed",
                     }
-                ),
-                405,
-            )
+                )
+            response.status_code = 405
+            response.headers["Allow"] = ", ".join(error.valid_methods or [])
+            return response
 
         return render_template("500.html"), 405
 

@@ -567,15 +567,16 @@ class AppController {
     }
 
     async loadFavorites() {
+        // Verificar si el usuario está autenticado antes de realizar la petición
+        const isLoggedIn = document.querySelector('.user-dropdown') !== null;
+        
         try {
             const response = await fetch('/auth/api/favorites');
             if (response.ok) {
                 const data = await response.json();
-                if (data.success && data.favorites) {
-                    this.state.favorites = data.favorites.map(f => f.restaurant_id);
-                    this.saveState();
-                    console.log('✅ Favoritos cargados desde servidor:', this.state.favorites);
-                }
+                this.state.favorites = data.favorites.map(f => f.restaurant_id);
+                this.saveState();
+                console.log('✅ Favoritos cargados desde servidor:', this.state.favorites);
             } else {
                 console.warn('⚠️ Error cargando favoritos, usando caché local');
             }

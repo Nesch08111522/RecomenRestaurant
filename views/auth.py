@@ -7,6 +7,7 @@ from werkzeug.security import generate_password_hash
 import re
 import logging
 from utils import account_security as protection
+from flask_login import login_required
 
 # Configurar logging
 logging.basicConfig(level=logging.INFO)
@@ -280,7 +281,7 @@ def toggle_favorite():
             return jsonify({'error': 'No autenticado'}), 401
         
         data = request.get_json(silent=True) or {}
-        if not data:
+        if not isinstance(data, dict) or not data:
             return jsonify({'error': 'Datos inválidos'}), 400
         
         try:
@@ -321,7 +322,8 @@ def toggle_favorite():
         logger.exception("Error en toggle_favorite")
         return jsonify({'error': 'No se pudo actualizar el favorito', 'success': False}), 500
 
-@auth_bp.route('/api/favorites', methods=['GET'])
+@auth_bp.route("/api/favorites", methods=["GET"])
+@login_required 
 def get_favorites_api():
     """API para obtener favoritos del usuario"""
     try:

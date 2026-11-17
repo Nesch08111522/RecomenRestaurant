@@ -13,7 +13,7 @@ from database.repository import PostgresDocumentRepository as Repo, document_tra
 from models.commerce_settings import commerce_settings
 from logic.market import (CHANNELS, LIMA, MarketError, compatible, integer, key, money, now,
                           weekly_plan, words)
-from models.market import coupon_discount, food_preferences, catalog, kitchen, lock_business, loyalty_discount, place_order, records, transition
+from models.market import reward_balance, coupon_discount, food_preferences, catalog, kitchen, lock_business, loyalty_discount, place_order, records, transition
 from models.restaurant import RestaurantModel
 from models.user import UserModel
 from models.review import ReviewModel
@@ -61,6 +61,9 @@ def browse():
     profile = food_preferences(UserModel.get_by_id(user["id"])) if user else {}
     history = records("market_orders", uid=user["id"]) if user else []
     rows, filters = discover(catalog(), request.args, profile, history)
+    from views.ecosystem import current_context
+    from logic.context import contextualize
+    rows = contextualize(rows, current_context(), None, history)
     origin = normalize_coordinates(session.get("user_lat"), session.get("user_lng"))
     radius = integer(request.args["km"], 1, 100) if request.args.get("km") else None
     if radius and not origin:
@@ -193,9 +196,17 @@ def cart():
             basket = {k:v for k,v in basket.items() if k != "coupon"}
             session["market_cart"] = basket
             flash("El cupón caducó. Revisa el importe actualizado.", "warning")
+    points = reward_balance(identity()["id"],basket["rid"]) if basket else 0
+    if basket.get("reward"):
+        if points>=10 and store.get("reward"):
+            discount = min(subtotal,discount+store["reward"])
+        else:
+            basket.pop("reward",None)
+            session["market_cart"]=basket
+            flash("La recompensa ya no está disponible.","warning")
     diners = integer(request.args.get("personas", 1), 1, 30)
     share, extra = divmod(subtotal - discount, diners)
-    return render_template("market/cart.html", cart=basket, lines=lines, store=store,
+    return render_template("market/cart.html", points=points, cart=basket, lines=lines, store=store,
                            total=subtotal - discount, discount=discount, diners=diners, share=share, extra=extra,
                            addresses=((UserModel.get_by_id(identity()["id"]) or {}).get("profile") or {}).get("addresses", []) if basket else [],
                            digital=bool(basket and payments.enabled(basket["rid"])))
@@ -219,7 +230,7 @@ def offer_detail(oid):
 @market_bp.get("/oferta/<int:oid>/foto")
 def offer_photo(oid):
     offer = Repo.get_by_id("market_offers", oid)
-    if not offer or not offer.get("photo_id") or offer.get("paused"):
+    if not offer or not offer.get("photo_id") or offer.get("paused") or offer.get("review_state","approved") != "approved":
         abort(404)
     business = RestaurantModel.get_by_id(offer["rid"])
     if not business or not business.get("verified"):
@@ -229,6 +240,16 @@ def offer_photo(oid):
         abort(404)
     return Response(base64.b64decode(photo["thumbnail"]), mimetype="image/jpeg",
                     headers={"Cache-Control":"private, max-age=60"})
+
+
+@market_bp.post("/carrito/recompensa")
+def cart_reward():
+    identity()
+    basket = session.get("market_cart")
+    if not basket:
+        raise MarketError("Agrega una oferta al carrito.")
+    session["market_cart"] = {**basket,"reward":request.form.get("use")=="on","key":str(uuid4())}
+    return redirect(url_for("market.cart"))
 
 
 @market_bp.post("/carrito/cupon")
@@ -261,7 +282,7 @@ def buy():
     order = place_order(uid, basket["rid"], basket["lines"], request.form.get("channel"),
                         [request.form.get("zone", "")[:100], request.form.get("address", "")[:220]],
                         parse_slot(request.form.get("slot")), basket["key"], method, integer(request.form.get("total"), 0, 2**63-1),
-                        (request.form.get("lat"), request.form.get("lng")), basket.get("coupon", ""))
+                        (request.form.get("lat"), request.form.get("lng")), basket.get("coupon", ""), bool(basket.get("reward")))
     for oid, page in basket.get("tickets", {}).items():
         observe(signer().dumps((page, int(oid))), "ordered", int(oid))
     session.pop("market_cart", None)

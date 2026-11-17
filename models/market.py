@@ -57,6 +57,8 @@ def catalog():
                                   (at.date().isoformat(),)).fetchall()
     for result in candidates:
         listing = result["payload"]
+        if listing.get("review_state", "approved") != "approved":
+            continue
         rid = listing["rid"]
         store = kitchens.get(rid)
         dish = dishes.get(listing["dish_id"])
@@ -103,7 +105,14 @@ def food_preferences(user):
     return prefs
 
 
-def place_order(uid, rid, cart, channel, destination, slot, request_key, method, expected=None, coordinates=(None, None), coupon_code=""):
+def reward_balance(uid, rid):
+    history = records("market_orders",uid=uid,rid=rid)
+    earned = sum(o["total"]//1000 for o in history if o["state"]=="Entregado" and o.get("paid") and not o.get("refunded"))
+    used = sum(o.get("reward_points",0) for o in history if o["state"]!="Cancelado" and not o.get("refunded"))
+    return earned-used
+
+
+def place_order(uid, rid, cart, channel, destination, slot, request_key, method, expected=None, coordinates=(None, None), coupon_code="", use_reward=False):
     try:
         request_key = str(UUID(request_key))
     except (ValueError, TypeError, AttributeError):
@@ -139,7 +148,7 @@ def place_order(uid, rid, cart, channel, destination, slot, request_key, method,
         for oid, raw_qty in sorted(cart.items()):
             qty = integer(raw_qty, 1, 100)
             offer = Repo.get_by_id("market_offers", oid)
-            if not offer or offer["rid"] != rid:
+            if not offer or offer["rid"] != rid or offer.get("review_state","approved") != "approved":
                 raise MarketError("El carrito contiene un producto de otro negocio.")
             if not compatible(offer, prefs["avoid"]) or not set(prefs["diets"]).issubset(offer.get("diets", [])):
                 raise MarketError("Un producto del carrito no cumple tus restricciones actuales.")
@@ -168,13 +177,21 @@ def place_order(uid, rid, cart, channel, destination, slot, request_key, method,
                           "unit": price, "cost": unit_cost, "saving": offer["price"] - price, "usage": usage})
             total += qty * price
         discount = max(loyalty_discount(uid, rid, total, store), coupon_discount(store, coupon_code, total))
+        reward_points = 0
+        if use_reward:
+            reward = store.get("reward",0)
+            if not reward or reward_balance(uid,rid)<10:
+                raise MarketError("La recompensa ya no está disponible. Revisa tus puntos.")
+            reward_points = 10
+            discount = min(total, discount+reward)
+
         if expected is not None and total - discount != expected:
             raise MarketError("El precio cambió. Vuelve al carrito para revisar el total actualizado.")
         save_kitchen(store)
         order = Repo.create("market_orders", {"uid": uid, "rid": rid, "business": business["name"], "lines": lines,
             "day": slot.date().isoformat(), "slot": slot.isoformat(), "total": total - discount, "discount": discount, "channel": channel,
             "destination": destination if channel == "Delivery" else [], "method": method, "paid": False,
-            "coupon": coupon_code, "state": "Recibido", "request_key": request_key, "created": at.isoformat(),
+            "reward_points":reward_points, "coupon": coupon_code, "state": "Recibido", "request_key": request_key, "created": at.isoformat(),
             "history": [{"state": "Recibido", "at": at.isoformat()}]})
         NotificationModel.create_notification(business["owner_id"], "Nuevo pedido", f"Pedido {order['id']} para {slot:%d/%m %H:%M}.",
                                               link=f"/mercado/cocina/{rid}")

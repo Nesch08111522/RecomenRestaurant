@@ -74,3 +74,22 @@ def test_webhook_uses_provider_amount_and_ignores_duplicates(sale, monkeypatch):
     assert Repo.get_by_id("market_orders",order["id"])["payment_id"] == pid
     assert Repo.get_by_id("market_offers",offer)["stock"] == 1
 
+
+def test_rewards_retries_and_cancellation(sale):
+    from models.market import reward_balance
+    rid, offer, slot = sale
+    uid = 750002
+    store = kitchen(rid)
+    save_kitchen({**store, "reward": 500})
+    Repo.create("market_orders", {"rid": rid, "uid": uid, "state": "Entregado", "paid": True,
+                                  "total": 10000, "day": "2020-01-01", "slot": "2020-01-01T12:00:00", "lines": []})
+    assert reward_balance(uid, rid) == 10
+    request_key = str(uuid4())
+    order = place_order(uid, rid, {offer: 1}, "Recojo", [], slot, request_key, "Contraentrega", use_reward=True)
+    assert order["total"] == 1000
+    assert reward_balance(uid, rid) == 0
+    repeat = place_order(uid, rid, {offer: 1}, "Recojo", [], slot, request_key, "Contraentrega", use_reward=True)
+    assert repeat["id"] == order["id"]
+    transition(order, "Cancelado", buyer=True)
+    assert reward_balance(uid, rid) == 10
+

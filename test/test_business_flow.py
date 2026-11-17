@@ -72,7 +72,7 @@ def test_three_roles(test_database, monkeypatch):
     assert guest.post("/auth/api/favorites/toggle", headers=guest_headers, json={"restaurant_id": rid}).get_json()["favorited"]
     for rating in ("incorrecta", True, 6):
         assert guest.post("/api/reviews", headers=guest_headers, json={"restaurant_id": rid, "rating": rating}).status_code == 400
-    assert guest.post("/api/reviews", headers=guest_headers, json={"restaurant_id": rid, "rating": "4"}).get_json()["stats"]["average"] == 4
+    assert guest.post("/api/reviews", headers=guest_headers, json={"restaurant_id": rid, "rating": "4"}).status_code == 403
     class FixedClock(datetime):
         @classmethod
         def now(cls, tz=None):
@@ -137,15 +137,15 @@ def test_category_and_audit_roll_back_together(test_database, monkeypatch):
     assert CategoryModel.get_by_name(name) is None
 
 
-def test_qwen_settings_are_shared(monkeypatch):
+def test_provider_settings_are_shared(monkeypatch):
     from utils.admin_ai import provider_settings
-    from utils.llm_provider import GROQ_URL, settings
+    from utils.llm_provider import OPENROUTER_URL, settings
 
-    for variable in ("QWEN_API_KEY", "ADMIN_QWEN_BASE_URL", "ADMIN_QWEN_MODEL"):
+    for variable in ("AI_API_KEY", "ADMIN_AI_API_KEY", "ADMIN_AI_BASE_URL", "ADMIN_AI_MODEL"):
         monkeypatch.delenv(variable, raising=False)
-    monkeypatch.setenv("GROQ_API_KEY", "solo-prueba")
-    monkeypatch.setenv("QWEN_BASE_URL", GROQ_URL)
-    monkeypatch.setenv("QWEN_MODEL", "modelo-de-prueba")
-    assert provider_settings()[:3] == settings()[:3] == ("solo-prueba", GROQ_URL, "modelo-de-prueba")
-    monkeypatch.setenv("ADMIN_QWEN_MODEL", "modelo-administrativo")
+    monkeypatch.setenv("OPENROUTER_API_KEY", "solo-prueba")
+    monkeypatch.setenv("AI_BASE_URL", OPENROUTER_URL)
+    monkeypatch.setenv("AI_MODEL", "modelo-de-prueba")
+    assert provider_settings()[:3] == settings()[:3] == ("solo-prueba", OPENROUTER_URL, "modelo-de-prueba")
+    monkeypatch.setenv("ADMIN_AI_MODEL", "modelo-administrativo")
     assert provider_settings().model == "modelo-administrativo"

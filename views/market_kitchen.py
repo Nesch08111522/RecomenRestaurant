@@ -8,6 +8,7 @@ from models.market_measurement import signer
 
 from database.repository import PostgresDocumentRepository as Repo, document_transaction
 from models.commerce_settings import commerce_settings
+from logic.context import TAGS
 from logic.market import (BUSINESSES, CHANNELS, OCCASIONS, MarketError, forecast, integer, key, money,
                           now, quote, recipe_cost, words)
 from models.dish import DishModel
@@ -55,7 +56,7 @@ def desk_page(rid, **extra):
     surplus = sum(o["stock"] for o in finished)
     target = now().date() + timedelta(days=1)
     predictions = [(d["name"], forecast(orders, d["id"], target)) for d in records("dishes", restaurant_id=rid)]
-    return render_template("market/kitchen.html", business=business, store=store, offers=offers[::-1],
+    return render_template("market/kitchen.html", context_tags=TAGS, business=business, store=store, offers=offers[::-1],
         dishes=records("dishes", restaurant_id=rid), orders=orders[::-1], metrics=indicators(orders),
         moves=records("market_movements", rid=rid)[-12:][::-1], forecasts=predictions, target=target,
         produced=produced, surplus=surplus,
@@ -99,6 +100,9 @@ def configure(rid):
         store.update(kind=form["kind"], channels=channels, zones=zones, pickup=pickup, pin=pin, radius=radius, team=staff[:20],
                      team_names=form.get("team", "")[:500], capacity=integer(form.get("capacity", 20), 1, 200),
                      lead=integer(form.get("lead", 0), 0, 1440), loyalty=integer(form.get("loyalty", 0), 0, 30))
+        store["reward"] = money(form.get("reward", str(store.get("reward",0)/100)))
+        store["seats"] = integer(form.get("seats", store.get("seats",20)), 1, 500)
+        store["table_minutes"] = integer(form.get("table_minutes", store.get("table_minutes",90)), 15, 240)
         save_kitchen(store)
         RestaurantModel.update(rid, {"market_channels": channels})
     return return_desk(rid, "Configuración comercial guardada.")
@@ -217,13 +221,14 @@ def publish(rid):
                 "ingredients": list(recipe), "tags": words(f.get("tags", "")[:150]), "is_available": True, "menu_date": day.isoformat()})
         listing = {"rid": rid, "dish_id": dish["id"], "day": day.isoformat(), "stock": stock, "price": price,
                    "diets": [d for d in commerce_settings()['diets'] if d in f.getlist("diet")],
+                   "context_tags": [tag for tag in TAGS if tag in f.getlist("context_tag")],
                    "variant": f.get("variant", "").strip()[:80], "name": dish["name"], "occasion": occasion, "cross": cross, "recipe": recipe, "ends": ends.isoformat(),
                    "allergens": words(f.get("allergens", "")[:300]) if f.get("declared") else None,
                    "origin": f.get("origin", "")[:240], "preparation": f.get("preparation", "")[:400],
                    "prepared": f.get("prepared", "")[:16], "rescue_price": rescue, "rescue_until": ends.isoformat() if rescue else None,
                    "photo_hash": photo.get("fingerprint"), "vision_used": bool(photo.get("vision")),
                    "vision_accepted": bool(photo.get("vision") and key(photo["name"]) == key(dish["name"])),
-                   "produced": stock, "created": at.isoformat()}
+                   "review_state": "pending", "produced": stock, "created": at.isoformat()}
         if listing["photo_hash"] and records("market_offers", rid=rid, photo_hash=listing["photo_hash"]):
             raise MarketError("Esta fotografía ya figura en una oferta del negocio.")
         if photo:

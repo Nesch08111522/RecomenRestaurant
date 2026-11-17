@@ -189,7 +189,7 @@
 (function () {
     'use strict';
 
-    const STYLE_URL = 'https://tiles.openfreemap.org/styles/liberty';
+const STYLE_URL = 'https://tiles.openfreemap.org/styles/positron';
     const COLOR = (typeof APP_CONFIG !== 'undefined' && APP_CONFIG.primaryColor) || '#ff385c';
     const DEFAULT_CENTER = [-79.03, -8.11]; // [lng, lat] Trujillo
 
@@ -278,6 +278,20 @@
             maxPitch: 70,
             attributionControl: { compact: true }
         });
+        map.on('style.load', () => {
+    const style = map.getStyle();
+
+    console.log('Fuentes del mapa:', style.glyphs);
+    console.log('Estilo cargado:', style.name);
+});
+        map.on('error', (e) => {
+    console.error('❌ Error MapLibre:', {
+        message: e.error?.message,
+        sourceId: e.sourceId,
+        sourceType: e.sourceType,
+        tile: e.tile
+    });
+});
         map.getCanvas().setAttribute('aria-label', 'Mapa de restaurantes');
 
         const popup = new maplibregl.Popup({ closeButton: false, offset: 14, maxWidth: '240px' });
@@ -464,19 +478,27 @@
             });
 
             // Edificios en 3D (si el estilo no los trae)
-            if (!map.getLayer('building-3d') && map.getSource('openmaptiles')) {
-                map.addLayer({
+if (!map.getLayer('rm-buildings-3d') && map.getSource('openmaptiles')) {
+                    map.addLayer({
                     id: 'rm-buildings-3d',
                     type: 'fill-extrusion',
                     source: 'openmaptiles',
                     'source-layer': 'building',
                     minzoom: 14,
                     paint: {
-                        'fill-extrusion-color': '#e5e7eb',
-                        'fill-extrusion-height': ['coalesce', ['get', 'render_height'], 8],
-                        'fill-extrusion-base': ['coalesce', ['get', 'render_min_height'], 0],
-                        'fill-extrusion-opacity': 0.8
-                    }
+    'fill-extrusion-color': '#e5e7eb',
+    'fill-extrusion-height': [
+        'coalesce',
+        ['to-number', ['get', 'render_height']],
+        8
+    ],
+    'fill-extrusion-base': [
+        'coalesce',
+        ['to-number', ['get', 'render_min_height']],
+        0
+    ],
+    'fill-extrusion-opacity': 0.8
+}
                 }, 'rm-clusters');
             }
 
@@ -580,7 +602,7 @@
             }
         };
         window.mapGL = api;
-        const last = window.app?.state.userLocation;
+const last = window.app?.state?.userLocation;
         if (last) showPosition(last.lat,last.lng);
     }
 

@@ -5,7 +5,7 @@
 <div class="market-stats"><div><strong>{{ metrics.income|soles }}</strong>Ventas entregadas</div><div><strong>{{ metrics.sales }}</strong>Pedidos completados</div><div><strong>{{ metrics.rescued }}</strong>Porciones rescatadas</div><div><strong>{{ metrics.repeat }} / {{ metrics.customers }}</strong>Clientes que repiten</div></div>
 {% if business.owner_id==session.user.id %}
 <details {% if not store.channels %}open{% endif %}><summary>Mi negocio y canales de venta</summary>
-<form class="market-form" method="post" action="{{ url_for('market.configure',rid=business.id) }}">{{ token() }}
+<form class="market-form" method="post" action="{{ url_for('market.configure',rid=business.id) }}">{{ token() }}<label>Recompensa por 10 puntos (S/, 0 desactiva)<input name="reward" type="number" min="0" step=".01" value="{{ (store.reward or 0)/100 }}"></label><label>Plazas para reservas simultáneas<input name="seats" type="number" min="1" max="500" value="{{ store.seats or 20 }}"></label><label>Duración de mesa (minutos)<input name="table_minutes" type="number" min="15" max="240" value="{{ store.table_minutes or 90 }}"></label>
 <label>Tipo de negocio<select name="kind">{% for k in kinds %}<option {% if k==store.kind %}selected{% endif %}>{{ k }}</option>{% endfor %}</select></label>
 <fieldset><legend>Modalidades</legend>{% for c in channels %}<label class="check"><input type="checkbox" name="channels" value="{{ c }}" {% if c in store.channels %}checked{% endif %}>{{ c }}</label>{% endfor %}</fieldset>
 {{ field('Distritos o zonas de delivery, separados por coma','zones',value=store.zones|join(', ')) }}
@@ -30,7 +30,7 @@
 {% if draft %}<p>{{ draft.quality }} · {{ 'Sugerencia de Gemini disponible para edición' if draft.vision else 'Completa el borrador manualmente' }}.</p>{% endif %}
 <label>Dictado o texto<input id="dictation" placeholder="Agrega doce porciones de pollo para mañana a dieciséis soles"></label>
 <div class="market-inline"><button type="button" id="microphone">Dictar</button><button type="button" id="parse-voice">Preparar borrador</button></div><p id="voice-status" role="status"></p></details>
-<details open id="offer-editor"><summary>Publicar porciones</summary><form class="market-form" id="offer-form" method="post" action="{{ url_for('market.publish',rid=business.id) }}">{{ token() }}<label>Variante de esta oferta (opcional)<input name="variant" maxlength="80" placeholder="Ej. porción familiar"></label>
+<details open id="offer-editor"><summary>Publicar porciones</summary><form class="market-form" id="offer-form" method="post" action="{{ url_for('market.publish',rid=business.id) }}">{{ token() }}<fieldset><legend>Características declaradas para recomendaciones</legend>{% for tag in context_tags %}<label class="check"><input type="checkbox" name="context_tag" value="{{ tag }}">{{ tag }}</label>{% endfor %}</fieldset><label>Variante de esta oferta (opcional)<input name="variant" maxlength="80" placeholder="Ej. porción familiar"></label>
 <label>Plato del catálogo<select name="dish"><option value="">Crear plato</option>{% for d in dishes %}<option value="{{ d.id }}">{{ d.name }}</option>{% endfor %}</select></label>
 {{ field('Nombre del plato nuevo','name',value=draft.name if draft else '') }}
 <input type="hidden" name="draft_clock" value="{{ draft_clock }}">

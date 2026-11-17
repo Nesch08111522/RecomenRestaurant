@@ -38,6 +38,8 @@ def test_market_sale_reaches_inventory_reputation_and_repeat_purchase(test_datab
         "price":"15","stock":8,"recipe":"arroz=200","occasion":"Almuerzo","cross":"declared","declared":"on"}).status_code == 302
     listing = records("market_offers", rid=rid)[0]
     oid = listing["id"]
+    assert buyer.get(f"/mercado/oferta/{oid}/foto").status_code == 404
+    assert admin.post("/experiencias/publicaciones",data={"offer":oid,"state":"approved","note":"Ingredientes y descripción revisados"}).status_code == 302
     assert buyer.get(f"/mercado/oferta/{oid}/foto").mimetype == "image/jpeg"
     assert owner.post(desk+"/simular", data={"recipe":"arroz=200","price":15,"fixed":30}).status_code == 200
     assert stranger.post(desk+"/inventario", data={"name":"Arroz","quantity":2,"move":"Merma"}).status_code == 403

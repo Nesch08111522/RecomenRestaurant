@@ -24,13 +24,13 @@
 <button class="sr-backdrop" hidden aria-label="Cerrar navegación"></button>
 <nav class="sr-sidebar" id="sr-navigation" aria-label="Menú principal">
   <div class="sr-side-top"><strong class="sr-group">Navegación</strong><button type="button" class="sr-icon sr-collapse" aria-label="Contraer menú" title="Contraer menú">⇤</button></div>
-  {{ navlink('main.index','Inicio','compass') }}{{ navlink('market.browse','Mercado','basket-shopping') }}
+  {{ navlink('main.index','Inicio','compass') }}{{ navlink('market.browse','Mercado','basket-shopping') }}{{ navlink('ecosystem.home','Mi momento','compass') }}
   {% if user %}
-    <strong class="sr-group">Mi espacio</strong>
+    <strong class="sr-group">Mi espacio</strong>{{ navlink('ecosystem.groups','Comer en grupo','users') }}{{ navlink('ecosystem.rewards','Mis recompensas','tags') }}{{ navlink('ecosystem.scan','SmartScan','compass') }}
     {{ navlink('auth.favorites','Favoritos','heart') }}{{ navlink('market.orders','Mis pedidos','receipt') }}
     {{ navlink('comunicacion.inbox','Mensajes','comment') }}{{ navlink('comunicacion.notifications','Notificaciones','bell') }}{{ navlink('comunicacion.cases','Reclamos','life-ring') }}
     {% if user.role == 'admin' %}
-    <strong class="sr-group">Administración</strong>{{ navlink('admin.dashboard','Resumen','chart-pie') }}{{ navlink('admin.restaurants','Establecimientos','store') }}{{ navlink('admin.users','Usuarios','users') }}{{ navlink('admin.categories','Categorías','tags') }}{{ navlink('admin.moderation_dashboard','Moderación','shield-halved') }}{{ navlink('admin.operations','Pedidos y pagos','receipt') }}{{ navlink('admin.controls','Configuración y auditoría','sliders') }}{{ navlink('admin.analytics_page','Analítica','chart-line') }}
+    <strong class="sr-group">Administración</strong>{{ navlink('ecosystem.city','Inteligencia de ciudad','chart-line') }}{{ navlink('ecosystem.publications','Revisar ofertas','shield-halved') }}{{ navlink('admin.dashboard','Resumen','chart-pie') }}{{ navlink('admin.restaurants','Establecimientos','store') }}{{ navlink('admin.users','Usuarios','users') }}{{ navlink('admin.categories','Categorías','tags') }}{{ navlink('admin.moderation_dashboard','Moderación','shield-halved') }}{{ navlink('admin.operations','Pedidos y pagos','receipt') }}{{ navlink('admin.controls','Configuración y auditoría','sliders') }}{{ navlink('admin.analytics_page','Analítica','chart-line') }}
     {% elif user.role == 'business_owner' %}
     <strong class="sr-group">Mi negocio</strong>{{ navlink('owner.dashboard','Panel del negocio','store') }}{{ navlink('admin.new_restaurant','Registrar negocio','circle-plus') }}
     {% endif %}

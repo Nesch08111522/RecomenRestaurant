@@ -42,6 +42,23 @@ def identify(upload):
              "quality": "Resolución baja" if min(width, height) < 320 else "Resolución suficiente",
              "vision": False}
     draft["thumbnail"] = base64.b64encode(thumb.getvalue()).decode()
+    if os.getenv("AI_VISION_MODEL") and (os.getenv("OPENROUTER_API_KEY") or os.getenv("AI_API_KEY")):
+        try:
+            from utils.llm_provider import settings
+            provider = settings()
+            prompt = "Identifica de forma tentativa el plato o carta visible. Devuelve JSON con name, description, category, tags (lista). No infieras alérgenos ni seguridad alimentaria."
+            with provider.client() as client:
+                result = client.chat.completions.create(model=os.environ["AI_VISION_MODEL"],
+                    messages=[{"role":"user","content":[{"type":"text","text":prompt},
+                              {"type":"image_url","image_url":{"url":"data:image/jpeg;base64,"+base64.b64encode(raw).decode()}}]}],
+                    response_format={"type":"json_object"}, max_tokens=400, temperature=0)
+            data = json.loads(result.choices[0].message.content)
+            draft.update(name=str(data["name"])[:100], description=str(data.get("description",""))[:300],
+                         category=str(data.get("category",""))[:60],
+                         tags=", ".join(str(t)[:40] for t in data.get("tags",[])[:5]), vision=True)
+        except Exception:
+            pass
+        return draft
     if not os.getenv("GEMINI_API_KEY"):
         return draft
     try:

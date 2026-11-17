@@ -35,7 +35,9 @@ Abre `http://127.0.0.1:5000`. El alta pública admite comensales y empresarios. 
 
 ## Inteligencia artificial
 
-Configura la clave de Groq en `QWEN_API_KEY` y el identificador habilitado para tu cuenta en `QWEN_MODEL`. Búsqueda, chat y extracción de texto comparten configuración. El copiloto administrativo admite `ADMIN_QWEN_MODEL` y exige el endpoint de Groq. La lectura de fotos utiliza `GEMINI_API_KEY` y `GEMINI_MODEL=gemini-2.5-flash`.
+Pega tu clave de OpenRouter en `OPENROUTER_API_KEY` dentro de `.env`. Búsqueda, chat y copiloto administrativo comparten `AI_BASE_URL=https://openrouter.ai/api/v1` y `AI_MODEL=openai/gpt-4o-mini`. Para contratar un modelo cambia `AI_MODEL` por su identificador en OpenRouter. `ADMIN_AI_MODEL` permite escoger uno diferente para administración.
+
+El análisis de platos utiliza `AI_VISION_MODEL`, cuyo modelo debe admitir imágenes. Se configuró inicialmente `openai/gpt-4o-mini`, con disponibilidad y selección dependientes del proveedor. La extracción de cartas que usa Gemini conserva `GEMINI_API_KEY` y `GEMINI_MODEL=gemini-2.5-flash`. Guarda las claves únicamente en `.env` privado y conserva `.env.example` sin credenciales.
 
 Los formularios POST utilizan `csrf_token`. Los clientes JSON del sitio envían el token de la página en `X-CSRFToken`. El cierre de sesión también requiere POST.
 
