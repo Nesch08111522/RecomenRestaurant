@@ -136,6 +136,10 @@
       <legend>Modalidad de atención <span class="req">*</span></legend>
       <div class="service-mode-options">
         <label class="service-mode-option">
+          <input class="service-mode-radio" type="radio" name="service_mode" value="pickup_only" {% if f_service_mode == 'pickup_only' %}checked{% endif %}>
+          <span class="service-mode-card"><span class="service-mode-copy"><strong>Solo recojo</strong><small>Entrega en un punto acordado.</small></span></span>
+        </label>
+        <label class="service-mode-option">
           <input class="service-mode-radio" type="radio" name="service_mode" value="dine_in_only" required {% if f_service_mode == 'dine_in_only' %}checked{% endif %}>
           <span class="service-mode-card">
             <img src="{{ url_for('static', filename='images/service-dine-in.svg') }}" alt="">
@@ -190,10 +194,11 @@
     <h2 class="section-title">Ubicación</h2>
     <div class="form-group">
       <div class="label-row">
-        <label for="addressInput">Dirección <span class="req">*</span></label>
+        <label for="addressInput">Dirección pública (opcional)</label>
         <button type="button" class="link-btn" id="useMapAddress"><i class="fas fa-crosshairs"></i> Usar dirección del pin</button>
       </div>
-      <input type="text" id="addressInput" name="address" class="form-input" value="{{ f_address }}" required>
+      <input type="text" id="addressInput" name="address" class="form-input" value="{{ f_address }}">
+      <label><input type="checkbox" name="district_only" {% if not is_edit or (not f_address and r.lat is none) %}checked{% endif %}> Publicar solamente mi distrito. Se omitirán la dirección y el pin.</label>
       <small class="field-hint">
         {% if is_edit %}Tu dirección no se cambia al mover el pin, salvo que uses el botón de arriba.{% else %}Se completa sola al mover el pin; puedes escribirla tú si prefieres.{% endif %}
       </small>

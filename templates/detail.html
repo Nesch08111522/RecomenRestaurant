@@ -1,9 +1,16 @@
 {% extends 'base.html' %}
 
+{% block extra_head %}
+<meta name="description" content="{{ (restaurant.description or restaurant.name ~ ' en ' ~ restaurant.district)|striptags|truncate(160) }}">
+<meta property="og:type" content="website"><meta property="og:title" content="{{ restaurant.name }} · SmartResto">
+<meta property="og:description" content="{{ (restaurant.description or restaurant.district)|striptags|truncate(180) }}">
+<meta property="og:url" content="{{ request.base_url }}"><link rel="canonical" href="{{ request.base_url }}">
+{% if restaurant.image %}<meta property="og:image" content="{{ restaurant.image }}">{% endif %}
+{% endblock %}
 {% block content %}
 {# ===== Variables auxiliares ===== #}
 {% set is_logged_in = session.get('user') %}
-{% if restaurant.lat and restaurant.lng %}
+{% if restaurant.lat is defined and restaurant.lat is not none and restaurant.lng is defined and restaurant.lng is not none %}
     {% set maps_query = (restaurant.lat|string ~ ',' ~ restaurant.lng|string)|urlencode %}
 {% else %}
     {% set maps_query = (restaurant.address ~ ', ' ~ restaurant.district ~ ', Trujillo, Perú')|urlencode %}
@@ -17,7 +24,7 @@
             <span class="rating"><i class="fas fa-star" style="color: #FFB800;"></i> {{ restaurant.rating }}</span>
             <span class="dot">•</span>
             <span class="address"><i class="fas fa-map-marker-alt"></i> {{ restaurant.address }}, {{ restaurant.district }}</span>
-            {% if restaurant.distance_km %}
+            {% if restaurant.distance_km is number %}
                 <span class="dot">•</span>
                 <span class="distance"><i class="fas fa-route"></i> {{ restaurant.distance_km|round(1) }} km</span>
             {% endif %}
@@ -260,12 +267,13 @@
                     {% endif %}
                 </div>
 
-                <!-- Reserva: solo usuarios logueados -->
-                {% if is_logged_in %}
+                <a class="reserve-btn" href="{{ url_for('market.browse', negocio=restaurant.id) }}">Ver porciones y pedir</a>
+                {% for review in verified_reviews %}<p><strong>Compra verificada · {{ review.rating }} / 5</strong><br>{{ review.comment }}</p>{% endfor %}
+                {% if is_logged_in and table_service %}
                     <button type="button" class="reserve-btn" id="openReserve">
                         <i class="fas fa-calendar-check"></i> Reservar ahora
                     </button>
-                {% else %}
+                {% elif table_service %}
                     <a class="reserve-btn reserve-btn--login"
                        href="{{ login_url }}">
                         <i class="fas fa-lock"></i> Inicia sesión para reservar
@@ -308,7 +316,7 @@
 </div>
 
 <!-- Modal de reserva (solo se renderiza con sesión iniciada) -->
-{% if is_logged_in %}
+{% if is_logged_in and table_service %}
 <div class="modal-overlay" id="reserveModal" hidden>
     <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="reserveTitle">
         <button type="button" class="modal-close" id="closeReserve" aria-label="Cerrar">&times;</button>

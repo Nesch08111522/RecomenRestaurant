@@ -1,5 +1,8 @@
 # views/owner.py
+from analytics.management import inventories, order_report, reporting_period, scoped_records, timeline
+from models.commerce_settings import commerce_settings
 from flask import (
+    abort,
     Blueprint,
     Response,
     render_template,
@@ -10,14 +13,11 @@ from flask import (
     jsonify,
     request,
 )
-from geopy import exc
 from models.restaurant import RestaurantModel
 from models.dish import DishModel
 from models.daily_menu import DailyMenuModel
 from models.category import CategoryModel
-from models.user import UserModel
-from config import Config
-from utils.security import normalize_text
+from utils.security import fresh_session_user, normalize_text
 from utils.menu_documents import (
     MenuDocumentError,
     build_menu_template,
@@ -30,7 +30,6 @@ from logic.hybrid_recommender import suggest_menu
 from functools import wraps
 from datetime import datetime, timedelta, timezone
 import json
-import os
 import logging
 
 logger = logging.getLogger(__name__)
@@ -140,11 +139,11 @@ def _restaurant_menu_type(restaurant):
 def owner_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        if "user" not in session or not session.get("user"):
+        user = fresh_session_user()
+        if not user:
             flash("Debes iniciar sesión", "warning")
             return redirect(url_for("auth.login"))
 
-        user = session.get("user")
         if user.get("role") != "business_owner":
             flash("Acceso denegado. Se requieren permisos de empresario.", "error")
             return redirect(url_for("main.index"))
@@ -157,58 +156,27 @@ def owner_required(f):
 @owner_bp.route("/dashboard")
 @owner_required
 def dashboard():
-    """Panel de empresario - Solo ve sus restaurantes"""
-    user = session.get("user")
-    user_id = user.get("id")
-
-    restaurants = RestaurantModel.get_by_owner(user_id)
-
-    # Agregar nombre de categoría a cada restaurante
-    categories = CategoryModel.all()
-
-    cat_dict = {cat["id"]: cat["name"] for cat in categories}
-    for r in restaurants:
-        r["category_name"] = cat_dict.get(r.get("category_id"), "Sin categoría")
-
-    total_rest = len(restaurants)
-    avg_rating = (
-        sum(r.get("rating", 0) for r in restaurants) / total_rest
-        if total_rest > 0
-        else 0
-    )
-    total_promos = sum(1 for r in restaurants if r.get("promo"))
-
-    # Actividad reciente
-    recent_activities = []
-    if restaurants:
-        latest = sorted(restaurants, key=lambda x: x.get("id", 0), reverse=True)[:3]
-        for r in latest:
-            recent_activities.append(
-                {
-                    "icon": "plus",
-                    "message": f'Actualizaste "{r.get("name")}"',
-                    "time": "Recientemente",
-                }
-            )
-
-    if len(recent_activities) < 3:
-        recent_activities.append(
-            {
-                "icon": "star",
-                "message": f"Rating promedio: {avg_rating:.1f} ⭐",
-                "time": "General",
-            }
-        )
-
-    return render_template(
-        "owner/dashboard.html",
-        restaurants=restaurants,
-        total_rest=total_rest,
-        avg_rating=round(avg_rating, 2),
-        total_promos=total_promos,
-        recent_activities=recent_activities,
-    )
-
+    businesses = RestaurantModel.get_by_owner(session["user"]["id"])
+    selection = request.args.get("rid")
+    current = next((r for r in businesses if str(r["id"]) == selection), None) if selection else next(iter(businesses), None)
+    if selection and not current:
+        abort(404)
+    today = datetime.now(LIMA_TIMEZONE).date()
+    try:
+        start, end = reporting_period(request.args, today)
+    except ValueError as exc:
+        flash(exc.args[0], "error")
+        return redirect(url_for("owner.dashboard", rid=current["id"] if current else None))
+    orders = scoped_records("market_orders", [current["id"]]) if current else []
+    report = order_report(orders, start, end, today)
+    previous_end = start - timedelta(days=1)
+    previous_start = previous_end - (end - start)
+    previous = order_report(orders, previous_start, previous_end, today)
+    threshold = commerce_settings()["threshold"]
+    critical, low = inventories(current, today.isoformat(), threshold) if current else ([], [])
+    return render_template("owner/dashboard.html", restaurants=businesses, business=current,
+                           previous=previous, previous_start=previous_start, previous_end=previous_end, report=report, start=start, end=end, critical=critical, low=low, threshold=threshold,
+                           trend=timeline(report["activity"], start, end))
 
 @owner_bp.route("/menu/<int:restaurant_id>")
 @owner_required
@@ -447,7 +415,7 @@ def suggest_menu_dish_correction(restaurant_id):
             200,
         )
 
-    except Exception as exc:
+    except Exception:
         logger.exception("Error al solicitar sugerencia IA para plato %s", dish_id)
 
         return (
@@ -656,7 +624,7 @@ def import_menu_apply(restaurant_id):
                     "is_recommended": False,
                     "is_available": True,
                     "tags": [],
-                    "created_at": datetime.utcnow().isoformat(),
+                    "created_at": datetime.now(timezone.utc).isoformat(),
                 }
             )
 
@@ -731,7 +699,7 @@ def import_menu_apply(restaurant_id):
         if imported_dates:
             redirect_args["date"] = imported_dates[0]
         return redirect(url_for("owner.menu_management", **redirect_args))
-    except (json.JSONDecodeError, ValueError) as exc:
+    except ValueError:
         if (
             "draft" in locals()
             and isinstance(draft, dict)
@@ -765,11 +733,11 @@ def import_menu_apply(restaurant_id):
                     dish_categories=DISH_CATEGORIES,
                     meal_times=MEAL_TIMES,
                     today_date_iso=datetime.now(LIMA_TIMEZONE).date().isoformat(),
-                    review_error=str(exc),
+                    review_error="Revisa los datos del borrador.",
                 ),
                 400,
             )
-        flash(str(exc) or "El borrador no es válido.", "error")
+        flash("El borrador no es válido.", "error")
         return redirect(url_for("owner.menu_management", restaurant_id=restaurant_id))
     except Exception:
         logger.exception("Error importando carta para restaurante %s", restaurant_id)
@@ -850,7 +818,7 @@ def add_dish():
             "is_recommended": bool(data.get("is_recommended", False)),
             "is_available": True,
             "tags": _string_list(data.get("tags", []), limit=20, item_length=60),
-            "created_at": datetime.utcnow().isoformat(),
+            "created_at": datetime.now(timezone.utc).isoformat(),
         }
 
         new_dish = DishModel.create(dish_data)
@@ -1021,7 +989,7 @@ def delete_dish(dish_id):
 
     except Exception as e:
         logger.error(f"Error eliminando plato: {e}")
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": "Error interno del servidor."}), 500
 
 
 @owner_bp.route("/dish/<int:dish_id>/toggle-availability", methods=["POST"])
@@ -1068,7 +1036,7 @@ def toggle_dish_availability(dish_id):
 @owner_bp.route("/generate_menu", methods=["POST"])
 @owner_required
 def generate_menu():
-    """Genera un menú aleatorio sugerido para el empresario"""
+    """Genera un menú sugerido a partir de los platos disponibles para el empresario"""
     try:
         user_id = session["user"].get("id")
         data = _json_payload()
@@ -1293,4 +1261,4 @@ def get_restaurant_dishes(restaurant_id):
 
     except Exception as e:
         logger.error(f"Error obteniendo platos: {e}")
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": "Error interno del servidor."}), 500

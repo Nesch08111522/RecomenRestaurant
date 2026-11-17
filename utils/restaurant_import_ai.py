@@ -8,6 +8,7 @@ import io
 import json
 import logging
 import os
+from utils.llm_provider import settings
 import re
 import time
 import unicodedata
@@ -41,7 +42,7 @@ FIELDS = (
     "dietary_restrictions",
 )
 LIST_FIELDS = {"tags", "features", "dietary_restrictions"}
-SERVICE_MODES = {"dine_in_only", "dine_in_and_delivery", "delivery_only"}
+SERVICE_MODES = {"dine_in_only", "dine_in_and_delivery", "delivery_only", "pickup_only"}
 
 PROMPT = """Extrae exclusivamente datos explícitos sobre UN restaurante del documento.
 Responde SOLO un objeto JSON con estas claves: name, category, district,
@@ -49,7 +50,7 @@ avg_price, service_mode, open_time, close_time, address, phone,
 description, promo, tags, features, dietary_restrictions.
 Usa null si el dato no aparece. No inventes.
 category y district son nombres textuales. service_mode solo puede ser
-'dine_in_only', 'dine_in_and_delivery' o 'delivery_only', y SOLO si está
+'dine_in_only', 'dine_in_and_delivery', 'pickup_only' o 'delivery_only', y SOLO si está
 explícito. Horas en HH:MM (24 h). avg_price es un número SOLO si está
 indicado como promedio; no lo calcules a partir de un menú.
 tags, features y dietary_restrictions son listas de textos explícitos.
@@ -291,6 +292,8 @@ def _local_extract(text):
             "salon y delivery": "dine_in_and_delivery",
             "local y delivery": "dine_in_and_delivery",
             "salon y reparto": "dine_in_and_delivery",
+            "solo recojo": "pickup_only",
+            "recojo": "pickup_only",
             "solo delivery": "delivery_only",
             "solo reparto": "delivery_only",
             "delivery": "delivery_only",
@@ -304,7 +307,7 @@ def _gemini_extract(contents):
     from google.genai import types
 
     client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
-    model = os.getenv("GEMINI_MODEL", "gemini-3.5-flash-lite")
+    model = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
     for attempt in range(3):
         try:
             response = client.models.generate_content(
@@ -330,22 +333,16 @@ def _gemini_extract(contents):
 
 
 def _qwen_extract(text):
-    from openai import OpenAI
-
-    client = OpenAI(
-        api_key=os.getenv("QWEN_API_KEY") or os.environ["GROQ_API_KEY"],
-        base_url=os.getenv("QWEN_BASE_URL", "https://api.groq.com/openai/v1"),
-        timeout=25.0,
-        max_retries=1,
-    )
-    response = client.chat.completions.create(
-        model=os.getenv("QWEN_MODEL", "qwen/qwen3-32b"),
-        messages=[
-            {"role": "system", "content": PROMPT},
-            {"role": "user", "content": text},
-        ],
-        temperature=0,
-    )
+    provider = settings()
+    with provider.client() as client:
+        response = client.chat.completions.create(
+            model=provider.model,
+            messages=[
+                {"role": "system", "content": PROMPT},
+                {"role": "user", "content": text},
+            ],
+            temperature=0,
+        )
     result = _parse_json(response.choices[0].message.content)
     if not result:
         raise ValueError("Qwen no identificó campos explícitos")

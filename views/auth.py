@@ -2,12 +2,11 @@ from flask import Blueprint, render_template, request, redirect, url_for, sessio
 from models.user import UserModel
 from models.restaurant import RestaurantModel
 from models.favorite import FavoriteModel
-from config import Config
 from utils.security import is_safe_redirect_url, normalize_text, session_identity
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.security import generate_password_hash
 import re
 import logging
-from typing import Optional, Dict, Any
+from utils import account_security as protection
 
 # Configurar logging
 logging.basicConfig(level=logging.INFO)
@@ -22,20 +21,26 @@ def login():
         password = request.form.get('password')
         
         username = normalize_text(username, max_length=80)
-        logger.info("Intento de login para usuario=%s", username or "<vacío>")
-
-        user = UserModel.authenticate(username, password or "")
+        if not password or len(password) > 256:
+            flash("Revisa tus credenciales.", "warning")
+            return render_template("login.html")
+        if not protection.allow_attempt("login", username, request.remote_addr or ""):
+            flash("Demasiados intentos. Vuelve en diez minutos.", "warning")
+            return render_template("login.html"), 429
+        user = protection.authenticate(username, password or "", request.form.get("otp", ""))
 
         if user:
             logger.info("Login exitoso para usuario=%s", username)
             session.clear()
             session.permanent = True
+            session["auth_epoch"] = user.get("auth_epoch", 0)
             session['user'] = session_identity(user)
             session['user_id'] = user.get('id')
             session['username'] = user.get('username')
             session['role'] = user.get('role', 'user')
             target = request.args.get('next')
-            destination = target if is_safe_redirect_url(target) else url_for('main.index')
+            dashboard = {"admin": "admin.dashboard", "business_owner": "owner.dashboard"}.get(user.get("role"), "main.index")
+            destination = target if is_safe_redirect_url(target) else url_for(dashboard)
             flash('¡Bienvenido!', 'success')
             return redirect(destination)
         else:
@@ -60,8 +65,8 @@ def register():
         role = role if role in ['user', 'business_owner'] else 'user'
         logger.info("Registrando nuevo usuario=%s rol=%s", username or "<vacío>", role)
 
-        if password is None or len(password) < 8 or not re.search(r'[A-Za-z]', password) or not re.search(r'\d', password):
-            flash('La contraseña debe tener al menos 6 caracteres', 'error')
+        if not protection.password_valid(password or ""):
+            flash('La contraseña debe tener al menos 8 caracteres e incluir letras y números', 'error')
             return render_template('register.html')
         
         if not username or not re.fullmatch(r'^[a-zA-Z0-9_]{3,80}$', username):
@@ -91,14 +96,56 @@ def register():
             }
         }
         
-        user = UserModel.create(user_data)
+        from database.repository import document_transaction
+        from models.communication import admins, notify
+        with document_transaction():
+            user = UserModel.create(user_data)
+            notify([a["id"] for a in admins()], "Nuevo registro", f"Se registró la cuenta {username}.",
+                   url_for("admin.users"))
         logger.info(f"✅ Usuario {username} creado con ID: {user.get('id')} (Rol: {role})")
         flash('¡Registro exitoso! Ahora puedes iniciar sesión', 'success')
         return redirect(url_for('auth.login'))
     
     return render_template('register.html')
 
-@auth_bp.route('/logout')
+@auth_bp.route("/seguridad", methods=["GET", "POST"])
+def account_security():
+    if not session.get("user_id"):
+        return redirect(url_for("auth.login", next=request.path))
+    result = {}
+    if request.method == "POST":
+        if not protection.allow_attempt("settings", str(session["user_id"]), request.remote_addr or ""):
+            return render_template("auth/security.html", result={}, recovery=False), 429
+        try:
+            result = protection.configure(session["user_id"], request.form.get("password", ""),
+                                          request.form.get("action"), request.form.get("otp", ""))
+            if "epoch" in result:
+                session["auth_epoch"] = result["epoch"]
+        except ValueError as error:
+            flash(str(error), "warning")
+    return render_template("auth/security.html", result=result, recovery=False)
+
+
+@auth_bp.route("/recuperar", methods=["GET", "POST"])
+def recover():
+    if request.method == "POST":
+        username = normalize_text(request.form.get("username"), max_length=80)
+        if not protection.allow_attempt("recover", username, request.remote_addr or ""):
+            flash("Demasiados intentos. Vuelve en diez minutos.", "warning")
+            return render_template("auth/security.html", result={}, recovery=True), 429
+        password = request.form.get("password", "")
+        if not protection.password_valid(password):
+            flash("Usa entre 8 y 256 caracteres, con letras y números.", "warning")
+        elif protection.reset_password(username, request.form.get("code", ""), password):
+            session.clear()
+            flash("Contraseña actualizada. Inicia sesión y renueva tu protección.", "success")
+            return redirect(url_for("auth.login"))
+        else:
+            flash("Revisa el usuario y el código de recuperación.", "warning")
+    return render_template("auth/security.html", result={}, recovery=True)
+
+
+@auth_bp.post('/logout')
 def logout():
     username = session.get('username', 'Unknown')
     logger.info(f"👋 Usuario {username} cerró sesión")
@@ -124,6 +171,7 @@ def profile():
         if updated_user:
             user = session_identity(updated_user)
             session['user'] = user
+            user = {**user, 'profile': updated_user.get('profile') or {}}
             session['user_id'] = user['id']
             session['role'] = user['role']
     
@@ -131,7 +179,17 @@ def profile():
     if user.get('role') == 'business_owner':
         return render_template('auth/profile_owner.html', user=user)
     else:
-        return render_template('auth/profile.html', user=user)
+        from models.review import ReviewModel
+        from models.market import kitchen
+        from logic.market import now
+        coupons = []
+        for fav in FavoriteModel.get_by_user(user["id"]):
+            shop = RestaurantModel.get_by_id(fav["restaurant_id"])
+            if shop and shop.get("verified"):
+                coupon = kitchen(shop["id"]).get("coupon") or {}
+                if coupon.get("until", "") >= now().date().isoformat():
+                    coupons.append((shop, coupon))
+        return render_template("auth/profile.html", user=user, reviews=ReviewModel.get_by_user(user["id"]), coupons=coupons)
     
     
     
@@ -194,6 +252,10 @@ def update_profile():
     profile['email'] = normalize_text(request.form.get('email', profile.get('email')), max_length=254).lower()
     profile['preferences'] = [normalize_text(value, max_length=80) for value in request.form.getlist('preferences')][:50]
     profile['restrictions'] = [normalize_text(value, max_length=80) for value in request.form.getlist('restrictions')][:50]
+    if 'addresses' in request.form:
+        profile['addresses'] = list(dict.fromkeys(normalize_text(a, max_length=220) for a in
+                                                  request.form['addresses'].splitlines() if a.strip()))[:5]
+        profile['promotions_opt_in'] = request.form.get('promotions_opt_in') == 'on'
     if profile['email'] and not re.fullmatch(r'^[^@\s]+@[^@\s]+\.[^@\s]+$', profile['email']):
         flash('El correo electrónico no tiene un formato válido', 'error')
         return redirect(url_for('auth.profile'))

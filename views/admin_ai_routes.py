@@ -14,7 +14,7 @@ from utils.admin_ai import (
     provider_settings,
     interpret_moderation_query,
 )
-from views.admin import _fresh_session_user
+from utils.security import fresh_session_user
 
 logger = logging.getLogger(__name__)
 admin_ai_bp = Blueprint("admin_ai", __name__, url_prefix="/admin/api/ai")
@@ -29,7 +29,7 @@ def _audit_error_response(exc):
         logger.error("Falta la tabla public.ai_decisions; aplica database/ai_decisions.sql")
         return jsonify(
             success=False,
-            error="Falta instalar la tabla de auditoría de IA. Ejecuta database/ai_decisions.sql en el SQL Editor de Supabase.",
+            error="La auditoría de IA no está disponible.",
             code="ai_audit_schema_missing",
         ), 503
     logger.exception("No se pudo reservar auditoría de IA")
@@ -39,7 +39,7 @@ def _audit_error_response(exc):
 def admin_ai_required(fn):
     @wraps(fn)
     def inner(*args, **kwargs):
-        user = _fresh_session_user()
+        user = fresh_session_user()
         if not user:
             return jsonify(success=False, error="Autenticación requerida"), 401
         if user.get("role") != "admin":

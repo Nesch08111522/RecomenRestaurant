@@ -21,15 +21,17 @@
                 <label>Contraseña</label>
                 <input type="password" name="password" required>
             </div>
+            <details><summary>Uso una aplicación de autenticación</summary><label>Código de seis dígitos<input name="otp" inputmode="numeric" autocomplete="one-time-code" maxlength="6"></label></details>
             <button type="submit" class="auth-btn">Entrar</button>
+            <a href="{{ url_for('auth.recover') }}">Recuperar mi cuenta</a>
         </form>
         <p class="switch-auth">¿No tienes cuenta? <a href="{{ url_for('auth.register') }}">Regístrate</a></p>
     </div>
 </div>
 
 <style>
-    .auth-container { display: flex; justify-content: center; align-items: center; height: calc(100vh - 160px); background: #f7f7f7; }
-    .auth-box { background: #fff; padding: 40px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
+    .auth-container { display: flex; justify-content: center; align-items: center; min-height: 66vh; padding: 24px 12px; background: var(--sr-bg); }
+    .auth-box { background: var(--sr-surface); color: var(--sr-text); padding: clamp(20px,5vw,40px); border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
     .auth-box h2 { margin-bottom: 24px; text-align: center; }
     .form-group { margin-bottom: 16px; }
     .form-group label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; }

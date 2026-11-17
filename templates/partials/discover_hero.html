@@ -1,0 +1,23 @@
+<section class="sr-hero" aria-labelledby="sr-headline">
+  <div class="sr-hero-copy">
+    <div class="sr-location"><span aria-hidden="true">●</span> {{ CIUDAD }}, Perú</div>
+    {% if session.get('user') %}<p class="sr-welcome">Hola, {{ session.user.profile.name or session.user.username }}.</p>{% endif %}
+    <h1 id="sr-headline">¿Qué se te<br><em>antoja hoy?</em></h1>
+    <p>Encuentra dónde comer, descubre la cocina de tu barrio y pide tus platos favoritos.</p>
+    <form class="sr-finder" action="{{ url_for('market.browse') }}" role="search"><label class="sr-only" for="sr-query">Buscar negocios, platos o ingredientes</label><span aria-hidden="true">⌕</span><input id="sr-query" name="q" maxlength="300" placeholder="Plato, negocio o ingrediente"><button>Buscar</button></form>
+    <a class="sr-hero-link" href="#explorar">Explorar restaurantes <span aria-hidden="true">↓</span></a>
+  </div>
+  <figure class="sr-art"><picture><source media="(max-width: 640px)" srcset="{{ url_for('static',filename='images/ceviche-small.webp') }}"><img src="{{ url_for('static',filename='images/ceviche.webp') }}" alt="Ceviche con cebolla morada, camote, choclo y limón" fetchpriority="high" width="1100" height="734"></picture><figcaption>Cocina peruana <span> / </span> Ceviche norteño</figcaption></figure>
+</section>
+<nav class="sr-paths" aria-label="Descubrir por ocasión">
+<a href="{{ url_for('market.browse', budget='15') }}"><span class="sr-path-icon" aria-hidden="true">◒</span><span>Hasta S/ 15</span><b aria-hidden="true">↗</b></a>
+<a href="{{ url_for('market.browse', rescue=1) }}"><span class="sr-path-icon" aria-hidden="true">◷</span><span>Últimas porciones</span><b aria-hidden="true">↗</b></a>
+<button id="recommendationBtn" type="button"><span class="sr-path-icon" aria-hidden="true">✦</span><span>Recomiéndame</span><b aria-hidden="true">↗</b></button>
+</nav>
+<section id="explorar" class="sr-explore"><h2>Restaurantes en {{ CIUDAD }}</h2>
+<form id="search-form" action="{{ url_for('main.index', _anchor='explorar') }}" method="get" class="sr-search-grid">
+<label>Restaurante<input type="search" name="q" placeholder="Nombre del negocio"></label>
+<label>Distrito<select name="district" id="district-select"><option value="">Cualquier distrito</option>{% for district in restaurants|selectattr('district')|map(attribute='district')|unique|sort %}<option>{{ district }}</option>{% endfor %}</select></label>
+<label>Categoría<select name="category" id="category-select"><option value="">Todas</option>{% for cat in categories %}<option value="{{ cat.id }}">{{ cat.name }}</option>{% endfor %}</select></label>
+<label>Precio máximo (S/)<input name="max_price" type="number" min="0" step="1" placeholder="Sin límite"></label>
+<button class="sr-button" type="submit">Filtrar</button></form></section>

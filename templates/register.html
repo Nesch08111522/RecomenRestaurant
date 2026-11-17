@@ -37,7 +37,7 @@
                 <label>Tipo de cuenta</label>
                 <select name="role" class="form-input" required>
                     <option value="user">👤 Usuario normal</option>
-                    <option value="business_owner">🏪 Empresario (dueño de restaurante)</option>
+                    <option value="business_owner" {% if request.args.get('role') == 'business_owner' %}selected{% endif %}>🏪 Empresario (dueño de restaurante)</option>
                 </select>
                 <small style="color: var(--gray); font-size: 12px;">
                     💡 Como empresario podrás agregar y gestionar tus propios restaurantes.

@@ -1,4 +1,10 @@
+from collections import Counter
+from analytics.management import order_report, registrations, reporting_period, scoped_records, timeline
+from models.commerce_settings import commerce_settings, save_settings
+from utils.moderation_explain import estado_pendiente
+from logic.market import now
 from flask import (
+    abort,
     Blueprint,
     render_template,
     session,
@@ -7,7 +13,6 @@ from flask import (
     jsonify,
     request,
     flash,
-    Response,
 )
 from models.restaurant import RestaurantModel
 from models.user import UserModel
@@ -18,12 +23,12 @@ from models.review import ReviewModel
 from models.category import CategoryModel
 from models.notification import NotificationModel
 from config import Config
-from utils.security import normalize_text, session_identity, valid_coordinate
+from database.repository import document_transaction
+from utils.security import normalize_text, fresh_session_user
 from utils.audit import record_event, AuditEventModel
 from analytics.metrics import build_bi_snapshot
 from functools import wraps
 import datetime
-from typing import Any, Dict, List, Optional, Union
 import logging
 
 logger = logging.getLogger(__name__)
@@ -34,6 +39,7 @@ SERVICE_MODES = {
     "dine_in_only",
     "dine_in_and_delivery",
     "delivery_only",
+    "pickup_only",
 }
 
 
@@ -61,24 +67,6 @@ def inject_sidebar_restaurants():
     if role == "business_owner":
         return {"restaurants": RestaurantModel.get_by_owner(user.get("id"))}
     return {}
-
-
-def _fresh_session_user():
-    """Revalida el rol contra el almacenamiento antes de autorizar."""
-    raw_id = session.get("user_id")
-    try:
-        user_id = int(raw_id)
-    except (TypeError, ValueError):
-        return None
-    user = UserModel.get_by_id(user_id)
-    if not user:
-        session.clear()
-        return None
-    identity = session_identity(user)
-    session["user"] = identity
-    session["role"] = identity["role"]
-    session["username"] = identity["username"]
-    return identity
 
 
 def _clean_list(value, max_items=30, max_length=80):
@@ -139,6 +127,8 @@ def _clean_restaurant_update(source):
             payload[field] = _clean_list(
                 source.get(field), max_items=50, max_length=100
             )
+    if source.get("district_only") == "on":
+        payload.update(address="", lat=None, lng=None)
     return payload
 
 
@@ -152,7 +142,7 @@ def admin_required(f):
 
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        user = _fresh_session_user()
+        user = fresh_session_user()
         if not user:
             flash("Debes iniciar sesión", "warning")
             return redirect(url_for("auth.login"))
@@ -170,7 +160,7 @@ def admin_or_owner_required(f):
 
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        user = _fresh_session_user()
+        user = fresh_session_user()
         if not user:
             flash("Debes iniciar sesión", "warning")
             return redirect(url_for("auth.login"))
@@ -196,93 +186,113 @@ def admin_or_owner_required(f):
 @admin_bp.route("/dashboard")
 @admin_or_owner_required
 def dashboard():
-    """Panel de administración - Adaptado según rol"""
-    user = session.get("user")
-    user_id = user.get("id")
-    role = user.get("role")
+    if session["user"]["role"] == "business_owner":
+        return redirect(url_for("owner.dashboard"))
+    today = now().date()
+    try:
+        start, end = reporting_period(request.args, today)
+    except ValueError as exc:
+        flash(exc.args[0], "error")
+        return redirect(url_for("admin.dashboard"))
+    categories = CategoryModel.all()
+    cid = request.args.get("category", "")
+    businesses = [r for r in RestaurantModel.all() if not cid or str(r.get("category_id")) == cid]
+    by_id = {r["id"]: r for r in businesses}
+    ids = list(by_id)
+    orders = scoped_records("market_orders", ids)
+    report = order_report(orders, start, end, today)
+    names = {str(c["id"]): c["name"] for c in categories}
+    frequency = Counter(names.get(str(by_id[o["rid"]].get("category_id")), "Sin categoría") for o in report["orders"])
+    traffic = Counter(by_id[o["rid"]]["name"] for o in report["orders"])
+    district = Counter(r.get("district") or "Sin distrito" for r in businesses)
+    cases = scoped_records("market_cases", ids)
+    claims = [c for c in cases if c["kind"] == "Reclamo" and c["state"] not in {"Resuelto", "Cerrado", "Aceptado", "Desestimado"}]
+    signals = [c for c in cases if c["kind"] == "Señal de revisión" and c["state"] == "Abierto"]
+    pending = [r for r in businesses if estado_pendiente(r)]
+    with document_transaction() as conn:
+        roles = dict((r["role"], r["n"]) for r in conn.execute(
+            "SELECT payload->>'role' AS role,count(*) AS n FROM public.app_records WHERE collection='users' GROUP BY role"))
+        visits = conn.execute(
+            "SELECT count(*) AS viewed, count(*) FILTER (WHERE v.payload->>'clicked'='true') AS clicked, "
+            "count(*) FILTER (WHERE v.payload->>'ordered'='true') AS ordered "
+            "FROM public.app_records v JOIN public.app_records o ON o.collection='market_offers' "
+            "AND o.id::text=v.payload->>'offer' WHERE v.collection='market_views' AND o.payload->>'rid'=ANY(%s) "
+            "AND v.payload->>'day' BETWEEN %s AND %s", ([str(i) for i in ids], start.isoformat(), end.isoformat())).fetchone()
+    unsettled = [o for o in orders if o.get("payment_incident") or not o.get("paid") and not o.get("refunded") and (
+        o["state"] == "Entregado" or (o["state"] == "Recibido" and o.get("method") == "Digital"
+        and o.get("created", "")[:10] < today.isoformat()))]
+    charts = [
+        ("Acciones administrativas", timeline(registrations("audit_events", start, end), start, end)),
+        ("Pedidos recibidos", timeline(report["activity"], start, end)),
+        ("Altas de usuarios en la plataforma", timeline(registrations("users", start, end), start, end)),
+        ("Negocios incorporados", timeline(registrations("restaurants", start, end, ids), start, end)),
+        ("Demanda por categoría", frequency.most_common(6)), ("Negocios con más pedidos", traffic.most_common(6)),
+        ("Negocios por distrito", district.most_common(6)),
+        ("Recomendaciones", [("Vistas", visits["viewed"]), ("Clics", visits["clicked"]), ("Con pedido", visits["ordered"])])]
+    return render_template("admin/dashboard.html", report=report, charts=charts, total_users=sum(roles.values()),
+                           owners=roles.get("business_owner", 0), published=sum(bool(r.get("verified")) for r in businesses),
+                           pending=pending, claims=claims, signals=signals, start=start, end=end,
+                           categories=categories, cid=cid, events=recent_audit(5), unsettled=unsettled)
 
-    if role == "admin":
-        restaurants = RestaurantModel.all()
-        users = UserModel.all()
-        favorites = FavoriteModel.all()
-        total_rest = len(restaurants)
-        total_users = len(users)
-        total_favorites = len(favorites)
-        avg_rating = (
-            sum(r.get("rating", 0) for r in restaurants) / total_rest
-            if total_rest > 0
-            else 0
-        )
-        avg_price = (
-            sum(r.get("avg_price", 0) for r in restaurants) / total_rest
-            if total_rest > 0
-            else 0
-        )
 
-        return render_template(
-            "admin/dashboard.html",
-            total_rest=total_rest,
-            total_users=total_users,
-            total_favorites=total_favorites,
-            avg_rating=round(avg_rating, 2),
-            avg_price=round(avg_price, 2),
-            role=role,
-            is_admin=True,
-        )
-    else:
-        restaurants = RestaurantModel.get_by_owner(user_id)
-        total_rest = len(restaurants)
-        avg_rating = (
-            sum(r.get("rating", 0) for r in restaurants) / total_rest
-            if total_rest > 0
-            else 0
-        )
-        avg_price = (
-            sum(r.get("avg_price", 0) for r in restaurants) / total_rest
-            if total_rest > 0
-            else 0
-        )
-        total_promos = sum(1 for r in restaurants if r.get("promo"))
+def recent_audit(limit):
+    with document_transaction() as conn:
+        rows = conn.execute("SELECT payload->>'action' AS action,payload->>'resource_type' AS resource,"
+                            "payload->>'resource_id' AS subject,created_at AT TIME ZONE 'America/Lima' AS stamp "
+                            "FROM public.app_records WHERE collection='audit_events' ORDER BY created_at DESC,id DESC LIMIT %s", (limit,))
+        return list(rows)
 
-        categories = CategoryModel.all()
 
-        cat_dict = {cat["id"]: cat["name"] for cat in categories}
-        for r in restaurants:
-            r["category_name"] = cat_dict.get(r.get("category_id"), "Sin categoría")
+@admin_bp.get("/operaciones")
+@admin_required
+def operations():
+    state = request.args.get("estado", "")
+    payment = request.args.get("pago", "")
+    states = ("Recibido", "Preparando", "Listo", "Entregado", "Cancelado", "Confirmado", "En reparto")
+    payments = ("Pendiente", "Pagado", "Reembolsado")
+    if state and state not in states or payment and payment not in payments:
+        abort(400)
+    page = max(1, request.args.get("page", 1, type=int))
+    with document_transaction() as conn:
+        rows = list(conn.execute(
+            "WITH orders AS (SELECT id,payload->>'state' AS state,payload->>'business' AS business,"
+            "payload->>'total' AS total,payload->>'rid' AS rid,payload->>'method' AS method,"
+            "CASE WHEN payload->>'refunded'='true' THEN 'Reembolsado' WHEN payload->>'paid'='true' THEN 'Pagado' "
+            "ELSE 'Pendiente' END AS payment FROM public.app_records WHERE collection='market_orders') "
+            "SELECT * FROM orders WHERE (%s='' OR state=%s) AND (%s='' OR payment=%s) ORDER BY id DESC LIMIT 31 OFFSET %s",
+            (state,state,payment,payment,(page-1)*30)))
+    return render_template("admin/operations.html", rows=rows[:30], more=len(rows)>30, page=page,
+                           state=state,payment=payment,states=states,payments=payments)
 
-        recent_activities = []
-        if restaurants:
-            latest = sorted(restaurants, key=lambda x: x.get("id", 0), reverse=True)[:3]
-            for r in latest:
-                recent_activities.append(
-                    {
-                        "icon": "plus",
-                        "message": f'Actualizaste "{r.get("name")}"',
-                        "time": "Recientemente",
-                    }
-                )
 
-        if len(recent_activities) < 3:
-            recent_activities.append(
-                {
-                    "icon": "star",
-                    "message": f"Rating promedio: {avg_rating:.1f} ⭐",
-                    "time": "General",
-                }
-            )
+@admin_bp.get("/operaciones/<int:oid>")
+@admin_required
+def operation_detail(oid):
+    with document_transaction() as conn:
+        item = conn.execute(
+            "SELECT payload->>'business' AS business,payload->>'state' AS state,payload->>'method' AS method,"
+            "payload->>'paid' AS paid,payload->>'refunded' AS refunded,payload->>'total' AS total,"
+            "payload->'history' AS history FROM public.app_records WHERE collection='market_orders' AND id=%s",
+            (oid,)).fetchone()
+    if not item:
+        abort(404)
+    return render_template("admin/operation_detail.html", item=item,oid=oid)
 
-        return render_template(
-            "owner/dashboard.html",
-            restaurants=restaurants,
-            total_rest=total_rest,
-            avg_rating=round(avg_rating, 2),
-            avg_price=round(avg_price, 2),
-            total_promos=total_promos,
-            recent_activities=recent_activities,
-            role=role,
-            is_admin=False,
-        )
-
+@admin_bp.route("/controles", methods=["GET","POST"])
+@admin_required
+def controls():
+    if request.method == "POST":
+        threshold = request.form.get("threshold", type=int)
+        diets = list(dict.fromkeys(normalize_text(d, max_length=60) for d in request.form.get("diets","").splitlines() if d.strip()))
+        if threshold is None or not 0 <= threshold <= 100 or not 1 <= len(diets) <= 30:
+            flash("Ingresa un umbral entre 0 y 100 y entre 1 y 30 etiquetas alimentarias.", "error")
+        else:
+            with document_transaction():
+                save_settings(threshold, diets)
+                record_event("ADMIN_COMMERCE_SETTINGS", resource_type="commerce_settings", resource_id=1)
+            flash("Configuración comercial actualizada.", "success")
+        return redirect(url_for("admin.controls"))
+    return render_template("admin/controls.html", settings=commerce_settings(), events=recent_audit(50))
 
 # ============================================
 # GESTIÓN DE RESTAURANTES
@@ -421,8 +431,8 @@ def analyze_restaurant_upload():
 
         return jsonify({"success": True, "data": extracted, "provider": provider})
 
-    except ValueError as exc:
-        return jsonify({"success": False, "error": str(exc)}), 400
+    except ValueError:
+        return jsonify({"success": False, "error": "No se pudo leer el archivo. Verifica su formato y contenido."}), 400
 
     except Exception:
         logger.exception("Error analizando archivo de restaurante")
@@ -458,20 +468,14 @@ def create_dynamic_category():
         return jsonify({"success": False, "error": "Debes enviar un objeto JSON."}), 400
 
     name = data.get("name")
+    if set(data) != {"name"} or not isinstance(name, str):
+        return jsonify({"success": False, "error": "Envía únicamente el nombre de la categoría."}), 400
 
     try:
-        # Crear o recuperar categoría
-        category, created = CategoryModel.create_dynamic(name)
-
-        # Recuperar categoría almacenada
-        saved = CategoryModel.get_by_name(name)
-
-        if not saved and isinstance(category, dict):
-            saved = category
-
-        if not saved or saved.get("id") is None:
-            raise RuntimeError("No se pudo recuperar la categoría guardada.")
-
+        with document_transaction():
+            saved, created = CategoryModel.create_dynamic(name)
+            if created:
+                record_event("ADMIN_CATEGORY_CREATE", resource_type="category", resource_id=saved["id"])
         return jsonify(
             {
                 "success": True,
@@ -480,8 +484,8 @@ def create_dynamic_category():
             }
         ), (201 if created else 200)
 
-    except ValueError as error:
-        return jsonify({"success": False, "error": str(error)}), 400
+    except ValueError:
+        return jsonify({"success": False, "error": "Introduce un nombre válido de 2 a 80 caracteres."}), 400
 
     except Exception:
         logger.exception("Error creando categoría dinámica")
@@ -522,7 +526,12 @@ def new_restaurant():
             )
             return redirect(url_for("admin.new_restaurant"))
 
-        RestaurantModel.create(data)
+        with document_transaction():
+            restaurant = RestaurantModel.create(data)
+            record_event("ADMIN_RESTAURANT_CREATE", resource_type="restaurant", resource_id=restaurant["id"])
+            from models.communication import admins, notify
+            notify([a["id"] for a in admins()], "Nuevo negocio por verificar", restaurant["name"],
+                   url_for("admin.moderation_dashboard"))
 
         flash("Restaurante creado exitosamente", "success")
         return redirect(url_for("admin.restaurants"))
@@ -651,9 +660,11 @@ def manage_restaurant(id: int):
         return jsonify({"success": False, "error": "Restaurante no encontrado"}), 404
 
     elif request.method == "DELETE":
-        deleted = RestaurantModel.delete(id)
-        if deleted:
-            return jsonify({"success": True})
+        with document_transaction():
+            deleted = RestaurantModel.delete(id)
+            if deleted:
+                record_event("ADMIN_RESTAURANT_DELETE", resource_type="restaurant", resource_id=id)
+                return jsonify({"success": True})
         return jsonify({"success": False, "error": "Restaurante no encontrado"}), 404
 
 
@@ -685,7 +696,16 @@ def add_promotion(id: int):
     if not restaurant:
         return jsonify({"error": "Restaurante no encontrado"}), 404
 
-    updated = RestaurantModel.update(id, {"promo": promo})
+    from models.market import records
+    from models.communication import notify
+    with document_transaction():
+        previous = PostgresDocumentRepository.get_by_id("restaurants", id, for_update=True)
+        updated = RestaurantModel.update(id, {"promo": promo}) if previous else None
+        if updated and updated.get("verified") and promo != previous.get("promo"):
+            favorites = {f["user_id"] for f in records("favorites",restaurant_id=id)}
+            subscribers = [u["id"] for u in records("users",profile={"promotions_opt_in":True})
+                           if UserModel.is_active(u) and u["id"] in favorites]
+            notify(subscribers, f"Promoción en {updated['name']}", promo, url_for("main.detail", restaurant_id=id))
 
     if updated:
         return jsonify({"success": True, "promo": promo})
@@ -826,7 +846,7 @@ def analytics_api():
 
     except Exception as e:
         logger.error(f"Error en analytics_api: {e}")
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": "Error interno del servidor."}), 500
 
 
 @admin_bp.route("/api/bi/overview")
@@ -861,6 +881,9 @@ def bi_overview_api():
 def users():
     """Lista de usuarios - Solo admin"""
     users = UserModel.all()
+    role = request.args.get("role")
+    if role in {"admin", "business_owner", "user"}:
+        users = [u for u in users if u.get("role") == role]
     return render_template("admin/users.html", users=users)
 
 
@@ -1004,7 +1027,9 @@ def new_category():
         flash("Nombre y slug son requeridos", "error")
         return redirect(url_for("admin.categories"))
 
-    CategoryModel.create(data)
+    with document_transaction():
+        category = CategoryModel.create(data)
+        record_event("ADMIN_CATEGORY_CREATE", resource_type="category", resource_id=category["id"])
 
     flash("Categoría creada exitosamente", "success")
     return redirect(url_for("admin.categories"))
@@ -1014,7 +1039,10 @@ def new_category():
 @admin_required
 def delete_category(id: int):
     """Eliminar categoría - Solo admin"""
-    deleted = CategoryModel.delete(id)
+    with document_transaction():
+        deleted = CategoryModel.delete(id)
+        if deleted:
+            record_event("ADMIN_CATEGORY_DELETE", resource_type="category", resource_id=id)
     return jsonify({"success": deleted}), 200 if deleted else 404
 
 
@@ -1269,7 +1297,7 @@ def restaurant_moderation_history(id):
         (
             item
             for item in ModerationModel._load_data()
-            if item.get("content_id") == id and item.get("content_type") == "restaurant"
+            if str(item.get("content_id")) == str(id) and item.get("content_type") == "restaurant"
         ),
         None,
     )
@@ -1336,15 +1364,11 @@ def notify_restaurant_owner(id):
 @admin_required
 def auto_filter_restaurants():
     """Evalúa restaurantes y registra los resultados sin borrar decisiones humanas."""
-    from datetime import datetime, timezone
-
-    from flask import jsonify, session
     from models.moderation import (
         ModerationModel,
         APPROVAL_PENDING,
         CONTROLLED_TO_LEGACY,
     )
-    from models.restaurant import RestaurantModel
 
     actor_id = session.get("user_id")
 
@@ -1354,7 +1378,7 @@ def auto_filter_restaurants():
     updated = 0
     preserved_human_decisions = 0
 
-    now = lambda: datetime.now(timezone.utc).isoformat()
+    now = lambda: datetime.datetime.now(datetime.timezone.utc).isoformat()
 
     for restaurant in RestaurantModel.all():
         if not isinstance(restaurant, dict):

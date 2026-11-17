@@ -1,0 +1,18 @@
+{% extends "market/base.html" %}{% from "market/base.html" import token with context %}
+{% block market %}<h1>Mis pedidos</h1><p>Compras completadas · {{ spent|soles }} · {{ points }} puntos</p>
+{% if repeat %}<p>¿Volvemos a pedir en {{ repeat }}? <a href="{{ url_for('market.browse',q=repeat) }}">Ver opciones</a></p>{% endif %}
+{% for rid,name,day in due %}<p>Según tu intervalo de compra en {{ name }}, tu próxima visita podría ser el {{ day }}. <a href="{{ url_for('market.browse',negocio=rid) }}">Consultar disponibilidad</a></p>{% endfor %}
+{% for o in orders %}<article class="market-panel"><h2>Pedido {{ o.id }} · {{ o.business }}</h2><p>{{ o.channel }} · {{ o.slot[:16]|replace('T',' ') }} · {{ o.state }}</p>
+{% for l in o.lines %}<p>{{ l.qty }} × {{ l.name }} · {{ (l.unit*l.qty)|soles }}</p>{% endfor %}
+<strong>Total {{ o.total|soles }}</strong> · {{ 'Reembolsado' if o.refunded else ('Pagado' if o.paid else 'Pago pendiente') }}
+<p>{{ o.history|map(attribute='state')|join(' → ') }}</p>
+<a href="{{ url_for('market.receipt',oid=o.id) }}">Descargar constancia de pedido</a>
+<a href="{{ url_for('comunicacion.inbox',oid=o.id) }}">Conversar sobre el pedido</a>
+{% if o.state=='Entregado' %}<form method="post" action="{{ url_for('market.reorder',oid=o.id) }}">{{ token() }}<button class="secondary">Rearmar este combo a precios actuales</button></form>{% endif %}
+{% if o.state in ['Recibido','Confirmado'] and not o.paid %}<div class="market-inline">{% if o.method=='Digital' %}<form method="post" action="{{ url_for('market.pay',oid=o.id) }}">{{ token() }}<button>Pagar en Mercado Pago</button></form>{% endif %}<form method="post" action="{{ url_for('market.cancel',oid=o.id) }}">{{ token() }}<button class="secondary">Cancelar pedido</button></form></div>{% endif %}
+{% if o.state=='Entregado' and o.paid and not o.review %}<form method="post" class="market-form" action="{{ url_for('market.verified_review',oid=o.id) }}">{{ token() }}<label>Califica tu compra<select name="rating">{% for i in [5,4,3,2,1] %}<option>{{ i }}</option>{% endfor %}</select></label><label>Comentario<input name="comment" maxlength="800"></label><button>Publicar reseña verificada</button></form>{% endif %}
+{% for c in cases if c.oid == o.id %}<p><a href="{{ url_for('comunicacion.case_detail',cid=c.id) }}">Seguimiento del reclamo #{{ c.id }}</a> · {{ c.state }}</p>{% endfor %}
+<details><summary>Registrar reclamo</summary><form method="post" enctype="multipart/form-data" action="{{ url_for('market.claim',oid=o.id) }}">{{ token() }}
+<label>Motivo<select name="category">{% for name in ['Pedido','Entrega','Calidad','Pago','Otro'] %}<option>{{ name }}</option>{% endfor %}</select></label>
+<label>Describe lo ocurrido<textarea required minlength="10" maxlength="1000" name="reason"></textarea></label><label>Evidencia privada opcional (imagen o PDF, hasta 1 MB)<input type="file" name="document" accept="application/pdf,image/jpeg,image/png,image/webp"></label><button>Enviar a revisión</button></form></details></article>
+{% else %}<p>Tus compras aparecerán aquí cuando confirmes un pedido.</p>{% endfor %}{% endblock %}

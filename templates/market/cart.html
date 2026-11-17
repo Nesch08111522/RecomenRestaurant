@@ -1,0 +1,17 @@
+{% extends "market/base.html" %}{% from "market/base.html" import token with context %}
+{% block market %}<h1>Mi carrito</h1>{% if cart %}
+{% for item, qty in lines %}<p>{{ qty }} × {{ item.name if item else 'Oferta agotada o vencida' }} {% if item %}· {{ (item.price * qty)|soles }}{% endif %}</p>{% endfor %}
+<details><summary>Usar cupón</summary><form class="market-inline" method="post" action="{{ url_for('market.apply_coupon') }}">{{ token() }}<label>Código del negocio<input name="code" maxlength="32" value="{{ cart.coupon }}"></label><button>Aplicar</button></form></details>
+{% if discount %}<p>Mejor descuento disponible · descuento {{ discount|soles }}</p>{% endif %}<h2>Total {{ total|soles }}</h2>
+<details {% if diners>1 %}open{% endif %}><summary>Dividir la cuenta</summary><form method="get" class="market-inline"><label>Personas<input type="number" name="personas" min="1" max="30" value="{{ diners }}"></label><button>Calcular</button></form>
+{% if diners>1 %}<p>{{ diners-extra }} persona(s) × {{ share|soles }}{% if extra %} y {{ extra }} × {{ (share+1)|soles }}{% endif %}. Un solo pedido y un solo pago.</p>{% endif %}</details>
+<form class="market-form" action="{{ url_for('market.buy') }}" method="post">{{ token() }}
+<input type="hidden" name="total" value="{{ total }}">
+<label>Modalidad<select name="channel">{% for c in store.channels %}<option>{{ c }}</option>{% endfor %}</select></label>
+<label>Atención el {{ cart.day }} (hora de Lima)<input type="datetime-local" name="slot" value="{{ cart.day }}T13:00" required></label>
+<label>Zona para delivery<select name="zone"><option value="">Seleccionar</option>{% for z in store.zones %}<option>{{ z }}</option>{% endfor %}</select></label>
+{% if store.radius %}<p>Radio de delivery: {{ store.radius }} km.</p><label>Latitud de entrega<input name="lat" type="number" step="any" min="-90" max="90"></label><label>Longitud de entrega<input name="lng" type="number" step="any" min="-180" max="180"></label>{% endif %}
+<label>Dirección para delivery<input name="address" maxlength="220" list="saved-addresses"><datalist id="saved-addresses">{% for address in addresses %}<option value="{{ address }}">{% endfor %}</datalist></label><label>Pago<select name="method"><option>Contraentrega</option>{% if digital %}<option>Digital</option>{% endif %}</select></label>
+<button>Confirmar pedido</button></form>
+<form method="post" action="{{ url_for('market.clear_cart') }}">{{ token() }}<button class="secondary">Vaciar carrito</button></form>
+{% else %}<p>Tu carrito está vacío. <a href="{{ url_for('market.browse') }}">Explorar porciones</a></p>{% endif %}{% endblock %}

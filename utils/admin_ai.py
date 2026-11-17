@@ -4,19 +4,14 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
-import os
 import re
 import time
 from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator
 
+from utils.llm_provider import AIUnavailable, settings
+
 logger = logging.getLogger(__name__)
-
-
-class AIUnavailable(RuntimeError):
-    def __init__(self, code="provider_unavailable"):
-        self.code = code
-        super().__init__(code)
 
 
 class AIResponseInvalid(RuntimeError):
@@ -86,26 +81,12 @@ def parse_response(raw: str) -> AnalysisResult:
 
 
 def provider_settings():
-    key = (os.getenv("GROQ_API_KEY") or os.getenv("QWEN_API_KEY") or "").strip()
-    base = (
-        os.getenv("ADMIN_QWEN_BASE_URL", "https://api.groq.com/openai/v1")
-        .strip()
-        .rstrip("/")
-    )
-    model = os.getenv("ADMIN_QWEN_MODEL", "qwen/qwen3-32b").strip()
-    try:
-        timeout = max(2.0, min(float(os.getenv("ADMIN_AI_TIMEOUT", "12")), 25.0))
-    except ValueError as exc:
-        raise AIUnavailable("invalid_timeout") from exc
-    if not key or base != "https://api.groq.com/openai/v1" or not model:
-        raise AIUnavailable("provider_not_configured")
-    return key, base, model, timeout
+    return settings(admin=True)
 
 
 def analyze(cleaned: str) -> tuple[AnalysisResult, str, int]:
     try:
         from openai import (
-            OpenAI,
             APIConnectionError,
             APITimeoutError,
             RateLimitError,
@@ -113,8 +94,9 @@ def analyze(cleaned: str) -> tuple[AnalysisResult, str, int]:
         )
     except ImportError as exc:
         raise AIUnavailable("sdk_missing") from exc
-    key, base, model, timeout = provider_settings()
-    client = OpenAI(api_key=key, base_url=base, timeout=timeout, max_retries=0)
+    provider = provider_settings()
+    model = provider.model
+    client = provider.client()
     start = time.monotonic()
     messages = [
         {"role": "system", "content": SYSTEM_PROMPT},
@@ -165,11 +147,12 @@ def analyze(cleaned: str) -> tuple[AnalysisResult, str, int]:
 def interpret_moderation_query(text: str, districts: list[str]):
     """Extrae filtros seguros; el modelo no recibe herramientas ni acceso a datos."""
     try:
-        from openai import OpenAI, APIConnectionError, APITimeoutError, RateLimitError, APIStatusError
+        from openai import APIConnectionError, APITimeoutError, RateLimitError, APIStatusError
     except ImportError as exc:
         raise AIUnavailable("sdk_missing") from exc
-    key, base, model, timeout = provider_settings()
-    client = OpenAI(api_key=key, base_url=base, timeout=timeout, max_retries=0)
+    provider = provider_settings()
+    model = provider.model
+    client = provider.client()
     try:
         response = client.chat.completions.create(
             model=model,

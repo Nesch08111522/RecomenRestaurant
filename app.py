@@ -2,7 +2,7 @@ import logging
 import os
 import uuid
 
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, jsonify, render_template, request, session
 from flask_wtf.csrf import CSRFError
 
 try:
@@ -17,13 +17,16 @@ if load_dotenv:
 
 from config import Config
 from context_processors import inject_globals
-from utils.security import csrf
+from utils.security import csrf, fresh_session_user
 from views.admin import admin_bp
 from views.admin_ai_routes import admin_ai_bp
 from views.auth import auth_bp
 from views.main import main_bp
 from views.owner import owner_bp
 from views.ai_routes import ai_bp
+from views.market import market_bp
+from views.communication import bp as communication_bp
+from views import market_kitchen, market_trust
 
 logger = logging.getLogger(__name__)
 
@@ -50,7 +53,8 @@ def create_app(test_config=None):
     app.register_blueprint(owner_bp, url_prefix="/owner")
 
     app.register_blueprint(ai_bp)
-    csrf.exempt(ai_bp)
+    app.register_blueprint(market_bp)
+    app.register_blueprint(communication_bp)
 
     app.register_blueprint(admin_ai_bp)
 
@@ -61,6 +65,8 @@ def create_app(test_config=None):
     @app.before_request
     def assign_request_id():
         request.request_id = str(uuid.uuid4())
+        if request.endpoint != "static" and "user_id" in session:
+            fresh_session_user()
 
     @app.after_request
     def add_security_headers(response):
@@ -74,7 +80,7 @@ def create_app(test_config=None):
             "X-Request-ID", getattr(request, "request_id", str(uuid.uuid4()))
         )
 
-        if request.path.startswith("/admin/api/ai/"):
+        if session.get("user_id") or request.path.startswith(("/admin/api/ai/", "/auth/")):
             response.headers["Cache-Control"] = "no-store"
 
         return response

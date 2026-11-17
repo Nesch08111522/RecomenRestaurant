@@ -375,29 +375,16 @@
             locBtn.textContent = '✓ Ubicación activa';
         }
 
-        function requestLocation() {
-            return new Promise(resolve => {
-                if (!navigator.geolocation) {
-                    addBubble('bot', 'Tu navegador no permite obtener la ubicación.');
-                    resolve(null);
-                    return;
-                }
-                if (locBtn) locBtn.disabled = true;
-                navigator.geolocation.getCurrentPosition(
-                    pos => {
-                        userLoc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-                        markLocationOn();
-                        if (locBtn) locBtn.disabled = false;
-                        resolve(userLoc);
-                    },
-                    () => {
-                        if (locBtn) locBtn.disabled = false;
-                        addBubble('bot', 'No pude obtener tu ubicación. Permite el acceso en el navegador (icono del candado junto a la dirección) e inténtalo de nuevo.');
-                        resolve(null);
-                    },
-                    { enableHighAccuracy: true, timeout: 8000 }
-                );
-            });
+        async function requestLocation() {
+            if (locBtn) locBtn.disabled = true;
+            try {
+                userLoc = await getApp()?.getUserLocation();
+                if (userLoc) markLocationOn();
+                else addBubble('bot', document.getElementById('geo-status')?.textContent || 'Ubicación no disponible.');
+                return userLoc;
+            } finally {
+                if (locBtn) locBtn.disabled = false;
+            }
         }
 
         function addRecommendations(ids) {

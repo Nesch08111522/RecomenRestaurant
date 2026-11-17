@@ -235,7 +235,7 @@ def auditar_plato_con_ia(plato, *, consultar_ia=None):
             "used": True,
             "status": "unavailable",
             "suggestion": None,
-            "error": str(exc)[:300],
+            "error": "No se pudo obtener la sugerencia.",
         }
 
     return result

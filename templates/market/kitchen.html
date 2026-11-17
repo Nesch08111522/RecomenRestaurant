@@ -1,0 +1,73 @@
+{% extends "market/base.html" %}{% from "market/base.html" import token with context %}
+{% macro field(label,name,type='text',value='',required=false) %}<label>{{ label }}<input type="{{ type }}" name="{{ name }}" value="{{ value }}" {% if required %}required{% endif %} {% if type=='number' %}min="0" step="any"{% endif %}></label>{% endmacro %}
+{% block market %}
+<header class="market-hero"><div><h1>{{ business.name }}</h1><p>Ventas, inventario y producción de esta cocina.</p></div><a href="{{ url_for('market.browse') }}">Ver mercado</a></header>
+<div class="market-stats"><div><strong>{{ metrics.income|soles }}</strong>Ventas entregadas</div><div><strong>{{ metrics.sales }}</strong>Pedidos completados</div><div><strong>{{ metrics.rescued }}</strong>Porciones rescatadas</div><div><strong>{{ metrics.repeat }} / {{ metrics.customers }}</strong>Clientes que repiten</div></div>
+{% if business.owner_id==session.user.id %}
+<details {% if not store.channels %}open{% endif %}><summary>Mi negocio y canales de venta</summary>
+<form class="market-form" method="post" action="{{ url_for('market.configure',rid=business.id) }}">{{ token() }}
+<label>Tipo de negocio<select name="kind">{% for k in kinds %}<option {% if k==store.kind %}selected{% endif %}>{{ k }}</option>{% endfor %}</select></label>
+<fieldset><legend>Modalidades</legend>{% for c in channels %}<label class="check"><input type="checkbox" name="channels" value="{{ c }}" {% if c in store.channels %}checked{% endif %}>{{ c }}</label>{% endfor %}</fieldset>
+{{ field('Distritos o zonas de delivery, separados por coma','zones',value=store.zones|join(', ')) }}
+{{ field('Punto público de recojo','pickup',value=store.pickup) }}
+{{ field('Latitud pública opcional','lat',value=store.pin[0] if store.pin else '') }}{{ field('Longitud pública opcional','lng',value=store.pin[1] if store.pin else '') }}
+{{ field('Radio de delivery en km (0 para usar solo zonas)','radius','number',store.get('radius',0)) }}
+{{ field('Cupos de recojo por hora','capacity','number',store.get('capacity',20)) }}
+{{ field('Anticipación mínima del pedido (minutos)','lead','number',store.get('lead',0)) }}
+{{ field('Descuento por recompra (%)','loyalty','number',store.get('loyalty',0)) }}
+{{ field('Colaboradores autorizados, por usuario','team',value=store.get('team_names','')) }}
+<button>Guardar configuración</button></form></details>{% endif %}
+<details><summary>Inventario, vencimientos y mermas</summary>
+{% for name,lot in store.pantry.items() %}<p>{{ name }} · {{ lot.quantity }} {{ lot.unit }} · vence {{ lot.expires }}{% if not lot.quantity %} · Agotado{% elif lot.expires <= target.isoformat() %} · Revisar vencimiento{% endif %}</p>{% endfor %}
+<form class="market-form" method="post" action="{{ url_for('market.inventory',rid=business.id) }}">{{ token() }}
+<label>Movimiento<select name="move"><option>Entrada</option><option>Merma</option><option>Conteo</option></select></label>
+{{ field('Insumo o lote','name',required=true) }}{{ field('Cantidad del movimiento o conteo físico','quantity','number',required=true) }}
+<label>Unidad<select name="unit"><option>g</option><option>ml</option><option>unidad</option></select></label>
+{{ field('Vencimiento del lote','expires','date') }}{{ field('Costo de compra (S/)','cost','number') }}{{ field('Unidades cubiertas por ese costo','basis','number',1000) }}
+{{ field('Sustituciones aprobadas para evaluar, separadas por coma','substitutes') }}
+<button>Registrar movimiento</button></form>{% for m in moves %}<small>{{ m.at[:10] }} · {{ m.move }} · {{ m.name }} · {{ m.delta }}</small><br>{% endfor %}</details>
+<details {% if draft %}open{% endif %}><summary>Preparar oferta por foto o voz</summary><form class="market-form" enctype="multipart/form-data" method="post" action="{{ url_for('market.photo',rid=business.id) }}">{{ token() }}<label>Foto del plato<input type="file" name="photo" accept="image/jpeg,image/png,image/webp" required></label><button>Analizar fotografía</button></form>
+{% if draft %}<p>{{ draft.quality }} · {{ 'Sugerencia de Gemini disponible para edición' if draft.vision else 'Completa el borrador manualmente' }}.</p>{% endif %}
+<label>Dictado o texto<input id="dictation" placeholder="Agrega doce porciones de pollo para mañana a dieciséis soles"></label>
+<div class="market-inline"><button type="button" id="microphone">Dictar</button><button type="button" id="parse-voice">Preparar borrador</button></div><p id="voice-status" role="status"></p></details>
+<details open id="offer-editor"><summary>Publicar porciones</summary><form class="market-form" id="offer-form" method="post" action="{{ url_for('market.publish',rid=business.id) }}">{{ token() }}<label>Variante de esta oferta (opcional)<input name="variant" maxlength="80" placeholder="Ej. porción familiar"></label>
+<label>Plato del catálogo<select name="dish"><option value="">Crear plato</option>{% for d in dishes %}<option value="{{ d.id }}">{{ d.name }}</option>{% endfor %}</select></label>
+{{ field('Nombre del plato nuevo','name',value=draft.name if draft else '') }}
+<input type="hidden" name="draft_clock" value="{{ draft_clock }}">
+{{ field('Descripción','description',value=draft.description if draft else '') }}
+{{ field('Etiquetas','tags',value=draft.tags if draft else '') }}
+<label>Categoría del plato nuevo<select name="category">{% for c in ['Fondo','Entrada','Postre','Bebida'] %}<option {% if draft and draft.category|lower==c|lower %}selected{% endif %}>{{ c }}</option>{% endfor %}</select></label>
+{% if draft %}<input type="hidden" name="use_photo" value="1">{% if draft.category %}<small>Categoría sugerida: {{ draft.category }}</small>{% endif %}{% endif %}
+<label>Ocasión<select name="occasion">{% for c in occasions %}<option {% if c=='Almuerzo' %}selected{% endif %}>{{ c }}</option>{% endfor %}</select></label>
+{{ field('Día de venta','day','date',today,true) }}{{ field('Hora de cierre','end','time','20:00',true) }}
+{{ field('Porciones disponibles','stock','number',required=true) }}{{ field('Precio por porción (S/)','price','number',required=true) }}
+{{ field('Precio de últimas porciones para hoy (opcional)','rescue_price','number') }}
+<label>Insumos por porción, una línea por insumo<textarea name="recipe" placeholder="arroz=100"></textarea></label>
+{{ field('Procedencia declarada','origin') }}{{ field('Fecha y hora de preparación','prepared','datetime-local') }}{{ field('Cómo se elaboró','preparation') }}
+<label class="check"><input type="checkbox" name="declared"> He revisado los alérgenos</label>{{ field('Alérgenos declarados, separados por coma','allergens') }}
+<fieldset><legend>Dietas declaradas por la cocina</legend>{% for d in diets %}<label class="check"><input type="checkbox" name="diet" value="{{ d }}">{{ d }}</label>{% endfor %}</fieldset>
+<label>Contacto cruzado<select name="cross"><option value="unknown">Información incompleta</option><option value="possible">Posible contacto</option><option value="declared">Medidas de control declaradas</option></select></label>
+<button>Confirmar y publicar</button></form></details>
+<details {% if simulation or suggestions %}open{% endif %}><summary>Copiloto y simulador de rentabilidad</summary>
+<form class="market-form" method="post" action="{{ url_for('market.copilot',rid=business.id) }}">{{ token() }}{{ field('Presupuesto para cocinar (S/)','budget','number',required=true) }}{{ field('Porciones objetivo','portions','number',required=true) }}<button>Proponer receta con mi inventario</button></form>
+{% if suggestions %}<p class="market-note pre">{{ suggestions }}</p>{% endif %}
+<form class="market-form" method="post" action="{{ url_for('market.simulate',rid=business.id) }}">{{ token() }}<label>Insumos por porción<textarea name="recipe" placeholder="arroz=100" required></textarea></label>
+{{ field('Precio de venta (S/)','price','number',required=true) }}{{ field('Costos fijos a cubrir (S/)','fixed','number',0,true) }}{{ field('Porciones a preparar','batch','number',1) }}{{ field('Margen objetivo (%)','target_margin','number',30) }}<button>Calcular margen</button></form>
+{% if simulation %}<p>Con el inventario vigente puedes preparar {{ simulation.possible }} porciones. Costo del lote solicitado: {{ simulation.batch|soles }}. Precio para el margen objetivo: {{ simulation.suggested|soles }}.</p>{% for name,need in simulation.needs.items() %}<p>Falta {{ name }} · {{ need.missing }} {{ need.unit }}. Sustituciones a evaluar: {{ need.alternatives|join(', ') or 'ninguna registrada' }}.</p>{% endfor %}{% endif %}
+{% if simulation %}<p>Costo por porción {{ simulation.cost|soles }} · Contribución {{ simulation.contribution|soles }} · Margen {{ simulation.margin if simulation.margin is not none else '—' }} % · Equilibrio {{ simulation.break_even if simulation.break_even is not none else 'inalcanzable con este precio' }} porciones.</p>{% endif %}</details>
+<details><summary>Demanda estimada para {{ target }}</summary>{% for name,f in forecasts %}<p>{{ name }} · {% if f %}{{ f.portions }} porciones, según {{ f.days }} días comparables con ventas{% else %}Historial insuficiente{% endif %}</p>{% else %}<p>Registra platos para consultar su demanda.</p>{% endfor %}</details>
+<details><summary>Mis ofertas y resultados</summary>
+<p>{% if produced %}Porciones sin vender al cierre: {{ surplus }} de {{ produced }} publicadas ({{ (surplus*100/produced)|round(1) }} %).{% else %}El porcentaje de excedentes aparecerá cuando cierre una oferta con producción registrada.{% endif %}</p>
+<p>Contribución tras costo de receta: {{ metrics.margin|soles }} en {{ metrics.costed }} pedidos con costo conocido.{% if metrics.peak %} Hora con más entregas programadas: {{ metrics.peak }} h.{% endif %}</p>
+{% for item in offers %}<form class="market-inline" method="post" action="{{ url_for('market.pause_offer',rid=business.id,oid=item.id) }}">{{ token() }}<span>{{ item.name }} · {{ item.day }} · {{ item.stock }} porciones restantes</span><button name="state" value="{{ 'activar' if item.paused else 'pausar' }}">{{ 'Reactivar' if item.paused else 'Pausar' }}</button></form>{% endfor %}
+</details>
+<h2>Pedidos del negocio</h2>{% for o in orders %}<article class="market-panel"><strong>#{{ o.id }} · {{ o.state }} · {{ o.total|soles }}</strong><p>{{ o.slot[:16] }} · {{ o.channel }} · {{ o.destination|join(', ') }} · {{ o.method }}</p>{% for l in o.lines %}<p>{{ l.qty }} × {{ l.name }}</p>{% endfor %}
+<form class="market-inline" method="post" action="{{ url_for('market.manage_order',rid=business.id,oid=o.id) }}">{{ token() }}
+{% for a in {'Recibido':['Confirmado',('Reembolsar' if o.paid else 'Cancelado')], 'Confirmado':['Preparando',('Reembolsar' if o.paid else 'Cancelado')], 'Preparando':['Listo'], 'Listo':['En reparto' if o.channel=='Delivery' else 'Entregado'], 'En reparto':['Entregado']}.get(o.state,[]) %}<button name="action" value="{{ a }}">{{ a }}</button>{% endfor %}</form></article>{% else %}<p>Los pedidos aparecerán aquí al confirmarse.</p>{% endfor %}
+<details><summary>Reservas del negocio</summary>{% for r in reservations %}<p>{{ r.date }} · {{ r.time }} · {{ r.guests }} personas · {{ r.status }}</p>{% if r.status=='pendiente' %}<form method="post" action="{{ url_for('market.confirm_reservation',rid=business.id,reservation_id=r.id) }}">{{ token() }}<button name="status" value="confirmada">Confirmar</button> <button name="status" value="cancelada">Cancelar</button></form>{% endif %}{% endfor %}</details>
+{% if business.owner_id==session.user.id %}<details><summary>Acreditación privada del negocio</summary><form class="market-form" method="post" enctype="multipart/form-data" action="{{ url_for('market.submit_evidence',rid=business.id) }}">{{ token() }}<label>Documento PDF, hasta 1 MB<input type="file" name="document" accept="application/pdf" required></label><button>Enviar al administrador</button></form></details>{% endif %}
+<script src="{{ url_for('static',filename='js/market-voice.js') }}" defer></script>{% if business.owner_id==session.user.id %}<details><summary>Cupón del negocio</summary><form class="market-form" method="post" action="{{ url_for('market.configure_coupon',rid=business.id) }}">{{ token() }}
+<label>Código (vacío para desactivar)<input name="code" maxlength="32" value="{{ (store.coupon or {}).get('code','') }}"></label>
+<label>Descuento porcentual<input name="percent" type="number" min="1" max="90" value="{{ (store.coupon or {}).get('percent','') }}"></label>
+<label>Último día de uso<input name="until" type="date" value="{{ (store.coupon or {}).get('until','') }}"></label><button>Guardar cupón</button></form></details>{% endif %}
+{% endblock %}

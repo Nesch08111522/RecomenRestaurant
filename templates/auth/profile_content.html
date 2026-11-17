@@ -4,6 +4,7 @@
         <p>Gestiona tu información personal y preferencias</p>
     </div>
     
+    <nav aria-label="Mi cuenta"><a href="{{ url_for('auth.account_security') }}">Seguridad y recuperación</a> · <a href="{{ url_for('market.orders') }}">Historial de compra</a> · <a href="{{ url_for('auth.favorites') }}">Favoritos</a> · <a href="{{ url_for('comunicacion.notifications') }}">Notificaciones</a></nav>
     <div class="profile-content">
         <div class="profile-sidebar">
             <div class="profile-avatar">
@@ -26,6 +27,9 @@
         <div class="profile-form-container">
             <form method="POST" action="{{ url_for('auth.update_profile') }}" class="profile-form">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="form-group"><label>Mis direcciones de delivery (una por línea, máximo cinco)<textarea name="addresses" rows="3" maxlength="1105">{{ user.profile.get('addresses',[])|join('\n') }}</textarea></label>
+                    <label><input type="checkbox" name="promotions_opt_in" {% if user.profile.get('promotions_opt_in') %}checked{% endif %}> Quiero recibir promociones en SmartResto</label>
+                </div>
                 <div class="form-group">
                     <label>Nombre completo</label>
                     <input type="text" name="name" value="{{ user.profile.name }}" class="form-input" required>

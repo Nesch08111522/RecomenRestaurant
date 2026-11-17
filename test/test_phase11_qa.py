@@ -1,6 +1,11 @@
 import re
 
+import pytest
+
 from app import create_app
+
+
+pytestmark = pytest.mark.usefixtures("test_database")
 
 
 def _client():

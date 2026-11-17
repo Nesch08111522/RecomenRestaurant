@@ -2,4 +2,6 @@
 
 {% block content %}
     {% include 'auth/profile_content.html' %}
+<section class="sr-info"><h2>Cupones de mis favoritos</h2>{% for shop,c in coupons %}<p><a href="{{ url_for('market.browse',negocio=shop.id) }}">{{ shop.name }}</a> · {{ c.percent }}% con {{ c.code }} hasta {{ c.until }}</p>{% else %}<p>Tus negocios favoritos aún no tienen cupones activos.</p>{% endfor %}
+<h2>Mis reseñas</h2>{% for r in reviews %}<p><a href="{{ url_for('main.detail',restaurant_id=r.restaurant_id) }}">Ver negocio</a> · {{ r.rating }}/5 · {{ r.comment }}</p>{% else %}<p>Aquí aparecerán tus reseñas cuando valores un negocio.</p>{% endfor %}</section>
 {% endblock %}

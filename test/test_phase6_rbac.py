@@ -6,19 +6,17 @@ from models.moderation import (
 )
 
 
-def test_preliminary_evaluation_does_not_auto_reject_critical_content(tmp_path, monkeypatch):
-    monkeypatch.setattr(ModerationModel, "file_path", str(tmp_path / "moderation.json"))
+def test_preliminary_evaluation_does_not_auto_reject_critical_content():
     evaluation = ModerationModel.preliminary_evaluate(
         "restaurant",
-        {"name": "Restaurante", "description": "violencia en el plato", "category": "criollo"},
+        {"name": "Restaurante", "description": "propaganda de nazismo", "category": "criollo"},
     )
     assert evaluation["ai_verdict"] == APPROVAL_REJECTED
     assert evaluation["final_status"] == APPROVAL_PENDING
     assert evaluation["human_review_required"] is True
 
 
-def test_admin_transition_is_reversible_and_keeps_history(tmp_path, monkeypatch):
-    monkeypatch.setattr(ModerationModel, "file_path", str(tmp_path / "moderation.json"))
+def test_admin_transition_is_reversible_and_keeps_history(test_database):
     entry = ModerationModel.create_moderation_entry(
         "restaurant",
         10,

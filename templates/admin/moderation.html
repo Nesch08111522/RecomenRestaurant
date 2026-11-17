@@ -104,7 +104,7 @@
 
         <div class="m-grid">
             {% for r in clean_pending %}
-            <article class="item m-card ok" data-kind="restaurant" data-id="{{ r.id }}"
+            <article class="item m-card ok" id="rest-{{ r.id }}" data-kind="restaurant" data-id="{{ r.id }}"
                      data-i="{{ loop.index0 }}" data-name="{{ r.name }}" data-rating="{{ r.rating }}"
                      data-district="{{ r.district|default('', true) }}" data-score="{{ r.food_score|default(0) }}" data-issues="0">
                 <div class="m-card-top">
@@ -149,7 +149,7 @@
 
         <div class="m-grid">
             {% for item in auto_flagged %}
-            <article class="item m-card bad" data-kind="restaurant" data-id="{{ item.restaurant.id }}"
+            <article class="item m-card bad" id="rest-{{ item.restaurant.id }}" data-kind="restaurant" data-id="{{ item.restaurant.id }}"
                      data-i="{{ loop.index0 }}" data-name="{{ item.restaurant.name }}"
                      data-rating="{{ item.restaurant.rating or 0 }}" data-score="{{ item.food_score }}"
                      data-district="{{ item.restaurant.district|default('', true) }}" data-issues="1">

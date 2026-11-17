@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block extra_head %}<link rel="stylesheet" href="{{ url_for('static', filename='css/market.css') }}">{% endblock %}
+{% block content %}<div class="market-shell">
+<nav class="market-nav" aria-label="Mercado gastronómico">
+<a href="{{ url_for('market.browse') }}">Mercado de barrio</a>
+<a href="{{ url_for('market.cart') }}">Carrito{% if session.market_cart %} ({{ session.market_cart.lines.values()|sum }}){% endif %}</a>
+{% if session.user %}<a href="{{ url_for('market.orders') }}">Mis pedidos</a>{% endif %}
+{% if session.role == 'admin' %}<a href="{{ url_for('market.trust') }}">Confianza</a>{% endif %}
+</nav>
+{% for message in get_flashed_messages() %}<p role="status" class="market-note">{{ message }}</p>{% endfor %}
+{% block market %}{% endblock %}
+</div>{% endblock %}
+{% macro token() %}<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">{% endmacro %}
+

@@ -1,41 +1,18 @@
-"""
-Rutas de IA (Qwen) para SmartResto.
+"""Búsqueda y chat de SmartResto."""
 
-  POST /api/ai/interpret  -> convierte "algo barato y romántico" en filtros
-  POST /api/ai/chat       -> responde preguntas usando tus restaurantes
-
-Instalar:   pip install openai
-Variables de entorno (PowerShell):
-    $env:QWEN_API_KEY="ollama"
-    $env:QWEN_MODEL="qwen2.5:3b"
-    $env:QWEN_BASE_URL="http://localhost:11434/v1"
-"""
-
-import os
 import re
+import logging
 import json
 import time
 from datetime import datetime
 from collections import defaultdict, deque
 
 from flask import Blueprint, request, jsonify
-from openai import OpenAI, BadRequestError
+from openai import BadRequestError
+from utils.llm_provider import settings
 
+logger = logging.getLogger(__name__)
 ai_bp = Blueprint("ai", __name__)
-
-BASE_URL = os.getenv("QWEN_BASE_URL", "http://localhost:11434/v1")
-MODEL = os.getenv("QWEN_MODEL", "qwen2.5:3b")
-TIMEOUT = float(os.getenv("QWEN_TIMEOUT", "60"))
-
-_client = None
-
-
-def _get_client():
-    global _client
-    if _client is None and os.getenv("QWEN_API_KEY"):
-        _client = OpenAI(api_key=os.getenv("QWEN_API_KEY"), base_url=BASE_URL)
-    return _client
-
 
 _hits = defaultdict(deque)
 
@@ -85,17 +62,13 @@ def _parse_json(text):
 
 
 def _llm_json(messages):
-    client = _get_client()
-    if client is None:
-        raise RuntimeError("Falta la variable de entorno QWEN_API_KEY")
-
-    kwargs = dict(model=MODEL, messages=messages, temperature=0.3, timeout=TIMEOUT)
-    try:
-        resp = client.chat.completions.create(
-            response_format={"type": "json_object"}, **kwargs
-        )
-    except BadRequestError:
-        resp = client.chat.completions.create(**kwargs)
+    provider = settings()
+    kwargs = dict(model=provider.model, messages=messages, temperature=0.3)
+    with provider.client() as client:
+        try:
+            resp = client.chat.completions.create(response_format={"type": "json_object"}, **kwargs)
+        except BadRequestError:
+            resp = client.chat.completions.create(**kwargs)
 
     return _parse_json(resp.choices[0].message.content)
 
@@ -108,17 +81,19 @@ def interpret():
             429,
         )
 
-    data = request.get_json(silent=True) or {}
+    data = request.get_json(silent=True)
+    if not isinstance(data, dict):
+        return jsonify(success=False, error="Envía un objeto JSON."), 400
     text = _clip(data.get("text"), 300)
     if not text:
         return jsonify(success=False, error="Escribe lo que buscas."), 400
 
     categories = [
         {"id": c.get("id"), "name": _clip(c.get("name"), 40)}
-        for c in (data.get("categories") or [])[:30]
+        for c in _as_list(data.get("categories"))[:30]
         if isinstance(c, dict) and c.get("id") is not None
     ]
-    tags = [_clip(t, 30).lower() for t in (data.get("available_tags") or [])[:80]]
+    tags = [_clip(t, 30).lower() for t in _as_list(data.get("available_tags"))[:80]]
 
     system = (
         "Eres el asistente de búsqueda de SmartResto (restaurantes de Trujillo, Perú; moneda S/.).\n"
@@ -153,8 +128,8 @@ def interpret():
                 {"role": "user", "content": text},
             ]
         )
-    except Exception as e:
-        print("Qwen (interpret) error:", e)
+    except Exception:
+        logger.exception("Error al interpretar la búsqueda")
         return (
             jsonify(
                 success=False, error="La IA no está disponible ahora. Intenta de nuevo."
@@ -196,12 +171,22 @@ def chat():
             429,
         )
 
-    data = request.get_json(silent=True) or {}
+    data = request.get_json(silent=True)
+    if not isinstance(data, dict):
+        return jsonify(success=False, error="Envía un objeto JSON."), 400
 
+    from models.restaurant import RestaurantModel
+    from utils.geo import normalize_coordinates, calculate_distance
+    from flask import session
+    approved = {str(r["id"]):r for r in RestaurantModel.get_approved()}
+    origin = normalize_coordinates(session.get("user_lat"), session.get("user_lng"))
     restaurants = []
-    for r in (data.get("restaurants") or [])[:40]:
-        if not isinstance(r, dict) or r.get("id") is None:
+    for candidate in _as_list(data.get("restaurants"))[:40]:
+        r = approved.get(str(candidate.get("id"))) if isinstance(candidate, dict) else None
+        if not r:
             continue
+        point = normalize_coordinates(r.get("lat"), r.get("lng"))
+        distance = calculate_distance(*origin, *point) if origin and point else None
         restaurants.append(
             {
                 "id": r["id"],
@@ -209,16 +194,16 @@ def chat():
                 "distrito": _clip(r.get("district"), 40),
                 "precio_por_persona": _num(r.get("avg_price")),
                 "rating": _num(r.get("rating")),
-                "etiquetas": [_clip(t, 25) for t in (r.get("tags") or [])[:5]],
+                "etiquetas": [_clip(t, 25) for t in _as_list(r.get("tags"))[:5]],
                 "categoria_id": r.get("category_id"),
                 "promocion": bool(r.get("promo")),
-                "distancia_km": _num(r.get("distance_km")),
+                "distancia_km": distance,
             }
         )
 
     history = [
         {"role": m["role"], "content": _clip(m.get("content"), 500)}
-        for m in (data.get("messages") or [])[-6:]
+        for m in _as_list(data.get("messages"))[-6:]
         if isinstance(m, dict)
         and m.get("role") in ("user", "assistant")
         and m.get("content")
@@ -242,8 +227,8 @@ def chat():
 
     try:
         raw = _llm_json([{"role": "system", "content": system}] + history)
-    except Exception as e:
-        print("Qwen (chat) error:", e)
+    except Exception:
+        logger.exception("Error en el chat de restaurantes")
         return (
             jsonify(
                 success=False, error="La IA no está disponible ahora. Intenta de nuevo."

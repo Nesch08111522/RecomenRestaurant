@@ -1,0 +1,8 @@
+{% extends "market/base.html" %}
+{% from "market/base.html" import token with context %}
+{% block market %}
+<nav class="market-inline" aria-label="Comunicación"><a href="{{ url_for('comunicacion.inbox') }}">Mensajes</a>
+<a href="{{ url_for('comunicacion.cases') }}">Reclamos</a>
+<a href="{{ url_for('comunicacion.notifications') }}">Notificaciones</a></nav>
+{% block communication %}{% endblock %}
+{% endblock %}

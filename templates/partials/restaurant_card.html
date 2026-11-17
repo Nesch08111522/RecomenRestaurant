@@ -263,7 +263,7 @@
                 </div>
             {% endif %}
             
-            {% if r.rating >= 4.5 %}
+            {% if r.rating is number and r.rating >= 4.5 %}
                 <div class="rc-badge rc-badge-top">
                     <i class="fas fa-star"></i> Top
                 </div>
@@ -280,14 +280,14 @@
             <h3>{{ r.name }}</h3>
             <div class="rating">
                 <i class="fas fa-star"></i>
-                <span>{{ r.rating }}</span>
+                <span>{{ r.rating | default("Sin reseñas", true) }}</span>
             </div>
         </div>
         
         <div class="card-location">
             <i class="fas fa-map-marker-alt"></i>
             <span>{{ r.district }}</span>
-            {% if r.distance_km %}
+            {% if r.distance_km is number %}
                 <span class="dot">•</span>
                 <span class="distance">{{ r.distance_km|round(1) }} km</span>
             {% endif %}
@@ -299,7 +299,7 @@
         </div>
         
         <div class="card-tags">
-            {% for tag in r.tags[:3] %}
+            {% for tag in (r.tags | default([], true))[:3] %}
                 <span class="tag">{{ tag }}</span>
             {% endfor %}
         </div>

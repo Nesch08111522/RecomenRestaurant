@@ -66,14 +66,14 @@ function updateMarkers(restaurants) {
     }
 
     restaurants.forEach(r => {
-        if (!r.lat || !r.lng) return;
+        if (r.lat == null || r.lng == null || !Number.isSafeInteger(Number(r.id))) return;
         
         const marker = L.marker([r.lat, r.lng]).addTo(map);
         marker.bindPopup(`
             <div class="map-popup">
-                <strong>${r.name}</strong><br>
-                Rating: ${r.rating} ⭐<br>
-                <a href="/restaurant/${r.id}">Ver detalle</a>
+                <strong>${window.escapeDisplayText(r.name)}</strong><br>
+                Rating: ${window.escapeDisplayText(r.rating)} ⭐<br>
+                <a href="/restaurant/${Number(r.id)}">Ver detalle</a>
             </div>
         `);
         markers[r.id] = marker;

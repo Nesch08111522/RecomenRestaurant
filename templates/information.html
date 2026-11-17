@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block content %}
+<article class="sr-info"><a href="{{ url_for('main.index') }}">← Volver a inicio</a>
+{% if section == 'privacidad' %}
+<h1>Privacidad</h1><h2>Tu cuenta y tus preferencias</h2><p>SmartResto utiliza los datos de tu cuenta para identificarte, guardar favoritos y gestionar tus pedidos y reservas. Las preferencias gastronómicas ayudan a ordenar las recomendaciones.</p>
+<h2>Ubicación y comunicaciones</h2><p>El mapa puede solicitar permiso para obtener tu ubicación. También puedes explorar restaurantes sin compartirla. Los participantes de cada conversación y el personal con permisos de soporte pueden consultar los mensajes correspondientes.</p>
+{% else %}
+<h1>Condiciones de uso</h1><h2>Pedidos y reservas</h2><p>Revisa el negocio, los precios, las porciones disponibles y la modalidad de entrega antes de confirmar. El estado de cada pedido se consulta desde tu cuenta.</p>
+<h2>Reseñas y atención</h2><p>Las reseñas de compra verificada corresponden a pedidos pagados y entregados. Para solicitar una revisión, abre un reclamo desde tu cuenta y sigue las respuestas en la bandeja.</p>
+{% endif %}
+<a class="sr-button" href="{{ url_for('comunicacion.inbox') if session.get('user') else url_for('auth.login', next=url_for('comunicacion.inbox')) }}">Contactar con soporte</a></article>
+{% endblock %}

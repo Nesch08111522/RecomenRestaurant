@@ -1,0 +1,7 @@
+{% extends "communication/base.html" %}{% block communication %}
+<h1>Notificaciones</h1>
+{% if rows %}<form method="post" action="{{ url_for('comunicacion.read_notifications') }}">{{ token() }}<button>Marcar todas como leídas</button></form>{% endif %}
+{% for n in rows %}<article class="market-panel"><h2>{{ n.title }}</h2><p>{{ n.message }}</p><time>{{ n.timestamp[:16]|replace('T',' ') }}</time>
+{% if n.link and n.link.startswith('/') and not n.link.startswith('//') and '\\' not in n.link %}<a href="{{ n.link }}">Ver detalle</a>{% endif %}
+{% if not n.read %}<form method="post" action="{{ url_for('comunicacion.read_notifications') }}">{{ token() }}<input type="hidden" name="nid" value="{{ n.id }}"><button>Marcar como leída</button></form>{% endif %}
+</article>{% else %}<p>No tienes notificaciones.</p>{% endfor %}{% endblock %}
