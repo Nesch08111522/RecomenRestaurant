@@ -23,9 +23,9 @@ const assert = require('node:assert/strict');
             });
             if(role !== 'public') {
                 await page.goto(origin+'/auth/login');
-                await page.locator('[name=username]').fill(process.env.VISUAL_PREFIX+role);
-                await page.locator('[name=password]').fill(process.env.VISUAL_PASSWORD);
-                await Promise.all([page.waitForURL(url => !url.pathname.endsWith('/login')),page.locator('button[type=submit].auth-btn').click()]);
+                await page.locator('[data-pane="login"] [name=username]').fill(process.env.VISUAL_PREFIX+role);
+                await page.locator('[data-pane="login"] [name=password]').fill(process.env.VISUAL_PASSWORD);
+                await Promise.all([page.waitForURL(url => !url.pathname.endsWith('/login')),page.locator('[data-pane="login"] button[type=submit].auth-btn').click()]);
             }
             for(const width of [320,375,480,640,768,1024,1280,1440,1920]) {
                 await page.setViewportSize({width,height:850});

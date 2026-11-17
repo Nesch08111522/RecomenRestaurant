@@ -29,7 +29,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/interface.css') }}">
     <script src="{{ url_for('static', filename='js/shell.js') }}"></script>
 </head>
-<body class="{% if session.get('user') and request.blueprint in ['owner','admin','comunicacion','auth','market'] %}sr-private{% endif %}">
+<body class="{% if session.get('user') and request.blueprint in ['owner','admin','comunicacion','auth','market'] %}sr-private{% endif %} {% block body_class %}{% endblock %}">
     <a class="skip-link" href="#main-content">Saltar al contenido principal</a>
     {% include 'partials/header.html' %}
     
