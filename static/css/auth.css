@@ -1,5 +1,4 @@
-/* SmartResto · Experiencia de autenticación 3D soft realism.
-   Todos los colores proceden de la paleta predefinida (--sr-* en interface.css). */
+/* SmartResto · Experiencia de autenticación 3D soft realism. */
 
 /* == 1. ESCENARIO Y TRANSICIÓN == */
 body.sr-auth .sr-footer,
@@ -7,9 +6,7 @@ body.sr-auth .sr-sidebar,
 body.sr-auth .sr-backdrop { display: none; }
 
 body.sr-auth #main-content { margin: 0 !important; padding: 0; }
-body.sr-auth { background: var(--sr-bg); }
-/* Edge/IE muestran su propio botón de revelar contraseña: se oculta para
-   conservar solo el control accesible de la experiencia. */
+body.sr-auth { background: var(--sr-bg); overflow-x: hidden; }
 body.sr-auth input::-ms-reveal, body.sr-auth input::-ms-clear { display: none; }
 
 .ax-stage {
@@ -21,8 +18,6 @@ body.sr-auth input::-ms-reveal, body.sr-auth input::-ms-clear { display: none; }
   overflow: hidden;
   min-height: calc(100vh - var(--sr-header));
   min-height: calc(100dvh - var(--sr-header));
-  /* Fondo de respaldo por mitades: durante el deslizamiento los bordes
-     expuestos muestran el destino de cada panel (sin huecos ni parpadeos). */
   background: linear-gradient(to right, var(--sr-hero) 50%, var(--sr-bg) 50%);
   perspective: 1400px;
 }
@@ -211,8 +206,6 @@ body.sr-auth .ax-control input:focus-visible, body.sr-auth .ax-control select:fo
 
 /* == 3. PANEL VISUAL == */
 .ax-visual {
-  /* El panel mantiene el fondo cálido del hero del sitio en ambos temas.
-     Texto claro fijo: misma convención que .sr-hero en interface.css. */
   --ax-panel-text: #fff8f1;
   background:
     radial-gradient(ellipse at 88% 8%, color-mix(in srgb, var(--sr-glow) 75%, transparent), transparent 55%),
@@ -285,7 +278,7 @@ body.sr-auth .ax-control input:focus-visible, body.sr-auth .ax-control select:fo
 .ax-stage[data-mode="register"] .ax-promo[data-promo="register"],
 .ax-stage[data-mode="login"] .ax-promo[data-promo="login"] { transition-delay: 240ms; }
 
-/* == 4. RESPONSIVO / MOVIMIENTO REDUCIDO / OSCURO == */
+/* == 4. RESPONSIVO == */
 @media (max-width: 1099px) {
   .ax-chip-flavors, .ax-garnish-citrus { display: none; }
   .ax-dish { width: min(70%, 360px); }
@@ -293,43 +286,63 @@ body.sr-auth .ax-control input:focus-visible, body.sr-auth .ax-control select:fo
   .ax-chip-rating { bottom: 30%; left: 6%; }
 }
 
+/* Móvil: solo el formulario. El panel visual se oculta por completo. */
 @media (max-width: 899px) {
-  .ax-stage { display: flex; flex-direction: column; perspective: none; background: var(--sr-bg); }
-  .ax-stage[data-mode="register"] { background: var(--sr-bg); }
-  .ax-visual {
-    position: relative; inset: auto; order: -1; flex: none;
-    width: 100%; height: 225px; transform: none !important;
+  body.sr-auth .ax-stage {
+    display: flex !important;
+    flex-direction: column !important;
+    perspective: none !important;
+    background: var(--sr-bg) !important;
+    min-height: 100dvh !important;
+    padding: 0 !important;
   }
-  .ax-forms { width: 100%; transform: none !important; min-height: 0; padding: 22px 16px 34px; }
-  .ax-pane { transform: none !important; }
-  .ax-stage[data-mode="login"] .ax-pane-register { transform: translateX(40px) !important; }
-  .ax-stage[data-mode="register"] .ax-pane-login { transform: translateX(-40px) !important; }
-  .ax-layer-plate { place-items: center end; padding: 0 9% 0 0; }
-  .ax-dish { width: 176px; }
-  .ax-garnish-tomato { width: 42px; top: 12%; left: 44%; }
-  .ax-garnish-leaf, .ax-chip-rating, .ax-chip-near { display: none; }
-  .ax-chip-flavors { display: flex; top: 14px; left: 16px; right: auto; padding: 8px 12px; }
-  .ax-promos { position: absolute; left: 0; right: 0; bottom: 0; padding: 0 16px 16px; }
-  .ax-promo { max-width: 58%; }
-  .ax-promo h3 { font-size: 21px; }
-  .ax-promo p { font-size: 12.5px; }
-  .ax-glow-a { width: 220px; height: 220px; }
-  .ax-glow-b { display: none; }
+  body.sr-auth .ax-stage[data-mode="register"] { background: var(--sr-bg) !important; }
+
+  body.sr-auth .ax-visual,
+  body.sr-auth .ax-scene,
+  body.sr-auth .ax-promos,
+  body.sr-auth .ax-promo,
+  body.sr-auth .ax-chip,
+  body.sr-auth .ax-garnish,
+  body.sr-auth .ax-glow,
+  body.sr-auth .ax-dish,
+  body.sr-auth .ax-food-host,
+  body.sr-auth .ax-food-canvas,
+  body.sr-auth canvas,
+  body.sr-auth [class*="food-scene"],
+  body.sr-auth #food-scene {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    max-height: 0 !important;
+  }
+
+  body.sr-auth .ax-forms {
+    width: 100% !important;
+    transform: none !important;
+    min-height: 0 !important;
+    padding: 22px 16px 34px !important;
+    order: 1 !important;
+  }
+  body.sr-auth .ax-pane { transform: none !important; }
+  body.sr-auth .ax-stage[data-mode="login"] .ax-pane-register { transform: translateX(40px) !important; }
+  body.sr-auth .ax-stage[data-mode="register"] .ax-pane-login { transform: translateX(-40px) !important; }
+
+  /* FAB del asistente y chat flotante fuera de auth */
+  body.sr-auth .ai-fab,
+  body.sr-auth .ai-chat,
+  body.sr-auth #aiFab,
+  body.sr-auth #aiChat {
+    display: none !important;
+  }
 }
 
 @media (max-width: 480px) {
-  .ax-visual { height: 185px; }
-  .ax-dish { width: 148px; }
-  .ax-promo p { display: none; }
-  .ax-promo { max-width: 52%; }
   .ax-card { padding: 22px 16px; border-radius: 19px; }
-  .ax-chip-flavors small { display: none; }
-  .ax-garnish-tomato { display: none; }
 }
-
 @media (max-width: 359px) {
-  .ax-chip-flavors { display: none; }
-  .ax-promo { max-width: 60%; }
   .ax-forms { padding-inline: 10px; }
 }
 
@@ -352,8 +365,6 @@ body.sr-auth .ax-control input:focus-visible, body.sr-auth .ax-control select:fo
 :root[data-theme="dark"] .ax-glow-a { opacity: .62; }
 
 /* == 5. OVERRIDES DE visualContract == */
-/* La capa visualContract de interface.css impone tamaños y botones con
-   !important; se ajusta aquí dentro de la misma capa, con mayor especificidad. */
 @layer visualContract {
   body.sr-auth .ax-title { font-size: clamp(26px, 2.6vw, 34px) !important; line-height: 1.1 !important; }
   body.sr-auth .ax-eyebrow { font-size: 14px !important; }
@@ -367,13 +378,100 @@ body.sr-auth .ax-control input:focus-visible, body.sr-auth .ax-control select:fo
   body.sr-auth .ax-control input, body.sr-auth .ax-control select { font-size: 15px !important; }
   body.sr-auth .ax-submit { font-size: 15.5px !important; border-radius: 15px; }
   body.sr-auth .ax-eye { background: transparent !important; border: 0 !important; min-height: 40px; }
-  body.sr-auth .ax-promo h3 { font-size: clamp(21px, 2.2vw, 30px) !important; line-height: 1.08 !important; }
-  body.sr-auth .ax-promo p { font-size: 14.5px !important; }
-  body.sr-auth .ax-chip strong { font-size: 13px !important; }
-  body.sr-auth .ax-chip small { font-size: 11.5px !important; }
-  body.sr-auth .ax-chip-score { font-size: 14px !important; }
-  @media (max-width: 899px) {
-    body.sr-auth .ax-promo h3 { font-size: 21px !important; }
-    body.sr-auth .ax-promo p { font-size: 12.5px !important; }
+}
+
+/* == 6. OVERRIDES FINALES (ganan a adaptive-experience.css) == */
+@media (max-width: 900px) {
+  body.sr-auth .ax-stage {
+    display: flex !important;
+    flex-direction: column !important;
+    min-height: 100dvh !important;
+    padding: 0 !important;
+    background: var(--sr-bg) !important;
+  }
+  body.sr-auth .ax-visual,
+  body.sr-auth .ax-food-host,
+  body.sr-auth .ax-food-canvas,
+  body.sr-auth .ax-promos,
+  body.sr-auth .ax-promo,
+  body.sr-auth .ax-chip,
+  body.sr-auth .ax-garnish,
+  body.sr-auth .ax-glow,
+  body.sr-auth .ax-dish,
+  body.sr-auth .ax-scene,
+  body.sr-auth canvas {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    max-height: 0 !important;
+    overflow: hidden !important;
+  }
+  body.sr-auth .ax-forms {
+    order: 1 !important;
+    width: 100% !important;
+    padding: 24px 16px !important;
+  }
+  body.sr-auth .ai-fab,
+  body.sr-auth .ai-chat { display: none !important; }
+}
+
+/* == 7. Botón "Volver al inicio" en pantallas de auth (esquina superior derecha) == */
+.sr-auth-home-link {
+  position: fixed;
+  top: max(16px, env(safe-area-inset-top));
+  right: max(16px, env(safe-area-inset-right));
+  z-index: 2000;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 16px 10px 14px;
+  border-radius: 100px;
+  border: 1px solid var(--sr-line);
+  background: color-mix(in srgb, var(--sr-surface) 88%, transparent);
+  color: var(--sr-text);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 6px 18px -12px color-mix(in srgb, var(--sr-ink) 45%, transparent);
+  transition: transform 180ms ease, background 180ms ease, border-color 180ms ease;
+}
+.sr-auth-home-link:hover {
+  border-color: var(--sr-brand);
+  background: var(--sr-surface);
+  transform: translateY(-1px);
+}
+.sr-auth-home-link:active {
+  transform: translateY(0) scale(0.98);
+}
+.sr-auth-home-link svg {
+  flex: none;
+  transition: transform 180ms ease;
+}
+.sr-auth-home-link:hover svg {
+  transform: translateX(-2px);
+}
+.sr-auth-home-link:focus-visible {
+  outline: 2px solid var(--sr-brand);
+  outline-offset: 3px;
+}
+
+/* En móvil: solo el icono, para no tapar el formulario */
+@media (max-width: 480px) {
+  .sr-auth-home-link {
+    padding: 10px;
+    min-width: 44px;
+    justify-content: center;
+  }
+  .sr-auth-home-link span {
+    position: absolute;
+    clip-path: inset(50%);
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    white-space: nowrap;
   }
 }
