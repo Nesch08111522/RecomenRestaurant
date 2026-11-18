@@ -420,6 +420,7 @@ body.sr-auth .ax-control input:focus-visible, body.sr-auth .ax-control select:fo
 .sr-auth-home-link {
   position: fixed;
   top: max(16px, env(safe-area-inset-top));
+  left: auto;
   right: max(16px, env(safe-area-inset-right));
   z-index: 2000;
   display: inline-flex;
@@ -475,3 +476,5 @@ body.sr-auth .ax-control input:focus-visible, body.sr-auth .ax-control select:fo
     white-space: nowrap;
   }
 }
+body.sr-auth .ax-stage { padding-top: 72px; }
+@media(prefers-reduced-motion:reduce){.sr-auth-home-link,.sr-auth-home-link svg{transition:none!important;}}

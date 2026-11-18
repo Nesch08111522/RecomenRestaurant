@@ -284,3 +284,6 @@ body .ai-chat-input { width:0; flex:1 1 0; }
   }
   html.sr-compact:not(.sr-nav-preview) .sr-sidebar .sr-section-links { display: none; }
 }
+@layer visualContract {
+ @media(max-width:640px){body[data-role="guest"] .sr-header .sr-actions .sr-login{display:none!important;}body .sr-header .sr-top{min-width:0;gap:6px!important;}body .sr-header .sr-actions{min-width:0;gap:2px!important;}}
+}

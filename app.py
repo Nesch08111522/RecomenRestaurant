@@ -74,6 +74,14 @@ def create_app(test_config=None):
 
     app.register_blueprint(admin_ai_bp)
 
+    from utils.restaurant_review import RestaurantRejected
+    @app.errorhandler(RestaurantRejected)
+    def rejected_restaurant(error):
+        from flask import jsonify, request, render_template
+        if request.is_json or "/api/" in request.path:
+            return jsonify(error=str(error)), 422
+        return render_template("400.html", message=str(error)), 422
+
     @app.context_processor
     def inject():
         return inject_globals()
