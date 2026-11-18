@@ -1,35 +1,6 @@
-<footer class="main-footer">
-    <div class="footer-container">
-        <p>&copy; 2026 {{ APP_NAME }}. Inspirado en la excelencia culinaria de {{ CIUDAD }}.</p>
-        <div class="footer-links">
-            <a href="#">Privacidad</a>
-            <a href="#">Términos</a>
-            <a href="#">Mapa del sitio</a>
-        </div>
-    </div>
+<footer class="sr-footer">
+  <div><a class="sr-logo" href="{{ url_for('main.index') }}"><span class="sr-mark" aria-hidden="true">✳</span>SmartResto</a><p>Descubre la cocina local de {{ CIUDAD }}.</p></div>
+  <nav aria-label="Explorar"><strong>Explorar</strong><a href="{{ url_for('main.index', _anchor='explorar') }}">Restaurantes y mapa</a><a href="{{ url_for('market.browse') }}">Mercado gastronómico</a><a href="{{ url_for('main.index', _anchor='negocios') }}">Para empresarios</a></nav>
+  <nav aria-label="Soporte"><strong>Soporte</strong><a href="{{ url_for('main.index', _anchor='preguntas') }}">Preguntas frecuentes</a><a href="{{ url_for('comunicacion.cases') if session.get('user') else url_for('auth.login',next=url_for('comunicacion.cases')) }}">Contacto y reclamos</a><a href="https://wa.me/?text={{ request.url_root|urlencode }}" rel="noopener noreferrer" target="_blank">Compartir en WhatsApp</a></nav>
+  <nav aria-label="Información"><strong>Plataforma</strong><a href="{{ url_for('main.information', section='privacidad') }}">Privacidad</a><a href="{{ url_for('main.information', section='condiciones') }}">Condiciones de uso</a><small>© 2026 SmartResto</small></nav>
 </footer>
-
-<style>
-    .main-footer {
-        border-top: 1px solid #ebebeb;
-        padding: 48px 40px;
-        background: #f7f7f7;
-        margin-top: 48px;
-    }
-    .footer-container {
-        max-width: 1600px;
-        margin: 0 auto;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        font-size: 14px;
-        color: #222;
-    }
-    .footer-links {
-        display: flex;
-        gap: 24px;
-    }
-    .footer-links a {
-        font-weight: 600;
-    }
-</style>

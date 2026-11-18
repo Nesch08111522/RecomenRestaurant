@@ -6,10 +6,81 @@ def filter_restaurants(restaurants, filters):
     Aplica múltiples filtros a la lista de restaurantes.
     Paradigma: Funcional.
     """
-    if not restaurants:
-        return []
-    
-    filtered = restaurants
+    from datetime import datetime, timedelta, timezone
+    import math
+    from logic.market import key
+
+    filtered = [dict(r) for r in restaurants]
+    clock = filters.get('at_time') or datetime.now(timezone(timedelta(hours=-5))).strftime('%H:%M')
+    try:
+        datetime.strptime(clock, '%H:%M')
+    except (TypeError, ValueError):
+        raise ValueError('Horario invalido')
+    for row in filtered:
+        opening, closing = row.get('open_time'), row.get('close_time')
+        row['is_open_now'] = None
+        if opening and closing:
+            try:
+                datetime.strptime(opening, '%H:%M')
+                datetime.strptime(closing, '%H:%M')
+                row['is_open_now'] = (opening <= clock < closing if opening < closing
+                                      else clock >= opening or clock < closing)
+            except (TypeError, ValueError):
+                pass
+    for field, source, lower in [('min_price', 'avg_price', True), ('max_price', 'avg_price', False),
+                                  ('min_rating', 'rating', True)]:
+        if filters.get(field) is not None:
+            try:
+                value = float(filters[field])
+            except (TypeError, ValueError):
+                raise ValueError('Filtro numerico invalido')
+            if not math.isfinite(value) or value < 0 or (field == 'min_rating' and value > 5):
+                raise ValueError('Filtro numerico fuera de rango')
+            filtered = [r for r in filtered if isinstance(r.get(source), (int, float))
+                        and (r[source] >= value if lower else r[source] <= value)]
+    if filters.get('category_ids'):
+        ids = filters['category_ids']
+        if not isinstance(ids, list):
+            raise ValueError('Categorias invalidas')
+        filtered = [r for r in filtered if str(r.get('category_id')) in {str(i) for i in ids}]
+    if filters.get('business_type'):
+        filtered = [r for r in filtered if key(r.get('business_type') or r.get('market_kind') or '') == key(filters['business_type'])]
+    if filters.get('channel'):
+        filtered = [r for r in filtered if filters['channel'] in r.get('market_channels', [])]
+    if filters.get('open_now') or filters.get('at_time'):
+        filtered = [r for r in filtered if r['is_open_now'] is True]
+    if filters.get('available_only'):
+        filtered = [r for r in filtered if r.get('is_available', r.get('available')) is True]
+    if filters.get('promo_only'):
+        filtered = [r for r in filtered if r.get('promo')]
+    if filters.get('keywords'):
+        if not isinstance(filters['keywords'], list):
+            raise ValueError('Etiquetas invalidas')
+        filtered = [r for r in filtered if all(key(t) in {key(v) for v in r.get('tags', [])}
+                                               for t in filters['keywords'])]
+    origin = normalize_coordinates(filters.get('lat'), filters.get('lng'))
+    if filters.get('nearby') or filters.get('radius') is not None:
+        if not origin:
+            raise ValueError('Se requiere ubicacion para buscar cercanos')
+        try:
+            radius = float(filters.get('radius', 5))
+        except (TypeError, ValueError):
+            raise ValueError('Radio invalido')
+        if not math.isfinite(radius) or not 0 < radius <= 100:
+            raise ValueError('Radio fuera de rango')
+        filtered = [r for r in filtered if normalize_coordinates(r.get('lat'), r.get('lng'))
+                    and calculate_distance(*origin, r['lat'], r['lng']) <= radius]
+    if filters.get('bounds') is not None:
+        bounds = filters['bounds']
+        if not isinstance(bounds, list) or len(bounds) != 4:
+            raise ValueError('Limites geograficos invalidos')
+        south_west = normalize_coordinates(*bounds[:2])
+        north_east = normalize_coordinates(*bounds[2:])
+        if not south_west or not north_east or any(a > b for a, b in zip(south_west, north_east)):
+            raise ValueError('Limites geograficos invalidos')
+        filtered = [r for r in filtered if normalize_coordinates(r.get('lat'), r.get('lng'))
+                    and south_west[0] <= float(r['lat']) <= north_east[0]
+                    and south_west[1] <= float(r['lng']) <= north_east[1]]
     
     if filters.get('category_id'):
         try:
@@ -19,21 +90,7 @@ def filter_restaurants(restaurants, filters):
             pass
         
     if filters.get('district'):
-        filtered = list(filter(lambda r: r.get('district', '').lower() == filters['district'].lower(), filtered))
-        
-    if filters.get('max_price'):
-        try:
-            max_price = float(filters['max_price'])
-            filtered = list(filter(lambda r: r.get('avg_price', 0) <= max_price, filtered))
-        except (ValueError, TypeError):
-            pass
-        
-    if filters.get('min_rating'):
-        try:
-            min_rating = float(filters['min_rating'])
-            filtered = list(filter(lambda r: r.get('rating', 0) >= min_rating, filtered))
-        except (ValueError, TypeError):
-            pass
+        filtered = list(filter(lambda r: key(r.get('district') or '') == key(filters['district']), filtered))
         
     if filters.get('has_promo'):
         filtered = list(filter(lambda r: r.get('promo') is not None, filtered))
@@ -97,7 +154,8 @@ def enrich_with_metadata(restaurants, user_lat, user_lng):
     def enrich_single(r):
         lat = r.get('lat')
         lng = r.get('lng')
-        distance = calculate_distance(user_lat, user_lng, lat, lng)
+        distance = (calculate_distance(user_lat, user_lng, lat, lng)
+                    if normalize_coordinates(user_lat, user_lng) and normalize_coordinates(lat, lng) else None)
         enriched = {**r, 'distance_km': distance}
         # No se inventa disponibilidad horaria: solo se conserva si una fuente
         # previa la calculó de forma explícita.

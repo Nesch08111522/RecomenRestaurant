@@ -6,7 +6,7 @@ class AppController {
             currentView: 'grid',
             favorites: [],
             user: null,
-            theme: 'light'
+            theme: document.documentElement.dataset.theme || 'light'
         };
 
         this.elements = {};
@@ -72,11 +72,6 @@ class AppController {
     bindEvents() {
         this.elements.themeToggle?.addEventListener('click', () => {
             this.toggleTheme();
-        });
-
-        this.elements.searchForm?.addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.handleSearch();
         });
 
         this.elements.locationBtn?.addEventListener('click', () => {
@@ -168,7 +163,10 @@ class AppController {
             return;
         }
 
-        grid.innerHTML = this.state.filteredRestaurants.map(r =>
+        const isFeaturedHome = document.body.classList.contains('sr-discover') &&
+            this.state.filteredRestaurants === this.state.restaurants;
+        const visibleRestaurants = isFeaturedHome ? this.state.filteredRestaurants.slice(0, 3) : this.state.filteredRestaurants;
+        grid.innerHTML = visibleRestaurants.map(r =>
             this.renderRestaurantCard(r)
         ).join('');
 
@@ -179,6 +177,7 @@ class AppController {
     }
 
     injectCardStyles() {
+        if (document.body.classList.contains('sr-discover')) return;
         if (document.getElementById('rc-card-styles')) return;
 
         const style = document.createElement('style');
@@ -385,14 +384,19 @@ class AppController {
     }
 
     renderRestaurantCard(restaurant) {
+        if (document.body.classList.contains('sr-discover') && window.ForestUI) {
+            return window.ForestUI.renderRestaurantCard(restaurant, this.state.favorites, typeof MONEDA !== 'undefined' ? MONEDA : 'S/');
+        }
+        if (!Number.isSafeInteger(Number(restaurant.id))) return "";
+        const esc = window.escapeDisplayText;
         const tags = restaurant.tags?.slice(0, 3).map(t =>
-            `<span class="tag">${t}</span>`
+            `<span class="tag">${esc(t)}</span>`
         ).join('') || '';
 
         const justifications = restaurant.justifications && restaurant.justifications.length > 0
             ? `<div class="ia-justification">
                 <i class="fas fa-robot"></i>
-                <span>${restaurant.justifications[0]}</span>
+                <span>${esc(restaurant.justifications[0])}</span>
                </div>`
             : '';
 
@@ -415,42 +419,42 @@ class AppController {
 
         return `
             <div class="restaurant-card rc" 
-                 data-id="${restaurant.id}" 
-                 data-lat="${restaurant.lat}" 
-                 data-lng="${restaurant.lng}"
-                 onmouseenter="highlightMarker(${restaurant.id})" 
-                 onmouseleave="resetMarker(${restaurant.id})">
+                 data-id="${Number(restaurant.id)}"
+                 data-lat="${esc(restaurant.lat)}"
+                 data-lng="${esc(restaurant.lng)}"
+                 onmouseenter="highlightMarker(${Number(restaurant.id)})"
+                 onmouseleave="resetMarker(${Number(restaurant.id)})">
                 
                 <div class="card-image">
-                    <img src="${restaurant.image}" alt="${restaurant.name}" loading="lazy">
+                    ${restaurant.image ? `<img src="${esc(restaurant.image)}" alt="${esc(restaurant.name)}" loading="lazy">` : ""}
                     
                     <div class="rc-badges">
                         ${promo}
                         ${topRated}
                     </div>
                     
-                    <button class="fav-btn" onclick="toggleFavorite(${restaurant.id}, event)" title="Agregar a favoritos">
+                    <button class="fav-btn" onclick="toggleFavorite(${Number(restaurant.id)}, event)" title="Agregar a favoritos">
                         <i class="${isFavorite} fa-heart"></i>
                     </button>
                 </div>
                 
                 <div class="card-content">
                     <div class="card-header">
-                        <h3>${restaurant.name}</h3>
+                        <h3>${esc(restaurant.name)}</h3>
                         <div class="rating">
                             <i class="fas fa-star"></i>
-                            <span>${restaurant.rating}</span>
+                            <span>${esc(restaurant.rating)}</span>
                         </div>
                     </div>
                     
                     <div class="card-location">
                         <i class="fas fa-map-marker-alt"></i>
-                        <span>${restaurant.district}</span>
+                        <span>${esc(restaurant.district)}</span>
                         ${distance}
                     </div>
                     
                     <div class="card-price">
-                        <span class="price">${currency}${restaurant.avg_price}</span>
+                        <span class="price">${currency}${esc(restaurant.avg_price)}</span>
                         <span class="price-label">por persona</span>
                     </div>
                     
@@ -458,7 +462,7 @@ class AppController {
                     
                     ${justifications}
                     
-                    <a href="/restaurant/${restaurant.id}" class="card-link">
+                    <a href="/restaurant/${Number(restaurant.id)}" class="card-link">
                         <span>Ver detalles</span> <i class="fas fa-arrow-right"></i>
                     </a>
                 </div>
@@ -502,8 +506,12 @@ class AppController {
     }
 
     applyFilter(chip) {
-        document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('.filter-chip').forEach(c => {
+            c.classList.remove('active');
+            c.setAttribute('aria-pressed', 'false');
+        });
         chip.classList.add('active');
+        chip.setAttribute('aria-pressed', 'true');
 
         const filter = chip.dataset.filter;
         const category = chip.dataset.category;
@@ -570,15 +578,16 @@ class AppController {
     }
 
     async loadFavorites() {
+        // Verificar si el usuario está autenticado antes de realizar la petición
+        const isLoggedIn = document.querySelector('.user-dropdown') !== null;
+        
         try {
             const response = await fetch('/auth/api/favorites');
             if (response.ok) {
                 const data = await response.json();
-                if (data.success && data.favorites) {
-                    this.state.favorites = data.favorites.map(f => f.restaurant_id);
-                    this.saveState();
-                    console.log('✅ Favoritos cargados desde servidor:', this.state.favorites);
-                }
+                this.state.favorites = data.favorites.map(f => f.restaurant_id);
+                this.saveState();
+                console.log('✅ Favoritos cargados desde servidor:', this.state.favorites);
             } else {
                 console.warn('⚠️ Error cargando favoritos, usando caché local');
             }
@@ -646,16 +655,11 @@ class AppController {
 
     applyTheme() {
         const isDark = this.state.theme === 'dark';
-        document.documentElement.style.setProperty('--bg-primary', isDark ? '#1A1A1A' : '#F7F7F7');
-        document.documentElement.style.setProperty('--bg-secondary', isDark ? '#2A2A2A' : '#FFFFFF');
-        document.documentElement.style.setProperty('--text-primary', isDark ? '#FFFFFF' : '#1A1A1A');
-        document.documentElement.style.setProperty('--text-secondary', isDark ? '#A0A0A0' : '#717171');
-
-        // ✅ Verificar que el elemento existe antes de modificarlo
+        document.documentElement.dataset.theme = this.state.theme;
         if (this.elements.themeToggle) {
-            this.elements.themeToggle.innerHTML = isDark
-                ? '<i class="fas fa-sun"></i>'
-                : '<i class="fas fa-moon"></i>';
+            this.elements.themeToggle.textContent = isDark ? '☀' : '◐';
+            this.elements.themeToggle.setAttribute('aria-label', isDark ? 'Activar tema claro' : 'Activar tema oscuro');
+            this.elements.themeToggle.setAttribute('aria-pressed', String(isDark));
         }
     }
 
@@ -713,12 +717,13 @@ class AppController {
             const result = await response.json();
             console.log('📥 Resultado:', result);
 
-            if (result.results && result.results.length > 0) {
-                this.state.filteredRestaurants = result.results;
+            const matches = Array.isArray(result) ? result : result.results;
+            if (matches?.length) {
+                this.state.filteredRestaurants = matches;
                 this.renderRestaurants();
-                this.updateMapMarkers(result.results);
+                this.updateMapMarkers(matches);
                 this.closeRecommendationModal();
-                alert(`¡Encontramos ${result.results.length} restaurantes recomendados!`);
+                alert(`¡Encontramos ${matches.length} restaurantes recomendados!`);
             } else {
                 alert('No encontramos restaurantes que coincidan con tus preferencias.');
             }
@@ -729,213 +734,39 @@ class AppController {
     }
 
 
-    async getUserLocation() {
-        console.log('🟢 Intentando obtener ubicación...');
-
-        // Verificar si la página es segura
-        const isSecure = window.location.protocol === 'https:' ||
-            window.location.hostname === 'localhost' ||
-            window.location.hostname === '127.0.0.1';
-
-        if (!isSecure) {
-            console.warn('⚠️ La página no es segura. Usa http://localhost:5000');
-            this.showLocationError('⚠️ Usa http://localhost:5000 en lugar de una IP para geolocalización');
+    getUserLocation() {
+        if (this.locationRequest) return this.locationRequest;
+        const button = this.elements.locationBtn;
+        const status = document.getElementById('geo-status');
+        const report = message => { if (status) status.textContent = message; };
+        if (!window.isSecureContext || !navigator.geolocation) {
+            report('La ubicación requiere HTTPS o localhost y un navegador compatible.');
+            return Promise.resolve(null);
+        }
+        if (button) button.disabled = true;
+        report('Buscando tu ubicación…');
+        this.locationRequest = new Promise((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject,
+                {enableHighAccuracy:false, maximumAge:60000, timeout:20000});
+        }).then(position => {
+            const coords = {lat:position.coords.latitude, lng:position.coords.longitude, accuracy:position.coords.accuracy};
+            this.state.userLocation = coords;
+            this.saveUserLocation(coords);
+            report('Ubicación encontrada.');
+            if (window.mapGL) window.mapGL.showPosition(coords.lat, coords.lng);
+            else this.centerMap(coords.lat, coords.lng);
+            this.filterNearbyRestaurants(coords);
+            return coords;
+        }, error => {
+            report(error.code === 1 ? 'Permite el acceso a la ubicación desde tu navegador.' :
+                error.code === 3 ? 'Se agotó el tiempo de espera. Puedes intentarlo de nuevo.' :
+                'Ubicación no disponible. Comprueba que la ubicación del dispositivo esté activa.');
             return null;
-        }
-
-        if (!navigator.geolocation) {
-            console.error('❌ Geolocalización no soportada');
-            this.showLocationError('Tu navegador no soporta geolocalización');
-            return null;
-        }
-
-        if (navigator.permissions && navigator.permissions.query) {
-            try {
-                const permissionStatus = await navigator.permissions.query({ name: 'geolocation' });
-                console.log('📌 Estado del permiso:', permissionStatus.state);
-
-                if (permissionStatus.state === 'denied') {
-                    this.showLocationError(
-                        '❌ Permiso de ubicación denegado.\n\n' +
-                        'Para habilitarlo:\n' +
-                        '1. Haz clic en el candado 🔒 en la barra de direcciones\n' +
-                        '2. Busca "Ubicación" y selecciona "Permitir"\n' +
-                        '3. Recarga la página e intenta de nuevo'
-                    );
-                    return null;
-                }
-
-                if (permissionStatus.state === 'prompt') {
-                    console.log('📌 El navegador pedirá permiso...');
-                    this.showLocationInfo('📍 El navegador te pedirá permiso para acceder a tu ubicación. Haz clic en "Permitir".');
-                }
-            } catch (e) {
-                console.warn('No se pudo verificar el permiso:', e);
-            }
-        }
-
-        return new Promise((resolve) => {
-            const options = {
-                enableHighAccuracy: true,
-                timeout: 15000,
-                maximumAge: 60000
-            };
-
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    const coords = {
-                        lat: position.coords.latitude,
-                        lng: position.coords.longitude,
-                        accuracy: position.coords.accuracy
-                    };
-
-                    console.log('📍 Ubicación obtenida:', coords);
-
-                    this.state.userLocation = coords;
-                    this.centerMap(coords.lat, coords.lng);
-                    this.saveUserLocation(coords);
-                    this.showLocationSuccess(coords);
-                    this.filterNearbyRestaurants(coords);
-
-                    resolve(coords);
-                },
-                (error) => {
-                    console.error('❌ Error de geolocalización:', error);
-
-                    let userMessage = '';
-
-                    switch (error.code) {
-                        case error.PERMISSION_DENIED:
-                            userMessage =
-                                '❌ Permiso de ubicación denegado.\n\n' +
-                                'Para habilitarlo:\n' +
-                                '1. Haz clic en el candado 🔒 en la barra de direcciones\n' +
-                                '2. Busca "Ubicación" y selecciona "Permitir"\n' +
-                                '3. Recarga la página e intenta de nuevo\n\n' +
-                                'Si ya lo hiciste, cierra y vuelve a abrir el navegador.';
-                            break;
-                        case error.POSITION_UNAVAILABLE:
-                            userMessage = '❌ No se pudo obtener tu ubicación. Verifica que el GPS esté activo.';
-                            break;
-                        case error.TIMEOUT:
-                            userMessage = '❌ Tiempo de espera agotado. Intenta de nuevo.';
-                            break;
-                        default:
-                            userMessage = `❌ Error: ${error.message}`;
-                    }
-
-                    this.showLocationError(userMessage);
-                    resolve(null);
-                },
-                options
-            );
+        }).finally(() => {
+            if (button) button.disabled = false;
+            this.locationRequest = null;
         });
-    }
-
-    showLocationInfo(message) {
-        console.log('ℹ️ ' + message);
-
-        const toast = document.createElement('div');
-        toast.style.cssText = `
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #3B82F6;
-            color: white;
-            padding: 16px 24px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-            z-index: 9999;
-            font-size: 14px;
-            max-width: 90%;
-            text-align: center;
-            animation: slideUp 0.3s ease;
-            white-space: pre-line;
-        `;
-        toast.innerHTML = `
-            <i class="fas fa-info-circle" style="margin-right: 10px; font-size: 20px;"></i>
-            ${message.replace(/\n/g, '<br>')}
-        `;
-        document.body.appendChild(toast);
-
-        setTimeout(() => {
-            toast.style.opacity = '0';
-            toast.style.transition = 'opacity 0.5s ease';
-            setTimeout(() => toast.remove(), 500);
-        }, 5000);
-    }
-
-    showLocationSuccess(coords) {
-        const message = `📍 Ubicación detectada!\nLat: ${coords.lat.toFixed(6)}\nLng: ${coords.lng.toFixed(6)}`;
-        console.log('✅ ' + message);
-
-        const toast = document.createElement('div');
-        toast.style.cssText = `
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #10B981;
-            color: white;
-            padding: 16px 24px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-            z-index: 9999;
-            font-size: 14px;
-            max-width: 90%;
-            text-align: center;
-            animation: slideUp 0.3s ease;
-            white-space: pre-line;
-        `;
-        toast.innerHTML = `
-            <i class="fas fa-check-circle" style="margin-right: 10px; font-size: 20px;"></i>
-            Ubicación detectada correctamente
-            <br><small style="opacity: 0.8;">${coords.lat.toFixed(4)}, ${coords.lng.toFixed(4)}</small>
-        `;
-        document.body.appendChild(toast);
-
-        setTimeout(() => {
-            toast.style.opacity = '0';
-            toast.style.transition = 'opacity 0.5s ease';
-            setTimeout(() => toast.remove(), 500);
-        }, 5000);
-    }
-
-    showLocationError(message) {
-        console.error('❌ ' + message);
-
-        const toast = document.createElement('div');
-        toast.style.cssText = `
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #EF4444;
-            color: white;
-            padding: 16px 24px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-            z-index: 9999;
-            font-size: 14px;
-            max-width: 90%;
-            text-align: center;
-            animation: slideUp 0.3s ease;
-            white-space: pre-line;
-            max-height: 80vh;
-            overflow-y: auto;
-        `;
-        toast.innerHTML = `
-            <i class="fas fa-exclamation-circle" style="margin-right: 10px; font-size: 20px;"></i>
-            ${message.replace(/\n/g, '<br>')}
-        `;
-        document.body.appendChild(toast);
-
-        setTimeout(() => {
-            toast.style.opacity = '0';
-            toast.style.transition = 'opacity 0.5s ease';
-            setTimeout(() => toast.remove(), 500);
-        }, 10000);
+        return this.locationRequest;
     }
 
     saveUserLocation(coords) {
@@ -973,7 +804,7 @@ class AppController {
     filterNearbyRestaurants(coords) {
         const radius = 10;
         const filtered = this.state.restaurants.filter(r => {
-            if (!r.lat || !r.lng) return false;
+            if (r.lat == null || r.lng == null) return false;
             const dist = this.calculateDistance(coords.lat, coords.lng, r.lat, r.lng);
             r.distance_km = dist;
             return dist <= radius;
@@ -987,7 +818,7 @@ class AppController {
         } else {
             console.log(`📍 No se encontraron restaurantes dentro de ${radius} km`);
             const withDistance = this.state.restaurants.map(r => {
-                if (r.lat && r.lng) {
+                if (r.lat != null && r.lng != null) {
                     r.distance_km = this.calculateDistance(coords.lat, coords.lng, r.lat, r.lng);
                 }
                 return r;
@@ -1043,21 +874,58 @@ class AppController {
                         badge.style.display = data.unread_count > 0 ? 'flex' : 'none';
                     }
 
-                    list.innerHTML = data.notifications.map(n => `
-                        <div class="notification-item ${n.read ? 'read' : 'unread'}" 
-                             data-id="${n.id}"
-                             onclick="markNotificationRead(${n.id})">
-                            <div class="notification-icon ${n.type}">
-                                <i class="fas fa-${n.type === 'promo' ? 'tag' : n.type === 'favorite' ? 'heart' : 'bell'}"></i>
-                            </div>
-                            <div class="notification-content">
-                                <div class="notification-title">${n.title}</div>
-                                <div class="notification-message">${n.message}</div>
-                                <div class="notification-time">${new Date(n.timestamp).toLocaleDateString()}</div>
-                            </div>
-                            ${!n.read ? '<div class="notification-dot"></div>' : ''}
-                        </div>
-                    `).join('');
+                    list.replaceChildren();
+                    data.notifications.forEach(n => {
+                        const type = ['promo', 'favorite', 'reservation', 'info'].includes(n.type) ? n.type : 'info';
+                        const icons = { promo: 'tag', favorite: 'heart', reservation: 'calendar-check', info: 'bell' };
+                        const item = document.createElement('div');
+                        item.className = `notification-item ${n.read ? 'read' : 'unread'}`;
+                        item.dataset.id = String(n.id);
+                        if (!n.read) item.addEventListener('click', () => window.markNotificationRead?.(n.id));
+
+                        const icon = document.createElement('div');
+                        icon.className = `notification-icon ${type}`;
+                        const iconGlyph = document.createElement('i');
+                        iconGlyph.className = `fas fa-${icons[type]}`;
+                        icon.appendChild(iconGlyph);
+
+                        const content = document.createElement('div');
+                        content.className = 'notification-content';
+                        const title = document.createElement('div');
+                        title.className = 'notification-title';
+                        title.textContent = String(n.title || 'Notificación');
+                        const message = document.createElement('div');
+                        message.className = 'notification-message';
+                        message.textContent = String(n.message || '');
+                        const time = document.createElement('div');
+                        time.className = 'notification-time';
+                        const parsedDate = new Date(n.timestamp);
+                        time.textContent = Number.isNaN(parsedDate.getTime()) ? '' : parsedDate.toLocaleDateString();
+                        content.append(title, message, time);
+
+                        item.append(icon, content);
+                        if (typeof n.link === 'string' && n.link.startsWith('/') && !n.link.startsWith('//')) {
+                            const link = document.createElement('a');
+                            link.className = 'notification-open-link';
+                            link.href = n.link;
+                            link.textContent = 'Ver detalles';
+                            link.addEventListener('click', async event => {
+                                event.stopPropagation();
+                                if (!n.read) {
+                                    event.preventDefault();
+                                    await window.markNotificationRead?.(n.id);
+                                    window.location.assign(n.link);
+                                }
+                            });
+                            item.appendChild(link);
+                        }
+                        if (!n.read) {
+                            const dot = document.createElement('div');
+                            dot.className = 'notification-dot';
+                            item.appendChild(dot);
+                        }
+                        list.appendChild(item);
+                    });
                 } else {
                     list.innerHTML = `
                         <div class="notification-empty">
@@ -1085,7 +953,7 @@ class AppController {
     }
 
     calculateDistance(lat1, lng1, lat2, lng2) {
-        if (!lat1 || !lng1 || !lat2 || !lng2) return 999;
+        if ([lat1, lng1, lat2, lng2].some(v => v == null || !Number.isFinite(Number(v)))) return 999;
         const R = 6371;
         const dLat = this.toRad(lat2 - lat1);
         const dLng = this.toRad(lng2 - lng1);

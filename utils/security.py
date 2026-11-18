@@ -1,14 +1,12 @@
-"""Controles de seguridad compartidos por la aplicación.
-
-La capa mantiene la compatibilidad con Flask y con el almacenamiento JSON actual,
-pero evita duplicar reglas críticas en cada blueprint.
-"""
+"""Controles de sesión y seguridad compartidos por los blueprints."""
 from __future__ import annotations
 
 from urllib.parse import urljoin, urlparse
 
-from flask import request, session
+from flask import flash, g, request, session
 from flask_wtf.csrf import CSRFProtect
+
+from models.user import UserModel
 
 
 csrf = CSRFProtect()
@@ -63,3 +61,26 @@ def valid_coordinate(value: object, minimum: float, maximum: float) -> bool:
     except (TypeError, ValueError):
         return False
     return minimum <= numeric <= maximum
+
+
+def fresh_session_user():
+    """Revalida el rol contra el almacenamiento antes de autorizar."""
+    if hasattr(g, "session_identity"):
+        return g.session_identity
+    raw_id = session.get("user_id")
+    try:
+        user_id = int(raw_id)
+    except (TypeError, ValueError):
+        return None
+    user = UserModel.get_by_id(user_id)
+    if not UserModel.is_active(user) or session.get('auth_epoch', 0) != user.get('auth_epoch', 0):
+        session.clear()
+        flash("Tu sesión expiró o se cerró en otro dispositivo. Inicia sesión de nuevo.", "warning")
+        return None
+    g.account_record = user
+    identity = session_identity(user)
+    session["user"] = identity
+    session["role"] = identity["role"]
+    session["username"] = identity["username"]
+    g.session_identity = identity
+    return identity

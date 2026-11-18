@@ -1,0 +1,10 @@
+{% extends "communication/base.html" %}{% block communication %}
+<h1>{{ thread.subject }}</h1><p>{{ 'Soporte' if thread.support else thread.business }}{% if thread.oid %} · Pedido #{{ thread.oid }}{% endif %}</p>
+{% if pending(thread,uid) %}<form method="post" action="{{ url_for('comunicacion.seen',tid=thread.id) }}">{{ token() }}<input type="hidden" name="last_id" value="{{ thread.last_id }}"><button>Marcar conversación como leída</button></form>{% endif %}
+{% for m in messages %}<article class="market-panel"><strong>{{ 'Tú' if m.author == uid else m.name }}</strong>
+<time datetime="{{ m.created }}">{{ m.created[:16]|replace('T',' ') }}</time><p>{{ m.body }}</p>
+{% if m.evidence %}<a href="{{ url_for('comunicacion.file',tid=thread.id,mid=m.id) }}">Descargar archivo privado</a>{% endif %}
+</article>{% endfor %}
+<form method="post" enctype="multipart/form-data" class="market-form" action="{{ url_for('comunicacion.reply',tid=thread.id) }}">{{ token() }}
+{% include 'communication/message_fields.html' %}<button>Responder</button></form>
+{% endblock %}

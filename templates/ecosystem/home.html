@@ -1,0 +1,13 @@
+{% extends "market/base.html" %}{% from "market/base.html" import token with context %}{% block market %}
+<h1>Tu momento gastronómico</h1><p>Combina tus preferencias con la ocasión y las condiciones de hoy.</p>
+<form class="market-form" method="post" action="{{ url_for('ecosystem.context') }}">{{ token() }}
+<label>¿Cómo va tu día?<select name="mood"><option value="">Sin preferencia</option>{% for value,label in moods.items() %}<option value="{{ value }}" {% if context.mood==value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></label>
+<label>Ocasión<select name="moment"><option value="">Cualquier ocasión</option>{% for value,label in moments.items() %}<option value="{{ value }}" {% if context.moment==value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></label>
+<label class="check"><input type="checkbox" name="weather" {% if context.weather %}checked{% endif %}> Consultar el clima con mi ubicación aproximada en Open-Meteo</label><button>Aplicar durante cuatro horas</button><button class="secondary" name="action" value="clear">Desactivar contexto</button></form>
+{% if weather %}<section class="market-panel"><h2>{{ weather.temperature_2m }} °C</h2><p>Sensación {{ weather.apparent_temperature }} °C · Humedad {{ weather.relative_humidity_2m }}% · Viento {{ weather.wind_speed_10m }} km/h · Probabilidad de lluvia {{ weather.rain_probability }}%</p><p>Open-Meteo · {{ weather.observed }} · Pronóstico por modelo meteorológico.</p></section>
+{% elif context.weather %}<p>Clima no disponible. Activa tu ubicación o vuelve a intentarlo.</p>{% endif %}
+<button id="context-location" type="button">Usar mi ubicación</button><output id="context-location-status" role="status"></output>
+{% if context.mood=='recovery' %}<p>Recovery Food muestra opciones declaradas sin alcohol. El agua y el descanso pueden ayudarte. Estas sugerencias no tratan ni curan la resaca.</p>{% endif %}
+<form class="market-form" method="get"><label>Presupuesto por comida (S/)<input name="budget" type="number" min="0" step=".01" value="{{ filters.budget }}"></label><label>Distrito<input name="zone" value="{{ filters.zone }}"></label><button>Filtrar opciones</button></form>
+{% include "ecosystem/options.html" %}
+{% endblock %}{% block scripts %}<script src="{{ url_for('static',filename='js/context-location.js') }}"></script>{% endblock %}

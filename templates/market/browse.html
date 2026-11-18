@@ -1,0 +1,48 @@
+{% extends "market/base.html" %}{% from "market/base.html" import token with context %}
+{% block market %}
+<header class="market-hero"><div><h1>Mercado de barrio</h1><p>Encuentra porciones disponibles de cocinas, puestos y negocios de Trujillo.</p></div>
+{% if session.role == 'business_owner' %}<a class="market-link" href="{{ url_for('admin.new_restaurant') }}">Registrar negocio</a>{% endif %}</header>
+{% if stores %}<div class="market-links">Gestionar cocina {% for s in stores %}<a href="{{ url_for('market.desk',rid=s.id) }}">{{ s.name }}</a>{% endfor %}</div>{% endif %}
+<form class="market-filters sr-filter-form" method="get">
+<label class="wide">¿Qué te apetece?<input name="q" value="{{ request.args.get('q','') }}" placeholder="Almuerzo criollo hasta S/ 15 para recoger"></label>
+<button>Buscar</button>
+<details class="sr-filter-more"><summary>Filtros<span data-filter-count></span></summary><div class="sr-filter-fields">
+<label>Máximo por porción (S/)<input type="number" name="budget" min="0" step=".01" value="{{ filters.budget }}"></label>
+<label>Modalidad<select name="channel"><option value="">Todas</option>{% for c in channels %}<option {% if c==filters.channel %}selected{% endif %}>{{ c }}</option>{% endfor %}</select></label>
+<label>Distrito o zona<input name="zone" value="{{ filters.zone }}"></label>
+<label>Fecha<input type="date" name="day" min="{{ today }}" value="{{ request.args.get('day','') }}"></label>
+<label>Excluir ingredientes o alérgenos<input name="avoid" placeholder="Leche, maní" value="{{ request.args.get('avoid','') }}"></label>
+<label>Radio (km, con ubicación activa)<input type="number" name="km" min="1" max="100" value="{{ request.args.km }}"></label><label>Categoría del plato<select name="category"><option value="">Todas</option>{% for cat in ["Entrada","Fondo","Postre","Bebida"] %}<option {% if request.args.category==cat %}selected{% endif %}>{{ cat }}</option>{% endfor %}</select></label>
+<label>Plan semanal (S/)<input name="week" type="number" min="0" step=".01" value="{{ request.args.get('week','') }}"></label>
+<label class="check"><input type="checkbox" name="rescue" {% if request.args.rescue %}checked{% endif %}> Solo últimas porciones</label>
+<div class="sr-filter-actions"><button>Aplicar filtros</button><a href="{{ url_for('market.browse') }}">Limpiar filtros</a></div>
+</div></details>
+</form>
+{% if session.user %}<details><summary>Consultar al asistente del mercado</summary><form class="market-form" method="post" action="{{ url_for('market.consult') }}">{{ token() }}<label>Describe lo que necesitas<input name="q" maxlength="300" required placeholder="Algo para recoger en Moche por menos de S/ 15"></label><button>Interpretar y consultar disponibilidad</button></form></details>{% endif %}
+{% if week %}<section class="market-panel"><h2>Mi semana · {{ week_total|soles }}</h2>
+{% for r in plan %}<p>{{ r.day }} · {{ r.name }} · {{ r.business }} · {{ r.price|soles }}</p>{% else %}<p>No hay días cubiertos con esas condiciones.</p>{% endfor %}<small>{{ plan|length }} de 7 días con oferta. La planificación no reserva stock.</small></section>{% endif %}
+{% if session.user %}<details><summary>Mis gustos y restricciones</summary><form class="market-form" method="post" action="{{ url_for('market.preferences') }}">{{ token() }}
+<label>Presupuesto por comida (S/)<input type="number" name="budget" min="0" step=".01" value="{{ profile.budget }}"></label><label>Presupuesto diario (S/)<input name="daily" type="number" min="0" step=".01" value="{{ profile.daily }}"></label><label>Presupuesto semanal (S/)<input type="number" name="week" min="0" step=".01" value="{{ profile.week }}"></label>
+<label>Distrito preferido<input name="zone" value="{{ profile.zone }}"></label><label>Modalidad habitual<select name="channel"><option value="">Todas</option>{% for c in channels %}<option {% if profile.channel==c %}selected{% endif %}>{{ c }}</option>{% endfor %}</select></label>
+<label>Me gusta<input name="likes" value="{{ profile.get('likes',[])|join(', ') }}"></label>
+<label>Excluir siempre<input name="avoid" value="{{ profile.get('avoid',[])|join(', ') }}"></label>
+<fieldset><legend>Dietas declaradas que quiero encontrar</legend>{% for d in diets %}<label class="check"><input type="checkbox" name="diet" value="{{ d }}" {% if d in profile.get('diets',[]) %}checked{% endif %}>{{ d }}</label>{% endfor %}</fieldset>
+<label class="check"><input type="checkbox" name="reminders" {% if profile.reminders %}checked{% endif %}> Mostrar sugerencias de recompra en mis pedidos</label><button>Guardar preferencias</button></form></details>{% endif %}
+{% if pins %}<h2>Puntos públicos y cobertura</h2><div id="market-map" style="height:280px" aria-label="Mapa de puntos de atención"></div><script type="application/json" id="market-pins">{{ pins|tojson }}</script><button type="button" id="market-near">Ordenar por cercanía</button><span role="status" id="location-feedback"></span>{% endif %}
+<h2>Porciones disponibles <small>{{ total }}</small></h2>
+<div class="market-grid">{% for r in rows %}<article class="market-offer" data-ticket="{{ r.ticket }}">
+<div class="market-offer-top"><span>{{ r.occasion }} · {{ r.day }}</span><strong>{{ r.price|soles }}</strong></div>
+{% if r.photo_id %}<img class="market-photo" src="{{ url_for('market.offer_photo',oid=r.id) }}" alt="{{ r.name }}" loading="lazy">{% endif %}
+<h3><a href="{{ url_for('market.offer_detail',oid=r.id) }}">{{ r.name }}</a></h3><p><a href="{{ url_for('main.detail', restaurant_id=r.rid) }}">{{ r.business }}</a> · {{ r.kind }}</p>
+<p>{{ r.district }} · {{ r.channels|join(' / ') }}{% if r.accredited %} · Documentación revisada{% endif %}</p><p>{{ r.why }}{% if r.distance is defined %} · {{ r.distance }} km en línea recta{% endif %}</p>
+{% if r.saving %}<p class="market-savings">Últimas porciones · ahorras {{ r.saving|soles }} por unidad</p>{% endif %}
+<details><summary>Origen, ingredientes y entrega</summary><p>{{ r.origin or 'Origen sin declarar' }} · {{ r.prepared or 'Preparación sin fecha declarada' }}</p><p>{{ r.preparation }}</p>
+<p>Receta declarada: {{ r.recipe.keys()|join(', ') or 'Sin registrar' }}.</p>
+<p>Alérgenos declarados: {{ 'Información incompleta' if r.allergens is none else (r.allergens|join(', ') or 'Ninguno declarado') }}. Contacto cruzado: {{ {'unknown':'desconocido','possible':'posible','declared':'el negocio declara medidas de control'}[r.cross] }}.</p>
+<p>Recojo: {{ r.pickup or 'No indicado' }}. Cobertura: {{ r.zones|join(', ') or 'No indicada' }}.</p></details>
+{% if session.user %}<form class="market-inline" method="post" action="{{ url_for('market.add_cart') }}">{{ token() }}<input type="hidden" name="ticket" value="{{ r.ticket }}"><input type="hidden" name="offer" value="{{ r.id }}"><label>Porciones<input type="number" name="qty" value="1" min="1" max="{{ [100,r.available]|min }}"></label><button>Agregar al carrito</button></form>
+{% else %}<a href="{{ url_for('auth.login', next=request.path) }}">Ingresar para pedir</a>{% endif %}</article>
+{% else %}<p class="market-empty">Aún no hay ofertas disponibles con estos filtros. Prueba otra fecha o distrito.</p>{% endfor %}</div>
+{% if pages>1 %}<nav aria-label="Páginas de resultados">{% if number>1 %}<a href="{{ url_for('market.browse',page=number-1,**page_args) }}">Anterior</a>{% endif %} Página {{ number }} de {{ pages }} {% if number<pages %}<a href="{{ url_for('market.browse',page=number+1,**page_args) }}">Siguiente</a>{% endif %}</nav>{% endif %}
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static',filename='js/market-map.js') }}"></script>{% endblock %}

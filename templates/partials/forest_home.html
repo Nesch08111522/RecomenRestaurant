@@ -1,0 +1,56 @@
+{% from 'partials/header.html' import glyph with context %}
+<div class="forest-shell">
+  <form id="search-form" class="forest-search" role="search" action="{{ url_for('main.index', _anchor='explorar') }}" method="get">
+    <div class="forest-search-row">
+      <a class="forest-city" href="#cerca" aria-label="Explorar cerca de {{ CIUDAD }}"><i class="fas fa-location-dot" aria-hidden="true"></i><span>{{ CIUDAD }}, Perú</span><i class="fas fa-chevron-down" aria-hidden="true"></i></a>
+      <label class="forest-query"><i class="fas fa-magnifying-glass" aria-hidden="true"></i><span class="sr-only">Buscar restaurantes o platos</span><input type="search" id="forest-query" name="q" maxlength="300" placeholder="¿Qué se te antoja hoy? Busca restaurantes o platos…" autocomplete="off"></label>
+      <button class="forest-search-submit" type="submit" aria-label="Buscar restaurantes"><i class="fas fa-magnifying-glass" aria-hidden="true"></i></button>
+      <button id="recommendationBtn" class="forest-ai-search" type="button"><i class="fas fa-wand-magic-sparkles" aria-hidden="true"></i> Buscar con IA</button>
+    </div>
+    <details class="forest-filters" id="forest-filters">
+      <summary><i class="fas fa-sliders" aria-hidden="true"></i> Más filtros <span data-filter-count></span></summary>
+      <div class="forest-filter-fields">
+        <label>Distrito<select name="district" id="district-select"><option value="">Todos los distritos</option>{% for district in restaurants|selectattr('district')|map(attribute='district')|unique|sort %}<option>{{ district }}</option>{% endfor %}</select></label>
+        <label>Categoría<select name="category" id="category-select"><option value="">Todas las categorías</option>{% for cat in categories %}<option value="{{ cat.id }}">{{ cat.name }}</option>{% endfor %}</select></label>
+        <label>Precio máximo por persona<input name="max_price" type="number" min="0" step="1" placeholder="S/ · Sin límite"></label>
+        <div class="forest-filter-quick"><button type="button" class="filter-chip" data-filter="open" aria-pressed="false">Abiertos ahora</button><button type="button" class="filter-chip" data-filter="promo" aria-pressed="false">Con promoción</button><button type="button" class="filter-chip" data-filter="nearby" aria-pressed="false">Cerca de mí</button><button type="reset" class="forest-reset">Limpiar filtros</button></div>
+      </div>
+    </details>
+  </form>
+
+  <section class="forest-hero" aria-labelledby="forest-headline">
+    <div class="forest-hero-copy"><p class="forest-campaign"><span></span> Selección de hoy</p><h1 id="forest-headline">Sabores del norte,<br>a un paso de ti</h1><p>Descubre los mejores restaurantes de {{ CIUDAD }}<br class="forest-desktop-break"> y vive una experiencia gastronómica única.</p><a class="forest-light-button" href="#explorar">Explorar restaurantes <i class="fas fa-chevron-right" aria-hidden="true"></i></a></div>
+    <picture class="forest-hero-photo"><source media="(max-width: 600px)" srcset="{{ url_for('static', filename='images/ceviche-small.webp') }}"><img src="{{ url_for('static', filename='images/ceviche.webp') }}" alt="Ceviche peruano con camote, choclo y cebolla morada" width="1100" height="734" fetchpriority="high"></picture>
+  </section>
+
+  <nav class="forest-categories" aria-label="Categorías gastronómicas">
+    <button type="button" class="filter-chip active" data-filter="all" aria-pressed="true"><i class="fas fa-utensils" aria-hidden="true"></i>Restaurantes</button>
+    {% set category_icons = ['mug-saucer', 'fish', 'bowl-food', 'cake-candles', 'drumstick-bite', 'leaf'] %}
+    {% for cat in categories[:5] %}<button type="button" class="filter-chip category-chip" data-category="{{ cat.id }}" aria-pressed="false"><i class="fas fa-{{ 'mug-saucer' if 'caf' in cat.name|lower else 'fish' if 'mar' in cat.name|lower else 'cake-candles' if 'post' in cat.name|lower or 'past' in cat.name|lower else 'bowl-food' if 'crioll' in cat.name|lower else category_icons[loop.index0] }}" aria-hidden="true"></i>{{ cat.name }}</button>{% endfor %}
+    <a href="{{ url_for('market.browse', channel='Delivery') }}"><i class="fas fa-motorcycle" aria-hidden="true"></i>Delivery</a>
+  </nav>
+
+  <section id="explorar" class="forest-restaurants" aria-labelledby="forest-restaurants-title">
+    <div class="forest-section-heading"><div><h2 id="forest-restaurants-title">Restaurantes destacados en {{ CIUDAD }}</h2><p>Lugares que vale la pena descubrir</p></div><div class="forest-result-actions"><button type="button" class="forest-outline" id="forest-all">Ver todos los restaurantes <span aria-hidden="true">→</span></button></div></div>
+    <div class="forest-results-toolbar"><p id="resultsCount" role="status" aria-live="polite">{{ restaurants|length }} restaurantes encontrados</p><div class="forest-view-switch" role="group" aria-label="Vista de restaurantes"><button type="button" class="forest-view active" id="forest-list" aria-pressed="true">Ver lista</button><button type="button" class="forest-view" id="forest-map" aria-pressed="false" aria-controls="forest-map-panel"><i class="far fa-map" aria-hidden="true"></i> Ver mapa</button><button type="button" class="forest-filter-toggle" aria-expanded="false" aria-controls="forest-filters"><i class="fas fa-sliders" aria-hidden="true"></i><span>Filtros</span></button></div></div>
+    <div class="main-layout forest-results-layout">
+      <div class="results-column" id="resultsColumn"><div class="results-grid" id="resultsGrid">{% for r in restaurants %}{% include 'partials/forest_card.html' %}{% else %}<div class="empty-state"><h3>Tu próximo descubrimiento está en camino</h3><p>Todavía no hay restaurantes publicados. Explora el mercado gastronómico.</p><a href="{{ url_for('market.browse') }}" class="forest-outline">Explorar platos</a></div>{% endfor %}</div><div class="load-more-container" id="loadMoreContainer" hidden><button id="loadMoreBtn" type="button">Ver más restaurantes</button></div></div>
+      <div class="map-column" id="forest-map-panel" hidden><div id="main-map" class="map-container"></div><button type="button" class="location-btn" id="locationBtn"><i class="fas fa-crosshairs" aria-hidden="true"></i> Usar mi ubicación</button><output id="geo-status" role="status" aria-live="polite"></output><div class="map-controls"><button class="map-control-btn" id="zoomInBtn" type="button" aria-label="Acercar mapa"><i class="fas fa-plus" aria-hidden="true"></i></button><button class="map-control-btn" id="zoomOutBtn" type="button" aria-label="Alejar mapa"><i class="fas fa-minus" aria-hidden="true"></i></button><button class="map-control-btn" id="toggle3dBtn" type="button" aria-label="Activar vista 3D"><i class="fas fa-cube" aria-hidden="true"></i></button></div></div>
+    </div>
+  </section>
+
+  <section id="ofertas" class="forest-offers" aria-labelledby="forest-offers-title"><div class="forest-section-heading"><div><h2 id="forest-offers-title">{{ 'Promociones y platos para disfrutar hoy' if home_offers else 'Antojos para disfrutar hoy' }}</h2>{% if not home_offers %}<p>Explora sabores; consulta precios y disponibilidad en cada negocio.</p>{% endif %}</div><a class="forest-text-link" href="{{ url_for('market.browse') }}">{{ 'Ver más ofertas' if home_offers else 'Explorar el mercado' }} <span aria-hidden="true">→</span></a></div>
+    <div class="forest-promo-grid">
+      {% if home_offers %}{% for dish in home_offers[:3] %}<a class="forest-promo" href="{{ url_for('market.browse', negocio=dish.rid, q=dish.name) }}">{% if dish.photo_id %}<img src="{{ url_for('market.offer_photo',oid=dish.id) }}" alt="" loading="lazy">{% else %}<img src="{{ url_for('static', filename='images/forest/food-inspiration.webp') }}" alt="" loading="lazy">{% endif %}<div><h3>{{ dish.name }}</h3><p>{{ dish.business }}</p><span>{{ dish.price|soles }}{% if dish.saving %} · Ahorra {{ dish.saving|soles }}{% endif %}</span></div></a>{% endfor %}
+      {% else %}{% for title, query, image, subtitle in [('Sabores del mar','marino','marine-inspiration.webp','Frescura con acento norteño'), ('Cocina criolla','criollo','creole-inspiration.webp','Los sabores de siempre'), ('El almuerzo de hoy','menú','food-inspiration.webp','Encuentra tu próximo favorito')] %}<a class="forest-promo" href="{{ url_for('market.browse', q=query) }}"><img src="{{ url_for('static', filename='images/forest/' ~ image) }}" alt="" loading="lazy"><div><h3>{{ title }}</h3><p>{{ subtitle }}</p><span>Explorar platos</span></div></a>{% endfor %}{% endif %}
+    </div>
+  </section>
+
+  <section class="forest-recommendation" aria-labelledby="forest-recommendation-title"><img class="forest-chef" src="{{ url_for('static', filename='images/forest/chef-reference.webp') }}" alt="" width="170" height="105" loading="lazy"><div class="forest-recommendation-copy"><h2 id="forest-recommendation-title">¿No sabes qué elegir?</h2><p>Cuéntanos qué se te antoja y encontramos algo para ti.</p></div><form id="forest-craving-form"><label class="sr-only" for="forest-craving">Describe lo que te gustaría comer</label><input id="forest-craving" type="text" maxlength="300" placeholder="Ej: algo ligero, criollo o con pollo…" required><button type="submit" id="forest-recommend"><i class="fas fa-wand-magic-sparkles" aria-hidden="true"></i> Recomendar</button></form></section>
+
+  <section id="cerca" class="forest-nearby" aria-labelledby="forest-nearby-title"><div><span class="forest-compact-icon"><i class="fas fa-location-dot" aria-hidden="true"></i></span><div><h2 id="forest-nearby-title">Una buena mesa, cerca de ti</h2><p>Explora {{ CIUDAD }} en el mapa o usa tu ubicación para encontrar opciones cercanas.</p></div></div><button type="button" class="forest-outline" id="forest-nearby-map">Ver mapa <span aria-hidden="true">→</span></button></section>
+
+  <section class="forest-home-kitchen" aria-labelledby="forest-home-kitchen-title"><div class="forest-home-kitchen-copy"><span class="forest-compact-icon"><i class="fas fa-kitchen-set" aria-hidden="true"></i></span><div><h2 id="forest-home-kitchen-title">¿Prefieres cocinar en casa?</h2><p>Encuentra ingredientes y productos para preparar algo delicioso.</p></div></div><a class="forest-text-link" href="{{ url_for('market.browse', q='ingredientes') }}">Ver ingredientes <span aria-hidden="true">→</span></a></section>
+
+  <section class="forest-business" id="negocios" aria-labelledby="forest-business-title"><img src="{{ url_for('static', filename='images/forest/shop-reference.webp') }}" alt="" loading="lazy" width="270" height="90"><div><h2 id="forest-business-title">¿Tienes un negocio gastronómico?</h2><p>Hazlo crecer con SmartResto</p></div><a class="forest-light-button" href="{{ url_for('owner.dashboard') if session.get('user', {}).get('role')=='business_owner' else url_for('auth.register', role='business_owner') }}">Conocer SmartResto para negocios <span aria-hidden="true">→</span></a></section>
+</div>

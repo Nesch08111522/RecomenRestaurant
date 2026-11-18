@@ -1,73 +1,21 @@
 {% extends 'base.html' %}
 
+{% block body_class %}sr-discover{% endblock %}
+{% block legacy_interface %}{% endblock %}
+{% block page_styles %}
+<link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/forest-home.css') }}">
+{% endblock %}
+
 {% block content %}
-<div class="filter-section">
-    <div class="filter-scroll">
-        <button class="filter-chip active" data-filter="all">Todos</button>
-        <button class="filter-chip" data-filter="open">Abiertos ahora</button>
-        <button class="filter-chip" data-filter="promo">Con promociones</button>
-        <button class="filter-chip" data-filter="top-rated">Mejor valorados</button>
-        <button class="filter-chip" data-filter="nearby">Cerca de mí</button>
-
-        <div class="filter-divider"></div>
-
-        {% for cat in categories %}
-            <button class="filter-chip category-chip" data-category="{{ cat.id }}">
-                <i class="fas fa-{{ cat.icon }}"></i>
-                {{ cat.name }}
-            </button>
-        {% endfor %}
-
-        <div class="filter-divider"></div>
-
-        <button class="filter-chip" data-filter="price-low">💰 Económico</button>
-        <button class="filter-chip" data-filter="price-mid">💰💰 Moderado</button>
-        <button class="filter-chip" data-filter="price-high">💰💰💰 Premium</button>
-    </div>
-</div>
-
-<div class="main-layout">
-    <div class="results-column" id="resultsColumn">
-        <div class="results-header">
-            <h2 id="resultsCount">{{ restaurants|length }} restaurantes encontrados</h2>
-            <div class="view-controls">
-                <button class="view-btn active" data-view="grid"><i class="fas fa-th"></i></button>
-                <button class="view-btn" data-view="list"><i class="fas fa-list"></i></button>
-            </div>
-        </div>
-
-        <div class="results-grid" id="resultsGrid">
-            {% for r in restaurants %}
-                {% include 'partials/restaurant_card.html' %}
-            {% endfor %}
-        </div>
-
-        <div class="load-more-container" id="loadMoreContainer" style="display: none;">
-            <button class="load-more-btn" id="loadMoreBtn">Ver más restaurantes</button>
-        </div>
-    </div>
-
-    <div class="map-column">
-        <div id="main-map" class="map-container"></div>
-        <button class="location-btn" id="locationBtn">
-            <i class="fas fa-crosshairs"></i>
-            Usar mi ubicación
-        </button>
-
-        <div class="map-controls">
-            <button class="map-control-btn" id="zoomInBtn" title="Acercar"><i class="fas fa-plus"></i></button>
-            <button class="map-control-btn" id="zoomOutBtn" title="Alejar"><i class="fas fa-minus"></i></button>
-            <button class="map-control-btn" id="toggle3dBtn" title="Vista 3D"><i class="fas fa-cube"></i></button>
-        </div>
-    </div>
-</div>
+{% include 'partials/forest_home.html' %}
 
 <!-- Recomendación Inteligente (versión simple: un cuadro de texto + un botón) -->
-<div class="modal" id="recommendationModal">
+<div class="modal" id="recommendationModal" role="dialog" aria-modal="true" aria-label="Recomendación inteligente">
     <div class="modal-content">
         <div class="modal-header">
             <h2><i class="fas fa-robot"></i> Recomendación Inteligente</h2>
-            <span class="close-modal">&times;</span>
+            <button type="button" class="close-modal" aria-label="Cerrar recomendador">&times;</button>
         </div>
         <div class="modal-body">
             <form id="aiRecForm">
@@ -107,15 +55,7 @@
     </div>
 </div>
 
-<div class="notification-panel" id="notificationPanel" style="display: none;">
-    <div class="notification-header">
-        <h3>Notificaciones</h3>
-        <button class="close-notifications">&times;</button>
-    </div>
-    <div class="notification-list" id="notificationList">
-        <div class="notification-empty">No hay notificaciones</div>
-    </div>
-</div>
+{% include 'partials/forest_extras.html' %}
 
 <!-- Estilos mínimos del mapa nuevo (no tocan tamaños de tarjetas, filtros ni layout) -->
 <style>
@@ -195,7 +135,7 @@
 (function () {
     'use strict';
 
-    const STYLE_URL = 'https://tiles.openfreemap.org/styles/liberty';
+const STYLE_URL = 'https://tiles.openfreemap.org/styles/positron';
     const COLOR = (typeof APP_CONFIG !== 'undefined' && APP_CONFIG.primaryColor) || '#ff385c';
     const DEFAULT_CENTER = [-79.03, -8.11]; // [lng, lat] Trujillo
 
@@ -252,6 +192,7 @@
     }
 
     function init() {
+        if (document.getElementById('forest-map-panel')?.hidden || window.mapGL) return;
         if (typeof maplibregl === 'undefined' || typeof RESTAURANTS_DATA === 'undefined') return;
 
         const probe = document.createElement('canvas');
@@ -267,7 +208,7 @@
         container.className = 'map-container';
         container.removeAttribute('style');
         oldMap.replaceWith(container);
-        ['zoomInBtn', 'zoomOutBtn', 'locationBtn'].forEach((id) => {
+        ['zoomInBtn', 'zoomOutBtn'].forEach((id) => {
             const b = document.getElementById(id);
             if (b) b.replaceWith(b.cloneNode(true));
         });
@@ -284,6 +225,20 @@
             maxPitch: 70,
             attributionControl: { compact: true }
         });
+        map.on('style.load', () => {
+    const style = map.getStyle();
+
+    console.log('Fuentes del mapa:', style.glyphs);
+    console.log('Estilo cargado:', style.name);
+});
+        map.on('error', (e) => {
+    console.error('❌ Error MapLibre:', {
+        message: e.error?.message,
+        sourceId: e.sourceId,
+        sourceType: e.sourceType,
+        tile: e.tile
+    });
+});
         map.getCanvas().setAttribute('aria-label', 'Mapa de restaurantes');
 
         const popup = new maplibregl.Popup({ closeButton: false, offset: 14, maxWidth: '240px' });
@@ -470,19 +425,27 @@
             });
 
             // Edificios en 3D (si el estilo no los trae)
-            if (!map.getLayer('building-3d') && map.getSource('openmaptiles')) {
-                map.addLayer({
+if (!map.getLayer('rm-buildings-3d') && map.getSource('openmaptiles')) {
+                    map.addLayer({
                     id: 'rm-buildings-3d',
                     type: 'fill-extrusion',
                     source: 'openmaptiles',
                     'source-layer': 'building',
                     minzoom: 14,
                     paint: {
-                        'fill-extrusion-color': '#e5e7eb',
-                        'fill-extrusion-height': ['coalesce', ['get', 'render_height'], 8],
-                        'fill-extrusion-base': ['coalesce', ['get', 'render_min_height'], 0],
-                        'fill-extrusion-opacity': 0.8
-                    }
+    'fill-extrusion-color': '#e5e7eb',
+    'fill-extrusion-height': [
+        'coalesce',
+        ['to-number', ['get', 'render_height']],
+        8
+    ],
+    'fill-extrusion-base': [
+        'coalesce',
+        ['to-number', ['get', 'render_min_height']],
+        0
+    ],
+    'fill-extrusion-opacity': 0.8
+}
                 }, 'rm-clusters');
             }
 
@@ -561,34 +524,23 @@
             });
         });
 
-        function locate() {
-            if (!navigator.geolocation) {
-                alert('Tu navegador no permite obtener la ubicación.');
-                return;
+        function showPosition(lat, lng) {
+            const point = [lng, lat];
+            if (!userMarker) {
+                const dot = document.createElement('div');
+                dot.className = 'rm-user-dot';
+                userMarker = new maplibregl.Marker({element:dot});
             }
-            navigator.geolocation.getCurrentPosition(
-                (pos) => {
-                    const ll = [pos.coords.longitude, pos.coords.latitude];
-                    if (!userMarker) {
-                        const dot = document.createElement('div');
-                        dot.className = 'rm-user-dot';
-                        userMarker = new maplibregl.Marker({ element: dot });
-                    }
-                    userMarker.setLngLat(ll).addTo(map);
-                    map.flyTo({ center: ll, zoom: 15 });
-                    api.userLocation = { lat: ll[1], lng: ll[0] };
-                    document.dispatchEvent(new CustomEvent('map:user-location', { detail: api.userLocation }));
-                },
-                () => alert('No pudimos obtener tu ubicación. Revisa los permisos del navegador.'),
-                { enableHighAccuracy: true, timeout: 8000 }
-            );
+            userMarker.setLngLat(point).addTo(map);
+            map.flyTo({center:point,zoom:15});
+            api.userLocation = {lat,lng};
         }
-        byId('locationBtn')?.addEventListener('click', locate);
 
         // API pública por si quieres llamarla desde tu JS de filtros
         const api = {
             map,
             userLocation: null,
+            showPosition,
             setVisible: (ids) => pushData(ids ? new Set(ids.map(String)) : null, true),
             highlight: setActive,
             flyToRestaurant: (id) => {
@@ -597,12 +549,18 @@
             }
         };
         window.mapGL = api;
+const last = window.app?.state?.userLocation;
+        if (last) showPosition(last.lat,last.lng);
     }
 
     window.addEventListener('load', init);
+    window.addEventListener('forest:map-open', init);
 })();
 </script>
 
+{% for module in ['processor', 'logic-rules', 'ui', 'controller'] %}
+<script src="{{ url_for('static', filename='js/forest/' ~ module ~ '.js') }}"></script>
+{% endfor %}
 <!-- Asistente de IA (Qwen): búsqueda inteligente + chat -->
 <script src="{{ url_for('static', filename='js/ai-assistant.js') }}"></script>
 

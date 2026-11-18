@@ -1,0 +1,54 @@
+[
+  {
+    "path": "/owner/catalog",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "path": "/owner/api/catalog/2",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "path": "/owner/catalog/2/template.xlsx",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "path": "foreign catalog",
+    "status": 404,
+    "ok": true
+  },
+  {
+    "path": "anonymous /owner/catalog",
+    "status": 401,
+    "ok": true
+  },
+  {
+    "path": "anonymous /owner/api/catalog/1",
+    "status": 401,
+    "ok": true
+  },
+  {
+    "path": "css/catalog.css",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "path": "js/catalog.js",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "path": "SQL EXPLAIN canonical",
+    "ok": true
+  },
+  {
+    "path": "SQL EXPLAIN canonical",
+    "ok": true
+  },
+  {
+    "path": "SQL EXPLAIN canonical",
+    "ok": true
+  }
+]

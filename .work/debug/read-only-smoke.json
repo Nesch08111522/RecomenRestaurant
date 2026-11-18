@@ -1,0 +1,596 @@
+{
+  "templates": [
+    {
+      "name": "admin/operation_detail.html",
+      "ok": true
+    },
+    {
+      "name": "detail.html",
+      "ok": true
+    },
+    {
+      "name": "market/cart.html",
+      "ok": true
+    },
+    {
+      "name": "communication/cases.html",
+      "ok": true
+    },
+    {
+      "name": "ecosystem/home.html",
+      "ok": true
+    },
+    {
+      "name": "market/orders.html",
+      "ok": true
+    },
+    {
+      "name": "ecosystem/rewards.html",
+      "ok": true
+    },
+    {
+      "name": "500.html",
+      "ok": true
+    },
+    {
+      "name": "admin/moderation.html",
+      "ok": true
+    },
+    {
+      "name": "information.html",
+      "ok": true
+    },
+    {
+      "name": "market/dish.html",
+      "ok": true
+    },
+    {
+      "name": "ecosystem/business.html",
+      "ok": true
+    },
+    {
+      "name": "admin/users.html",
+      "ok": true
+    },
+    {
+      "name": "400.html",
+      "ok": true
+    },
+    {
+      "name": "market/message.html",
+      "ok": true
+    },
+    {
+      "name": "ecosystem/group.html",
+      "ok": true
+    },
+    {
+      "name": "admin/categories.html",
+      "ok": true
+    },
+    {
+      "name": "partials/dish_item.html",
+      "ok": true
+    },
+    {
+      "name": "partials/map_sidebar.html",
+      "ok": true
+    },
+    {
+      "name": "market/trust.html",
+      "ok": true
+    },
+    {
+      "name": "communication/inbox.html",
+      "ok": true
+    },
+    {
+      "name": "owner/menu_management.html",
+      "ok": true
+    },
+    {
+      "name": "market/kitchen.html",
+      "ok": true
+    },
+    {
+      "name": "partials/footer.html",
+      "ok": true
+    },
+    {
+      "name": "owner/dashboard.html",
+      "ok": true
+    },
+    {
+      "name": "admin/controls.html",
+      "ok": true
+    },
+    {
+      "name": "admin/operations.html",
+      "ok": true
+    },
+    {
+      "name": "auth/security.html",
+      "ok": true
+    },
+    {
+      "name": "market/base.html",
+      "ok": true
+    },
+    {
+      "name": "owner/restaurants.html",
+      "ok": true
+    },
+    {
+      "name": "owner/base.html",
+      "ok": true
+    },
+    {
+      "name": "partials/restaurant_card.html",
+      "ok": true
+    },
+    {
+      "name": "ecosystem/groups.html",
+      "ok": true
+    },
+    {
+      "name": "base.html",
+      "ok": true
+    },
+    {
+      "name": "ecosystem/publications.html",
+      "ok": true
+    },
+    {
+      "name": "communication/notifications.html",
+      "ok": true
+    },
+    {
+      "name": "ecosystem/scan.html",
+      "ok": true
+    },
+    {
+      "name": "admin/dashboard.html",
+      "ok": true
+    },
+    {
+      "name": "register.html",
+      "ok": true
+    },
+    {
+      "name": "auth/profile.html",
+      "ok": true
+    },
+    {
+      "name": "auth/profile_owner.html",
+      "ok": true
+    },
+    {
+      "name": "ecosystem/options.html",
+      "ok": true
+    },
+    {
+      "name": "auth/experience.html",
+      "ok": true
+    },
+    {
+      "name": "index.html",
+      "ok": true
+    },
+    {
+      "name": "owner/menu_import_preview.html",
+      "ok": true
+    },
+    {
+      "name": "communication/base.html",
+      "ok": true
+    },
+    {
+      "name": "partials/discover_more.html",
+      "ok": true
+    },
+    {
+      "name": "market/browse.html",
+      "ok": true
+    },
+    {
+      "name": "partials/header.html",
+      "ok": true
+    },
+    {
+      "name": "auth/profile_content.html",
+      "ok": true
+    },
+    {
+      "name": "admin/analytics.html",
+      "ok": true
+    },
+    {
+      "name": "admin/restaurant_form.html",
+      "ok": true
+    },
+    {
+      "name": "favorites.html",
+      "ok": true
+    },
+    {
+      "name": "communication/message_fields.html",
+      "ok": true
+    },
+    {
+      "name": "login.html",
+      "ok": true
+    },
+    {
+      "name": "management_parts.html",
+      "ok": true
+    },
+    {
+      "name": "communication/case.html",
+      "ok": true
+    },
+    {
+      "name": "partials/discover_hero.html",
+      "ok": true
+    },
+    {
+      "name": "admin/restaurants.html",
+      "ok": true
+    },
+    {
+      "name": "404.html",
+      "ok": true
+    },
+    {
+      "name": "communication/thread.html",
+      "ok": true
+    },
+    {
+      "name": "ecosystem/city.html",
+      "ok": true
+    }
+  ],
+  "routes": [
+    {
+      "role": "guest",
+      "path": "/",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "role": "guest",
+      "path": "/auth/login",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "role": "guest",
+      "path": "/auth/register",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "role": "guest",
+      "path": "/auth/recuperar",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "role": "guest",
+      "path": "/api/categories",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "role": "guest",
+      "path": "/api/restaurants/top-rated",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "role": "guest",
+      "path": "/api/restaurants/nearby?lat=-8.1&lng=-79.0",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "role": "guest",
+      "path": "/api/dishes/search?q=arroz",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "role": "guest",
+      "path": "/api/platform/manifest",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "role": "guest",
+      "path": "/api/platform/health",
+      "status": 503,
+      "ok": false
+    },
+    {
+      "role": "guest",
+      "path": "/api/platform/me",
+      "status": 401,
+      "ok": true
+    },
+    {
+      "role": "guest",
+      "path": "/auth/api/favorites",
+      "status": 401,
+      "ok": true
+    },
+    {
+      "role": "guest",
+      "path": "/mercado/",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "role": "guest",
+      "path": "/experiencias/",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "role": "guest",
+      "path": "/restaurant/1",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "role": "user",
+      "path": "/auth/profile",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "role": "user",
+      "path": "/auth/favorites",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "role": "user",
+      "path": "/auth/seguridad",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "role": "user",
+      "path": "/api/platform/me",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "role": "user",
+      "path": "/auth/api/favorites",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "role": "business_owner",
+      "path": "/owner/dashboard",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "role": "business_owner",
+      "path": "/admin/restaurants",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "role": "business_owner",
+      "path": "/auth/profile",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "role": "business_owner",
+      "path": "/api/platform/me",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "role": "admin",
+      "path": "/admin/dashboard",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "role": "admin",
+      "path": "/admin/users",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "role": "admin",
+      "path": "/admin/restaurants",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "role": "admin",
+      "path": "/admin/categories",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "role": "admin",
+      "path": "/admin/moderation",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "role": "admin",
+      "path": "/admin/analytics",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "role": "admin",
+      "path": "/admin/controles",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "role": "admin",
+      "path": "/admin/operaciones",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "role": "admin",
+      "path": "/admin/api/analytics",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "role": "admin",
+      "path": "/admin/api/bi/overview",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "role": "admin",
+      "path": "/api/platform/me",
+      "status": 200,
+      "ok": true
+    }
+  ],
+  "assets": [
+    {
+      "url": "/static/css/auth.css",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "url": "/static/css/components.css",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "url": "/static/css/interface.css",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "url": "/static/css/main.css",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "url": "/static/css/management.css",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "url": "/static/css/market.css",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "url": "/static/css/owner.css",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "url": "/static/css/premium-system.css",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "url": "/static/css/shell.css",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "url": "/static/images/ceviche.webp",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "url": "/static/js/admin.js",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "url": "/static/js/ai-assistant.js",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "url": "/static/js/app.js",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "url": "/static/js/auth.js",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "url": "/static/js/context-location.js",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "url": "/static/js/map.js",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "url": "/static/js/market-map.js",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "url": "/static/js/search.js",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "url": "/static/js/security.js",
+      "status": 200,
+      "ok": true
+    },
+    {
+      "url": "/static/js/shell.js",
+      "status": 200,
+      "ok": true
+    }
+  ],
+  "schema": [
+    {
+      "table": "app_records",
+      "exists": true
+    },
+    {
+      "table": "ai_decisions",
+      "exists": true
+    },
+    {
+      "table": "sr_audit_events",
+      "exists": true
+    },
+    {
+      "table": "sr_branches",
+      "exists": true
+    },
+    {
+      "table": "sr_businesses",
+      "exists": true
+    },
+    {
+      "table": "sr_memberships",
+      "exists": true
+    },
+    {
+      "table": "sr_settings",
+      "exists": true
+    }
+  ]
+}

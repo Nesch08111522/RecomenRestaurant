@@ -1,0 +1,14 @@
+{% extends "communication/base.html" %}{% block communication %}
+<h1>Reclamo {{ code }}</h1><p>{{ state }} · Prioridad {{ case.priority or 'Normal' }} · Pedido #{{ case.oid }}</p>
+<article class="market-panel"><h2>{{ case.category or 'Incidente de pedido' }}</h2><p>{{ case.reason }}</p>
+{% if case.evidence %}<a href="{{ url_for('comunicacion.case_file',cid=case.id) }}">Descargar evidencia privada</a>{% endif %}
+<p>Responsable: {{ 'Soporte #' ~ case.assigned if case.assigned else 'Pendiente de asignación' }}</p></article>
+<h2>Historial</h2><ol>{% for e in events %}<li><time>{{ e.created[:16]|replace('T',' ') }}</time> · {{ e.state }} · {{ e.note }} · Usuario #{{ e.actor }}</li>
+{% else %}<li>{{ case.created[:10] }} · {{ state }}{% if case.note %} · {{ case.note }}{% endif %}</li>{% endfor %}</ol>
+{% if staff %}<form method="post" action="{{ url_for('comunicacion.analyze_case',cid=case.id) }}">{{ token() }}<button>Consultar al asistente de incidencias</button></form>{% if suggestion %}<aside class="market-panel"><h2>{{ source }}</h2><p>{{ suggestion }}</p></aside>{% endif %}{% endif %}
+{% if staff and state != 'Cerrado' %}<h2>Actualizar reclamo</h2><form method="post" class="market-form" action="{{ url_for('comunicacion.update_case',cid=case.id) }}">{{ token() }}
+<label>Estado<select name="state">{% for s in states %}<option {% if s==state %}selected{% endif %}>{{ s }}</option>{% endfor %}</select></label>
+<label>Prioridad<select name="priority">{% for p in priorities %}<option {% if p==case.priority %}selected{% endif %}>{{ p }}</option>{% endfor %}</select></label>
+<label>Responsable<select name="assigned">{% for u in staff %}<option value="{{ u.id }}" {% if u.id==case.assigned %}selected{% endif %}>{{ u.username }}</option>{% endfor %}</select></label>
+<label>Motivo o resolución<textarea required minlength="5" maxlength="800" name="note"></textarea></label><button>Registrar cambio</button></form>{% endif %}
+{% endblock %}

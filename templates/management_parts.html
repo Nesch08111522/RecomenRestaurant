@@ -1,0 +1,17 @@
+{% macro metric(label, value, note='') %}<div class="mgr-metric"><dt>{{ label }}</dt><dd>{{ value }}</dd>{% if note %}<small>{{ note }}</small>{% endif %}</div>{% endmacro %}
+
+{% macro chart(title, rows) %}
+<section class="mgr-card"><h2>{{ title }}</h2>
+{% if rows and rows|map(attribute=1)|sum %}{% set peak = rows|map(attribute=1)|max %}
+<ul class="mgr-chart">{% for label, value in rows %}<li><span>{{ label }}</span><meter min="0" max="{{ peak }}" value="{{ value }}" aria-label="{{ label }}">{{ value }}</meter><b>{{ value }}</b></li>{% endfor %}</ul>
+{% else %}<p class="mgr-muted">Sin actividad registrada en esta selección.</p>{% endif %}
+</section>{% endmacro %}
+
+{% macro period(start,end) %}
+<label>Período<select name="days" onchange="this.form.elements.start.value='';this.form.elements.end.value=''">{% for n in ('7','30','90') %}<option value="{{ n }}" {% if request.args.get('days','30')==n %}selected{% endif %}>Últimos {{ n }} días</option>{% endfor %}</select></label>
+<label>Desde<input type="date" name="start" value="{{ request.args.get('start','') }}"></label><label>Hasta<input type="date" name="end" value="{{ request.args.get('end','') }}"></label>
+{% endmacro %}
+
+{% macro audit(events) %}
+{% if events %}<ul class="mgr-ledger">{% for event in events %}<li><b>{{ event.action|replace('ADMIN_', '')|replace('_',' ') }}</b><span>{{ event.resource or '' }} {{ event.subject or '' }}</span><time>{{ event.stamp.strftime('%d/%m/%Y %H:%M') }}</time></li>{% endfor %}</ul>{% else %}<p>Aún no hay acciones registradas.</p>{% endif %}
+{% endmacro %}

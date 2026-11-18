@@ -1,0 +1,9 @@
+{% extends "communication/base.html" %}{% block communication %}
+<h1>Reclamos</h1><form method="get" class="market-form">
+{% for name,values in [('estado',states),('prioridad',priorities)] %}<label>{{ name|capitalize }}<select name="{{ name }}"><option value="">Todos</option>{% for v in values %}<option {% if request.args.get(name)==v %}selected{% endif %}>{{ v }}</option>{% endfor %}</select></label>{% endfor %}
+<label>Fecha de registro<input type="date" name="fecha" value="{{ request.args.get('fecha','') }}"></label>
+<label>Número de usuario<input type="number" name="usuario" value="{{ request.args.get('usuario','') }}"></label>
+<label>Número de negocio<input type="number" name="negocio" value="{{ request.args.get('negocio','') }}"></label><button>Filtrar</button></form>
+{% for c in cases %}<article class="market-panel"><h2><a href="{{ url_for('comunicacion.case_detail',cid=c.id) }}">{{ code(c) }} · {{ c.category or 'Pedido' }}</a></h2>
+<p>{{ state(c) }} · Prioridad {{ c.priority or 'Normal' }} · Negocio #{{ c.rid }} · Pedido #{{ c.oid }}</p></article>{% else %}<p>No hay reclamos para estos filtros.</p>{% endfor %}
+{% endblock %}

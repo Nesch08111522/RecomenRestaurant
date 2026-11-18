@@ -1,0 +1,96 @@
+[
+  {
+    "width": 320,
+    "overflow": false,
+    "body": " sr-discover",
+    "cards": 3,
+    "grid": "288px",
+    "mainTop": 69,
+    "header": 61,
+    "imageHeight": 310,
+    "cardHeight": 509,
+    "mapVisible": false,
+    "brokenImages": []
+  },
+  {
+    "width": 375,
+    "overflow": false,
+    "body": " sr-discover",
+    "cards": 3,
+    "grid": "343px",
+    "mainTop": 69,
+    "header": 61,
+    "imageHeight": 310,
+    "cardHeight": 509,
+    "mapVisible": false,
+    "brokenImages": []
+  },
+  {
+    "width": 640,
+    "overflow": false,
+    "body": " sr-discover",
+    "cards": 3,
+    "grid": "293.359px 293.359px",
+    "mainTop": 81,
+    "header": 69,
+    "imageHeight": 286,
+    "cardHeight": 484,
+    "mapVisible": false,
+    "brokenImages": []
+  },
+  {
+    "width": 768,
+    "overflow": false,
+    "body": " sr-discover",
+    "cards": 3,
+    "grid": "354.031px 354.031px",
+    "mainTop": 81,
+    "header": 69,
+    "imageHeight": 286,
+    "cardHeight": 484,
+    "mapVisible": false,
+    "brokenImages": []
+  },
+  {
+    "width": 1024,
+    "overflow": false,
+    "body": " sr-discover",
+    "cards": 3,
+    "grid": "475.375px 475.375px",
+    "mainTop": 81,
+    "header": 69,
+    "imageHeight": 355,
+    "cardHeight": 553,
+    "mapVisible": false,
+    "brokenImages": []
+  },
+  {
+    "width": 1440,
+    "overflow": false,
+    "body": " sr-discover",
+    "cards": 3,
+    "grid": "441.703px 441.703px 441.703px",
+    "mainTop": 81,
+    "header": 69,
+    "imageHeight": 330,
+    "cardHeight": 528,
+    "mapVisible": false,
+    "brokenImages": []
+  },
+  {
+    "width": 1920,
+    "overflow": false,
+    "body": " sr-discover",
+    "cards": 3,
+    "grid": "466.656px 466.672px 466.656px",
+    "mainTop": 81,
+    "header": 69,
+    "imageHeight": 348,
+    "cardHeight": 547,
+    "mapVisible": false,
+    "brokenImages": []
+  },
+  {
+    "pageErrors": []
+  }
+]

@@ -42,13 +42,20 @@ def load_records(source_dir: Path) -> dict[str, list[dict[str, Any]]]:
         value = json.loads(path.read_text(encoding="utf-8"))
         if not isinstance(value, list) or any(not isinstance(row, dict) for row in value):
             raise ValueError(f"{filename} debe contener una lista de objetos")
+        if collection == "moderation":
+            from migrations.moderation_ids import reconcile
+            value = reconcile(value, records.get("audit_events", []))
+        seen_ids = set()
         for row in value:
             if row.get("id") is None:
                 raise ValueError(f"{filename} tiene un registro sin id")
             try:
-                int(row["id"])
+                item_id = int(row["id"])
             except (TypeError, ValueError) as exc:
                 raise ValueError(f"{filename} tiene un id que no es entero") from exc
+            if item_id in seen_ids:
+                raise ValueError(f"{filename} contiene el ID duplicado {item_id}")
+            seen_ids.add(item_id)
         records[collection] = value
     return records
 
@@ -108,6 +115,9 @@ def main() -> int:
             print(f"Registros listos para importar: {total} en {len(records)} colecciones.")
             return 0
         imported, skipped = import_records(records)
+    except ValueError as exc:
+        print(f"Origen inválido: {exc}")
+        return 1
     except Exception as exc:
         print(f"No se pudo importar ({type(exc).__name__}). Revisa la configuración y los archivos fuente.")
         return 1

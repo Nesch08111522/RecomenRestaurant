@@ -8,7 +8,7 @@ Las colecciones usadas por la aplicación incluyen `users`, `restaurants`, `cate
 
 1. En Supabase, abre **SQL Editor** y ejecuta [`database/app_records.sql`](database/app_records.sql). Es una migración aditiva. Activa RLS y no da acceso a los roles de navegador `anon` y `authenticated`.
 2. Configura `.env` local o los secretos del despliegue con `DATA_BACKEND=postgresql`, la URI de servidor en `DATABASE_URL`, `DATABASE_SSLMODE=require` y una `SECRET_KEY` propia de al menos 32 caracteres. No incluyas la URI en Git ni en el cliente web.
-3. Si quieres conservar los datos iniciales locales, importa los documentos una sola vez. Primero revisa el conteo con `python migrations/import_json_documents.py --dry-run`; después ejecuta `python migrations/import_json_documents.py`. El importador conserva IDs, inserta solo filas que faltan y nunca sobrescribe registros que ya existan en Supabase.
+3. Si quieres conservar los datos iniciales locales, importa los documentos una sola vez. Primero revisa el conteo con `python -m migrations.import_json_documents --dry-run`; después ejecuta `python -m migrations.import_json_documents`. El importador conserva IDs, inserta solo filas que faltan y nunca sobrescribe registros que ya existan en Supabase.
 4. Inicia la aplicación. `create_app()` valida configuración, conexión y existencia de `public.app_records`; falla al arrancar con una indicación si falta algún requisito.
 
 Si no ejecutas la importación, la app comienza con las colecciones que ya existan en Supabase; los archivos heredados no se consultan en tiempo de ejecución. El importador no elimina ni modifica los archivos fuente.

@@ -7,6 +7,7 @@ let map = null;
 let markers = {};
 
 function initMap() {
+    if (document.body.classList.contains('sr-discover') && document.getElementById('forest-map-panel')?.hidden) return;
     // Verificar que el contenedor existe
     const mapContainer = document.getElementById('main-map');
     if (!mapContainer) {
@@ -66,14 +67,14 @@ function updateMarkers(restaurants) {
     }
 
     restaurants.forEach(r => {
-        if (!r.lat || !r.lng) return;
+        if (r.lat == null || r.lng == null || !Number.isSafeInteger(Number(r.id))) return;
         
         const marker = L.marker([r.lat, r.lng]).addTo(map);
         marker.bindPopup(`
             <div class="map-popup">
-                <strong>${r.name}</strong><br>
-                Rating: ${r.rating} ⭐<br>
-                <a href="/restaurant/${r.id}">Ver detalle</a>
+                <strong>${window.escapeDisplayText(r.name)}</strong><br>
+                Rating: ${window.escapeDisplayText(r.rating)} ⭐<br>
+                <a href="/restaurant/${Number(r.id)}">Ver detalle</a>
             </div>
         `);
         markers[r.id] = marker;

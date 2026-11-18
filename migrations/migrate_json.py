@@ -140,7 +140,10 @@ def load_dataset(data_dir: Path) -> dict[str, list[dict[str, Any]]]:
         "promotions": "promotions.json",
         "reviews": "reviews.json",
     }
-    return {key: read_json(data_dir, filename) for key, filename in files.items()}
+    from migrations.moderation_ids import reconcile
+    datasets = {key: read_json(data_dir, filename) for key, filename in files.items()}
+    datasets["moderation"] = reconcile(datasets["moderation"], read_json(data_dir, "audit_events.json"))
+    return datasets
 
 
 def manifest(data_dir: Path, datasets: dict[str, list[dict[str, Any]]]) -> dict[str, Any]:

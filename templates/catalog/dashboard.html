@@ -1,0 +1,243 @@
+{% extends 'owner/base.html' %}
+
+{% block extra_head %}
+    {{ super() }}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/catalog.css') }}">
+{% endblock %}
+
+{% block owner_content %}
+{% set selected_id = restaurant.id if restaurant else '' %}
+{% set selected_name = restaurant.name if restaurant else 'Selecciona un restaurante' %}
+<div class="catalog-shell"
+     id="catalogApp"
+     data-api-url="{{ api_url|default('', true) }}"
+     data-restaurant-id="{{ selected_id }}"
+     data-currency="{{ MONEDA|default('S/', true) }}"
+     data-has-restaurant="{{ 'true' if restaurant else 'false' }}">
+    <div class="catalog-atmosphere catalog-atmosphere--one" aria-hidden="true"></div>
+    <div class="catalog-atmosphere catalog-atmosphere--two" aria-hidden="true"></div>
+
+    <header class="catalog-hero">
+        <div class="catalog-breadcrumb"><span class="catalog-pulse"></span> Centro de catálogo <span aria-hidden="true">/</span> Operación diaria</div>
+        <div class="catalog-hero-row">
+            <div>
+                <p class="catalog-eyebrow">MENÚ CON CRITERIO</p>
+                <h1>Tu carta, lista para servir.</h1>
+                <p class="catalog-lede">Edita, valida y publica los productos de <strong id="selectedRestaurantLabel">{{ selected_name }}</strong> sin perder el control de ingredientes, precios ni alérgenos.</p>
+            </div>
+            <div class="catalog-hero-actions">
+                <button type="button" class="catalog-icon-button" id="themeToggle" aria-label="Cambiar a modo oscuro" aria-pressed="false" title="Cambiar tema">
+                    <i class="fas fa-moon" aria-hidden="true"></i>
+                </button>
+                <button type="button" class="catalog-button catalog-button--quiet" id="focusImportButton">
+                    <i class="fas fa-file-arrow-up" aria-hidden="true"></i><span>Importar</span>
+                </button>
+                <button type="button" class="catalog-button catalog-button--primary" id="newProductButton">
+                    <i class="fas fa-plus" aria-hidden="true"></i><span>Nuevo producto</span>
+                </button>
+            </div>
+        </div>
+        <div class="catalog-hero-note" role="note">
+            <i class="fas fa-shield-heart" aria-hidden="true"></i>
+            <span>Todo lo que sugiere la IA llega como <strong>borrador editable</strong>. El precio nunca se inventa y las confirmaciones nutricionales son independientes.</span>
+        </div>
+    </header>
+
+    <section class="catalog-selection-bar" aria-label="Contexto del restaurante">
+        <div class="catalog-selection-copy">
+            <span class="catalog-kicker">RESTAURANTE ACTIVO</span>
+            <strong id="restaurantSelectionStatus">{{ selected_name }}</strong>
+        </div>
+        <label class="catalog-select-wrap" for="restaurantSelector">
+            <span class="sr-only">Selecciona restaurante</span>
+            <i class="fas fa-store" aria-hidden="true"></i>
+            <select id="restaurantSelector" {% if not restaurants %}disabled{% endif %}>
+                <option value="">Selecciona un restaurante</option>
+                {% for item in restaurants|default([], true) %}
+                    <option value="{{ item.id }}" {% if restaurant and item.id == restaurant.id %}selected{% endif %}>{{ item.name }}</option>
+                {% endfor %}
+            </select>
+            <i class="fas fa-chevron-down" aria-hidden="true"></i>
+        </label>
+    </section>
+
+    <div id="catalogNotice" class="catalog-notice" role="status" aria-live="polite" aria-atomic="true" hidden></div>
+
+    {% if not restaurant %}
+    <section class="catalog-empty-state" aria-labelledby="emptyCatalogTitle">
+        <div class="catalog-empty-icon"><i class="fas fa-store-slash" aria-hidden="true"></i></div>
+        <div>
+            <p class="catalog-eyebrow">PRIMER PASO</p>
+            <h2 id="emptyCatalogTitle">Elige un restaurante para abrir su catálogo</h2>
+            <p>Cuando selecciones uno de tus restaurantes podrás crear productos, importar una plantilla y revisar los borradores pendientes.</p>
+        </div>
+    </section>
+    {% endif %}
+
+    <section class="catalog-metrics" aria-label="Resumen del catálogo">
+        <article class="catalog-metric-card catalog-metric-card--accent">
+            <div class="catalog-metric-icon"><i class="fas fa-layer-group" aria-hidden="true"></i></div>
+            <div><span>Productos publicados</span><strong id="metricPublished">0</strong><small id="metricPublishedHint">Sin cargar</small></div>
+        </article>
+        <article class="catalog-metric-card">
+            <div class="catalog-metric-icon"><i class="fas fa-pen-ruler" aria-hidden="true"></i></div>
+            <div><span>Borradores por revisar</span><strong id="metricDrafts">0</strong><small>Antes de publicar</small></div>
+        </article>
+        <article class="catalog-metric-card">
+            <div class="catalog-metric-icon"><i class="fas fa-circle-check" aria-hidden="true"></i></div>
+            <div><span>Disponibles hoy</span><strong id="metricAvailable">0</strong><small>Visibles para clientes</small></div>
+        </article>
+        <article class="catalog-metric-card catalog-metric-card--dark">
+            <div class="catalog-metric-icon"><i class="fas fa-sparkles" aria-hidden="true"></i></div>
+            <div><span>Calidad del dato</span><strong id="metricQuality">—</strong><small>Basada en confirmaciones</small></div>
+        </article>
+    </section>
+
+    <div class="catalog-layout">
+        <main class="catalog-main-column">
+            <section class="catalog-panel catalog-products-panel" aria-labelledby="productsTitle">
+                <div class="catalog-panel-header catalog-panel-header--stack-mobile">
+                    <div>
+                        <p class="catalog-eyebrow">TU MENÚ</p>
+                        <h2 id="productsTitle">Productos del catálogo <span id="productCount" class="catalog-count-pill">0</span></h2>
+                        <p class="catalog-muted">Gestiona disponibilidad sin borrar el producto ni perder su historial.</p>
+                    </div>
+                    <div class="catalog-toolbar">
+                        <label class="catalog-search" for="productSearch">
+                            <i class="fas fa-search" aria-hidden="true"></i>
+                            <span class="sr-only">Buscar producto</span>
+                            <input id="productSearch" type="search" placeholder="Buscar por nombre…" autocomplete="off">
+                        </label>
+                        <label class="catalog-filter" for="productTypeFilter">
+                            <span class="sr-only">Filtrar por tipo</span>
+                            <select id="productTypeFilter">
+                                <option value="all">Todos los tipos</option>
+                                <option value="plato">Platos</option>
+                                <option value="bebida">Bebidas</option>
+                                <option value="postre">Postres</option>
+                            </select>
+                        </label>
+                    </div>
+                </div>
+                <div id="productsList" class="catalog-product-grid" aria-live="polite"></div>
+                <div id="productsEmpty" class="catalog-inline-empty" hidden>
+                    <i class="fas fa-bowl-food" aria-hidden="true"></i>
+                    <strong>No hay productos que coincidan</strong>
+                    <span>Prueba otra búsqueda o crea el primero desde el botón superior.</span>
+                </div>
+            </section>
+
+            <section class="catalog-panel catalog-drafts-panel" aria-labelledby="draftsTitle">
+                <div class="catalog-panel-header">
+                    <div>
+                        <p class="catalog-eyebrow">REVISIÓN HUMANA</p>
+                        <h2 id="draftsTitle">Borradores que esperan tu criterio</h2>
+                        <p class="catalog-muted">La IA puede sugerir; solo tú decides qué llega a la carta.</p>
+                    </div>
+                    <span class="catalog-ai-badge"><i class="fas fa-wand-magic-sparkles" aria-hidden="true"></i> IA asistida</span>
+                </div>
+                <div id="draftsList" class="catalog-drafts-list"></div>
+                <div id="draftsEmpty" class="catalog-inline-empty catalog-inline-empty--compact">
+                    <i class="fas fa-inbox" aria-hidden="true"></i>
+                    <strong>Tu bandeja está al día</strong>
+                    <span>Los nuevos borradores aparecerán aquí para que los edites y confirmes.</span>
+                </div>
+            </section>
+        </main>
+
+        <aside class="catalog-side-column">
+            <section class="catalog-panel catalog-form-panel" id="productEditorPanel" aria-labelledby="editorTitle">
+                <div class="catalog-panel-header catalog-panel-header--editor">
+                    <div>
+                        <p class="catalog-eyebrow">EDITOR SEGURO</p>
+                        <h2 id="editorTitle">Nuevo producto</h2>
+                    </div>
+                    <span class="catalog-status-dot"><span></span> Borrador local</span>
+                </div>
+                <form id="productForm" novalidate>
+                    <input type="hidden" id="editingProductId" value="">
+                    <input type="hidden" id="editingDraftId" value="">
+                    <div class="catalog-form-section">
+                        <div class="catalog-section-heading"><span>01</span><div><h3>Identidad del producto</h3><p>Lo esencial para mostrarlo en carta.</p></div></div>
+                        <div class="catalog-form-grid catalog-form-grid--two">
+                            <div class="catalog-field catalog-field--wide">
+                                <label for="productName">Nombre <span aria-hidden="true">*</span></label>
+                                <input id="productName" name="name" type="text" maxlength="140" required placeholder="Ej. Ceviche clásico">
+                            </div>
+                            <div class="catalog-field">
+                                <label for="productType">Tipo <span aria-hidden="true">*</span></label>
+                                <select id="productType" name="product_type" required>
+                                    <option value="plato">Plato</option><option value="bebida">Bebida</option><option value="postre">Postre</option>
+                                </select>
+                            </div>
+                            <div class="catalog-field">
+                                <label for="productCategory">Categoría</label>
+                                <select id="productCategory" name="category"><option value="">Sin categoría</option>{% for cat in categories|default([], true) %}<option value="{{ cat.value if cat is mapping else cat }}">{{ cat.label if cat is mapping else cat }}</option>{% endfor %}</select>
+                            </div>
+                            <div class="catalog-field">
+                                <label for="productSubcategory">Subcategoría</label>
+                                <input id="productSubcategory" name="subcategory" type="text" maxlength="80" placeholder="Ej. Mariscos">
+                            </div>
+                            <div class="catalog-field catalog-field--wide">
+                                <label for="productDescription">Descripción</label>
+                                <textarea id="productDescription" name="description" rows="3" maxlength="500" placeholder="Cuenta qué hace especial a este producto."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="catalog-form-section">
+                        <div class="catalog-section-heading"><span>02</span><div><h3>Precio y servicio</h3><p>El precio queda en blanco hasta que lo declares.</p></div></div>
+                        <div class="catalog-form-grid catalog-form-grid--three">
+                            <div class="catalog-field"><label for="productPrice">Precio <span class="catalog-optional">opcional</span></label><div class="catalog-input-prefix"><span>S/</span><input id="productPrice" name="price" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00"></div><small>Usa hasta 2 decimales.</small></div>
+                            <div class="catalog-field"><label for="productPortion">Porción</label><input id="productPortion" name="portion" type="text" maxlength="80" placeholder="Ej. 1 persona"></div>
+                            <div class="catalog-field"><label for="productAvailability">Disponibilidad</label><select id="productAvailability" name="availability"><option value="available">Disponible</option><option value="sold_out">Agotado</option><option value="paused">Pausado</option></select></div>
+                            <div class="catalog-field"><label for="productMenuType">Tipo de menú</label><select id="productMenuType" name="menu_type"><option value="carta">Carta</option><option value="variable">Variable</option></select></div>
+                            <div class="catalog-field"><label for="productMealTime">Momento del día</label><select id="productMealTime" name="meal_time"><option value="desayuno">Desayuno</option><option value="almuerzo">Almuerzo</option><option value="cena">Cena</option></select></div>
+                            <div class="catalog-field"><label for="productMenuDate">Fecha del menú</label><input id="productMenuDate" name="menu_date" type="date"><small>Vacío = sin fecha fija.</small></div>
+                        </div>
+                        <div class="catalog-switch-row"><label class="catalog-switch"><input id="productPromotional" name="promotional" type="checkbox"><span aria-hidden="true"></span><b>Producto promocional</b></label><div class="catalog-field catalog-field--grow"><label class="sr-only" for="productPromoText">Texto promocional</label><input id="productPromoText" name="promo_text" type="text" maxlength="160" placeholder="Ej. 2x1 los martes" disabled></div></div>
+                    </div>
+                    <div class="catalog-form-section">
+                        <div class="catalog-section-heading"><span>03</span><div><h3>Ingredientes y confianza</h3><p>Separa lo declarado de lo que la IA solo pudo inferir.</p></div></div>
+                        <div class="catalog-form-grid catalog-form-grid--two">
+                            <div class="catalog-field"><label for="productIngredients">Ingredientes declarados</label><textarea id="productIngredients" name="ingredients" rows="4" placeholder="Uno por línea&#10;arroz&#10;pollo&#10;culantro"></textarea><small>Solo ingredientes verificados por tu equipo.</small></div>
+                            <div class="catalog-field catalog-field--ai"><label for="productProbableIngredients">Ingredientes probables · IA</label><textarea id="productProbableIngredients" name="probable_ingredients" rows="4" placeholder="Uno por línea&#10;Puede venir de una foto o voz"></textarea><small><i class="fas fa-sparkles" aria-hidden="true"></i> No se publican como declarados automáticamente.</small></div>
+                            <div class="catalog-field"><label for="productAllergens">Alérgenos</label><textarea id="productAllergens" name="allergens" rows="3" placeholder="Uno por línea o vacío si aún no está confirmado"></textarea><small>Vacío se guarda como desconocido (null).</small></div>
+                            <div class="catalog-confirmation-stack"><label class="catalog-check"><input id="ingredientsConfirmed" type="checkbox"><span aria-hidden="true"></span><span><b>Ingredientes confirmados</b><small>He revisado la lista declarada.</small></span></label><label class="catalog-check"><input id="allergensConfirmed" type="checkbox"><span aria-hidden="true"></span><span><b>Alérgenos confirmados</b><small>He revisado esta información.</small></span></label></div>
+                        </div>
+                    </div>
+                    <div class="catalog-form-section">
+                        <div class="catalog-section-heading"><span>04</span><div><h3>Estructura y extras</h3><p>Usa JSON sencillo para mantener los datos consistentes.</p></div></div>
+                        <div class="catalog-field"><label for="productRecipe">Receta <span class="catalog-optional">JSON · opcional</span></label><textarea id="productRecipe" rows="4" placeholder='[{"ingredient":"arroz","quantity":0.2,"unit":"kg"}]'></textarea><small>Formato: ingredient, quantity decimal, unit: g · kg · ml · l · unidad.</small></div>
+                        <div class="catalog-form-grid catalog-form-grid--two catalog-form-grid--compact"><div class="catalog-field"><label for="productVariants">Variantes <span class="catalog-optional">JSON</span></label><textarea id="productVariants" rows="4" placeholder='[{"name":"Familiar","price":60.5,"portion":"4 personas"}]'></textarea><small>El precio de cada variante también es opcional.</small></div><div class="catalog-field"><label for="productAddons">Adicionales <span class="catalog-optional">JSON</span></label><textarea id="productAddons" rows="4" placeholder='[{"name":"Palta","price":3}]'></textarea><small>Nombre y precio, sin inventar valores.</small></div></div>
+                        <div class="catalog-form-grid catalog-form-grid--two catalog-form-grid--compact"><div class="catalog-field"><label for="productTags">Etiquetas <span class="catalog-optional">una por línea</span></label><textarea id="productTags" rows="3" placeholder="picante&#10;sin gluten"></textarea></div><div class="catalog-field"><label for="productImages">Imágenes <span class="catalog-optional">URLs, una por línea</span></label><textarea id="productImages" rows="3" placeholder="https://…"></textarea></div></div>
+                        <div class="catalog-field"><label for="productVideos">Videos <span class="catalog-optional">HTTPS mp4/webm, uno por línea</span></label><textarea id="productVideos" rows="2" placeholder="https://cdn.example.com/menu.webm"></textarea></div>
+                    </div>
+                    <div class="catalog-form-section catalog-form-section--last">
+                        <label class="catalog-check catalog-check--rights"><input id="rightsConfirmed" type="checkbox"><span aria-hidden="true"></span><span><b>Confirmo que tengo derechos para usar estos textos, imágenes y videos.</b><small>No subas material de terceros sin autorización.</small></span></label>
+                        <div class="catalog-form-actions"><button type="button" class="catalog-button catalog-button--ghost" id="resetProductButton">Limpiar</button><button type="submit" class="catalog-button catalog-button--primary" id="saveProductButton"><i class="fas fa-floppy-disk" aria-hidden="true"></i><span>Guardar borrador</span></button></div>
+                    </div>
+                </form>
+            </section>
+
+            <section class="catalog-panel catalog-tools-panel" aria-labelledby="toolsTitle">
+                <div class="catalog-panel-header"><div><p class="catalog-eyebrow">CAPTURA RÁPIDA</p><h2 id="toolsTitle">Añade contexto, con calma</h2></div><i class="fas fa-bolt catalog-panel-mark" aria-hidden="true"></i></div>
+                <div class="catalog-tool-card"><div class="catalog-tool-icon catalog-tool-icon--photo"><i class="fas fa-camera" aria-hidden="true"></i></div><div><h3>Foto del plato</h3><p>La IA puede proponer ingredientes probables. Nunca los mueve a declarados ni inventa precio.</p><form id="photoForm"><label class="catalog-file-label" for="photoInput">Elegir foto</label><input id="photoInput" name="file" type="file" accept="image/jpeg,image/png,image/webp"><button type="submit" class="catalog-button catalog-button--soft" id="photoButton">Analizar foto</button></form></div></div>
+                <div class="catalog-tool-card"><div class="catalog-tool-icon catalog-tool-icon--voice"><i class="fas fa-microphone" aria-hidden="true"></i></div><div><h3>Dictado de producto</h3><p id="voiceSupportText">Activa el micrófono solo cuando estés listo. El navegador pedirá permiso y procesará tu voz localmente.</p><div class="catalog-voice-row"><button type="button" class="catalog-button catalog-button--soft" id="voiceButton"><i class="fas fa-microphone" aria-hidden="true"></i> Iniciar dictado</button><span id="voiceState" class="catalog-voice-state" role="status" aria-live="polite">Listo</span></div><label class="catalog-field catalog-field--voice-fallback" for="voiceTranscript"><span>Transcripción manual / resultado</span><textarea id="voiceTranscript" rows="2" placeholder="Ej. Ceviche clásico, plato, 18 soles, pescado, limón…"></textarea></label><button type="button" class="catalog-button catalog-button--text" id="voiceSendButton">Usar como borrador</button></div></div>
+            </section>
+        </aside>
+    </div>
+
+    <section class="catalog-panel catalog-import-panel" id="importPanel" aria-labelledby="importTitle">
+        <div class="catalog-import-copy"><p class="catalog-eyebrow">IMPORTACIÓN CONTROLADA</p><h2 id="importTitle">Carga una carta completa sin saltarte la revisión</h2><p>Descarga la plantilla Excel, completa lo que conoces y revisa los errores y advertencias antes de confirmar cualquier fila.</p><div class="catalog-import-links"><a class="catalog-button catalog-button--soft" href="{{ '/owner/catalog/' ~ selected_id ~ '/template.xlsx' if selected_id else '#' }}" id="templateLink" {% if not selected_id %}aria-disabled="true"{% endif %}><i class="fas fa-file-excel" aria-hidden="true"></i> Descargar plantilla Excel</a><span><i class="fas fa-lock" aria-hidden="true"></i> Procesamiento revisable</span></div></div>
+        <form id="importForm" class="catalog-import-form"><label for="excelInput" class="catalog-dropzone"><i class="fas fa-cloud-arrow-up" aria-hidden="true"></i><span><b>Selecciona tu .xlsx</b><small>Arrástralo aquí o haz clic · sin publicación automática</small></span><input id="excelInput" name="file" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"></label><button type="submit" class="catalog-button catalog-button--primary" id="importButton">Crear preview</button></form>
+    </section>
+    <section class="catalog-panel catalog-import-preview" id="importPreviewPanel" aria-labelledby="importPreviewTitle" hidden><div class="catalog-panel-header"><div><p class="catalog-eyebrow">PREVIEW DE IMPORTACIÓN</p><h2 id="importPreviewTitle">Revisa filas antes de confirmar</h2></div><span id="importPreviewStatus" class="catalog-status-chip">Pendiente</span></div><div class="catalog-import-summary" id="importSummary"></div><div class="catalog-table-wrap"><table class="catalog-review-table"><caption class="sr-only">Errores y advertencias de la importación</caption><thead><tr><th scope="col">Hoja</th><th scope="col">Fila</th><th scope="col">Campo</th><th scope="col">Detalle</th><th scope="col">Nivel</th></tr></thead><tbody id="importIssuesBody"></tbody></table></div><div class="catalog-form-actions"><button type="button" class="catalog-button catalog-button--ghost" id="closeImportPreview">Cerrar preview</button><button type="button" class="catalog-button catalog-button--primary" id="confirmImportButton" disabled>Confirmar importación</button></div></section>
+</div>
+
+<script type="application/json" id="catalogSeed">{{ {'products': products|default([], true), 'drafts': drafts|default([], true), 'categories': categories|default([], true)}|tojson }}</script>
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    <script src="{{ url_for('static', filename='js/catalog.js') }}" defer></script>
+{% endblock %}

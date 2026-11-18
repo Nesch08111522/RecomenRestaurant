@@ -1,4 +1,5 @@
 import hashlib
+import json
 from pathlib import Path
 
 from database.repository import PostgresRepository
@@ -14,9 +15,14 @@ def test_real_json_dataset_is_migration_ready():
     report = validate(datasets)
     assert report["valid"] is True
     assert report["errors"] == []
-    assert len(datasets["users"]) == 3
-    assert len(datasets["restaurants"]) == 24
-    assert len(datasets["dishes"]) == 84
+    for collection, rows in datasets.items():
+        original = json.loads((DATA / f"{collection}.json").read_text(encoding="utf-8"))
+        assert len(rows) == len(original)
+        if collection == "moderation":
+            assert len({row["id"] for row in rows}) == len(rows)
+            for row, source in zip(rows, original):
+                assert row.get("legacy_id", row["id"]) == source["id"]
+                assert row["content_id"] == source["content_id"]
 
 
 def test_manifest_is_deterministic_and_source_files_are_not_modified():

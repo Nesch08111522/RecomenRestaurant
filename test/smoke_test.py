@@ -2,6 +2,8 @@ import sys
 import os
 import unittest
 
+import pytest
+
 # Añadir el directorio raíz al path para poder importar los módulos
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
@@ -10,6 +12,7 @@ from models.restaurant import RestaurantModel
 from utils.functional import filter_restaurants
 from logic.recommender import RecommenderEngine
 
+@pytest.mark.usefixtures("test_database")
 class SmokeTest(unittest.TestCase):
     def setUp(self):
         self.app = create_app()

@@ -5,6 +5,8 @@ Nunca se acepta table/column desde request; los valores siempre se parametrizan.
 """
 from __future__ import annotations
 
+from contextlib import contextmanager
+from contextvars import ContextVar
 from typing import Any, ClassVar
 
 from database.connection import connection
@@ -79,6 +81,24 @@ class PostgresRepository:
             return deleted
 
 
+_document_connection = ContextVar("document_connection", default=None)
+
+
+@contextmanager
+def document_transaction():
+    """Share one commit or rollback across a document change and its audit event."""
+    active = _document_connection.get()
+    if active is not None:
+        yield active
+        return
+    with connection() as conn, conn.transaction():
+        token = _document_connection.set(conn)
+        try:
+            yield conn
+        finally:
+            _document_connection.reset(token)
+
+
 class PostgresDocumentRepository:
     """Persist flexible application records in a PostgreSQL JSONB collection."""
 
@@ -92,7 +112,7 @@ class PostgresDocumentRepository:
 
     @classmethod
     def all(cls, collection: str) -> list[dict[str, Any]]:
-        with connection() as conn, conn.cursor() as cur:
+        with document_transaction() as conn, conn.cursor() as cur:
             cur.execute(
                 f"SELECT payload FROM {cls.table} WHERE collection = %s ORDER BY id",
                 (collection,),
@@ -100,10 +120,11 @@ class PostgresDocumentRepository:
             return [row["payload"] for row in cur.fetchall()]
 
     @classmethod
-    def get_by_id(cls, collection: str, item_id: int) -> dict[str, Any] | None:
-        with connection() as conn, conn.cursor() as cur:
+    def get_by_id(cls, collection: str, item_id: int, *, for_update: bool = False) -> dict[str, Any] | None:
+        with document_transaction() as conn, conn.cursor() as cur:
             cur.execute(
-                f"SELECT payload FROM {cls.table} WHERE collection = %s AND id = %s",
+                f"SELECT payload FROM {cls.table} WHERE collection = %s AND id = %s"
+                + (" FOR UPDATE" if for_update else ""),
                 (collection, int(item_id)),
             )
             row = cur.fetchone()
@@ -115,7 +136,7 @@ class PostgresDocumentRepository:
             raise TypeError("values debe ser un objeto")
         item = dict(values)
         raw_id = item.pop("id", None)
-        with connection() as conn, conn.cursor() as cur:
+        with document_transaction() as conn, conn.cursor() as cur:
             if raw_id is None:
                 cur.execute(
                     f"INSERT INTO {cls.table} (collection, payload) VALUES (%s, %s) RETURNING id",
@@ -133,7 +154,6 @@ class PostgresDocumentRepository:
                 f"UPDATE {cls.table} SET payload = %s WHERE collection = %s AND id = %s",
                 (cls._jsonb(item), collection, item_id),
             )
-            conn.commit()
             return item
 
     @classmethod
@@ -146,7 +166,7 @@ class PostgresDocumentRepository:
         if "id" in changes and int(changes["id"]) != int(item_id):
             raise ValueError("El id del registro no se puede cambiar")
         changes["id"] = int(item_id)
-        with connection() as conn, conn.cursor() as cur:
+        with document_transaction() as conn, conn.cursor() as cur:
             cur.execute(
                 f"""UPDATE {cls.table}
                     SET payload = payload || %s, updated_at = CURRENT_TIMESTAMP
@@ -155,20 +175,16 @@ class PostgresDocumentRepository:
                 (cls._jsonb(changes), collection, int(item_id)),
             )
             row = cur.fetchone()
-            if row:
-                conn.commit()
-                return row["payload"]
-            return None
+            return row["payload"] if row else None
 
     @classmethod
     def delete(cls, collection: str, item_id: int) -> bool:
-        with connection() as conn, conn.cursor() as cur:
+        with document_transaction() as conn, conn.cursor() as cur:
             cur.execute(
                 f"DELETE FROM {cls.table} WHERE collection = %s AND id = %s",
                 (collection, int(item_id)),
             )
             deleted = cur.rowcount == 1
-            conn.commit()
             return deleted
 
     @classmethod
@@ -176,7 +192,7 @@ class PostgresDocumentRepository:
         """Replace one collection atomically; used only by legacy model helpers."""
         if not isinstance(values, list) or any(not isinstance(item, dict) for item in values):
             raise TypeError("values debe ser una lista de objetos")
-        with connection() as conn, conn.cursor() as cur:
+        with document_transaction() as conn, conn.cursor() as cur:
             cur.execute(f"DELETE FROM {cls.table} WHERE collection = %s", (collection,))
             for value in values:
                 item = dict(value)
@@ -205,4 +221,3 @@ class PostgresDocumentRepository:
                     COUNT(*) > 0
                 ) FROM {cls.table}"""
             )
-            conn.commit()

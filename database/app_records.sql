@@ -14,6 +14,11 @@ CREATE TABLE IF NOT EXISTS public.app_records (
 CREATE INDEX IF NOT EXISTS idx_app_records_payload
     ON public.app_records USING GIN (payload jsonb_path_ops);
 
+CREATE INDEX IF NOT EXISTS idx_market_offers_day ON public.app_records ((payload->>'day')) WHERE collection='market_offers';
+CREATE INDEX IF NOT EXISTS idx_commercial_business ON public.app_records (collection, (payload->>'rid'));
+
+CREATE INDEX IF NOT EXISTS idx_notifications_user ON public.app_records ((payload->>'user_id'), id DESC) WHERE collection='notifications';
+
 -- The Flask server connects with its server-side PostgreSQL credential.
 -- The table is not exposed to Supabase's browser-facing API roles.
 ALTER TABLE public.app_records ENABLE ROW LEVEL SECURITY;

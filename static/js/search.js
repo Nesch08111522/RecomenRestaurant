@@ -75,6 +75,7 @@ class RealTimeSearch {
     
     init() {
         if (this.searchForm) {
+            this.searchForm.addEventListener('input', () => this.controller?.abort());
             // ✅ Evento submit del formulario
             this.searchForm.addEventListener('submit', (e) => {
                 e.preventDefault();
@@ -108,7 +109,9 @@ class RealTimeSearch {
     }
     
     async performSearch() {
-        if (this.isLoading) return;
+        this.controller?.abort();
+        const controller = new AbortController();
+        this.controller = controller;
         
         // Obtener valores del formulario
         const formData = new FormData(this.searchForm);
@@ -117,7 +120,7 @@ class RealTimeSearch {
         const district = document.getElementById('district-select')?.value || '';
         const category = document.getElementById('category-select')?.value || '';
         const maxPrice = document.querySelector('input[name="max_price"]')?.value || '';
-        const query = document.querySelector('input[name="q"]')?.value || '';
+        const query = formData.get('q') || '';
         
         const filters = {
             district: district,
@@ -135,23 +138,27 @@ class RealTimeSearch {
         try {
             const response = await fetch('/api/search', {
                 method: 'POST',
+                signal: controller.signal,
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(filters)
             });
             
+            if (!response.ok) throw new Error("search");
             const data = await response.json();
+            if (controller.signal.aborted) return;
             console.log('📥 Resultados:', data);
             
             const results = Array.isArray(data) ? data : (Array.isArray(data.results) ? data.results : []);
             this.updateResults(results);
             this.updateMapMarkers(results);
         } catch (error) {
+            if (controller.signal.aborted) return;
             console.error('❌ Error en la búsqueda:', error);
             this.showError('Error al realizar la búsqueda. Por favor intenta de nuevo.');
         } finally {
-            this.hideLoading();
+            if (this.controller === controller) this.hideLoading();
         }
     }
     
@@ -185,50 +192,52 @@ class RealTimeSearch {
     }
     
     createRestaurantCard(r) {
-        const tags = r.tags?.slice(0, 3).map(t => `<span class="tag">${t}</span>`).join('') || '';
+        if (!Number.isSafeInteger(Number(r.id))) return "";
+        const esc = window.escapeDisplayText;
+        const tags = r.tags?.slice(0, 3).map(t => `<span class="tag">${esc(t)}</span>`).join('') || '';
         const promo = r.promo ? `<div class="promo-badge"><i class="fas fa-tag"></i> Promoción</div>` : '';
         const topRated = r.rating >= 4.5 ? `<div class="top-rated-badge"><i class="fas fa-star"></i> Top</div>` : '';
         const justification = r.justifications && r.justifications.length > 0 
-            ? `<div class="ia-justification"><i class="fas fa-robot"></i><span>${r.justifications[0]}</span></div>` 
+            ? `<div class="ia-justification"><i class="fas fa-robot"></i><span>${esc(r.justifications[0])}</span></div>`
             : '';
         const distance = r.distance_km ? r.distance_km.toFixed(1) : '?';
         const currency = typeof MONEDA !== 'undefined' ? MONEDA : 'S/.';
         
         return `
             <div class="restaurant-card" 
-                 data-id="${r.id}" 
-                 data-lat="${r.lat}" 
-                 data-lng="${r.lng}"
-                 onmouseenter="highlightMarker(${r.id})" 
-                 onmouseleave="resetMarker(${r.id})">
+                 data-id="${Number(r.id)}"
+                 data-lat="${esc(r.lat)}"
+                 data-lng="${esc(r.lng)}"
+                 onmouseenter="highlightMarker(${Number(r.id)})"
+                 onmouseleave="resetMarker(${Number(r.id)})">
                 
                 <div class="card-image">
-                    <img src="${r.image}" alt="${r.name}" loading="lazy">
+                    ${r.image ? `<img src="${esc(r.image)}" alt="${esc(r.name)}" loading="lazy">` : ""}
                     ${promo}
                     ${topRated}
-                    <button class="fav-btn" onclick="toggleFavorite(${r.id}, event)">
+                    <button class="fav-btn" onclick="toggleFavorite(${Number(r.id)}, event)">
                         <i class="far fa-heart"></i>
                     </button>
                 </div>
                 
                 <div class="card-content">
                     <div class="card-header">
-                        <h3>${r.name}</h3>
+                        <h3>${esc(r.name)}</h3>
                         <div class="rating">
                             <i class="fas fa-star"></i>
-                            <span>${r.rating}</span>
+                            <span>${esc(r.rating)}</span>
                         </div>
                     </div>
                     
                     <div class="card-location">
                         <i class="fas fa-map-marker-alt"></i>
-                        <span>${r.district}</span>
+                        <span>${esc(r.district)}</span>
                         <span class="dot">•</span>
                         <span class="distance">${distance} km</span>
                     </div>
                     
                     <div class="card-price">
-                        <span class="price">${currency}${r.avg_price}</span>
+                        <span class="price">${currency}${esc(r.avg_price)}</span>
                         <span class="price-label">por persona</span>
                     </div>
                     
@@ -236,7 +245,7 @@ class RealTimeSearch {
                     
                     ${justification}
                     
-                    <a href="/restaurant/${r.id}" class="card-link">
+                    <a href="/restaurant/${Number(r.id)}" class="card-link">
                         Ver detalles <i class="fas fa-arrow-right"></i>
                     </a>
                 </div>
@@ -293,35 +302,9 @@ async function filterByCategory(catId, event) {
         event.currentTarget.classList.add('active');
     }
     
-    const filters = {
-        category_id: catId ? parseInt(catId) : null,
-        lat: typeof INITIAL_COORDS !== 'undefined' ? INITIAL_COORDS[0] : -8.1118,
-        lng: typeof INITIAL_COORDS !== 'undefined' ? INITIAL_COORDS[1] : -79.0287
-    };
-    
-    console.log('🔍 Filtrando por categoría:', filters);
-    
-    try {
-        const response = await fetch('/api/search', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(filters)
-        });
-        
-        const data = await response.json();
-        
-        if (data.results) {
-            if (window.app) {
-                window.app.state.filteredRestaurants = data.results;
-                window.app.renderRestaurants();
-                window.app.updateMapMarkers(data.results);
-            }
-        }
-    } catch (error) {
-        console.error('❌ Error filtrando por categoría:', error);
-    }
+    const select = document.getElementById('category-select');
+    if (select) select.value = catId || '';
+    if (window.search?.searchForm) await window.search.performSearch();
 }
 
 // ============================================

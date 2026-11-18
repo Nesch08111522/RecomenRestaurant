@@ -1,0 +1,9 @@
+{
+  "mapVisible": true,
+  "mapLibreReady": true,
+  "leafletReady": false,
+  "mapCanvas": true,
+  "cards": 3,
+  "tilesLoaded": true,
+  "pageErrors": []
+}

@@ -7,21 +7,27 @@ from werkzeug.security import generate_password_hash, check_password_hash
 class UserModel(DataModel):
     collection = "users"
 
+    @staticmethod
+    def is_active(user):
+        return bool(user) and str(user.get("status", "ACTIVE")).upper() == "ACTIVE"
+
     @classmethod
     def authenticate(cls, username, password):
         """Authenticate a user by username and password."""
-        data = cls._load_data()
-        user = next((u for u in data if u.get("username") == username), None)
+        user = cls.get_by_username(username)
 
-        if user and check_password_hash(user.get("password", ""), password):
+        if cls.is_active(user) and check_password_hash(user.get("password", ""), password):
             return user
         return None
 
     @classmethod
     def get_by_username(cls, username):
         """Find a user by username."""
-        data = cls._load_data()
-        return next((u for u in data if u.get("username") == username), None)
+        from database.repository import PostgresDocumentRepository, document_transaction
+        with document_transaction() as conn:
+            row = conn.execute("SELECT payload FROM public.app_records WHERE collection='users' AND payload @> %s ORDER BY id LIMIT 1",
+                               (PostgresDocumentRepository._jsonb({"username": username}),)).fetchone()
+            return row["payload"] if row else None
 
     @classmethod
     def register(cls, username, password, email, name, role="user"):

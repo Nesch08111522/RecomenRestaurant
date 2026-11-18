@@ -107,7 +107,16 @@ class ReviewModel(DataModel):
             'created_at': datetime.now().isoformat(),
             'updated_at': datetime.now().isoformat()
         }
-        return cls.create(review_data)
+        from database.repository import document_transaction
+        from models.restaurant import RestaurantModel
+        from models.notification import NotificationModel
+        with document_transaction():
+            review = cls.create(review_data)
+            restaurant = RestaurantModel.get_by_id(restaurant_id) or {}
+            if restaurant.get("owner_id"):
+                NotificationModel.create_notification(restaurant["owner_id"], "Nueva reseña",
+                    f"{restaurant.get('name', 'Tu negocio')} recibió una reseña.", link=f"/restaurant/{restaurant_id}")
+            return review
     
     @classmethod
     def update_review(cls, review_id, rating, comment):

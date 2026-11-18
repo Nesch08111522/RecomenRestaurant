@@ -331,7 +331,8 @@
         const fab = el('button', 'ai-fab');
         fab.type = 'button';
         fab.title = 'Asistente IA';
-        fab.innerHTML = '<i class="fas fa-comment-dots"></i>';
+        fab.textContent = 'IA';
+        fab.setAttribute('aria-label', 'Abrir asistente de inteligencia artificial');
 
         const panel = el('div', 'ai-chat');
         panel.style.display = 'none';
@@ -342,7 +343,7 @@
             '<div class="ai-quick"></div>' +
             '<div class="ai-chat-form">' +
             '<input type="text" class="ai-chat-input" maxlength="300" placeholder="Ej: ¿dónde como ceviche?">' +
-            '<button type="button" class="ai-chat-send" aria-label="Enviar"><i class="fas fa-paper-plane"></i></button>' +
+            '<button type="button" class="ai-chat-send" aria-label="Enviar">↑</button>' +
             '</div>';
 
         document.body.append(fab, panel);
@@ -375,29 +376,16 @@
             locBtn.textContent = '✓ Ubicación activa';
         }
 
-        function requestLocation() {
-            return new Promise(resolve => {
-                if (!navigator.geolocation) {
-                    addBubble('bot', 'Tu navegador no permite obtener la ubicación.');
-                    resolve(null);
-                    return;
-                }
-                if (locBtn) locBtn.disabled = true;
-                navigator.geolocation.getCurrentPosition(
-                    pos => {
-                        userLoc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-                        markLocationOn();
-                        if (locBtn) locBtn.disabled = false;
-                        resolve(userLoc);
-                    },
-                    () => {
-                        if (locBtn) locBtn.disabled = false;
-                        addBubble('bot', 'No pude obtener tu ubicación. Permite el acceso en el navegador (icono del candado junto a la dirección) e inténtalo de nuevo.');
-                        resolve(null);
-                    },
-                    { enableHighAccuracy: true, timeout: 8000 }
-                );
-            });
+        async function requestLocation() {
+            if (locBtn) locBtn.disabled = true;
+            try {
+                userLoc = await getApp()?.getUserLocation();
+                if (userLoc) markLocationOn();
+                else addBubble('bot', document.getElementById('geo-status')?.textContent || 'Ubicación no disponible.');
+                return userLoc;
+            } finally {
+                if (locBtn) locBtn.disabled = false;
+            }
         }
 
         function addRecommendations(ids) {

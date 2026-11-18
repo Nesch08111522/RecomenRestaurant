@@ -1,6 +1,11 @@
 import re
 
+import pytest
+
 from app import create_app
+
+
+pytestmark = pytest.mark.usefixtures("test_database")
 
 
 def _client():
@@ -46,3 +51,18 @@ def test_routes_are_unique_and_have_no_debug_server_requirement():
     assert len(endpoints) == len(set(endpoints))
     assert not app.debug
     assert re.search(r"/admin/api/bi/overview", " ".join(str(rule) for rule in rules))
+
+
+def test_home_database_failure_returns_safe_error(monkeypatch):
+    from psycopg import OperationalError
+    from models.category import CategoryModel
+    _, client = _client()
+
+    def unavailable():
+        raise OperationalError("internal-database-diagnostic")
+
+    monkeypatch.setattr(CategoryModel, "all", unavailable)
+    response = client.get("/")
+    assert response.status_code == 500
+    assert b"internal-database-diagnostic" not in response.data
+    assert b"Traceback" not in response.data

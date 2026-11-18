@@ -1,0 +1,26 @@
+/* Regression coverage for pure presentation and opening rules. No browser/network. */
+const fs = require('node:fs');
+const vm = require('node:vm');
+const path = require('node:path');
+const assert = require('node:assert/strict');
+global.window = {};
+for(const file of ['processor','logic-rules','ui']) vm.runInThisContext(fs.readFileSync(path.join(__dirname,'../static/js/forest',file+'.js'),'utf8'));
+const p=window.ForestProcessor,rules=window.ForestRules,ui=window.ForestUI;
+assert.equal(p.escape('<script>"&'), '&lt;script&gt;&quot;&amp;');
+assert.equal(p.image('javascript:alert(1)'), '');
+assert.equal(p.image('//untrusted.test/file'), '');
+assert.equal(p.image('/static/photo.webp'), '/static/photo.webp');
+assert.equal(p.rating(null),'Sin reseñas');
+assert.equal(p.rating(4.7),'4.7');
+assert.deepEqual(p.tags(['uno','dos','tres']),['uno','dos']);
+assert.equal(rules.openingState({open_time:'22:00',close_time:'02:00'},new Date('2026-11-18T06:00:00Z')).label,'Abierto');
+assert.equal(rules.openingState({open_time:'22:00',close_time:'02:00'},new Date('2026-11-18T17:00:00Z')).label,'Cerrado');
+assert.equal(rules.openingState({open_time:'bad',close_time:'02:00'}),null);
+assert.equal(ui.renderRestaurantCard({id:'invalid'}),'');
+const html=ui.renderRestaurantCard({id:3,name:'<script>bad()</script>',image:'javascript:alert(1)',avg_price:null,tags:['A','B','C']},[3]);
+assert.ok(!html.includes('<script>'));
+assert.ok(!html.includes('javascript:'));
+assert.ok(html.includes('aria-pressed="true"'));
+assert.ok(html.includes('Consultar precio'));
+assert.equal((html.match(/class="tag"/g)||[]).length,2);
+console.log('16 presentation/security/opening assertions passed.');

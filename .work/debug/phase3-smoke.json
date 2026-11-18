@@ -1,0 +1,167 @@
+[
+  {
+    "asset": "/static/css/main.css",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "asset": "/static/js/shell.js",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "asset": "/static/js/security.js",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "asset": "/static/css/discovery.css",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "asset": "/static/css/shell.css",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "asset": "/static/js/search.js",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "asset": "/static/css/premium-system.css",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "asset": "/static/js/admin.js",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "asset": "/static/css/interface.css",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "asset": "/static/js/discovery.js",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "asset": "/static/js/map.js",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "asset": "/static/js/app.js",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "asset": "/static/css/components.css",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "path": "/admin/discovery",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "asset": "/static/css/main.css",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "asset": "/static/js/shell.js",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "asset": "/static/js/security.js",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "asset": "/static/css/discovery.css",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "asset": "/static/css/shell.css",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "asset": "/static/js/search.js",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "asset": "/static/css/premium-system.css",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "asset": "/static/js/admin.js",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "asset": "/static/css/interface.css",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "asset": "/static/js/discovery.js",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "asset": "/static/js/map.js",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "asset": "/static/js/app.js",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "asset": "/static/css/components.css",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "path": "/admin/discovery/google-lookup",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "path": "/admin/api/discovery/candidates",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "path": "/admin/api/discovery/sources",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "path": "/admin/api/discovery/export/osm",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "path": "/reclamar",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "path": "guest radar",
+    "status": 401,
+    "ok": true
+  }
+]

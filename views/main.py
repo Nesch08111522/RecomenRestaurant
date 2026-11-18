@@ -1,17 +1,15 @@
 from flask import (
     Blueprint,
+    abort,
     render_template,
     request,
     jsonify,
     session,
-    current_app,
     flash,
     redirect,
     url_for,
 )
 
-from flask import Blueprint, request, jsonify
-from utils.ia_qwen import obtener_recomendacion_ia
 
 from werkzeug.routing import BuildError
 from urllib.parse import quote
@@ -26,15 +24,16 @@ from models.reservation import ReservationModel
 from utils.functional import (
     filter_restaurants,
     enrich_with_metadata,
-    rank_restaurants,
     get_statistics,
 )
 from logic.recommender import RecommenderEngine
 from logic.hybrid_recommender import recommend as hybrid_recommend
 from models.review import ReviewModel
 from config import Config
+from database.repository import document_transaction, PostgresDocumentRepository
+from database.connection import DatabaseConfigurationError, DatabaseConnectionError
 from utils.security import csrf, valid_coordinate
-from utils.geo import normalize_coordinates
+from utils.geo import calculate_distance, normalize_coordinates
 import logging
 from datetime import datetime, timedelta, timezone
 
@@ -66,10 +65,12 @@ def load_dishes(restaurant_id):
 
 def get_user_profile():
     """Obtiene el perfil del usuario de la sesión de forma segura"""
+    from flask import g
     user_profile = {}
     user_data = session.get("user")
     if user_data:
-        user_profile = user_data.get("profile", {})
+        profile = getattr(g, "account_record", user_data).get("profile") or {}
+        user_profile = {field: profile.get(field, []) for field in ("restrictions", "preferences")}
         if "id" not in user_profile:
             user_profile["id"] = user_data.get("id", 999)
         if "restrictions" not in user_profile:
@@ -114,11 +115,26 @@ def index():
         # Agregar distancia si el usuario tiene ubicación
         user_lat = session.get("user_lat")
         user_lng = session.get("user_lng")
-        if user_lat and user_lng:
+        if user_lat is not None and user_lng is not None:
             restaurants = enrich_with_metadata(restaurants, user_lat, user_lng)
 
+        from flask import g
+        from models.market import catalog, records, food_preferences
+        from logic.market_discovery import discover
+        account = getattr(g, "account_record", {})
+        picks, _ = discover(catalog(), {}, food_preferences(account),
+                           records("market_orders", uid=account["id"]) if account else [])
+        by_restaurant = {str(row["id"]): row for row in restaurants}
+        verified = [(review, by_restaurant[str(review["restaurant_id"])])
+                    for review in ReviewModel.all()
+                    if review.get("verified_purchase") and review.get("comment")
+                    and str(review.get("restaurant_id")) in by_restaurant
+                    and not review.get("hidden") and review.get("status") not in {"rejected", "hidden"}]
+        new_businesses = sorted((row for row in restaurants if row.get("created_at")),
+                                key=lambda row: row["created_at"], reverse=True)[:3]
         return render_template(
-            "index.html",
+            "index.html", home_offers=picks[:3],
+            home_new=new_businesses, home_reviews=sorted(verified, key=lambda item: item[0].get("created_at", ""), reverse=True)[:3],
             restaurants=restaurants,
             categories=categories,
             stats=stats,
@@ -126,7 +142,7 @@ def index():
         )
     except Exception as e:
         logger.exception(f"Error en index: {e}")
-        return render_template("index.html", restaurants=[], categories=[], stats={})
+        abort(500)
 
 
 @main_bp.route("/restaurant/<int:restaurant_id>")
@@ -166,10 +182,8 @@ def detail(restaurant_id):
         # Calcular distancia si hay ubicación
         user_lat = session.get("user_lat")
         user_lng = session.get("user_lng")
-        if user_lat and user_lng and restaurant.get("lat") and restaurant.get("lng"):
-            from utils.geo import haversine_distance
-
-            distance = haversine_distance(
+        if None not in (user_lat, user_lng, restaurant.get("lat"), restaurant.get("lng")):
+            distance = calculate_distance(
                 user_lat, user_lng, restaurant.get("lat"), restaurant.get("lng")
             )
             restaurant["distance_km"] = round(distance, 2)
@@ -218,6 +232,9 @@ def detail(restaurant_id):
             explanation=explanation,
             user_profile=user_profile,
             login_url=get_login_url(request.path),
+            table_service=("Local" in restaurant["market_channels"] if restaurant.get("market_channels")
+                           else restaurant.get("service_mode") not in {"delivery_only", "pickup_only"}),
+            verified_reviews=[r for r in ReviewModel.get_by_restaurant(restaurant_id) if r.get("verified_purchase") and not r.get("hidden") and r.get("status") not in {"hidden","rejected"}][:5],
         )
 
     except Exception as e:
@@ -246,16 +263,21 @@ def reserve(restaurant_id):
         return redirect(url_for("main.index"))
 
     date_str = (request.form.get("date") or "").strip()
+    table_service = ("Local" in restaurant["market_channels"] if restaurant.get("market_channels")
+                     else restaurant.get("service_mode") not in {"delivery_only", "pickup_only"})
+    if not table_service:
+        flash("Este negocio recibe pedidos por el mercado.", "info")
+        return redirect(url_for("market.browse", negocio=restaurant_id))
     time_str = (request.form.get("time") or "").strip()
     guests = request.form.get("guests", type=int)
 
     try:
-        reservation_dt = datetime.strptime(f"{date_str} {time_str}", "%Y-%m-%d %H:%M")
+        reservation_dt = datetime.strptime(f"{date_str} {time_str}", "%Y-%m-%d %H:%M").replace(tzinfo=LIMA_TIMEZONE)
     except ValueError:
         flash("La fecha u hora no son válidas.", "error")
         return redirect(detail_url)
 
-    if reservation_dt < datetime.now():
+    if reservation_dt < datetime.now(LIMA_TIMEZONE):
         flash("La fecha y hora de la reserva ya pasaron.", "error")
         return redirect(detail_url)
 
@@ -271,6 +293,9 @@ def reserve(restaurant_id):
             time=time_str,
             guests=guests,
         )
+    except ValueError as error:
+        flash(str(error), "warning")
+        return redirect(detail_url)
     except Exception:
         logger.exception("Error guardando reserva")
         reservation = None
@@ -297,7 +322,20 @@ def search():
             return jsonify({"error": "Los filtros deben ser un objeto JSON"}), 400
         # ✅ SOLO restaurantes aprobados/verificados
         all_restaurants = RestaurantModel.get_approved()
-        all_dishes = DishModel.all()
+        today = datetime.now(LIMA_TIMEZONE).date().isoformat()
+        all_dishes = [d for d in DishModel.all() if not d.get('menu_date') or d['menu_date'] == today]
+        if filters.get('available_only'):
+            all_dishes = [d for d in all_dishes if d.get('is_available') is True
+                          and d.get('availability', 'available') == 'available']
+        if filters.get('business_type') or filters.get('channel'):
+            stores = {k['id']: k for k in PostgresDocumentRepository.all('market_kitchens')}
+            all_restaurants = [dict(r, market_kind=stores.get(r['id'], {}).get('kind', r.get('market_kind', '')),
+                                    market_channels=stores.get(r['id'], {}).get('channels', r.get('market_channels', [])))
+                               for r in all_restaurants]
+        all_restaurants = [dict(r, is_available=any(d.get('restaurant_id') == r['id']
+                           and d.get('is_available') is True for d in all_dishes)) for r in all_restaurants]
+        if 'lat' not in filters and 'lng' not in filters:
+            filters = {**filters, 'lat': session.get('user_lat'), 'lng': session.get('user_lng')}
 
         restaurants = all_restaurants
 
@@ -360,6 +398,12 @@ def search():
                 r for r in restaurants if r.get("id") in compatible_restaurant_ids
             ]
 
+        for restaurant in restaurants:
+            restaurant['matching_dishes'] = [d for d in all_dishes if d.get('restaurant_id') == restaurant['id']
+                and (not dish_query or dish_query in (d.get('name', '') + ' ' + d.get('description', '')
+                     + ' ' + ' '.join(d.get('ingredients') or [])).lower())
+                and (not ingredient_filter or any(ingredient_filter in ing.lower() for ing in d.get('ingredients') or []))]
+
         # 4. Búsqueda por tipo de menú
         menu_type = filters.get("menu_type")
         if menu_type:
@@ -405,12 +449,30 @@ def search():
             reviews=ReviewModel.all(),
         )
 
+        sort_by = filters.get('sort_by')
+        if sort_by in {'rating', 'price', 'distance'}:
+            field = {'rating': 'rating', 'price': 'avg_price', 'distance': 'distance_km'}[sort_by]
+            ranked.sort(key=lambda r: (r.get(field) is None, -(r.get(field) or 0) if sort_by == 'rating'
+                                      else r.get(field, float('inf'))))
+
         # Compatibilidad: el contrato histórico devuelve directamente una lista.
         # Los metadatos se mantienen en cabeceras para clientes que los necesiten.
-        response = jsonify(ranked)
+        if "page" in filters or "per_page" in filters:
+            try:
+                page = max(1, int(filters.get("page", 1)))
+                size = min(100, max(1, int(filters.get("per_page", 20))))
+            except (TypeError, ValueError, OverflowError):
+                return jsonify({"error": "Paginación inválida"}), 400
+            response = jsonify(ranked[(page - 1) * size:page * size])
+        else:
+            response = jsonify(ranked)
         response.headers["X-Search-Total"] = str(len(ranked))
         return response
 
+    except (ValueError, TypeError, AttributeError) as e:
+        return jsonify(error='Filtros invalidos', results=[]), 400
+    except (DatabaseConfigurationError, DatabaseConnectionError):
+        return jsonify(error='Catalogo temporalmente no disponible'), 503
     except Exception as e:
         logger.exception("Error en search")
         return (
@@ -424,7 +486,7 @@ def api_evaluate_restaurant(restaurant_id):
     """API para evaluar un restaurante específico"""
     try:
         restaurant = RestaurantModel.get_by_id(restaurant_id)
-        if not restaurant:
+        if not restaurant or not restaurant.get("verified"):
             return jsonify({"error": "Restaurante no encontrado"}), 404
 
         user_profile = get_user_profile()
@@ -441,13 +503,13 @@ def api_evaluate_restaurant(restaurant_id):
                 )
             except Exception as e:
                 logger.error(f"Error evaluando restaurante {restaurant_id}: {e}")
-                return jsonify({"error": str(e)}), 500
+                return jsonify({"error": "Error interno del servidor."}), 500
         else:
             return jsonify({"error": "Sistema de recomendación no disponible"}), 503
 
     except Exception as e:
         logger.error(f"Error en api_evaluate_restaurant: {e}")
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": "Error interno del servidor."}), 500
 
 
 @main_bp.route("/api/categories", methods=["GET"])
@@ -458,7 +520,7 @@ def api_categories():
         return jsonify(categories)
     except Exception as e:
         logger.error(f"Error en api_categories: {e}")
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": "Error interno del servidor."}), 500
 
 
 @main_bp.route("/api/restaurants/nearby", methods=["GET"])
@@ -499,7 +561,7 @@ def api_nearby_restaurants():
             ]
         enriched = enrich_with_metadata(filtered_restaurants, lat, lng)
 
-        nearby = [r for r in enriched if r.get("distance_km", 999) <= radius]
+        nearby = [r for r in enriched if r.get('distance_km') is not None and r['distance_km'] <= radius]
         nearby = sorted(nearby, key=lambda x: x.get("distance_km", 999))
 
         return jsonify(
@@ -513,7 +575,7 @@ def api_nearby_restaurants():
 
     except Exception as e:
         logger.error(f"Error en api_nearby_restaurants: {e}")
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": "Error interno del servidor."}), 500
 
 
 @main_bp.route("/api/restaurants/top-rated", methods=["GET"])
@@ -535,7 +597,7 @@ def api_top_rated():
 
     except Exception as e:
         logger.error(f"Error en api_top_rated: {e}")
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": "Error interno del servidor."}), 500
 
 
 @main_bp.route("/api/save-location", methods=["POST"])
@@ -570,16 +632,18 @@ def save_location():
         )
     except Exception as e:
         logger.error(f"Error guardando ubicación: {e}")
-        return jsonify({"success": False, "message": str(e)}), 500
+        return jsonify({"success": False, "message": "Error interno del servidor."}), 500
 
 
 @main_bp.route("/api/reviews/<int:restaurant_id>", methods=["GET"])
 def get_reviews(restaurant_id):
     """API para obtener reseñas de un restaurante"""
     try:
-        from models.review import ReviewModel
-
-        reviews = ReviewModel.get_by_restaurant(restaurant_id)
+        business = RestaurantModel.get_by_id(restaurant_id)
+        if not business or not business.get("verified"):
+            return jsonify({"error": "Restaurante no disponible"}), 404
+        reviews = [r for r in ReviewModel.get_by_restaurant(restaurant_id)
+                   if not r.get("hidden") and r.get("status") not in {"hidden","rejected"}]
         stats = ReviewModel.get_rating_stats(restaurant_id)
 
         for review in reviews:
@@ -592,7 +656,7 @@ def get_reviews(restaurant_id):
         return jsonify({"success": True, "reviews": reviews, "stats": stats})
     except Exception as e:
         logger.error(f"Error obteniendo reseñas: {e}")
-        return jsonify({"error": str(e), "success": False}), 500
+        return jsonify({"error": "Error interno del servidor.", "success": False}), 500
 
 
 @main_bp.route("/api/reviews", methods=["POST"])
@@ -602,36 +666,46 @@ def add_review():
         if "user" not in session or not session.get("user"):
             return jsonify({"error": "No autenticado"}), 401
 
-        data = request.json
+        data = request.get_json(silent=True)
+        if not isinstance(data, dict) or set(data) - {"restaurant_id", "rating", "comment"}:
+            return jsonify({"error": "Reseña inválida"}), 400
         restaurant_id = data.get("restaurant_id")
         rating = data.get("rating")
-        comment = data.get("comment", "").strip()
-
-        if not restaurant_id or not rating:
-            return jsonify({"error": "Datos incompletos"}), 400
-
-        if rating < 1 or rating > 5:
-            return jsonify({"error": "Rating debe ser entre 1 y 5"}), 400
-
-        user_id = session["user"].get("id")
-
-        from models.review import ReviewModel
-
-        review = ReviewModel.add_review(user_id, restaurant_id, rating, comment)
-
-        if not review:
-            return jsonify({"error": "Error al guardar la reseña"}), 500
-
-        stats = ReviewModel.get_rating_stats(restaurant_id)
-        restaurant = RestaurantModel.get_by_id(restaurant_id)
-        if restaurant:
-            restaurant["rating"] = stats["average"]
-            RestaurantModel.update(restaurant_id, restaurant)
+        comment = data.get("comment", "")
+        if isinstance(restaurant_id, str) and restaurant_id.isascii() and restaurant_id.isdecimal() and len(restaurant_id) <= 19:
+            restaurant_id = int(restaurant_id)
+        if type(restaurant_id) is not int or not 0 < restaurant_id < 2**63 or not isinstance(comment, str):
+            return jsonify({"error": "Restaurante o comentario inválido"}), 400
+        try:
+            if isinstance(rating, bool):
+                raise ValueError
+            rating = float(rating)
+        except (TypeError, ValueError, OverflowError):
+            return jsonify({"error": "La calificación debe ser numérica"}), 400
+        if not 1 <= rating <= 5:
+            return jsonify({"error": "La calificación debe ser un número entre 1 y 5"}), 400
+        with document_transaction():
+            restaurant = PostgresDocumentRepository.get_by_id(
+                RestaurantModel.collection, restaurant_id, for_update=True
+            )
+            if not restaurant or not restaurant.get("verified"):
+                return jsonify({"error": "Restaurante no disponible"}), 404
+            from models.market import records
+            purchases = [o for o in records("market_orders",uid=session["user"]["id"],rid=restaurant_id,state="Entregado",paid=True)
+                         if not o.get("refunded") and not o.get("review")]
+            if not purchases:
+                return jsonify({"error":"Se requiere una compra pagada y entregada sin valoración previa."}), 403
+            order = purchases[0]
+            review = ReviewModel.add_review(session["user"]["id"], restaurant_id, rating, comment.strip())
+            ReviewModel.update(review["id"], {"verified_purchase":True,"order_id":order["id"]})
+            PostgresDocumentRepository.update("market_orders",order["id"],{"review":review["id"]})
+            stats = ReviewModel.get_rating_stats(restaurant_id)
+            RestaurantModel.update(restaurant_id, {"rating": stats["average"]})
 
         return jsonify({"success": True, "review": review, "stats": stats})
     except Exception as e:
         logger.error(f"Error agregando reseña: {e}")
-        return jsonify({"error": str(e), "success": False}), 500
+        return jsonify({"error": "Error interno del servidor.", "success": False}), 500
 
 
 @main_bp.route("/api/notifications")
@@ -655,7 +729,7 @@ def get_notifications():
         )
     except Exception as e:
         logger.error(f"Error obteniendo notificaciones: {e}")
-        return jsonify({"error": str(e), "notifications": []}), 500
+        return jsonify({"error": "Error interno del servidor.", "notifications": []}), 500
 
 
 @main_bp.route("/api/notifications/<int:notification_id>/read", methods=["POST"])
@@ -671,7 +745,7 @@ def mark_notification_read(notification_id):
         return jsonify({"success": result})
     except Exception as e:
         logger.error(f"Error marcando notificación como leída: {e}")
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": "Error interno del servidor."}), 500
 
 
 @main_bp.route("/api/notifications/read-all", methods=["POST"])
@@ -687,7 +761,7 @@ def mark_all_notifications_read():
         return jsonify({"success": result})
     except Exception as e:
         logger.error(f"Error marcando todas las notificaciones como leídas: {e}")
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": "Error interno del servidor."}), 500
 
 
 @main_bp.route("/api/dishes/search", methods=["GET"])
@@ -700,7 +774,10 @@ def search_dishes():
         if not query and not restaurant_id:
             return jsonify({"error": "Se requiere query o restaurant_id"}), 400
 
-        dishes = DishModel.all()
+        approved = {r["id"] for r in RestaurantModel.get_approved()}
+        today = datetime.now(LIMA_TIMEZONE).date().isoformat()
+        dishes = [d for d in DishModel.all() if d.get("restaurant_id") in approved
+                  and d.get("is_available", True) and (not d.get("menu_date") or d["menu_date"] == today)]
 
         if restaurant_id:
             dishes = [d for d in dishes if d.get("restaurant_id") == restaurant_id]
@@ -719,32 +796,83 @@ def search_dishes():
 
     except Exception as e:
         logger.error(f"Error buscando platos: {e}")
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": "Error interno del servidor."}), 500
 
 
-# Manejadores de errores
-@main_bp.app_errorhandler(404)
-def not_found_error(error):
-    return render_template("404.html", message="Página no encontrada"), 404
+@main_bp.get('/explorar')
+def explore_catalog():
+    from logic.market import BUSINESSES
+    return render_template('catalog/explore.html', categories=CategoryModel.all(), business_types=BUSINESSES)
 
 
-@main_bp.app_errorhandler(500)
-def internal_error(error):
-    return render_template("500.html", message="Error interno del servidor"), 500
+@main_bp.get('/api/catalog/compare')
+def compare_catalog():
+    kind = request.args.get('kind', 'business')
+    try:
+        ids = list(dict.fromkeys(int(value) for value in request.args.get('ids', '').split(',')))
+    except ValueError:
+        return jsonify(error='Identificadores invalidos'), 400
+    if kind not in {'business', 'product'} or not 2 <= len(ids) <= 4 or any(i <= 0 for i in ids):
+        return jsonify(error='Selecciona entre dos y cuatro fichas'), 400
+    approved = {r['id']: r for r in RestaurantModel.get_approved()}
+    if kind == 'business':
+        rows = approved
+        fields = ('id', 'name', 'district', 'avg_price', 'rating', 'promo', 'open_time', 'close_time', 'market_channels')
+    else:
+        today = datetime.now(LIMA_TIMEZONE).date().isoformat()
+        rows = {d['id']: d for d in DishModel.all() if d.get('restaurant_id') in approved
+                and (not d.get('menu_date') or d['menu_date'] == today)}
+        fields = ('id', 'restaurant_id', 'name', 'price', 'ingredients', 'allergens', 'availability', 'is_available')
+    if any(i not in rows for i in ids):
+        abort(404)
+    return jsonify(kind=kind, results=[{field: rows[i].get(field) for field in fields} for i in ids])
 
 
-@main_bp.route("/api/preguntar-ia", methods=["POST"])
-def preguntar_ia():
-    # Recibimos los datos en formato JSON desde el frontend
-    datos = request.get_json()
-    
-    if not datos or "pregunta" not in datos:
-        return jsonify({"error": "No se proporcionó ninguna pregunta"}), 400
-    
-    pregunta_usuario = datos["pregunta"]
-    
-    # Llamamos a nuestro servicio de IA
-    respuesta_ia = obtener_recomendacion_ia(pregunta_usuario)
-    
-    # Devolvemos la respuesta al frontend
-    return jsonify({"respuesta": respuesta_ia})
+@main_bp.get('/api/catalog/products/<int:product_id>')
+def product_card(product_id):
+    product = DishModel.get_by_id(product_id)
+    approved = {r['id']: r for r in RestaurantModel.get_approved()}
+    today = datetime.now(LIMA_TIMEZONE).date().isoformat()
+    if not product or product.get('restaurant_id') not in approved or (product.get('menu_date') and product['menu_date'] != today):
+        abort(404)
+    fields = ('id', 'restaurant_id', 'name', 'description', 'price', 'ingredients', 'allergens',
+              'images', 'availability', 'is_available', 'ingredients_confirmed', 'allergens_confirmed')
+    return jsonify(product={field: product.get(field) for field in fields},
+                   business_url=url_for('main.detail', restaurant_id=product['restaurant_id']))
+
+
+@main_bp.get('/api/catalog/<int:restaurant_id>/map')
+def business_map(restaurant_id):
+    from models.market import kitchen
+    restaurant = next((r for r in RestaurantModel.get_approved() if r['id'] == restaurant_id), None)
+    if not restaurant:
+        abort(404)
+    store = kitchen(restaurant_id)
+    # A kitchen pin is explicitly public; do not fall back to a hidden home's address.
+    pin = store.get('pin')
+    point = normalize_coordinates(*pin) if isinstance(pin, (list, tuple)) and len(pin) == 2 else None
+    if not point and not store.get('kind'):
+        point = normalize_coordinates(restaurant.get('lat'), restaurant.get('lng'))
+    origin = normalize_coordinates(request.args.get('lat', session.get('user_lat')),
+                                   request.args.get('lng', session.get('user_lng')))
+    if ('lat' in request.args or 'lng' in request.args) and not origin:
+        return jsonify(error='Coordenadas invalidas'), 400
+    route = None
+    if origin and point:
+        route = 'https://www.openstreetmap.org/directions?engine=fossgis_osrm_car&route=' + quote(
+            f'{origin[0]},{origin[1]};{point[0]},{point[1]}', safe='')
+    radius = store.get('radius', 0)
+    return jsonify(id=restaurant_id, point=point, pickup=store.get('pickup') or None,
+                   zones=store.get('zones', []), radius_km=radius,
+                   district=restaurant.get('district'), route_url=route,
+                   distance_km=calculate_distance(*origin, *point) if origin and point else None,
+                   distance_method='straight_line',
+                   delivery_covered=(calculate_distance(*origin, *point) <= radius
+                                     if origin and point and radius else None))
+
+
+@main_bp.get("/informacion/<section>")
+def information(section):
+    if section not in {"privacidad", "condiciones"}:
+        abort(404)
+    return render_template("information.html", section=section)

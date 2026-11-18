@@ -23,6 +23,10 @@ class DatabaseConfigurationError(RuntimeError):
     """La configuración PostgreSQL está incompleta o la dependencia falta."""
 
 
+class DatabaseConnectionError(RuntimeError):
+    """La base no es accesible; mensaje seguro sin credenciales del driver."""
+
+
 def _libpq_dsn(dsn: str) -> str:
     """Quitar parámetros del dashboard de Supabase que libpq no entiende."""
     parts = urlsplit(dsn)
@@ -47,7 +51,21 @@ def require_postgres(*, require_enabled: bool = True) -> None:
         raise DatabaseConfigurationError("DATABASE_URL no está configurada.")
     if not Config.DATABASE_URL.lower().startswith(("postgres://", "postgresql://")):
         raise DatabaseConfigurationError("DATABASE_URL debe ser una URI postgres:// o postgresql://.")
-    requested_sslmode = parse_qs(urlsplit(Config.DATABASE_URL).query).get("sslmode", [None])[-1]
+    try:
+        parts = urlsplit(Config.DATABASE_URL)
+        host, port = parts.hostname, parts.port
+    except ValueError:
+        raise DatabaseConfigurationError("DATABASE_URL contiene un host o puerto inválido.") from None
+    if not host or port is not None and not 1 <= port <= 65535:
+        raise DatabaseConfigurationError("DATABASE_URL requiere un host y puerto válidos.")
+    if host.lower() in {"host_pooler", "pooler-host", "host", "region"} or any(c in host for c in '[]<>_'):
+        raise DatabaseConfigurationError(
+            "DATABASE_URL contiene un marcador de ejemplo, no un servidor real. "
+            "Si definiste HOST_POOLER en PowerShell, ejecuta "
+            "Remove-Item Env:DATABASE_URL -ErrorAction SilentlyContinue "
+            "para volver a usar tu .env sin modificarlo."
+        )
+    requested_sslmode = parse_qs(parts.query).get("sslmode", [None])[-1]
     sslmode = requested_sslmode or getattr(Config, "DATABASE_SSLMODE", "require")
     if sslmode not in {"require", "verify-ca", "verify-full"}:
         raise DatabaseConfigurationError(
@@ -73,7 +91,21 @@ def connection(*, autocommit: bool = False, require_enabled: bool = True) -> Ite
     }
     requested_sslmode = parse_qs(urlsplit(Config.DATABASE_URL).query).get("sslmode", [None])[-1]
     options["sslmode"] = requested_sslmode or getattr(Config, "DATABASE_SSLMODE", "require")
-    conn = psycopg.connect(_libpq_dsn(Config.DATABASE_URL), **options)
+    try:
+        conn = psycopg.connect(_libpq_dsn(Config.DATABASE_URL), **options)
+    except psycopg.OperationalError as error:
+        detail = str(error).lower()
+        if any(term in detail for term in ("getaddrinfo", "11001", "11004", "name or service not known", "could not translate host")):
+            message = (
+                "No se pudo resolver el host PostgreSQL. La conexión directa de Supabase "
+                "puede requerir IPv6: comprueba la conectividad de tu red o usa los datos "
+                "reales de Connect → Session pooler. Esto no indica que falten tablas."
+            )
+        elif any(term in detail for term in ("password authentication", "authentication failed", "tenant or user not found")):
+            message = "PostgreSQL rechazó la autenticación. Comprueba usuario y credenciales de la conexión seleccionada."
+        else:
+            message = "No se pudo conectar a PostgreSQL. Comprueba acceso de red, puerto y TLS; no se modificaron datos."
+        raise DatabaseConnectionError(message) from None
     conn.autocommit = autocommit
     try:
         yield conn
