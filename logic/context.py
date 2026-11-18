@@ -1,7 +1,7 @@
 """Rank contextual preferences only after mandatory commerce and dietary filters."""
 from collections import Counter
 from datetime import date
-from logic.market import now
+from logic.market import key, now
 
 MOODS = {"cansado":"Estoy cansado", "reconfortante":"Quiero algo reconfortante", "estres":"Un día intenso",
          "celebrar":"Quiero celebrar", "contento":"Estoy de buen humor", "ligero":"Necesito algo ligero",
@@ -10,11 +10,22 @@ MOMENTS = {"cita":"Una cita", "familia":"Comida en familia", "amigos":"Con amigo
            "cumpleanos":"Cumpleaños", "rapido":"Entre clases o trabajo", "especial":"Cena especial"}
 TAGS = ("Fresco", "Caliente", "Ligero", "Reconfortante", "Dulce", "Sin alcohol", "Suave",
         "Para compartir", "Celebración", "Rápido")
+SEASONS = ("Verano", "Otoño", "Invierno", "Primavera")
 MOOD_TAGS = {"cansado":{"Reconfortante","Caliente"}, "reconfortante":{"Reconfortante"}, "estres":{"Suave"},
              "celebrar":{"Celebración"}, "contento":{"Para compartir"}, "ligero":{"Ligero"},
              "dulce":{"Dulce"}, "recovery":{"Sin alcohol","Suave"}}
 MOMENT_TAGS = {"cita":{"Celebración"}, "familia":{"Para compartir"}, "amigos":{"Para compartir"},
               "cumpleanos":{"Celebración","Dulce"}, "rapido":{"Rápido"}, "especial":{"Celebración"}}
+
+
+def normalize_seasons(values):
+    if not isinstance(values, list) or len(values) > len(SEASONS) or any(not isinstance(value, str) for value in values):
+        raise ValueError("Elige las temporadas entre las opciones disponibles.")
+    selected = {key(value) for value in values}
+    allowed = {key(season): season for season in SEASONS}
+    if selected.difference(allowed):
+        raise ValueError("Elige las temporadas entre las opciones disponibles.")
+    return [season for name, season in allowed.items() if name in selected]
 
 
 def contextualize(rows, context, weather, history):

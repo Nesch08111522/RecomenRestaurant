@@ -73,6 +73,8 @@ def confirm_draft(draft_id,rid,actor):
             previous=DishModel.get_by_id(row['product_id'])
             if not previous or previous.get('restaurant_id')!=rid or fingerprint(previous)!=row.get('previous_hash'):
                 raise ValueError('El producto cambió desde que abriste el borrador; vuelve a editarlo')
+            if previous.get('market_only'):
+                product['market_only']=False
             saved=DishModel.update(previous['id'],{**product,'updated_at':now()})
         else:
             if any(d.get('name','').casefold()==product['name'].casefold() and (d.get('menu_date') or '')==product['menu_date'] for d in DishModel.get_by_restaurant(rid)):

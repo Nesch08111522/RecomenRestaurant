@@ -35,8 +35,8 @@ body .sr-map-dialog .map-controls { right: 12px; top: 12px; bottom: auto; transf
 @media(max-width:700px) { .mgr-grid > :first-child { grid-column: auto; } }
 body :is(h1,h2,h3) { overflow-wrap: anywhere; text-wrap: balance; }
 @layer visualContract {
-  body :is(h1,h1 *,.sr-hero h1,.sr-hero h1 *) { font-size: clamp(32px, 3.4vw, 52px)!important; line-height: 1.12!important; }
-  body :is(h2,h2 *) { font-size: clamp(24px, 2.2vw, 32px)!important; }
+  body:not(.sr-recommendations) :is(h1,h1 *,.sr-hero h1,.sr-hero h1 *) { font-size: clamp(32px, 3.4vw, 52px)!important; line-height: 1.12!important; }
+  body:not(.sr-recommendations) :is(h2,h2 *) { font-size: clamp(24px, 2.2vw, 32px)!important; }
 }
 .sr-discover .forest-hero h1 { font-size: clamp(36px, 4.6vw, 64px); }
 body :is(.market-form, .profile-form, .form-grid, .bs-form-grid) { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 16px; align-items: end; }

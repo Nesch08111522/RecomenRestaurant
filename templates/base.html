@@ -32,6 +32,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/premium-system.css') }}">
     {% block page_styles %}{% endblock %}
     <link rel="stylesheet" href="{{ url_for('static',filename='css/adaptive-experience.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/forest-depth.css') }}">
     <script src="{{ url_for('static', filename='js/shell.js') }}"></script>
 </head>
 <body data-role="{{ session.get('user', {}).get('role', 'guest') }}" class="{% if session.get('user') and request.blueprint in ['owner','admin','comunicacion','auth','market','discovery','ecosystem','sites','catalog'] %}sr-private{% endif %} {% block body_class %}{% endblock %}">
@@ -52,6 +53,9 @@
     
     <!-- Security helper must load before application scripts. -->
     <script src="{{ url_for('static', filename='js/security.js') }}"></script>
+    {% if session.get('user_id') %}
+    <script src="{{ url_for('static', filename='js/search-history.js') }}" data-history-url="{{ url_for('recommendation_history.history') }}"></script>
+    {% endif %}
 
     <!-- Custom JS -->
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>

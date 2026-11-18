@@ -8,6 +8,7 @@ from models.restaurant import RestaurantModel
 from models.business_site import consume_ai_quota
 from utils.product_ai import prepare_photo,propose_product
 from utils.llm_provider import AIUnavailable,log_provider_error
+from logic.context import SEASONS
 from logic.product_catalog import normalize_product,AVAILABILITY
 from logic.business_radar import now
 
@@ -26,7 +27,7 @@ def dashboard():
     restaurant=owned(rid) if rid else restaurants[0] if restaurants else None
     products=DishModel.get_by_restaurant(restaurant['id']) if restaurant else []
     categories=[r for r in model.CatalogCategoryModel.all() if restaurant and r['rid']==restaurant['id'] and r['owner_id']==session['user_id']]
-    return render_template('catalog/dashboard.html',restaurants=restaurants,restaurant=restaurant,products=products,categories=categories,
+    return render_template('catalog/dashboard.html',restaurants=restaurants,restaurant=restaurant,products=products,categories=categories,seasons=SEASONS,
         api_url=f"/owner/api/catalog/{restaurant['id']}" if restaurant else '')
 
 

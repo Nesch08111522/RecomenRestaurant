@@ -138,13 +138,14 @@
             </section>
 
             <!-- Carta digital -->
-            <section class="menu-section">
+            <section class="menu-section" id="carta">
                 <div class="menu-header">
-                    <h2><i class="fas fa-utensils"></i> Carta y menú de hoy</h2>
+                    <h2><i class="fas fa-utensils"></i> Carta y menú {{ 'del ' ~ menu_day_label if menu_day_label else 'de hoy' }}</h2>
                     <div class="menu-badge">
                         <span class="badge-count">{{ dishes|length }} {{ 'plato' if dishes|length == 1 else 'platos' }}</span>
                     </div>
                 </div>
+                {% if menu_day_label %}<p><a href="{{ url_for('main.detail', restaurant_id=restaurant.id, _anchor='carta') }}">Ver el menú de hoy</a></p>{% endif %}
 
                 {% if restaurant.menu_intro %}
                     <p class="menu-introduction">{{ restaurant.menu_intro }}</p>
@@ -174,12 +175,12 @@
                                 </div>
                                 <div class="category-dishes">
                                     {% for dish in category_dishes %}
-                                        <div class="dish-item">
+                                        <div class="dish-item" id="plato-{{ dish.id }}">
                                             <div class="dish-info">
                                                 <div class="dish-name-wrapper">
                                                     <h4>{{ dish.name }}</h4>
                                                     {% if dish.menu_date %}
-                                                        <span class="variable-menu-badge">Menú variable · hoy</span>
+                                                        <span class="variable-menu-badge">Menú variable · {{ menu_day_label or 'hoy' }}</span>
                                                     {% endif %}
                                                     {% if dish.is_recommended %}
                                                         <span class="chef-recommendation">👨‍🍳 Recomendado</span>

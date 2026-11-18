@@ -32,3 +32,45 @@ def test_weekly_plan_favours_two_affordable_days_over_one_expensive_day():
     rows = [{"id": i+1, "name": f"Menú {i}", "price": price, "available": 1,
              "day": (today+timedelta(days=i)).isoformat()} for i, price in enumerate([2000, 900, 1000])]
     assert [r["id"] for r in weekly_plan(rows, 2000, today)] == [2, 3]
+
+
+def test_market_offer_saves_only_declared_seasons(monkeypatch):
+    from contextlib import nullcontext
+    from datetime import datetime
+
+    from flask import session
+    import pytest
+
+    from app import create_app
+    from logic.market import LIMA, MarketError
+    from views import market_kitchen
+
+    at = datetime(2026, 11, 18, 12, tzinfo=LIMA)
+    saved = []
+    monkeypatch.setattr(market_kitchen, 'now', lambda: at)
+    monkeypatch.setattr(market_kitchen, 'document_transaction', nullcontext)
+    monkeypatch.setattr(market_kitchen, 'lock_business', lambda rid: None)
+    monkeypatch.setattr(market_kitchen, 'authorize', lambda rid: {'id': rid})
+    monkeypatch.setattr(market_kitchen, 'kitchen', lambda rid: {'channels': ['Delivery'], 'pantry': {}})
+    monkeypatch.setattr(market_kitchen, 'commerce_settings', lambda: {'diets': []})
+    monkeypatch.setattr(market_kitchen.DishModel, 'get_by_id', staticmethod(
+        lambda did: {'id': did, 'name': 'Sopa de quinua', 'restaurant_id': 7}))
+    monkeypatch.setattr(market_kitchen.Repo, 'create', staticmethod(
+        lambda collection, value: saved.append((collection, value))))
+
+    app = create_app({'TESTING': True, 'SECRET_KEY': 'market-season-test'})
+    fields = {'dish': '1', 'day': at.date().isoformat(), 'end': '19:00', 'price': '20', 'stock': '5',
+              'occasion': 'Almuerzo', 'cross': 'unknown', 'variant': 'Porción familiar'}
+    with app.test_request_context('/mercado/cocina/7/oferta', method='POST',
+                                  data={**fields, 'seasons': ['Invierno', 'Otoño']}):
+        session['user_id'] = 1
+        assert market_kitchen.publish(7).status_code == 302
+    collection, offer = saved[0]
+    assert collection == 'market_offers' and offer['seasons'] == ['Otoño', 'Invierno']
+    assert offer['variant'] == 'Porción familiar' and offer['review_state'] == 'pending'
+
+    with app.test_request_context('/mercado/cocina/7/oferta', method='POST',
+                                  data={**fields, 'seasons': ['Carnaval']}):
+        with pytest.raises(MarketError, match='temporadas'):
+            market_kitchen.publish(7)
+    assert len(saved) == 1

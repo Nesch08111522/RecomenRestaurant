@@ -3,6 +3,7 @@ from copy import deepcopy
 from datetime import date
 from decimal import Decimal,InvalidOperation
 import re
+from logic.context import normalize_seasons
 from models.business_site import safe_media_url
 
 TYPES={'plato','bebida','postre'}
@@ -37,7 +38,7 @@ def defaults():
         'allergens':None,'allergens_confirmed':False,'ingredients_confirmed':False,
         'recipe':[],'variants':[],'addons':[],'tags':[],'images':[],'videos':[],
         'availability':'available','is_available':False,'promotional':False,'promo_text':'',
-        'menu_type':'carta','menu_date':'','meal_time':'almuerzo','rights_confirmed':False}
+        'menu_type':'carta','menu_date':'','meal_time':'almuerzo','seasons':[],'rights_confirmed':False}
 
 
 def normalize_product(patch,previous=None):
@@ -63,6 +64,7 @@ def normalize_product(patch,previous=None):
             result[flag]=patch[flag]
     for key in ('ingredients','probable_ingredients','tags'):
         if key in patch:result[key]=strings(patch[key])
+    result['seasons']=normalize_seasons(patch.get('seasons',result['seasons'] or []))
     if 'allergens' in patch:result['allergens']=None if patch['allergens'] is None else strings(patch['allergens'])
     if not result['allergens_confirmed']:result['allergens']=None
     if 'price' in patch or result['price'] is not None:
@@ -119,6 +121,17 @@ def validate_for_publication(product):
     if any(option['price_cents'] is None for option in result['variants']+result['addons']):raise ValueError('Confirma precio de variantes y adicionales')
     result['image']=result['images'][0] if result['images'] else ''
     return result
+
+
+def published_menu_dish(dish, on):
+    """Match a dated menu or permanent carta and exclude marketplace-only dishes."""
+    if dish.get('market_only'):
+        return False
+    scheduled = dish.get('menu_date')
+    if not scheduled:
+        return dish.get('menu_type') != 'variable'
+    menu_entry = dish.get('menu_type') in ('carta', 'variable') or bool(dish.get('day_of_week'))
+    return menu_entry and str(scheduled) == on.isoformat()
 
 
 def ai_product(proposal,mode='photo',previous=None):
