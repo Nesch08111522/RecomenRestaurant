@@ -37,6 +37,7 @@ from utils.geo import calculate_distance, normalize_coordinates
 import logging
 from datetime import datetime, timedelta, timezone
 
+
 # Configurar logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -635,30 +636,6 @@ def save_location():
         return jsonify({"success": False, "message": "Error interno del servidor."}), 500
 
 
-@main_bp.route("/api/reviews/<int:restaurant_id>", methods=["GET"])
-def get_reviews(restaurant_id):
-    """API para obtener reseñas de un restaurante"""
-    try:
-        business = RestaurantModel.get_by_id(restaurant_id)
-        if not business or not business.get("verified"):
-            return jsonify({"error": "Restaurante no disponible"}), 404
-        reviews = [r for r in ReviewModel.get_by_restaurant(restaurant_id)
-                   if not r.get("hidden") and r.get("status") not in {"hidden","rejected"}]
-        stats = ReviewModel.get_rating_stats(restaurant_id)
-
-        for review in reviews:
-            user = UserModel.get_by_id(review.get("user_id"))
-            if user:
-                profile = user.get("profile", {})
-                review["user_name"] = profile.get("name", "Usuario")
-                review["user_avatar"] = profile.get("avatar", "")
-
-        return jsonify({"success": True, "reviews": reviews, "stats": stats})
-    except Exception as e:
-        logger.error(f"Error obteniendo reseñas: {e}")
-        return jsonify({"error": "Error interno del servidor.", "success": False}), 500
-
-
 @main_bp.route("/api/reviews", methods=["POST"])
 def add_review():
     """API para agregar una reseña"""
@@ -696,17 +673,56 @@ def add_review():
             if not purchases:
                 return jsonify({"error":"Se requiere una compra pagada y entregada sin valoración previa."}), 403
             order = purchases[0]
+            locked = PostgresDocumentRepository.get_by_id("market_orders", order["id"], for_update=True)
+            if not locked or locked.get("review"):
+                return jsonify({"error": "Esta compra ya fue valorada."}), 409
             review = ReviewModel.add_review(session["user"]["id"], restaurant_id, rating, comment.strip())
             ReviewModel.update(review["id"], {"verified_purchase":True,"order_id":order["id"]})
             PostgresDocumentRepository.update("market_orders",order["id"],{"review":review["id"]})
             stats = ReviewModel.get_rating_stats(restaurant_id)
             RestaurantModel.update(restaurant_id, {"rating": stats["average"]})
+            try:
+                from utils.blockchain_anchor import canonical_hash
+                from utils.anchor_store import get_anchor_store
+                anchored_review = {**review, "order_id": order["id"]}
+                get_anchor_store().add_pending(
+                    anchored_review,
+                    locked,
+                    canonical_hash(anchored_review, locked),
+                )
+            except Exception:
+                logger.exception(
+                    "No se pudo encolar el ancla de la reseña %s", review.get("id")
+                )
 
-        return jsonify({"success": True, "review": review, "stats": stats})
+            return jsonify({"success": True, "review": review, "stats": stats})
     except Exception as e:
         logger.error(f"Error agregando reseña: {e}")
         return jsonify({"error": "Error interno del servidor.", "success": False}), 500
+    
+    @main_bp.get("/api/trust/verify/<int:review_id>")
+    def verify_anchor(review_id):
+        """Estado público del ancla de una reseña. Solo lectura, sin cache."""
+        from utils.anchor_store import get_anchor_store
 
+        row = get_anchor_store().get_by_review(review_id)
+        if not row:
+            response = jsonify({"found": False, "verified_onchain": False})
+            response.status_code = 404
+            response.headers["Cache-Control"] = "no-store"
+            return response
+
+        response = jsonify({
+            "found": True,
+            "review_id": int(review_id),
+            "hash": row.get("hash"),
+            "kind": row.get("kind"),
+            "status": row.get("status"),
+            "tx_hash": row.get("tx_hash"),
+            "verified_onchain": row.get("status") == "confirmed",
+        })
+        response.headers["Cache-Control"] = "no-store"
+        return response
 
 @main_bp.route("/api/notifications")
 def get_notifications():

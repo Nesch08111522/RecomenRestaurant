@@ -497,6 +497,19 @@ def verified_review(oid):
         NotificationModel.create_notification(business["owner_id"], "Nueva reseña verificada",
                                               f"Una compra recibió {rating}/5.", link=url_for("main.detail", restaurant_id=order["rid"]))
         RestaurantModel.update(order["rid"], {"rating": ReviewModel.get_rating_stats(order["rid"])["average"]})
+        try:
+            from utils.blockchain_anchor import canonical_hash
+            from utils.anchor_store import get_anchor_store
+            anchored_review = {**review, "order_id": oid}
+            get_anchor_store().add_pending(
+                anchored_review,
+                order,
+                canonical_hash(anchored_review, order),
+            )
+        except Exception:
+            import logging
+            logging.getLogger(__name__).exception(
+                "No se pudo encolar el ancla de la reseña %s", review.get("id")
+            )
     flash("Tu reseña de compra verificada quedó publicada.", "success")
     return redirect(url_for("market.orders"))
-

@@ -32,48 +32,33 @@ class ReviewModel(DataModel):
         return reviews
     
     @classmethod
-    def get_by_user(cls, user_id):
+    def get_rating_stats(cls, restaurant_id, verified_only=True):
         """
-        Obtener reseñas de un usuario
-        Args:
-            user_id: ID del usuario
-        Returns:
-            list: Lista de reseñas del usuario
-        """
-        data = cls._load_data()
-        return [r for r in data if r.get('user_id') == user_id]
-    
-    @classmethod
-    def get_rating_stats(cls, restaurant_id):
-        """
-        Obtener estadísticas de rating de un restaurante
-        Args:
-            restaurant_id: ID del restaurante
-        Returns:
-            dict: Estadísticas con average, total y distribución
+        Estadísticas de rating. Por defecto solo cuenta reseñas verificadas
+        (compra entregada y pagada) no ocultas ni rechazadas.
         """
         reviews = cls.get_by_restaurant(restaurant_id)
+        if verified_only:
+            reviews = [
+                r for r in reviews
+                if r.get("verified_purchase") is True
+                and not r.get("hidden")
+                and r.get("status") not in {"hidden", "rejected"}
+            ]
         if not reviews:
             return {
                 'average': 0,
                 'total': 0,
-                'distribution': {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
+                'distribution': {1: 0, 2: 0, 3: 0, 4: 0, 5: 0},
             }
-        
         total = len(reviews)
         avg = sum(r.get('rating', 0) for r in reviews) / total
-        
         distribution = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
         for r in reviews:
             rating = r.get('rating', 0)
             if rating in distribution:
                 distribution[rating] += 1
-        
-        return {
-            'average': round(avg, 1),
-            'total': total,
-            'distribution': distribution
-        }
+        return {'average': round(avg, 1), 'total': total, 'distribution': distribution}
     
     @classmethod
     def get_average_rating(cls, restaurant_id):
@@ -119,26 +104,60 @@ class ReviewModel(DataModel):
             return review
     
     @classmethod
-    def update_review(cls, review_id, rating, comment):
-        """
-        Actualizar una reseña existente
-        Args:
-            review_id: ID de la reseña
-            rating: Nueva calificación
-            comment: Nuevo comentario
-        Returns:
-            dict: La reseña actualizada o None si no existe
-        """
+    def update_review(cls, review_id, rating, comment, reason=None):
+        """Edita una reseña. Si estaba verificada y anclada, emite review.amended."""
         review = cls.get_by_id(review_id)
         if not review:
             return None
-        
-        review['rating'] = rating
-        review['comment'] = comment
-        review['updated_at'] = datetime.now().isoformat()
-        
-        return cls.update(review_id, review)
-    
+
+        previous_hash = review.get("anchor_hash")
+
+        history = list(review.get("edit_history") or [])
+        history.append({
+            "at": datetime.now().isoformat(),
+            "rating": review.get("rating"),
+            "comment": review.get("comment"),
+            "hash": previous_hash,
+        })
+
+        review["rating"] = rating
+        review["comment"] = comment
+        review["updated_at"] = datetime.now().isoformat()
+        review["edit_history"] = history
+        review["amended"] = True
+        review["amend_reason"] = (reason or "")[:200]
+
+        updated = cls.update(review_id, review)
+
+        if review.get("verified_purchase") and review.get("order_id"):
+            try:
+                from database.repository import PostgresDocumentRepository
+                from utils.blockchain_anchor import canonical_hash, KIND_AMENDED
+                from utils.anchor_store import get_anchor_store
+
+                order = PostgresDocumentRepository.get_by_id("market_orders", int(review["order_id"]))
+                if not order:
+                    cls.update(review_id, {"anchor_error": "order_not_found"})
+                    return updated
+
+                anchored = {**updated, "order_id": int(review["order_id"])}
+                new_hash = canonical_hash(anchored, order, kind=KIND_AMENDED, prev_hash=previous_hash)
+                get_anchor_store().add_pending(
+                    anchored,
+                    order,
+                    new_hash,
+                    kind=KIND_AMENDED,
+                    prev_hash=previous_hash,
+                )
+                cls.update(review_id, {"anchor_hash": new_hash, "anchor_error": None})
+            except Exception:
+                logger.exception(
+                    "No se pudo anclar la edición de la reseña %s", review_id
+                )
+                cls.update(review_id, {"anchor_error": "anchor_failed"})
+
+        return updated
+
     @classmethod
     def delete_review(cls, review_id):
         """
@@ -162,3 +181,5 @@ class ReviewModel(DataModel):
         data = cls._load_data()
         sorted_reviews = sorted(data, key=lambda x: x.get('created_at', ''), reverse=True)
         return sorted_reviews[:limit]
+
+
