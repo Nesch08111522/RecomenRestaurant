@@ -501,11 +501,9 @@ def verified_review(oid):
             from utils.blockchain_anchor import canonical_hash
             from utils.anchor_store import get_anchor_store
             anchored_review = {**review, "order_id": oid}
-            get_anchor_store().add_pending(
-                anchored_review,
-                order,
-                canonical_hash(anchored_review, order),
-            )
+            anchor_hash = canonical_hash(anchored_review, order)
+            get_anchor_store().add_pending(anchored_review, order, anchor_hash)
+            ReviewModel.update(review["id"], {"anchor_hash": anchor_hash})
         except Exception:
             import logging
             logging.getLogger(__name__).exception(

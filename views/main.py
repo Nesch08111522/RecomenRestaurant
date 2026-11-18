@@ -661,6 +661,9 @@ def add_review():
             return jsonify({"error": "La calificación debe ser numérica"}), 400
         if not 1 <= rating <= 5:
             return jsonify({"error": "La calificación debe ser un número entre 1 y 5"}), 400
+        if rating != int(rating):
+            return jsonify({"error": "La calificación debe ser un número entero entre 1 y 5"}), 400
+        rating = int(rating)
         with document_transaction():
             restaurant = PostgresDocumentRepository.get_by_id(
                 RestaurantModel.collection, restaurant_id, for_update=True
@@ -685,11 +688,9 @@ def add_review():
                 from utils.blockchain_anchor import canonical_hash
                 from utils.anchor_store import get_anchor_store
                 anchored_review = {**review, "order_id": order["id"]}
-                get_anchor_store().add_pending(
-                    anchored_review,
-                    locked,
-                    canonical_hash(anchored_review, locked),
-                )
+                anchor_hash = canonical_hash(anchored_review, locked)
+                get_anchor_store().add_pending(anchored_review, locked, anchor_hash)
+                ReviewModel.update(review["id"], {"anchor_hash": anchor_hash})
             except Exception:
                 logger.exception(
                     "No se pudo encolar el ancla de la reseña %s", review.get("id")
@@ -700,29 +701,29 @@ def add_review():
         logger.error(f"Error agregando reseña: {e}")
         return jsonify({"error": "Error interno del servidor.", "success": False}), 500
     
-    @main_bp.get("/api/trust/verify/<int:review_id>")
-    def verify_anchor(review_id):
-        """Estado público del ancla de una reseña. Solo lectura, sin cache."""
-        from utils.anchor_store import get_anchor_store
+@main_bp.get("/api/trust/verify/<int:review_id>")
+def verify_anchor(review_id):
+    """Estado público del ancla de una reseña. Solo lectura, sin cache."""
+    from utils.anchor_store import get_anchor_store
 
-        row = get_anchor_store().get_by_review(review_id)
-        if not row:
-            response = jsonify({"found": False, "verified_onchain": False})
-            response.status_code = 404
-            response.headers["Cache-Control"] = "no-store"
-            return response
-
-        response = jsonify({
-            "found": True,
-            "review_id": int(review_id),
-            "hash": row.get("hash"),
-            "kind": row.get("kind"),
-            "status": row.get("status"),
-            "tx_hash": row.get("tx_hash"),
-            "verified_onchain": row.get("status") == "confirmed",
-        })
+    row = get_anchor_store().get_by_review(review_id)
+    if not row:
+        response = jsonify({"found": False, "verified_onchain": False})
+        response.status_code = 404
         response.headers["Cache-Control"] = "no-store"
         return response
+
+    response = jsonify({
+        "found": True,
+        "review_id": int(review_id),
+        "hash": row.get("hash"),
+        "kind": row.get("kind"),
+        "status": row.get("status"),
+        "tx_hash": row.get("tx_hash"),
+        "verified_onchain": row.get("status") == "confirmed",
+    })
+    response.headers["Cache-Control"] = "no-store"
+    return response
 
 @main_bp.route("/api/notifications")
 def get_notifications():

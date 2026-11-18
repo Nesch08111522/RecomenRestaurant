@@ -11,16 +11,16 @@ def anchor_pending(store, limit: int = 50, mode: str | None = None) -> dict:
     processed = 0
     for row in store.pending(limit):
         kind = row.get("kind", "review.verified")
+        h = row["hash"]
         if mode == "dry_run":
-            store.mark(row["review_id"], "simulated", kind=kind)
+            store.mark(row["review_id"], "simulated", kind=kind, anchor_hash=h)
             processed += 1
             continue
-        # onchain: se implementa cuando haya RPC configurado
         try:
-            tx = _send_onchain(row["hash"])
-            store.mark(row["review_id"], "submitted", tx_hash=tx, kind=kind)
-        except Exception as exc:  # noqa: BLE001 - se guarda en last_error
-            store.mark(row["review_id"], "failed", error=str(exc), kind=kind)
+            tx = _send_onchain(h)
+            store.mark(row["review_id"], "submitted", tx_hash=tx, kind=kind, anchor_hash=h)
+        except Exception as exc:  # noqa: BLE001
+            store.mark(row["review_id"], "failed", error=str(exc), kind=kind, anchor_hash=h)
         processed += 1
     return {"processed": processed, "mode": mode}
 
