@@ -130,7 +130,8 @@ body.sr-discover .forest-extras section { margin-top:32px; }
 body.sr-discover .forest-extras details { border-top:1px solid var(--forest-border); padding:12px 0; }
 body.sr-discover .forest-extras summary { cursor:pointer; min-height:44px; display:list-item; align-content:center; font-weight:600; }
 body.sr-discover .forest-extras details p { max-width:75ch; color:var(--sr-muted); }
-body.sr-discover .sr-footer { max-width:1440px; margin:auto; background:transparent; }
+/* The shared shell owns footer width and the sidebar offset. */
+body.sr-discover .sr-footer { margin-block:0; margin-right:0; background:transparent; }
 body.sr-discover .empty-state { grid-column:1/-1; padding:36px 20px; border:1px dashed var(--sr-line); border-radius:18px; text-align:center; }
 body.sr-discover .empty-state p { margin:10px 0 18px; color:var(--sr-muted); }
 @media(min-width:1600px) { body.sr-discover .forest-hero { min-height:290px; } }
@@ -232,7 +233,6 @@ body.sr-discover .empty-state p { margin:10px 0 18px; color:var(--sr-muted); }
 @media(min-width:1100px) {
   body.sr-discover .sr-sidebar { display:none; }
   body.sr-discover #main-content { margin-left:0; }
-  body.sr-discover .sr-footer { margin-inline:auto; }
   .sr-drawer-open body.sr-discover .sr-sidebar { display:flex; }
 }
 
