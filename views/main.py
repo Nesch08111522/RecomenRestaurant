@@ -638,7 +638,11 @@ def save_location():
 
 @main_bp.route("/api/reviews", methods=["POST"])
 def add_review():
-    """API para agregar una reseña"""
+    """Crea una reseña únicamente desde una compra verificada.
+
+    Este endpoint legacy conserva su contrato HTTP, pero no puede saltarse
+    la garantía de reseña vinculada a una compra del flujo de mercado.
+    """
     try:
         if "user" not in session or not session.get("user"):
             return jsonify({"error": "No autenticado"}), 401
@@ -671,23 +675,44 @@ def add_review():
             if not restaurant or not restaurant.get("verified"):
                 return jsonify({"error": "Restaurante no disponible"}), 404
             from models.market import records
-            purchases = [o for o in records("market_orders",uid=session["user"]["id"],rid=restaurant_id,state="Entregado",paid=True)
-                         if not o.get("refunded") and not o.get("review")]
+            purchases = [
+                o for o in records(
+                    "market_orders",
+                    uid=session["user"]["id"],
+                    rid=restaurant_id,
+                    state="Entregado",
+                    paid=True,
+                )
+                if not o.get("refunded") and not o.get("review")
+            ]
             if not purchases:
                 return jsonify({"error":"Se requiere una compra pagada y entregada sin valoración previa."}), 403
             order = purchases[0]
             locked = PostgresDocumentRepository.get_by_id("market_orders", order["id"], for_update=True)
-            if not locked or locked.get("review"):
+            if (
+                not locked
+                or locked.get("uid") != session["user"]["id"]
+                or locked.get("rid") != restaurant_id
+                or locked.get("state") != "Entregado"
+                or locked.get("paid") is not True
+                or locked.get("refunded")
+                or locked.get("review")
+            ):
                 return jsonify({"error": "Esta compra ya fue valorada."}), 409
             review = ReviewModel.add_review(session["user"]["id"], restaurant_id, rating, comment.strip())
-            ReviewModel.update(review["id"], {"verified_purchase":True,"order_id":order["id"]})
-            PostgresDocumentRepository.update("market_orders",order["id"],{"review":review["id"]})
+            review = ReviewModel.update(
+                review["id"],
+                {"verified_purchase": True, "order_id": locked["id"]},
+            )
+            PostgresDocumentRepository.update(
+                "market_orders", locked["id"], {"review": review["id"]}
+            )
             stats = ReviewModel.get_rating_stats(restaurant_id)
             RestaurantModel.update(restaurant_id, {"rating": stats["average"]})
             try:
                 from utils.blockchain_anchor import canonical_hash
                 from utils.anchor_store import get_anchor_store
-                anchored_review = {**review, "order_id": order["id"]}
+                anchored_review = {**review, "order_id": locked["id"]}
                 anchor_hash = canonical_hash(anchored_review, locked)
                 get_anchor_store().add_pending(anchored_review, locked, anchor_hash)
                 ReviewModel.update(review["id"], {"anchor_hash": anchor_hash})

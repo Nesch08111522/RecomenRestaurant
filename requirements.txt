@@ -26,3 +26,6 @@ haversine==2.8.0
 pytest>=8,<10
 
 qrcode==8.2
+
+# Publicación opcional de hashes en contratos EVM desde el worker
+web3>=7,<8
