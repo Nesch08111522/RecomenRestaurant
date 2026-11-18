@@ -31,6 +31,8 @@ from views.platform import bp as platform_bp
 from views.discovery import bp as discovery_bp
 from views.business_sites import bp as sites_bp
 from views.catalog import bp as catalog_bp
+from views.recommendation_history import bp as recommendation_history_bp
+from views.recommendations import bp as recommendations_bp
 
 logger = logging.getLogger(__name__)
 
@@ -65,6 +67,8 @@ def create_app(test_config=None):
     app.register_blueprint(discovery_bp)
     app.register_blueprint(sites_bp)
     app.register_blueprint(catalog_bp)
+    app.register_blueprint(recommendation_history_bp)
+    app.register_blueprint(recommendations_bp)
     from views.food_experience import bp as food_experience_bp
     app.register_blueprint(food_experience_bp)
 

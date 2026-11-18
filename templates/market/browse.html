@@ -4,8 +4,8 @@
 {% if session.role == 'business_owner' %}<a class="market-link" href="{{ url_for('admin.new_restaurant') }}">Registrar negocio</a>{% endif %}</header>
 {% if stores %}<div class="market-links">Gestionar cocina {% for s in stores %}<a href="{{ url_for('market.desk',rid=s.id) }}">{{ s.name }}</a>{% endfor %}</div>{% endif %}
 <form class="market-filters sr-filter-form" method="get">
-<label class="wide">¿Qué te apetece?<input name="q" value="{{ request.args.get('q','') }}" placeholder="Almuerzo criollo hasta S/ 15 para recoger"></label>
-<button>Buscar</button>
+<label class="wide">¿Qué te apetece?<input name="q" data-search-history data-search-history-changes-only value="{{ request.args.get('q','') }}" placeholder="Almuerzo criollo hasta S/ 15 para recoger"></label>
+<button data-search-submit>Buscar</button>
 <details class="sr-filter-more"><summary>Filtros<span data-filter-count></span></summary><div class="sr-filter-fields">
 <label>Máximo por porción (S/)<input type="number" name="budget" min="0" step=".01" value="{{ filters.budget }}"></label>
 <label>Modalidad<select name="channel"><option value="">Todas</option>{% for c in channels %}<option {% if c==filters.channel %}selected{% endif %}>{{ c }}</option>{% endfor %}</select></label>
@@ -18,7 +18,7 @@
 <div class="sr-filter-actions"><button>Aplicar filtros</button><a href="{{ url_for('market.browse') }}">Limpiar filtros</a></div>
 </div></details>
 </form>
-{% if session.user %}<details><summary>Consultar al asistente del mercado</summary><form class="market-form" method="post" action="{{ url_for('market.consult') }}">{{ token() }}<label>Describe lo que necesitas<input name="q" maxlength="300" required placeholder="Algo para recoger en Moche por menos de S/ 15"></label><button>Interpretar y consultar disponibilidad</button></form></details>{% endif %}
+{% if session.user %}<details><summary>Consultar al asistente del mercado</summary><form class="market-form" method="post" action="{{ url_for('market.consult') }}">{{ token() }}<label>Describe lo que necesitas<input name="q" maxlength="300" data-search-history required placeholder="Algo para recoger en Moche por menos de S/ 15"></label><button>Interpretar y consultar disponibilidad</button></form></details>{% endif %}
 {% if week %}<section class="market-panel"><h2>Mi semana · {{ week_total|soles }}</h2>
 {% for r in plan %}<p>{{ r.day }} · {{ r.name }} · {{ r.business }} · {{ r.price|soles }}</p>{% else %}<p>No hay días cubiertos con esas condiciones.</p>{% endfor %}<small>{{ plan|length }} de 7 días con oferta. La planificación no reserva stock.</small></section>{% endif %}
 {% if session.user %}<details><summary>Mis gustos y restricciones</summary><form class="market-form" method="post" action="{{ url_for('market.preferences') }}">{{ token() }}

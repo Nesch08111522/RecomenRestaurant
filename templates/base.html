@@ -23,6 +23,8 @@
     {% endblock %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/premium-system.css') }}" />
     {% block page_styles %}{% endblock %}
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/adaptive-experience.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/forest-depth.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/adaptive-experience.css') }}" />
     <script src="{{ url_for('static', filename='js/shell.js') }}"></script>
   </head>
@@ -57,6 +59,11 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="{{ url_for('static', filename='js/security.js') }}"></script>
+    {% if session.get('user_id') %}
+    <script src="{{ url_for('static', filename='js/search-history.js') }}" data-history-url="{{ url_for('recommendation_history.history') }}"></script>
+    {% endif %}
+
+    <!-- Custom JS -->
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>
     <script src="{{ url_for('static', filename='js/map.js') }}"></script>
     <script src="{{ url_for('static', filename='js/search.js') }}"></script>

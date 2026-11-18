@@ -20,7 +20,7 @@ def inject_globals():
     except (OperationalError, DatabaseConnectionError, DatabaseConfigurationError):
         website = dict(DEFAULTS)
     role = (session.get("user") or {}).get("role")
-    internal = role in {"admin", "business_owner"} and request.blueprint not in {"main", "food_experience"} and request.endpoint != "sites.public_page"
+    internal = role in {"admin", "business_owner"} and request.blueprint not in {"main", "food_experience", "recommendations"} and request.endpoint != "sites.public_page"
     from pathlib import Path
     from datetime import date
     editorial = {}

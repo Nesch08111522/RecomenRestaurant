@@ -194,6 +194,10 @@
                             <div class="catalog-field"><label for="productMealTime">Momento del día</label><select id="productMealTime" name="meal_time"><option value="desayuno">Desayuno</option><option value="almuerzo">Almuerzo</option><option value="cena">Cena</option></select></div>
                             <div class="catalog-field"><label for="productMenuDate">Fecha del menú</label><input id="productMenuDate" name="menu_date" type="date"><small>Vacío = sin fecha fija.</small></div>
                         </div>
+                        <fieldset class="catalog-season-field">
+                            <legend>Recomendar en temporada <span class="catalog-optional">opcional</span></legend>
+                            <div class="catalog-season-options">{% for season in seasons %}<label class="catalog-check"><input type="checkbox" name="seasons" value="{{ season }}"><span aria-hidden="true"></span>{{ season }}</label>{% endfor %}</div>
+                        </fieldset>
                         <div class="catalog-switch-row"><label class="catalog-switch"><input id="productPromotional" name="promotional" type="checkbox"><span aria-hidden="true"></span><b>Producto promocional</b></label><div class="catalog-field catalog-field--grow"><label class="sr-only" for="productPromoText">Texto promocional</label><input id="productPromoText" name="promo_text" type="text" maxlength="160" placeholder="Ej. 2x1 los martes" disabled></div></div>
                     </div>
                     <div class="catalog-form-section">

@@ -31,6 +31,7 @@
 <label>Dictado o texto<input id="dictation" placeholder="Agrega doce porciones de pollo para mañana a dieciséis soles"></label>
 <div class="market-inline"><button type="button" id="microphone">Dictar</button><button type="button" id="parse-voice">Preparar borrador</button></div><p id="voice-status" role="status"></p></details>
 <details open id="offer-editor"><summary>Publicar porciones</summary><form class="market-form" id="offer-form" method="post" action="{{ url_for('market.publish',rid=business.id) }}">{{ token() }}<fieldset><legend>Características declaradas para recomendaciones</legend>{% for tag in context_tags %}<label class="check"><input type="checkbox" name="context_tag" value="{{ tag }}">{{ tag }}</label>{% endfor %}</fieldset><label>Variante de esta oferta (opcional)<input name="variant" maxlength="80" placeholder="Ej. porción familiar"></label>
+<fieldset><legend>Recomendar en temporada (opcional)</legend>{% for season in seasons %}<label class="check"><input type="checkbox" name="seasons" value="{{ season }}">{{ season }}</label>{% endfor %}</fieldset>
 <label>Plato del catálogo<select name="dish"><option value="">Crear plato</option>{% for d in dishes %}<option value="{{ d.id }}">{{ d.name }}</option>{% endfor %}</select></label>
 {{ field('Nombre del plato nuevo','name',value=draft.name if draft else '') }}
 <input type="hidden" name="draft_clock" value="{{ draft_clock }}">
@@ -64,7 +65,25 @@
 <h2>Pedidos del negocio</h2>{% for o in orders %}<article class="market-panel"><strong>#{{ o.id }} · {{ o.state }} · {{ o.total|soles }}</strong><p>{{ o.slot[:16] }} · {{ o.channel }} · {{ o.destination|join(', ') }} · {{ o.method }}</p>{% for l in o.lines %}<p>{{ l.qty }} × {{ l.name }}</p>{% endfor %}
 <form class="market-inline" method="post" action="{{ url_for('market.manage_order',rid=business.id,oid=o.id) }}">{{ token() }}
 {% for a in {'Recibido':['Confirmado',('Reembolsar' if o.paid else 'Cancelado')], 'Confirmado':['Preparando',('Reembolsar' if o.paid else 'Cancelado')], 'Preparando':['Listo'], 'Listo':['En reparto' if o.channel=='Delivery' else 'Entregado'], 'En reparto':['Entregado']}.get(o.state,[]) %}<button name="action" value="{{ a }}">{{ a }}</button>{% endfor %}</form></article>{% else %}<p>Los pedidos aparecerán aquí al confirmarse.</p>{% endfor %}
-<details><summary>Reservas del negocio</summary>{% for r in reservations %}<p>{{ r.date }} · {{ r.time }} · {{ r.guests }} personas · {{ r.status }}</p>{% if r.status=='pendiente' %}<form method="post" action="{{ url_for('market.confirm_reservation',rid=business.id,reservation_id=r.id) }}">{{ token() }}<button name="status" value="confirmada">Confirmar</button> <button name="status" value="cancelada">Cancelar</button></form>{% endif %}{% endfor %}</details>
+<details>
+  <summary>Reservas del negocio</summary>
+  {% for r in reservations %}
+    <p>{{ r.date }} · {{ r.time }} · {{ r.guests }} personas · {{ r.status }}</p>
+    {% set can_confirm = r.status == 'pendiente' %}
+    {% set can_record_attendance = r.id in attendance_ids %}
+    {% if can_confirm or can_record_attendance %}
+      <form method="post" action="{{ url_for('market.confirm_reservation', rid=business.id, reservation_id=r.id) }}">
+        {{ token() }}
+        {% if can_confirm %}
+          <button name="status" value="confirmada">Confirmar</button>
+          <button name="status" value="cancelada">Cancelar</button>
+        {% else %}
+          <button name="status" value="asistida">Registrar asistencia</button>
+        {% endif %}
+      </form>
+    {% endif %}
+  {% endfor %}
+</details>
 {% if business.owner_id==session.user.id %}<details><summary>Acreditación privada del negocio</summary><form class="market-form" method="post" enctype="multipart/form-data" action="{{ url_for('market.submit_evidence',rid=business.id) }}">{{ token() }}<label>Documento PDF, hasta 1 MB<input type="file" name="document" accept="application/pdf" required></label><button>Enviar al administrador</button></form></details>{% endif %}
 <script src="{{ url_for('static',filename='js/market-voice.js') }}" defer></script>{% if business.owner_id==session.user.id %}<details><summary>Cupón del negocio</summary><form class="market-form" method="post" action="{{ url_for('market.configure_coupon',rid=business.id) }}">{{ token() }}
 <label>Código (vacío para desactivar)<input name="code" maxlength="32" value="{{ (store.coupon or {}).get('code','') }}"></label>
