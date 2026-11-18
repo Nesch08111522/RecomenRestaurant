@@ -4,6 +4,22 @@ class RestaurantModel(DataModel):
     collection = "restaurants"
 
     @classmethod
+    def create(cls, new_data):
+        from utils.restaurant_review import check_restaurant
+        check_restaurant(new_data)
+        return super().create(new_data)
+
+    @classmethod
+    def update(cls, item_id, updated_data):
+        from utils.restaurant_review import check_restaurant
+        content_fields={"name","description","category","cuisine","cuisine_type","tags","specialties","promo"}
+        if content_fields.intersection(updated_data):
+            current=cls.get_by_id(item_id)
+            if current: check_restaurant({**current,**updated_data})
+        return super().update(item_id, updated_data)
+
+
+    @classmethod
     def search(cls, query):
         data = cls.all()
         query = query.lower()

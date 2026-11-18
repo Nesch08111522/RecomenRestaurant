@@ -539,6 +539,14 @@ def new_restaurant():
             )
             return redirect(url_for("admin.new_restaurant"))
 
+        from utils.restaurant_review import review_restaurant, RestaurantRejected
+        try:
+            evaluation = review_restaurant(data)
+        except RestaurantRejected as error:
+            record_event("RESTAURANT_AUTO_REJECT", resource_type="restaurant_submission", resource_id=0)
+            flash(str(error), "error")
+            return redirect(url_for("admin.new_restaurant"))
+        data.update(verified=False, status="pending_review", automated_review=evaluation)
         with document_transaction() as conn:
             if discovery_candidate:
                 from models.discovery import CandidateModel, lock
@@ -552,6 +560,8 @@ def new_restaurant():
                             discovery_candidate_id=latest['id'])
                 data['verified'] = False
             restaurant = RestaurantModel.create(data)
+            from models.moderation import ModerationModel
+            ModerationModel.create_moderation_entry("restaurant", restaurant["id"], data, session["user"]["id"], ai_evaluation=evaluation)
             if discovery_candidate:
                 CandidateModel.update(discovery_candidate['id'], {'commercial_restaurant_id': restaurant['id']})
             record_event("ADMIN_RESTAURANT_CREATE", resource_type="restaurant", resource_id=restaurant["id"])
@@ -1533,3 +1543,21 @@ def auto_filter_restaurants():
         ),
         200,
     )
+
+
+@admin_bp.route("/configuracion-sitio", methods=["GET", "POST"])
+@admin_required
+def website_settings():
+    from models.site_settings import site_settings, save_site_settings
+    settings = site_settings()
+    if request.method == "POST":
+        try:
+            with document_transaction():
+                settings = save_site_settings(request.form)
+                record_event("ADMIN_SITE_SETTINGS", resource_type="site_settings", resource_id=1)
+            flash("Configuración del sitio actualizada.", "success")
+            return redirect(url_for("admin.website_settings"))
+        except ValueError as error:
+            flash(str(error), "error")
+            return render_template("admin/website_settings.html", settings={**settings, **{k:request.form[k] for k in settings if k in request.form}}), 400
+    return render_template("admin/website_settings.html", settings=settings)

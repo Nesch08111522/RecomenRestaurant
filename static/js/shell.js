@@ -3,8 +3,8 @@
     root.classList.add('sr-compact');
     try {
         const saved = localStorage.getItem('theme');
-        root.dataset.theme = ['dark', 'light'].includes(saved) ? saved : 'light';
-    } catch { root.dataset.theme = 'light'; }
+        root.dataset.theme = ['dark', 'light'].includes(saved) ? saved : 'dark';
+    } catch { root.dataset.theme = 'dark'; }
 
     document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.filter-chip').forEach(chip => {
@@ -92,7 +92,7 @@
         const backdrop = document.querySelector('.sr-backdrop');
         const collapse = document.querySelector('.sr-collapse');
         const wide = matchMedia('(min-width: 1100px)');
-        const isDesktopPanel = () => wide.matches && !document.body.classList.contains('sr-discover');
+        const isDesktopPanel = () => wide.matches;
         function drawer(open, restoreFocus = true) {
             root.classList.toggle('sr-drawer-open', open);
             backdrop.hidden = !open;

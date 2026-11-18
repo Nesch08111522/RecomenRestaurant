@@ -13,7 +13,7 @@ from database.repository import document_transaction
 from logic.business_radar import now,validate_source_url
 from utils.audit import record_event
 
-TEMPLATES=('atelier','bistro','studio')
+TEMPLATES=('atelier','bistro','studio','commercial','minimal','promotional','fit','immersive')
 TEXT_LIMITS={'name':160,'slug':70,'tagline':180,'description':2000,'history':5000,
              'seo_title':70,'seo_description':180,'delivery_info':700,'pickup_info':700}
 NETWORKS={'instagram':'instagram.com','facebook':'facebook.com','youtube':'youtube.com',

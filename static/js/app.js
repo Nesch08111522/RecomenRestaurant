@@ -153,6 +153,8 @@ class AppController {
         if (!grid) return;
 
         if (this.state.filteredRestaurants.length === 0) {
+            document.getElementById('restaurant-pagination')?.remove();
+            if(this.elements.resultsCount) this.elements.resultsCount.textContent='0 restaurantes encontrados';
             grid.innerHTML = `
                 <div class="empty-state">
                     <i class="fas fa-utensils"></i>
@@ -163,9 +165,28 @@ class AppController {
             return;
         }
 
-        const isFeaturedHome = document.body.classList.contains('sr-discover') &&
-            this.state.filteredRestaurants === this.state.restaurants;
-        const visibleRestaurants = isFeaturedHome ? this.state.filteredRestaurants.slice(0, 3) : this.state.filteredRestaurants;
+        if (this.lastPageResults !== this.state.filteredRestaurants) {
+            this.restaurantPage = 1;
+            this.lastPageResults = this.state.filteredRestaurants;
+        }
+        const pageSize = 6;
+        const pages = Math.ceil(this.state.filteredRestaurants.length / pageSize);
+        this.restaurantPage = Math.min(this.restaurantPage || 1, pages);
+        const visibleRestaurants = this.state.filteredRestaurants.slice((this.restaurantPage-1)*pageSize, this.restaurantPage*pageSize);
+        let pagination = document.getElementById('restaurant-pagination');
+        if (!pagination) {
+            pagination = document.createElement('nav'); pagination.id='restaurant-pagination';
+            pagination.setAttribute('aria-label','Páginas de restaurantes'); grid.after(pagination);
+        }
+        pagination.replaceChildren();
+        pagination.hidden = pages <= 1;
+        for (const [label, target] of [['Anterior',this.restaurantPage-1], [this.restaurantPage+' de '+pages,0], ['Siguiente',this.restaurantPage+1]]) {
+            const button = document.createElement('button'); button.type='button'; button.textContent=label;
+            button.disabled = target < 1 || target > pages;
+            if (!target) button.setAttribute('aria-current','page');
+            button.addEventListener('click', () => { this.restaurantPage=target; this.renderRestaurants(); grid.scrollIntoView({block:'start'}); });
+            pagination.append(button);
+        }
         grid.innerHTML = visibleRestaurants.map(r =>
             this.renderRestaurantCard(r)
         ).join('');
@@ -517,6 +538,19 @@ class AppController {
         const category = chip.dataset.category;
 
         let filtered = [...this.state.restaurants];
+        const form = document.getElementById('search-form');
+        if (form) {
+            const fields = new FormData(form);
+            const district = fields.get('district');
+            const cid = fields.get('category');
+            const price = fields.get('max_price');
+            const query = String(fields.get('q') || '').trim().toLowerCase();
+            filtered = filtered.filter(r => (!district || r.district === district) &&
+                (!cid || String(r.category_id) === String(cid)) &&
+                (!price || Number(r.avg_price) <= Number(price)) &&
+                (!query || [r.name,r.description,...(r.tags || [])].join(' ').toLowerCase().includes(query)));
+        }
+
 
         if (filter === 'open') {
             filtered = filtered.filter(r => this.isRestaurantOpen(r));

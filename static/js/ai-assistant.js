@@ -496,9 +496,13 @@
 
         function toggle(open) {
             panel.style.display = open ? 'flex' : 'none';
+            fab.setAttribute('aria-expanded',String(open));
             if (open) input.focus();
         }
 
+        panel.setAttribute('role','dialog'); panel.setAttribute('aria-label','Asistente SmartResto');
+        fab.setAttribute('aria-expanded','false');
+        panel.addEventListener('keydown',event=>{if(event.key==='Escape'){toggle(false);fab.focus();}});
         fab.addEventListener('click', () => toggle(panel.style.display === 'none'));
         panel.querySelector('.ai-chat-close').addEventListener('click', () => toggle(false));
         sendBtn.addEventListener('click', () => send());
@@ -509,9 +513,10 @@
 
     // ------------------------------------------------------------------ inicio
     function init() {
-        if (!document.getElementById('resultsGrid')) return; // solo en la página de restaurantes
+        if (document.querySelector('.ai-fab')) return;
         injectStyles();
-        buildSmartBar();
+        if (document.getElementById('resultsGrid')) buildSmartBar();
+        else if (getApp()) fetch('/api/search',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'}).then(r=>r.ok?r.json():[]).then(rows=>{if(Array.isArray(rows)) getApp().state.restaurants=rows;}).catch(()=>{});
         buildChat();
     }
 

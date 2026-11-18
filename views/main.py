@@ -146,6 +146,28 @@ def index():
         abort(500)
 
 
+@main_bp.get('/ofertas')
+def offers():
+    restaurants = [r for r in RestaurantModel.get_approved() if r.get('promo')]
+    districts = sorted({r.get('district') for r in restaurants if r.get('district')})
+    filters = {'district':request.args.get('district'), 'search_query':request.args.get('q','')}
+    if request.args.get('max_price'):
+        filters['max_price'] = request.args['max_price']
+    try:
+        matches = filter_restaurants(restaurants, filters)
+    except ValueError:
+        abort(400)
+    page = max(1, request.args.get('page',1,type=int))
+    pages = max(1,(len(matches)+5)//6)
+    page = min(page,pages)
+    return render_template('offers.html', restaurants=matches[(page-1)*6:page*6], districts=districts, page=page, pages=pages, total=len(matches), page_args={k:v for k,v in request.args.items() if k!='page'})
+
+
+@main_bp.get('/para-negocios')
+def business_plans():
+    return render_template('business_plans.html')
+
+
 @main_bp.route("/restaurant/<int:restaurant_id>")
 def detail(restaurant_id):
     """Página de detalles de un restaurante"""
@@ -614,6 +636,11 @@ def save_location():
             lat, lng = coordinates
             session["user_lat"] = lat
             session["user_lng"] = lng
+            if data.get("context_consent") is True:
+                from logic.market import now
+                from datetime import timedelta
+                session["food_context"] = {**(session.get("food_context") or {}), "weather": True,
+                                           "until": (now()+timedelta(hours=4)).isoformat()}
             logger.info("Ubicación válida guardada en sesión")
             return jsonify(
                 {
@@ -889,6 +916,6 @@ def business_map(restaurant_id):
 
 @main_bp.get("/informacion/<section>")
 def information(section):
-    if section not in {"privacidad", "condiciones"}:
+    if section not in {"privacidad", "condiciones", "tecnologia"}:
         abort(404)
     return render_template("information.html", section=section)

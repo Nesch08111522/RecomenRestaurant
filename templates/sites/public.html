@@ -3,7 +3,7 @@
 {% set primary = site.get('primary_color') or '#245447' %}
 {% set secondary = site.get('secondary_color') or '#D8A65D' %}
 <!doctype html>
-<html lang="es">
+<html lang="es" data-theme="dark">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -26,6 +26,7 @@
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/business-sites.css') }}">
     {% if schema %}<script type="application/ld+json">{{ schema|tojson }}</script>{% endif %}
+<link rel="stylesheet" href="{{ url_for('static',filename='css/adaptive-experience.css') }}">
 </head>
 <body class="bs-public-site bs-template-{{ site.get('template','atelier') }}{% if preview %} is-preview{% endif %}" style="--site-primary: {{ primary }}; --site-on-primary: {{ site.get('on_primary','#ffffff') }}; --site-secondary: {{ secondary }}; --site-primary-soft: color-mix(in srgb, {{ primary }} 12%, transparent); --site-secondary-soft: color-mix(in srgb, {{ secondary }} 18%, transparent);">
     {% if preview %}<div class="bs-preview-banner" role="status"><span class="material-icons" aria-hidden="true">visibility</span> Vista previa · todavía no es público</div>{% endif %}
@@ -63,7 +64,7 @@
 
         <section class="bs-reserve-section" id="reservar"><div><p class="bs-kicker">Hazlo especial</p><h2>Tu próxima mesa<br><em>empieza aquí.</em></h2></div><a class="bs-public-button bs-public-button-light" href="{{ url_for('main.detail', restaurant_id=restaurant.id) }}">Reservar o consultar <span aria-hidden="true">↗</span></a></section>
     </main>
-    <footer class="bs-public-footer"><div class="bs-footer-brand"><a class="bs-public-logo" href="#inicio"><span class="bs-public-logo-mark">{% if site.get('logo') %}<img src="{{ site.get('logo') }}" alt="">{% else %}✦{% endif %}</span><span>{{ site_name }}</span></a><p>{{ site.get('tagline') or site_name }}</p><a class="bs-footer-site-link" href="{{ url_for('sites.public_page', slug=site.slug) }}">Abrir sitio público ↗</a></div><div class="bs-footer-links"><div><span class="bs-kicker">Explora</span><a href="#historia">Historia</a><a href="#carta">Carta</a><a href="#visitanos">Visítanos</a></div><div><span class="bs-kicker">Encuéntranos</span>{% for network, url in site.get('social', {}).items() %}{% if url %}<a href="{{ url }}" target="_blank" rel="noopener noreferrer">{{ network|capitalize }} ↗</a>{% endif %}{% endfor %}</div></div><div class="bs-footer-bottom"><span>© {{ site_name }}</span><a href="#inicio">Volver arriba ↑</a></div></footer>
+    {% include 'partials/footer.html' %}
     <script src="{{ url_for('static', filename='js/business-sites.js') }}"></script>
 </body>
 </html>

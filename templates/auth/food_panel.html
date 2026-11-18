@@ -1,0 +1,8 @@
+{% set dish_asset = 'ceviche' if scene_view == 'register' else 'dessert' if scene_view == 'recover' else 'lomo' %}
+<aside class="ax-visual" aria-label="Experiencia gastronómica">
+  <div class="ax-food-host" data-food-experience-api="/api/food-experience" data-photo-relief="true" data-food-view="{{ scene_view }}" data-fallback-model="{{ url_for('static',filename='models/auth/' ~ dish_asset ~ '.glb') }}" data-fallback-image="{{ url_for('static',filename='images/auth/' ~ dish_asset ~ '.webp') }}" data-fallback-name="Inspiración gastronómica">
+    <div class="ax-food-intro"><h2>Cada antojo merece una nueva experiencia.</h2><p>Descubre sabores y lugares que conectan contigo.</p></div>
+    <div class="ax-food-canvas"><img data-scene-fallback src="{{ url_for('static',filename='images/auth/' ~ dish_asset ~ '.webp') }}" alt="{{ 'Ceviche peruano' if dish_asset == 'ceviche' else 'Café y postre' if dish_asset == 'dessert' else 'Lomo saltado' }}" width="600" height="600"><canvas aria-label="Fotografía gastronómica con relieve interactivo"></canvas></div>
+    <div class="ax-food-caption"><span data-dish-source>Selección editorial</span><h3 data-dish-name>Sabores que inspiran</h3><p data-dish-caption>Arrastra suavemente para explorar la profundidad.</p><p data-dish-note></p><div data-dish-dots class="ax-food-dots" role="group" aria-label="Cambiar plato"></div><a data-dish-link href="{{ url_for('market.browse') }}">Descubrir platos</a></div>
+  </div>
+</aside>

@@ -5,7 +5,7 @@
 body.sr-auth .sr-footer,
 body.sr-auth .sr-sidebar,
 body.sr-auth .sr-backdrop { display: none; }
-body.sr-auth .sr-login, body.sr-auth .sr-signup { display: none; }
+
 body.sr-auth #main-content { margin: 0 !important; padding: 0; }
 body.sr-auth { background: var(--sr-bg); }
 /* Edge/IE muestran su propio botón de revelar contraseña: se oculta para

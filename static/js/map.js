@@ -5,6 +5,7 @@
 
 let map = null;
 let markers = {};
+window.getLeafletMap = () => map;
 
 function initMap() {
     if (document.body.classList.contains('sr-discover') && document.getElementById('forest-map-panel')?.hidden) return;

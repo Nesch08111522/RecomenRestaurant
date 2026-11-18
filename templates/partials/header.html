@@ -7,8 +7,8 @@
 <header class="sr-header">
   <div class="sr-top">
     <button class="sr-icon sr-menu-button" type="button" aria-controls="sr-navigation" aria-expanded="false" aria-label="Abrir navegación">{{ glyph('bars') }}</button>
-    <a class="sr-logo" href="{{ url_for('main.index') }}" aria-label="SmartResto, inicio"><span class="sr-mark" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3v5m3-5v5m3-5v5M5 7q0 5 3 5t3-5M8 12v9M18 3c-4 4-4 9 0 9V3zm0 9v9"/></svg></span>SmartResto</a>
-    <nav class="sr-public-links" aria-label="Descubrir"><a href="{{ url_for('main.index') }}" {% if request.endpoint=='main.index' %}aria-current="page"{% endif %}>Descubrir</a><a href="{{ url_for('main.index', _anchor='explorar') }}">Restaurantes</a><a href="{{ url_for('main.index', _anchor='ofertas') }}">Ofertas</a><a href="{{ url_for('main.index', _anchor='negocios') }}">Para negocios</a></nav>
+    <a class="sr-logo" href="{{ url_for('main.index') }}" aria-label="{{ website.brand }}, inicio"><span class="sr-mark" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3v5m3-5v5m3-5v5M5 7q0 5 3 5t3-5M8 12v9M18 3c-4 4-4 9 0 9V3zm0 9v9"/></svg></span>{{ website.brand }}</a>
+    <nav class="sr-public-links" aria-label="Descubrir"><a href="{{ url_for('main.index') }}" {% if request.endpoint=='main.index' %}aria-current="page"{% endif %}>Descubrir</a><a href="{{ url_for('main.index', _anchor='explorar') }}">Restaurantes</a><a href="{{ url_for('main.offers') }}" {% if request.endpoint=='main.offers' %}aria-current="page"{% endif %}>Ofertas</a><a href="{{ url_for('main.business_plans') }}" {% if request.endpoint=='main.business_plans' %}aria-current="page"{% endif %}>Para negocios</a></nav>
     <div class="sr-actions" {% if user %}data-counts-url="{{ url_for('comunicacion.unread_counts') }}"{% endif %}>
       <a class="sr-icon sr-favorites-link" href="{{ url_for('auth.favorites') if user else url_for('auth.login', next=url_for('auth.favorites')) }}" aria-label="Mis favoritos" title="Mis favoritos">{{ glyph('heart') }}</a>
       <button id="themeToggle" class="sr-icon" type="button" aria-label="Cambiar tema" title="Cambiar tema">◐</button>
@@ -25,23 +25,21 @@
 <button class="sr-backdrop" hidden aria-label="Cerrar navegación"></button>
 <nav class="sr-sidebar" id="sr-navigation" aria-label="Menú principal">
   <div class="sr-side-top"><strong class="sr-group">Navegación</strong><button type="button" class="sr-icon sr-collapse" aria-label="Contraer menú" title="Contraer menú">⇤</button></div>
-  {{ navlink('main.index','Inicio','compass') }}{{ navlink('main.explore_catalog','Explorar catalogo','compass') }}{{ navlink('market.browse','Mercado','basket-shopping') }}{{ navlink('ecosystem.home','Mi momento','compass') }}
   {% if user %}
-    <strong class="sr-group">Mi espacio</strong>{{ navlink('ecosystem.groups','Comer en grupo','users') }}{{ navlink('ecosystem.rewards','Mis recompensas','tags') }}{{ navlink('ecosystem.scan','SmartScan','compass') }}
-    {{ navlink('auth.favorites','Favoritos','heart') }}{{ navlink('market.orders','Mis pedidos','receipt') }}
-    {{ navlink('comunicacion.inbox','Mensajes','comment') }}{{ navlink('comunicacion.notifications','Notificaciones','bell') }}{{ navlink('comunicacion.cases','Reclamos','life-ring') }}
     {% if user.role == 'admin' %}
-    <strong class="sr-group">Administración</strong>{{ navlink('ecosystem.city','Inteligencia de ciudad','chart-line') }}{{ navlink('ecosystem.publications','Revisar ofertas','shield-halved') }}{{ navlink('admin.dashboard','Resumen','chart-pie') }}{{ navlink('admin.restaurants','Establecimientos','store') }}{{ navlink('admin.users','Usuarios','users') }}{{ navlink('admin.categories','Categorías','tags') }}{{ navlink('admin.moderation_dashboard','Moderación','shield-halved') }}{{ navlink('admin.operations','Pedidos y pagos','receipt') }}{{ navlink('admin.controls','Configuración y auditoría','sliders') }}{{ navlink('admin.analytics_page','Analítica','chart-line') }}
-    {{ navlink('discovery.dashboard','Radar gastronómico','compass') }}
+      <strong class="sr-group">Administración</strong>
+      {{ navlink('admin.dashboard','Resumen','chart-pie') }}{{ navlink('admin.restaurants','Todos los restaurantes','store') }}{{ navlink('admin.new_restaurant','Registrar restaurante','circle-plus') }}{{ navlink('admin.moderation_dashboard','Moderación','shield-halved') }}{{ navlink('admin.users','Usuarios y roles','users') }}{{ navlink('admin.categories','Categorías','tags') }}{{ navlink('admin.operations','Pedidos y pagos','receipt') }}{{ navlink('admin.analytics_page','Analítica','chart-line') }}{{ navlink('ecosystem.city','Inteligencia de ciudad','chart-line') }}{{ navlink('ecosystem.publications','Publicaciones','shield-halved') }}{{ navlink('discovery.dashboard','Radar gastronómico','compass') }}{{ navlink('admin.controls','Configuración y auditoría','sliders') }}{{ navlink('admin.website_settings','Configuración del sitio web','sliders') }}
     {% elif user.role == 'business_owner' %}
-    <strong class="sr-group">Mi negocio</strong>{{ navlink('owner.dashboard','Panel del negocio','store') }}{{ navlink('admin.new_restaurant','Registrar negocio','circle-plus') }}
-    {{ navlink('discovery.owner_space','Negocios reclamados','compass') }}
-    {{ navlink('sites.editor','Mi sitio y marca','palette') }}
-    {{ navlink('catalog.dashboard','Catálogo inteligente','utensils') }}
+      <strong class="sr-group">Mi empresa</strong>
+      {{ navlink('owner.dashboard','Resumen de mi empresa','chart-pie') }}{{ navlink('admin.restaurants','Mis restaurantes','store') }}{{ navlink('admin.new_restaurant','Crear restaurante','circle-plus') }}{{ navlink('catalog.dashboard','Catálogo e inventario','basket-shopping') }}{{ navlink('sites.editor','Mi sitio y marca','store') }}{{ navlink('discovery.owner_space','Negocios reclamados','compass') }}
+    {% else %}
+      <strong class="sr-group">Mi espacio</strong>{{ navlink('market.orders','Mis pedidos','receipt') }}{{ navlink('auth.favorites','Favoritos','heart') }}{{ navlink('ecosystem.rewards','Recompensas','tags') }}{{ navlink('ecosystem.groups','Comer en grupo','users') }}
     {% endif %}
-    <strong class="sr-group">Cuenta</strong>{{ navlink('auth.profile','Mi perfil','user') }}{{ navlink('auth.account_security','Seguridad','lock') }}
-    <form method="post" action="{{ url_for('auth.logout') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button title="Cerrar sesión">{{ glyph('arrow-right-from-bracket') }}<span>Cerrar sesión</span></button></form>
-  {% else %}
-    {{ navlink('auth.login','Iniciar sesión','user') }}{{ navlink('auth.register','Crear cuenta','user-plus') }}
+    <strong class="sr-group">Atención y cuenta</strong>{{ navlink('comunicacion.inbox','Mensajes','comment') }}{{ navlink('comunicacion.notifications','Notificaciones','bell') }}{{ navlink('comunicacion.cases','Reclamos','life-ring') }}{{ navlink('auth.profile','Mi perfil','user') }}{{ navlink('auth.account_security','Seguridad','lock') }}
   {% endif %}
+  <strong class="sr-group">Sitio web</strong>
+  {{ navlink('main.index','Ver sitio web','compass') }}{{ navlink('main.explore_catalog','Explorar restaurantes','compass') }}{{ navlink('main.offers','Ofertas','tags') }}{{ navlink('market.browse','Mercado','basket-shopping') }}{{ navlink('ecosystem.home','Mi momento','compass') }}{{ navlink('main.business_plans','Planes para negocios','store') }}
+  {% if user %}
+    <form method="post" action="{{ url_for('auth.logout') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button title="Cerrar sesión">{{ glyph('arrow-right-from-bracket') }}<span>Cerrar sesión</span></button></form>
+  {% else %}{{ navlink('auth.login','Iniciar sesión','user') }}{{ navlink('auth.register','Crear cuenta','user-plus') }}{% endif %}
 </nav>

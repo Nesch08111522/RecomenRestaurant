@@ -31,6 +31,7 @@
     {% block legacy_interface %}<link rel="stylesheet" href="{{ url_for('static', filename='css/interface.css') }}">{% endblock %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/premium-system.css') }}">
     {% block page_styles %}{% endblock %}
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/adaptive-experience.css') }}">
     <script src="{{ url_for('static', filename='js/shell.js') }}"></script>
 </head>
 <body data-role="{{ session.get('user', {}).get('role', 'guest') }}" class="{% if session.get('user') and request.blueprint in ['owner','admin','comunicacion','auth','market','discovery','ecosystem','sites','catalog'] %}sr-private{% endif %} {% block body_class %}{% endblock %}">
@@ -43,6 +44,7 @@
 
     {% include 'partials/footer.html' %}
     {% include 'partials/mobile_navigation.html' %}
+    {% include 'partials/location_consent.html' %}
 
     <!-- JavaScript Libraries -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -57,6 +59,9 @@
     <script src="{{ url_for('static', filename='js/search.js') }}"></script>
     <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
     
+    <script src="{{ url_for('static',filename='js/ai-assistant.js') }}"></script>
+    <script src="{{ url_for('static',filename='js/editorial-slides.js') }}" defer></script>
     {% block scripts %}{% endblock %}
+    <script src="{{ url_for('static',filename='js/experience.js') }}" defer></script>
 </body>
 </html>

@@ -171,6 +171,7 @@ class RealTimeSearch {
         }
         
         if (results.length === 0) {
+            document.getElementById('restaurant-pagination')?.remove();
             grid.innerHTML = `
                 <div class="empty-state">
                     <i class="fas fa-utensils" style="font-size: 48px; color: var(--gray);"></i>

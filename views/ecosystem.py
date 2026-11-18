@@ -20,6 +20,24 @@ bp = Blueprint("ecosystem", __name__, url_prefix="/experiencias")
 bp.register_error_handler(MarketError, validation)
 
 
+@bp.get('/escena')
+def food_scene():
+    from flask import jsonify
+    user = session.get('user') or {}
+    profile = food_preferences(UserModel.get_by_id(user['id'])) if user else {}
+    history = records('market_orders', uid=user['id']) if user else []
+    choices, _ = discover(catalog(), {}, profile, history)
+    favorites = {r.get('restaurant_id') for r in records('favorites', user_id=user['id'])} if user else set()
+    choices.sort(key=lambda row: (row['rid'] not in favorites, -row.get('score', 0)))
+    choice = next((row for row in choices if row.get('photo_id')), None)
+    if not choice:
+        return jsonify(photo=None, model=None)
+    response = jsonify(name=choice['name'], photo=url_for('market.offer_photo', oid=choice['id']),
+                       model=url_for('ecosystem.dish_model', oid=choice['id']) if choice.get('model_id') else None)
+    response.headers['Cache-Control'] = 'private, no-store'
+    return response
+
+
 def current_context():
     context = session.get("food_context") or {}
     if context.get("until", "") < now().isoformat():

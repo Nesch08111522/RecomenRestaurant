@@ -145,7 +145,7 @@ def recover():
         username = normalize_text(request.form.get("username"), max_length=80)
         if not protection.allow_attempt("recover", username, request.remote_addr or ""):
             flash("Demasiados intentos. Vuelve en diez minutos.", "warning")
-            return render_template("auth/security.html", result={}, recovery=True), 429
+            return render_template("auth/recovery.html", result={}, recovery=True), 429
         password = request.form.get("password", "")
         if not protection.password_valid(password):
             flash("Usa entre 8 y 256 caracteres, con letras y números.", "warning")
@@ -155,7 +155,7 @@ def recover():
             return redirect(url_for("auth.login"))
         else:
             flash("Revisa el usuario y el código de recuperación.", "warning")
-    return render_template("auth/security.html", result={}, recovery=True)
+    return render_template("auth/recovery.html", result={}, recovery=True)
 
 
 @auth_bp.post('/logout')
