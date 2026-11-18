@@ -28,7 +28,7 @@
         document.addEventListener('pointerdown', event => {
             suppressClick = false;
             if (!(event.target instanceof Element) || event.pointerType !== 'mouse' || event.button !== 0 || event.shiftKey ||
-                event.target.closest('input,textarea,select,button,[contenteditable=true],.map-container,.leaflet-container,.maplibregl-map')) return;
+                event.target.closest('input,textarea,select,button,summary,[contenteditable=true],.map-container,.leaflet-container,.maplibregl-map')) return;
             const candidates = [];
             for (let el = event.target; el && el !== document.documentElement; el = el.parentElement) {
                 const css = getComputedStyle(el);
@@ -112,8 +112,8 @@
             }
         }
         function updateCollapse() {
-            const compact = root.classList.contains('sr-compact');
-            const label = isDesktopPanel() ? (compact ? 'Expandir menú' : 'Contraer menú') : 'Cerrar menú';
+            const compact = root.classList.contains('sr-compact') && !root.classList.contains('sr-nav-preview');
+            const label = isDesktopPanel() ? (root.classList.contains('sr-compact') ? (compact ? 'Expandir menú' : 'Fijar menú abierto') : 'Contraer menú') : 'Cerrar menú';
             collapse.setAttribute('aria-controls', 'sr-navigation');
             collapse.setAttribute('aria-expanded', String(isDesktopPanel() ? !compact : root.classList.contains('sr-drawer-open')));
             collapse.title = label;
@@ -127,13 +127,35 @@
             root.classList.toggle('sr-compact');
             updateCollapse();
         });
-        wide.addEventListener('change', () => { drawer(false, false); updateCollapse(); });
+        // Preview overlays the compact rail without shifting the page layout.
+        let pointerInside = false;
+        function updatePreview() {
+            const keyboardInside = Boolean(menu.querySelector(':focus-visible'));
+            root.classList.toggle('sr-nav-preview', isDesktopPanel() && (pointerInside || keyboardInside));
+            updateCollapse();
+        }
+        menu.addEventListener('pointerenter', event => {
+            if (event.pointerType !== 'mouse') return;
+            pointerInside = true;
+            updatePreview();
+        });
+        menu.addEventListener('pointerleave', () => {
+            pointerInside = false;
+            updatePreview();
+        });
+        menu.addEventListener('focusin', updatePreview);
+        menu.addEventListener('focusout', () => requestAnimationFrame(updatePreview));
+        wide.addEventListener('change', () => {
+            pointerInside = false;
+            drawer(false, false);
+            updatePreview();
+        });
         updateCollapse();
         document.addEventListener('keydown', event => {
             if (!root.classList.contains('sr-drawer-open')) return;
             if (event.key === 'Escape') return drawer(false);
             if (event.key !== 'Tab') return;
-            const items = [...menu.querySelectorAll('button, a[href]')];
+            const items = [...menu.querySelectorAll('button, a[href], summary')].filter(item => item.getClientRects().length);
             if (event.shiftKey && document.activeElement === items[0]) { event.preventDefault(); items.at(-1).focus(); }
             if (!event.shiftKey && document.activeElement === items.at(-1)) { event.preventDefault(); items[0].focus(); }
         });

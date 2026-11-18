@@ -3,6 +3,13 @@
 {% macro navlink(endpoint, label, icon) -%}
 <a href="{{ url_for(endpoint) }}" title="{{ label }}" {% if request.endpoint == endpoint %}aria-current="page"{% endif %}>{{ glyph(icon) }}<span>{{ label }}</span></a>
 {%- endmacro %}
+{% macro navsection(label, icon, links) -%}
+{% set active = request.endpoint in links|map(attribute=0)|list %}
+<details class="sr-nav-section" name="admin-navigation"{% if active %} open{% endif %}>
+  <summary title="{{ label }}"{% if active %} class="sr-section-active"{% endif %}>{{ glyph(icon) }}<span class="sr-section-label">{{ label }}</span><span class="sr-section-chevron" aria-hidden="true">⌄</span></summary>
+  <div class="sr-section-links">{% for endpoint, text, symbol in links %}{{ navlink(endpoint, text, symbol) }}{% endfor %}</div>
+</details>
+{%- endmacro %}
 {% set user = session.get('user') %}
 <header class="sr-header">
   <div class="sr-top">
@@ -25,11 +32,40 @@
 <button class="sr-backdrop" hidden aria-label="Cerrar navegación"></button>
 <nav class="sr-sidebar" id="sr-navigation" aria-label="Menú principal">
   <div class="sr-side-top"><strong class="sr-group">Navegación</strong><button type="button" class="sr-icon sr-collapse" aria-label="Contraer menú" title="Contraer menú">⇤</button></div>
+  {% if user and user.role == 'admin' %}
+    {{ navlink('admin.dashboard','Resumen','chart-pie') }}
+    {{ navsection('Restaurantes','store',[
+      ('admin.restaurants','Todos los restaurantes','store'),
+      ('admin.new_restaurant','Registrar restaurante','circle-plus'),
+      ('admin.categories','Categorías','tags')]) }}
+    {{ navsection('Moderación','shield-halved',[
+      ('admin.moderation_dashboard','Moderación','shield-halved'),
+      ('ecosystem.publications','Publicaciones','shield-halved'),
+      ('discovery.dashboard','Radar gastronómico','compass')]) }}
+    {{ navlink('admin.users','Usuarios y roles','users') }}
+    {{ navlink('admin.operations','Pedidos y pagos','receipt') }}
+    {{ navsection('Reportes','chart-line',[
+      ('admin.analytics_page','Analítica','chart-line'),
+      ('ecosystem.city','Inteligencia de ciudad','chart-line')]) }}
+    {{ navsection('Configuración','sliders',[
+      ('admin.controls','Configuración y auditoría','sliders'),
+      ('admin.website_settings','Configuración del sitio web','sliders')]) }}
+    {{ navsection('Atención y cuenta','user',[
+      ('comunicacion.inbox','Mensajes','comment'),
+      ('comunicacion.notifications','Notificaciones','bell'),
+      ('comunicacion.cases','Reclamos','life-ring'),
+      ('auth.profile','Mi perfil','user'),
+      ('auth.account_security','Seguridad','lock')]) }}
+    {{ navsection('Sitio web','compass',[
+      ('main.index','Ver sitio web','compass'),
+      ('main.explore_catalog','Explorar restaurantes','compass'),
+      ('main.offers','Ofertas','tags'),
+      ('market.browse','Mercado','basket-shopping'),
+      ('ecosystem.home','Mi momento','compass'),
+      ('main.business_plans','Planes para negocios','store')]) }}
+  {% else %}
   {% if user %}
-    {% if user.role == 'admin' %}
-      <strong class="sr-group">Administración</strong>
-      {{ navlink('admin.dashboard','Resumen','chart-pie') }}{{ navlink('admin.restaurants','Todos los restaurantes','store') }}{{ navlink('admin.new_restaurant','Registrar restaurante','circle-plus') }}{{ navlink('admin.moderation_dashboard','Moderación','shield-halved') }}{{ navlink('admin.users','Usuarios y roles','users') }}{{ navlink('admin.categories','Categorías','tags') }}{{ navlink('admin.operations','Pedidos y pagos','receipt') }}{{ navlink('admin.analytics_page','Analítica','chart-line') }}{{ navlink('ecosystem.city','Inteligencia de ciudad','chart-line') }}{{ navlink('ecosystem.publications','Publicaciones','shield-halved') }}{{ navlink('discovery.dashboard','Radar gastronómico','compass') }}{{ navlink('admin.controls','Configuración y auditoría','sliders') }}{{ navlink('admin.website_settings','Configuración del sitio web','sliders') }}
-    {% elif user.role == 'business_owner' %}
+    {% if user.role == 'business_owner' %}
       <strong class="sr-group">Mi empresa</strong>
       {{ navlink('owner.dashboard','Resumen de mi empresa','chart-pie') }}{{ navlink('admin.restaurants','Mis restaurantes','store') }}{{ navlink('admin.new_restaurant','Crear restaurante','circle-plus') }}{{ navlink('catalog.dashboard','Catálogo e inventario','basket-shopping') }}{{ navlink('sites.editor','Mi sitio y marca','store') }}{{ navlink('discovery.owner_space','Negocios reclamados','compass') }}
     {% else %}
@@ -39,6 +75,7 @@
   {% endif %}
   <strong class="sr-group">Sitio web</strong>
   {{ navlink('main.index','Ver sitio web','compass') }}{{ navlink('main.explore_catalog','Explorar restaurantes','compass') }}{{ navlink('main.offers','Ofertas','tags') }}{{ navlink('market.browse','Mercado','basket-shopping') }}{{ navlink('ecosystem.home','Mi momento','compass') }}{{ navlink('main.business_plans','Planes para negocios','store') }}
+  {% endif %}
   {% if user %}
     <form method="post" action="{{ url_for('auth.logout') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button title="Cerrar sesión">{{ glyph('arrow-right-from-bracket') }}<span>Cerrar sesión</span></button></form>
   {% else %}{{ navlink('auth.login','Iniciar sesión','user') }}{{ navlink('auth.register','Crear cuenta','user-plus') }}{% endif %}
