@@ -1,68 +1,14 @@
 {% extends 'base.html' %}
 
+{% block body_class %}sr-discover{% endblock %}
+{% block legacy_interface %}{% endblock %}
+{% block page_styles %}
+<link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/forest-home.css') }}">
+{% endblock %}
+
 {% block content %}
-{% include 'partials/discover_hero.html' %}
-<div class="filter-section">
-    <div class="filter-scroll">
-        <button class="filter-chip active" data-filter="all">Todos</button>
-        <button class="filter-chip" data-filter="open">Abiertos ahora</button>
-        <button class="filter-chip" data-filter="promo">Con promociones</button>
-        <button class="filter-chip" data-filter="top-rated">Mejor valorados</button>
-        <button class="filter-chip" data-filter="nearby">Cerca de mí</button>
-
-        <div class="filter-divider"></div>
-
-        {% for cat in categories %}
-            <button class="filter-chip category-chip" data-category="{{ cat.id }}">
-                <i class="fas fa-{{ cat.icon }}"></i>
-                {{ cat.name }}
-            </button>
-        {% endfor %}
-
-        <div class="filter-divider"></div>
-
-        <button class="filter-chip" data-filter="price-low">💰 Económico</button>
-        <button class="filter-chip" data-filter="price-mid">💰💰 Moderado</button>
-        <button class="filter-chip" data-filter="price-high">💰💰💰 Premium</button>
-    </div>
-</div>
-
-<div class="main-layout">
-    <div class="results-column" id="resultsColumn">
-        <div class="results-header">
-            <h2 id="resultsCount">{{ restaurants|length }} restaurantes encontrados</h2>
-            <div class="view-controls">
-                <button class="view-btn active" aria-label="Vista en cuadrícula" data-view="grid"><i class="fas fa-th"></i></button>
-                <button class="view-btn" aria-label="Vista en lista" data-view="list"><i class="fas fa-list"></i></button>
-            </div>
-        </div>
-
-        <div class="results-grid" id="resultsGrid">
-            {% for r in restaurants %}
-                {% include 'partials/restaurant_card.html' %}
-            {% else %}<p class="sr-empty">Todavía no hay restaurantes publicados. Vuelve para descubrir nuevas incorporaciones.</p>{% endfor %}
-        </div>
-
-        <div class="load-more-container" id="loadMoreContainer" style="display: none;">
-            <button class="load-more-btn" id="loadMoreBtn">Ver más restaurantes</button>
-        </div>
-    </div>
-
-    <div class="map-column">
-        <div id="main-map" class="map-container"></div>
-        <button type="button" class="location-btn" id="locationBtn">
-            <i class="fas fa-crosshairs"></i>
-            Usar mi ubicación
-        </button>
-
-        <output id="geo-status" role="status" aria-live="polite"></output>
-        <div class="map-controls">
-            <button class="map-control-btn" id="zoomInBtn" title="Acercar"><i class="fas fa-plus"></i></button>
-            <button class="map-control-btn" id="zoomOutBtn" title="Alejar"><i class="fas fa-minus"></i></button>
-            <button class="map-control-btn" id="toggle3dBtn" title="Vista 3D"><i class="fas fa-cube"></i></button>
-        </div>
-    </div>
-</div>
+{% include 'partials/forest_home.html' %}
 
 <!-- Recomendación Inteligente (versión simple: un cuadro de texto + un botón) -->
 <div class="modal" id="recommendationModal" role="dialog" aria-modal="true" aria-label="Recomendación inteligente">
@@ -109,7 +55,7 @@
     </div>
 </div>
 
-{% include 'partials/discover_more.html' %}
+{% include 'partials/forest_extras.html' %}
 
 <!-- Estilos mínimos del mapa nuevo (no tocan tamaños de tarjetas, filtros ni layout) -->
 <style>
@@ -246,6 +192,7 @@ const STYLE_URL = 'https://tiles.openfreemap.org/styles/positron';
     }
 
     function init() {
+        if (document.getElementById('forest-map-panel')?.hidden || window.mapGL) return;
         if (typeof maplibregl === 'undefined' || typeof RESTAURANTS_DATA === 'undefined') return;
 
         const probe = document.createElement('canvas');
@@ -607,9 +554,13 @@ const last = window.app?.state?.userLocation;
     }
 
     window.addEventListener('load', init);
+    window.addEventListener('forest:map-open', init);
 })();
 </script>
 
+{% for module in ['processor', 'logic-rules', 'ui', 'controller'] %}
+<script src="{{ url_for('static', filename='js/forest/' ~ module ~ '.js') }}"></script>
+{% endfor %}
 <!-- Asistente de IA (Qwen): búsqueda inteligente + chat -->
 <script src="{{ url_for('static', filename='js/ai-assistant.js') }}"></script>
 

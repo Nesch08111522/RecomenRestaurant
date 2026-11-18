@@ -500,6 +500,19 @@ def create_dynamic_category():
 @admin_or_owner_required
 def new_restaurant():
     """Crear nuevo restaurante - Asigna dueño automáticamente"""
+    discovery_candidate = None
+    candidate_id = request.values.get('discovery_candidate_id')
+    if candidate_id:
+        from models.discovery import CandidateModel
+        try:
+            discovery_candidate = CandidateModel.get_by_id(int(candidate_id))
+        except ValueError:
+            abort(404)
+        if (not discovery_candidate or discovery_candidate.get('status') != 'claimed'
+                or discovery_candidate.get('owner_id') != session['user']['id']):
+            abort(404)
+        if discovery_candidate.get('commercial_restaurant_id'):
+            return redirect(url_for('admin.edit_restaurant', id=discovery_candidate['commercial_restaurant_id']))
     if request.method == "POST":
         try:
             data = _clean_restaurant_update(request.form)
@@ -526,8 +539,21 @@ def new_restaurant():
             )
             return redirect(url_for("admin.new_restaurant"))
 
-        with document_transaction():
+        with document_transaction() as conn:
+            if discovery_candidate:
+                from models.discovery import CandidateModel, lock
+                lock(conn)
+                latest = CandidateModel.get_by_id(discovery_candidate['id'])
+                if (not latest or latest.get('status') != 'claimed'
+                        or latest.get('owner_id') != session['user']['id']
+                        or latest.get('commercial_restaurant_id')):
+                    abort(409)
+                data.update(business_id=latest['business_id'], branch_id=latest['branch_id'],
+                            discovery_candidate_id=latest['id'])
+                data['verified'] = False
             restaurant = RestaurantModel.create(data)
+            if discovery_candidate:
+                CandidateModel.update(discovery_candidate['id'], {'commercial_restaurant_id': restaurant['id']})
             record_event("ADMIN_RESTAURANT_CREATE", resource_type="restaurant", resource_id=restaurant["id"])
             from models.communication import admins, notify
             notify([a["id"] for a in admins()], "Nuevo negocio por verificar", restaurant["name"],
@@ -545,7 +571,8 @@ def new_restaurant():
     )
 
     return render_template(
-        "admin/restaurant_form.html", categories=categories, districts=districts
+        "admin/restaurant_form.html", categories=categories, districts=districts,
+        discovery_candidate=discovery_candidate
     )
 
 

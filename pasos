@@ -1,0 +1,13 @@
+pip install -r requirements.txt 
+
+python -m venv .venv  
+
+.\.venv\Scripts\Activate.ps1          
+
+ python -m pip install -r requirements.txt                                                                                                      
+                                                                                  
+
+python -m scripts.create_user                                                                                    
+
+
+ npx pip install requests     

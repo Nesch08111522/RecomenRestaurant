@@ -20,6 +20,7 @@
     <!-- Encabezado -->
     <div class="detail-header">
         <h1>{{ restaurant.name }}</h1>
+        <a href="{{ url_for('main.explore_catalog') }}">Explorar y comparar negocios</a>
         <div class="detail-meta">
             <span class="rating"><i class="fas fa-star" style="color: #FFB800;"></i> {{ restaurant.rating }}</span>
             <span class="dot">•</span>

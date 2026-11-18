@@ -3,11 +3,11 @@ from models.user import UserModel
 from models.restaurant import RestaurantModel
 from models.favorite import FavoriteModel
 from utils.security import is_safe_redirect_url, normalize_text, session_identity
+from core.profile import normalize_profile_patch
 from werkzeug.security import generate_password_hash
 import re
 import logging
 from utils import account_security as protection
-from flask_login import login_required
 
 # Configurar logging
 logging.basicConfig(level=logging.INFO)
@@ -33,7 +33,7 @@ def login():
         if user:
             logger.info("Login exitoso para usuario=%s", username)
             session.clear()
-            session.permanent = True
+            session.permanent = request.form.get('remember') == 'on'
             session["auth_epoch"] = user.get("auth_epoch", 0)
             session['user'] = session_identity(user)
             session['user_id'] = user.get('id')
@@ -66,6 +66,16 @@ def register():
         role = role if role in ['user', 'business_owner'] else 'user'
         logger.info("Registrando nuevo usuario=%s rol=%s", username or "<vacío>", role)
 
+        if 'password_confirm' in request.form and request.form.get('password_confirm') != password:
+            flash('Las contraseñas no coinciden.', 'error')
+            return render_template('register.html')
+        from core.food_experience import normalize_business_details
+        try:
+            business_details = normalize_business_details(request.form) if role == 'business_owner' else {}
+        except ValueError as error:
+            flash(str(error), 'error')
+            return render_template('register.html')
+
         if not protection.password_valid(password or ""):
             flash('La contraseña debe tener al menos 8 caracteres e incluir letras y números', 'error')
             return render_template('register.html')
@@ -96,6 +106,8 @@ def register():
                 'restrictions': []
             }
         }
+        if business_details:
+            user_data['profile']['business_details'] = business_details
         
         from database.repository import document_transaction
         from models.communication import admins, notify
@@ -249,17 +261,29 @@ def update_profile():
         return redirect(url_for('auth.login'))
     
     profile = dict(db_user.get('profile') or {})
-    profile['name'] = normalize_text(request.form.get('name', profile.get('name')), max_length=120)
-    profile['email'] = normalize_text(request.form.get('email', profile.get('email')), max_length=254).lower()
-    profile['preferences'] = [normalize_text(value, max_length=80) for value in request.form.getlist('preferences')][:50]
-    profile['restrictions'] = [normalize_text(value, max_length=80) for value in request.form.getlist('restrictions')][:50]
-    if 'addresses' in request.form:
-        profile['addresses'] = list(dict.fromkeys(normalize_text(a, max_length=220) for a in
-                                                  request.form['addresses'].splitlines() if a.strip()))[:5]
-        profile['promotions_opt_in'] = request.form.get('promotions_opt_in') == 'on'
-    if profile['email'] and not re.fullmatch(r'^[^@\s]+@[^@\s]+\.[^@\s]+$', profile['email']):
-        flash('El correo electrónico no tiene un formato válido', 'error')
+    try:
+        changes = normalize_profile_patch({
+            'name': request.form.get('name', profile.get('name')),
+            'email': request.form.get('email', profile.get('email')),
+            'preferences': request.form.getlist('preferences'),
+            'restrictions': request.form.getlist('restrictions'),
+            'addresses': request.form.get('addresses', '').splitlines(),
+            'daily_budget': request.form.get('daily_budget'),
+            'weekly_budget': request.form.get('weekly_budget'),
+            'notification_preferences': {
+                'transactional': request.form.get('transactional_notifications') == 'on',
+                'marketing': request.form.get('promotions_opt_in') == 'on',
+                'reviews': request.form.get('review_notifications') == 'on',
+                'waitlist': request.form.get('waitlist_notifications') == 'on',
+            },
+            'location_consent': request.form.get('location_consent') == 'on',
+            'cookies_consent': request.form.get('cookies_consent') == 'on',
+        })
+    except ValueError as error:
+        flash(str(error), 'error')
         return redirect(url_for('auth.profile'))
+    profile.update(changes)
+    profile['promotions_opt_in'] = profile.get('notification_preferences', {}).get('marketing', False)
 
     UserModel.update(user_id, {'profile': profile})
     session['user'] = session_identity({**db_user, 'profile': profile})
@@ -323,7 +347,6 @@ def toggle_favorite():
         return jsonify({'error': 'No se pudo actualizar el favorito', 'success': False}), 500
 
 @auth_bp.route("/api/favorites", methods=["GET"])
-@login_required 
 def get_favorites_api():
     """API para obtener favoritos del usuario"""
     try:

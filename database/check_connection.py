@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 
 load_dotenv(Path(__file__).resolve().parents[1] / ".env", override=False)
 
-from database.connection import DatabaseConfigurationError, check_connection
+from database.connection import DatabaseConfigurationError, DatabaseConnectionError, check_connection
 
 
 def main() -> int:
@@ -22,6 +22,9 @@ def main() -> int:
     except DatabaseConfigurationError as exc:
         print(f"Configuración incompleta: {exc}")
         return 2
+    except DatabaseConnectionError as exc:
+        print(f"Conexión no disponible: {exc}")
+        return 1
     except Exception as exc:
         # Las excepciones de drivers pueden incluir host/usuario. No imprimimos
         # su texto para evitar filtrar accidentalmente partes de la URI.

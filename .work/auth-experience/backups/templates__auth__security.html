@@ -1,0 +1,19 @@
+{% extends "market/base.html" %}{% from "market/base.html" import token with context %}
+{% block market %}
+<h1>{{ 'Recuperar mi cuenta' if recovery else 'Seguridad de mi cuenta' }}</h1>
+{% if result.code %}<section class="market-panel" role="status"><h2>Guarda tu código de recuperación</h2><p>Conserva esta clave en un lugar privado. Podrás usarla una vez para recuperar el acceso. La anterior ha caducado.</p><code>{{ result.code }}</code></section>{% endif %}
+{% if result.secret %}<section class="market-panel"><h2>Vincula tu autenticador</h2><p>Añade una cuenta SmartResto de tipo temporal con esta clave. Introduce el primer código en los próximos diez minutos.</p><code>{{ result.secret }}</code></section>{% endif %}
+<form class="market-form" method="post">{{ token() }}
+{% if recovery %}
+<p>Usa la clave de un solo uso que guardaste en Seguridad de mi cuenta.</p>
+<label>Usuario<input required name="username" autocomplete="username"></label>
+<label>Código de recuperación<input required name="code" autocomplete="off"></label>
+<label>Nueva contraseña<input required name="password" type="password" minlength="8" maxlength="256" autocomplete="new-password"></label>
+<button>Cambiar contraseña</button>
+{% else %}
+<label>Contraseña actual<input required name="password" type="password" autocomplete="current-password"></label>
+<label>Código del autenticador, si ya lo configuraste<input name="otp" pattern="[0-9]{6}" maxlength="6" inputmode="numeric" autocomplete="one-time-code"></label>
+{% if result.secret %}<button name="action" value="enable">Confirmar activación</button>{% else %}
+<button name="action" value="recovery">Generar clave de recuperación</button>
+<button name="action" value="start">Vincular aplicación de autenticación</button>{% endif %}
+{% endif %}</form>{% endblock %}

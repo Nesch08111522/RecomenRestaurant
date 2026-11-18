@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="sr-compact">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,7 +7,9 @@
     <title>{{ APP_NAME }} - Recomendación Inteligente de Restaurantes</title>
     
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
     <!-- Material Icons -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -26,10 +28,12 @@
     
     {% block extra_head %}{% endblock %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/shell.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/interface.css') }}">
+    {% block legacy_interface %}<link rel="stylesheet" href="{{ url_for('static', filename='css/interface.css') }}">{% endblock %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/premium-system.css') }}">
+    {% block page_styles %}{% endblock %}
     <script src="{{ url_for('static', filename='js/shell.js') }}"></script>
 </head>
-<body class="{% if session.get('user') and request.blueprint in ['owner','admin','comunicacion','auth','market'] %}sr-private{% endif %} {% block body_class %}{% endblock %}">
+<body data-role="{{ session.get('user', {}).get('role', 'guest') }}" class="{% if session.get('user') and request.blueprint in ['owner','admin','comunicacion','auth','market','discovery','ecosystem','sites','catalog'] %}sr-private{% endif %} {% block body_class %}{% endblock %}">
     <a class="skip-link" href="#main-content">Saltar al contenido principal</a>
     {% include 'partials/header.html' %}
     
@@ -38,6 +42,7 @@
     </main>
 
     {% include 'partials/footer.html' %}
+    {% include 'partials/mobile_navigation.html' %}
 
     <!-- JavaScript Libraries -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>

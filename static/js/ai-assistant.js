@@ -331,7 +331,8 @@
         const fab = el('button', 'ai-fab');
         fab.type = 'button';
         fab.title = 'Asistente IA';
-        fab.innerHTML = '<i class="fas fa-comment-dots"></i>';
+        fab.textContent = 'IA';
+        fab.setAttribute('aria-label', 'Abrir asistente de inteligencia artificial');
 
         const panel = el('div', 'ai-chat');
         panel.style.display = 'none';
@@ -342,7 +343,7 @@
             '<div class="ai-quick"></div>' +
             '<div class="ai-chat-form">' +
             '<input type="text" class="ai-chat-input" maxlength="300" placeholder="Ej: ¿dónde como ceviche?">' +
-            '<button type="button" class="ai-chat-send" aria-label="Enviar"><i class="fas fa-paper-plane"></i></button>' +
+            '<button type="button" class="ai-chat-send" aria-label="Enviar">↑</button>' +
             '</div>';
 
         document.body.append(fab, panel);

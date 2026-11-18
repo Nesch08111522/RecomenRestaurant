@@ -8,7 +8,7 @@ import unicodedata
 LIMA = timezone(timedelta(hours=-5))
 CHANNELS = ("Recojo", "Delivery", "Local")
 BUSINESSES = ("Comida casera", "Cocina desde casa", "Restaurante", "Menú económico", "Cafetería",
-              "Sanguchería", "Hamburguesería", "Pastelería", "Panadería", "Bodega", "Tienda de alimentos", "Catering", "Otro")
+              "Sanguchería", "Hamburguesería", "Pastelería", "Panadería", "Bodega", "Tienda de alimentos", "Catering", "Emprendimiento", "Bebidas", "Cocina oculta", "Delivery", "Otro")
 OCCASIONS = ("Desayuno", "Almuerzo", "Cena", "Postre", "Bebida", "Snack", "Regional", "Por encargo", "Semanal", "Saludable")
 DIETS = ("Vegetariano", "Vegano", "Sin gluten")
 

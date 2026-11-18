@@ -1,0 +1,42 @@
+[
+  {
+    "path": "/",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "path": "/auth/login",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "path": "/auth/register",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "path": "/api/categories",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "path": "/api/platform/manifest",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "path": "/api/platform/health",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "path": "/api/ai/interpret",
+    "status": 400,
+    "ok": true
+  },
+  {
+    "path": "/api/platform/me/profile",
+    "status": 400,
+    "ok": true
+  }
+]

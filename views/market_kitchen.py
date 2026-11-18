@@ -104,7 +104,7 @@ def configure(rid):
         store["seats"] = integer(form.get("seats", store.get("seats",20)), 1, 500)
         store["table_minutes"] = integer(form.get("table_minutes", store.get("table_minutes",90)), 15, 240)
         save_kitchen(store)
-        RestaurantModel.update(rid, {"market_channels": channels})
+        RestaurantModel.update(rid, {"market_channels": channels, "market_kind": form['kind']})
     return return_desk(rid, "Configuración comercial guardada.")
 
 

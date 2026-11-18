@@ -1,0 +1,145 @@
+﻿{% extends 'base.html' %}
+
+{% block extra_head %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/business-sites.css') }}">
+{% endblock %}
+
+{% block body_class %}business-sites-editor{% endblock %}
+
+{% block content %}
+{% set selected = restaurant if restaurant else none %}
+{% set draft = site if site else {} %}
+<section class="bs-editor-shell" data-bs-editor
+         data-restaurant-id="{{ selected.id if selected else '' }}"
+         data-api-url="{{ '/owner/api/sites/' ~ selected.id if selected else '' }}"
+         data-preview-url="{{ '/owner/sites/' ~ selected.id ~ '/preview' if selected else '' }}">
+    <header class="bs-editor-header">
+        <div>
+            <p class="bs-eyebrow"><span class="bs-eyebrow-dot"></span> Presencia digital</p>
+            <h1>Tu sitio, con <em>tu propio ritmo</em></h1>
+            <p class="bs-editor-lead">Diseña una vitrina cálida para que cada visita encuentre su mesa, su plato y su próximo antojo.</p>
+        </div>
+        <div class="bs-editor-header-actions">
+            <button class="bs-icon-button" type="button" data-theme-toggle aria-label="Cambiar tema del editor" title="Cambiar tema"><span class="material-icons" aria-hidden="true">dark_mode</span></button>
+            {% if selected %}
+                <a class="bs-button bs-button-quiet" href="{{ '/owner/sites/' ~ selected.id ~ '/preview' }}" target="_blank" rel="noopener"><span class="material-icons" aria-hidden="true">visibility</span> Previsualizar</a>
+            {% endif %}
+        </div>
+    </header>
+
+    {% if not restaurants %}
+        <div class="bs-empty-state">
+            <span class="bs-empty-icon material-icons" aria-hidden="true">storefront</span>
+            <h2>Aún no tienes un restaurante para diseñar</h2>
+            <p>Cuando tu negocio esté disponible aquí, podrás crear una página pública con su información real.</p>
+        </div>
+    {% else %}
+        <div class="bs-restaurant-picker">
+            <label for="bs-restaurant-select"><span class="material-icons" aria-hidden="true">store</span> Editando sitio de</label>
+            <select id="bs-restaurant-select" data-restaurant-picker>
+                <option value="">Selecciona un restaurante</option>
+                {% for r in restaurants %}
+                    <option value="{{ r.id }}" {% if selected and r.id == selected.id %}selected{% endif %}>{{ r.name }}</option>
+                {% endfor %}
+            </select>
+            {% if selected %}
+                <span class="bs-live-pill {% if (published if published is defined else none) or draft.get('published') or draft.get('is_live') %}is-live{% endif %}" data-site-status>
+                    <span class="bs-live-dot"></span><span data-status-label>{% if (published if published is defined else none) or draft.get('published') or draft.get('is_live') %}Publicado{% else %}Borrador{% endif %}</span>
+                </span>
+            {% endif %}
+        </div>
+
+        {% if selected %}
+        <div class="bs-editor-grid">
+            <form class="bs-editor-form" data-site-form novalidate>
+                <section class="bs-panel bs-panel-intro">
+                    <div class="bs-panel-heading">
+                        <div><p class="bs-kicker">01 · Esencia</p><h2>La primera impresión</h2></div>
+                        <span class="bs-panel-mark">✦</span>
+                    </div>
+                    <div class="bs-form-grid bs-form-grid-two">
+                        <label class="bs-field bs-field-wide"><span>Nombre visible</span><input data-field="name" type="text" maxlength="120" value="{{ draft.get('name', selected.name or '') }}" placeholder="Ej. Casa Nómada"></label>
+                        <label class="bs-field"><span>Slug público</span><div class="bs-input-prefix"><b>/</b><input data-field="slug" type="text" maxlength="80" value="{{ draft.get('slug', '') }}" placeholder="casa-nomada"></div></label>
+                        <label class="bs-field bs-field-wide"><span>Tagline</span><input data-field="tagline" type="text" maxlength="180" value="{{ draft.get('tagline', '') }}" placeholder="Cocina honesta, fuego lento."></label>
+                        <label class="bs-field bs-field-full"><span>Descripción breve</span><textarea data-field="description" rows="4" maxlength="900" placeholder="Cuenta qué hace especial a tu mesa.">{{ draft.get('description', selected.description or '') }}</textarea></label>
+                        <label class="bs-field bs-field-full"><span>Historia</span><textarea data-field="history" rows="5" maxlength="1600" placeholder="El origen, las personas y los ingredientes detrás del negocio.">{{ draft.get('history', '') }}</textarea></label>
+                    </div>
+                </section>
+
+                <section class="bs-panel">
+                    <div class="bs-panel-heading"><div><p class="bs-kicker">02 · Dirección visual</p><h2>Atmósfera y paleta</h2></div><span class="bs-panel-index">2/6</span></div>
+                    <div class="bs-form-grid bs-form-grid-two">
+                        <label class="bs-field"><span>Plantilla</span><select data-field="template"><option value="atelier" {% if draft.get('template','atelier') == 'atelier' %}selected{% endif %}>Atelier · editorial</option><option value="bistro" {% if draft.get('template') == 'bistro' %}selected{% endif %}>Bistró · cálida</option><option value="studio" {% if draft.get('template') == 'studio' %}selected{% endif %}>Studio · contemporánea</option></select></label>
+                        <label class="bs-field"><span>Color primario</span><div class="bs-color-control"><input data-color-picker="primary_color" type="color" value="{{ draft.get('primary_color', '#245447') }}"><input data-field="primary_color" type="text" maxlength="7" value="{{ draft.get('primary_color', '#245447') }}" pattern="^#[0-9a-fA-F]{6}$" aria-label="Hex primario"></div></label>
+                        <label class="bs-field"><span>Color secundario</span><div class="bs-color-control"><input data-color-picker="secondary_color" type="color" value="{{ draft.get('secondary_color', '#D8A65D') }}"><input data-field="secondary_color" type="text" maxlength="7" value="{{ draft.get('secondary_color', '#D8A65D') }}" pattern="^#[0-9a-fA-F]{6}$" aria-label="Hex secundario"></div></label>
+                        <label class="bs-field"><span>Logo (URL)</span><input data-field="logo" type="url" value="{{ draft.get('logo', '') }}" placeholder="Se completa al subir un archivo"></label>
+                        <label class="bs-field bs-field-full"><span>Portada (URL de asset propio)</span><input data-field="cover" type="url" value="{{ draft.get('cover', '') }}" placeholder="Usa un asset propio o deja el placeholder honesto"></label>
+                        <div class="bs-field bs-field-full"><span>Subir logo propio</span><div class="bs-upload-row"><input type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" data-logo-input><button class="bs-button bs-button-soft" type="button" data-logo-upload><span class="material-icons" aria-hidden="true">upload</span> Subir y extraer paleta</button></div><small class="bs-help" data-logo-status>PNG, JPG, WEBP o SVG. Solo assets con derechos confirmados.</small></div>
+                    </div>
+                </section>
+
+                <section class="bs-panel">
+                    <div class="bs-panel-heading"><div><p class="bs-kicker">03 · Contenido</p><h2>Lo que quieres contar</h2></div><span class="bs-panel-index">3/6</span></div>
+                    <div class="bs-form-grid bs-form-grid-two">
+                        <label class="bs-field bs-field-full"><span>Especialidades <small>(una por línea)</small></span><textarea data-field="specialties" data-list="lines" rows="4" placeholder="Cocina de temporada&#10;Pan de masa madre&#10;Cócteles de autor">{{ draft.get('specialties', [])|join('\n') if draft.get('specialties') is sequence and draft.get('specialties') is not string else draft.get('specialties','') }}</textarea></label>
+                        <label class="bs-field bs-field-full"><span>Galería de assets propios <small>(una URL por línea)</small></span><textarea data-field="gallery" data-list="lines" rows="4" placeholder="https://.../interior-propio.webp">{{ draft.get('gallery', [])|join('\n') if draft.get('gallery') is sequence and draft.get('gallery') is not string else draft.get('gallery','') }}</textarea></label>
+                        <label class="bs-field bs-field-full"><span>Videos propios <small>(solo URLs HTTPS .mp4, una por línea)</small></span><textarea data-field="videos" data-list="lines" rows="3" placeholder="https://.../servicio.mp4">{{ draft.get('videos', [])|join('\n') if draft.get('videos') is sequence and draft.get('videos') is not string else draft.get('videos','') }}</textarea></label>
+                        <label class="bs-field bs-field-full"><span>Platos destacados <small>(IDs, separados por coma)</small></span><input data-field="featured_dish_ids" data-list="ids" type="text" value="{{ draft.get('featured_dish_ids', [])|join(', ') if draft.get('featured_dish_ids') is sequence and draft.get('featured_dish_ids') is not string else draft.get('featured_dish_ids','') }}" placeholder="12, 18, 24"></label>
+                    </div>
+                </section>
+
+                <section class="bs-panel">
+                    <div class="bs-panel-heading"><div><p class="bs-kicker">04 · Conversión</p><h2>Cómo te encuentran</h2></div><span class="bs-panel-index">4/6</span></div>
+                    <div class="bs-form-grid bs-form-grid-two">
+                        <label class="bs-field"><span>Información de delivery</span><textarea data-field="delivery_info" rows="3" placeholder="Zonas, horarios y enlace de pedido.">{{ draft.get('delivery_info','') }}</textarea></label>
+                        <label class="bs-field"><span>Información de recojo</span><textarea data-field="pickup_info" rows="3" placeholder="Dónde y cuándo recoger.">{{ draft.get('pickup_info','') }}</textarea></label>
+                        <label class="bs-field bs-field-full"><span>Redes sociales <small>(URL completa)</small></span><div class="bs-social-fields"><label><span>Instagram</span><input data-social="instagram" type="url" value="{{ draft.get('social', {}).get('instagram','') if draft.get('social') is mapping else '' }}" placeholder="https://instagram.com/..."></label><label><span>Facebook</span><input data-social="facebook" type="url" value="{{ draft.get('social', {}).get('facebook','') if draft.get('social') is mapping else '' }}" placeholder="https://facebook.com/..."></label><label><span>TikTok</span><input data-social="tiktok" type="url" value="{{ draft.get('social', {}).get('tiktok','') if draft.get('social') is mapping else '' }}" placeholder="https://tiktok.com/@..."></label><label><span>WhatsApp</span><input data-social="whatsapp" type="url" value="{{ draft.get('social', {}).get('whatsapp','') if draft.get('social') is mapping else '' }}" placeholder="https://wa.me/..."></label></div></label>
+                    </div>
+                </section>
+
+                <section class="bs-panel">
+                    <div class="bs-panel-heading"><div><p class="bs-kicker">05 · Descubrimiento</p><h2>SEO con intención</h2></div><span class="bs-panel-index">5/6</span></div>
+                    <div class="bs-form-grid bs-form-grid-two"><label class="bs-field bs-field-full"><span>Título SEO</span><input data-field="seo_title" type="text" maxlength="60" value="{{ draft.get('seo_title','') }}" placeholder="Casa Nómada · Cocina de temporada"></label><label class="bs-field bs-field-full"><span>Descripción SEO</span><textarea data-field="seo_description" rows="3" maxlength="160" placeholder="La descripción que aparecerá en buscadores.">{{ draft.get('seo_description','') }}</textarea></label></div>
+                </section>
+
+                <section class="bs-panel bs-panel-rights">
+                    <div class="bs-panel-heading"><div><p class="bs-kicker">06 · Publicación responsable</p><h2>Listo para salir</h2></div><span class="bs-panel-index">6/6</span></div>
+                    <label class="bs-check"><input data-field="rights_confirmed" type="checkbox" {% if draft.get('rights_confirmed') %}checked{% endif %}><span><b>Confirmo que tengo derechos sobre los assets</b><small>No copies fotos de terceros: usa imágenes propias, licenciadas o el placeholder del sitio.</small></span></label>
+                </section>
+
+                <div class="bs-sticky-actions"><span class="bs-save-note" data-save-note>Los cambios quedan como borrador.</span><button class="bs-button bs-button-primary" type="submit" data-save><span class="material-icons" aria-hidden="true">save</span> Guardar borrador</button></div>
+            </form>
+
+            <aside class="bs-editor-aside">
+                <div class="bs-preview-card" data-preview-card>
+                    <div class="bs-preview-top"><span class="bs-kicker">Vista rápida</span><span class="bs-preview-template" data-preview-template>{{ draft.get('template','atelier')|capitalize }}</span></div>
+                    <div class="bs-preview-window" data-preview-window style="--preview-primary: {{ draft.get('primary_color','#245447') }}; --preview-secondary: {{ draft.get('secondary_color','#D8A65D') }};">
+                        <div class="bs-preview-orb"></div><div class="bs-preview-brand"><span class="bs-preview-logo" data-preview-logo>{% if draft.get('logo') %}<img src="{{ draft.get('logo') }}" alt="">{% else %}✦{% endif %}</span><strong data-preview-name>{{ draft.get('name', selected.name or 'Tu restaurante') }}</strong></div><div class="bs-preview-copy"><span data-preview-tagline>{{ draft.get('tagline','Una mesa para recordar') }}</span><h3 data-preview-heading>{{ draft.get('name', selected.name or 'Tu restaurante') }}</h3><p data-preview-description>{{ draft.get('description', selected.description or 'Tu historia aparece aquí.') }}</p></div><div class="bs-preview-bottom"><span>Tu carta</span><span data-preview-specialties>{% if draft.get('specialties') %}{{ draft.get('specialties')[0] if draft.get('specialties') is sequence and draft.get('specialties') is not string else draft.get('specialties') }}{% else %}Cocina con intención{% endif %}</span></div>
+                    </div>
+                    <p class="bs-preview-caption"><span class="material-icons" aria-hidden="true">auto_awesome</span> El sitio público usará tu identidad, no una plantilla genérica.</p>
+                </div>
+
+                <div class="bs-action-card bs-action-card-ai">
+                    <div class="bs-action-card-title"><span class="bs-ai-orb">✦</span><div><p class="bs-kicker">Asistente creativo</p><h2>Propón una dirección</h2></div></div>
+                    <p>Describe la sensación que quieres transmitir. La IA prepara una propuesta sin guardarla.</p>
+                    <textarea rows="4" data-ai-brief placeholder="Ej. Una barra de vinos íntima, luminosa y con acentos terracota."></textarea>
+                    <button class="bs-button bs-button-ai" type="button" data-ai-propose><span class="material-icons" aria-hidden="true">auto_awesome</span> Generar propuesta</button>
+                    <div class="bs-ai-result" data-ai-result hidden><div class="bs-ai-result-heading"><span>Propuesta lista</span><span class="bs-ai-model" data-ai-model></span></div><dl data-ai-fields></dl><button class="bs-button bs-button-soft" type="button" data-ai-apply><span class="material-icons" aria-hidden="true">done_all</span> Aplicar al borrador</button></div>
+                </div>
+
+                <div class="bs-action-card bs-action-card-publish"><p class="bs-kicker">Control de publicación</p><h2>Tu sitio sale cuando tú decidas.</h2><p class="bs-muted">Guarda primero. Publicar hace visible únicamente la versión confirmada; retirar la vuelve a ocultar.</p><div class="bs-publish-actions"><button class="bs-button bs-button-primary" type="button" data-publish {% if not draft.get('rights_confirmed') %}disabled title="Confirma derechos para publicar"{% endif %}><span class="material-icons" aria-hidden="true">rocket_launch</span> Publicar</button><button class="bs-button bs-button-danger" type="button" data-unpublish><span class="material-icons" aria-hidden="true">visibility_off</span> Retirar</button></div></div>
+            </aside>
+        </div>
+        {% else %}
+            <div class="bs-empty-state bs-empty-state-small"><span class="bs-empty-icon material-icons" aria-hidden="true">touch_app</span><h2>Elige un restaurante para comenzar</h2><p>Selecciona un negocio arriba y aparecerá aquí su editor de sitio.</p></div>
+        {% endif %}
+    {% endif %}
+</section>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script src="{{ url_for('static', filename='js/business-sites.js') }}"></script>
+{% endblock %}
+

@@ -56,7 +56,7 @@ class RestaurantModel(DataModel):
     def get_approved(cls):
         """Obtener solo restaurantes que han sido aprobados/verificados"""
         data = cls.all()
-        return [r for r in data if r.get('verified', False)]
+        return [r for r in data if r.get('verified', False) and r.get('status') not in {'suspended', 'archived'}]
     
     # ✅ NUEVO: Obtener restaurantes pendientes de aprobación
     @classmethod

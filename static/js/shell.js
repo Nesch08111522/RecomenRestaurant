@@ -1,12 +1,27 @@
 (() => {
     const root = document.documentElement;
+    root.classList.add('sr-compact');
     try {
         const saved = localStorage.getItem('theme');
-        root.dataset.theme = ['dark', 'light'].includes(saved) ? saved : (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-        root.classList.toggle('sr-compact', localStorage.getItem('sr-compact') !== 'no');
-    } catch { root.dataset.theme = 'light'; root.classList.add('sr-compact'); }
+        root.dataset.theme = ['dark', 'light'].includes(saved) ? saved : 'light';
+    } catch { root.dataset.theme = 'light'; }
 
     document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.filter-chip').forEach(chip => {
+            chip.setAttribute('aria-pressed', String(chip.classList.contains('active')));
+        });
+        document.querySelectorAll('.sr-filter-form').forEach(form => {
+            const fields = [...form.querySelectorAll('.sr-filter-fields input, .sr-filter-fields select')];
+            const count = form.querySelector('[data-filter-count]');
+            if (!count) return;
+            function updateFilterCount() {
+                const active = fields.filter(field => field.type === 'checkbox' ? field.checked : field.value.trim() !== '').length;
+                count.textContent = active ? ` (${active})` : '';
+            }
+            form.addEventListener('input', updateFilterCount);
+            form.addEventListener('change', updateFilterCount);
+            updateFilterCount();
+        });
         // Touch, wheel and keyboard keep their native scrolling behaviour.
         let drag;
         let suppressClick = false;
@@ -77,14 +92,14 @@
         const backdrop = document.querySelector('.sr-backdrop');
         const collapse = document.querySelector('.sr-collapse');
         const wide = matchMedia('(min-width: 1100px)');
-        const isDesktopPanel = () => wide.matches;
+        const isDesktopPanel = () => wide.matches && !document.body.classList.contains('sr-discover');
         function drawer(open, restoreFocus = true) {
             root.classList.toggle('sr-drawer-open', open);
             backdrop.hidden = !open;
             updateCollapse();
             trigger.setAttribute('aria-expanded', String(open));
             trigger.setAttribute('aria-label', open ? 'Cerrar navegación' : 'Abrir navegación');
-            const areas = document.querySelectorAll('.sr-header, #main-content, .sr-footer');
+            const areas = document.querySelectorAll('.sr-header, #main-content, .sr-footer, .sr-mobile-nav');
             areas.forEach(area => { area.inert = open; });
             if (open) {
                 menu.setAttribute('role', 'dialog');
@@ -110,7 +125,6 @@
         collapse.addEventListener('click', () => {
             if (!isDesktopPanel()) return drawer(false);
             root.classList.toggle('sr-compact');
-            try { localStorage.setItem('sr-compact', root.classList.contains('sr-compact') ? 'yes' : 'no'); } catch {}
             updateCollapse();
         });
         wide.addEventListener('change', () => { drawer(false, false); updateCollapse(); });
@@ -125,7 +139,7 @@
         });
         const toggle = document.querySelector('#recommendationBtn');
         const modal = document.querySelector('#recommendationModal');
-        if (toggle && modal) {
+        if (toggle && modal && !document.body.classList.contains('sr-discover')) {
             toggle.addEventListener('click', () => requestAnimationFrame(() => modal.querySelector('textarea')?.focus()));
             document.addEventListener('keydown', event => {
                 if (event.key === 'Escape' && modal.style.display === 'flex') {

@@ -28,7 +28,27 @@
             <form method="POST" action="{{ url_for('auth.update_profile') }}" class="profile-form">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <div class="form-group"><label>Mis direcciones de delivery (una por línea, máximo cinco)<textarea name="addresses" rows="3" maxlength="1105">{{ user.profile.get('addresses',[])|join('\n') }}</textarea></label>
-                    <label><input type="checkbox" name="promotions_opt_in" {% if user.profile.get('promotions_opt_in') %}checked{% endif %}> Quiero recibir promociones en SmartResto</label>
+                    <label><input type="checkbox" name="promotions_opt_in" {% if user.profile.get('notification_preferences', {}).get('marketing', user.profile.get('promotions_opt_in', false)) %}checked{% endif %}> Quiero recibir promociones en SmartResto</label>
+                </div>
+                <div class="form-group profile-budget-grid">
+                    <label>Presupuesto diario (S/.)<input type="number" name="daily_budget" min="0" max="1000000" step="0.01" value="{{ user.profile.get('daily_budget', '') }}" class="form-input"></label>
+                    <label>Presupuesto semanal (S/.)<input type="number" name="weekly_budget" min="0" max="1000000" step="0.01" value="{{ user.profile.get('weekly_budget', '') }}" class="form-input"></label>
+                </div>
+                <div class="form-group">
+                    <label>Preferencias de comunicación</label>
+                    {% set notifications = user.profile.get('notification_preferences', {}) %}
+                    <div class="checkbox-group">
+                        <label class="checkbox-label"><input type="checkbox" name="transactional_notifications" {% if notifications.get('transactional', true) %}checked{% endif %}> Pedidos y reservas</label>
+                        <label class="checkbox-label"><input type="checkbox" name="review_notifications" {% if notifications.get('reviews', true) %}checked{% endif %}> Recordatorios de reseña</label>
+                        <label class="checkbox-label"><input type="checkbox" name="waitlist_notifications" {% if notifications.get('waitlist', true) %}checked{% endif %}> Turnos y lista de espera</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Privacidad y permisos</label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-label"><input type="checkbox" name="cookies_consent" {% if user.profile.get('cookies_consent') %}checked{% endif %}> Recordar preferencias con cookies</label>
+                        <label class="checkbox-label"><input type="checkbox" name="location_consent" {% if user.profile.get('location_consent') %}checked{% endif %}> Permitir búsquedas cercanas</label>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label>Nombre completo</label>
@@ -198,6 +218,12 @@
     .profile-form .form-group {
         margin-bottom: 20px;
     }
+
+    .profile-budget-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+    }
     
     .profile-form .form-group label {
         display: block;
@@ -234,6 +260,10 @@
         }
         
         .profile-form .checkbox-group {
+            grid-template-columns: 1fr;
+        }
+
+        .profile-budget-grid {
             grid-template-columns: 1fr;
         }
     }

@@ -68,9 +68,9 @@ const assert = require('node:assert/strict');
             const rail = page.locator('#sr-navigation');
             assert.equal(await rail.evaluate(el => el.offsetWidth),70);
             await page.locator('.sr-collapse').click();
-            await page.reload();
             assert.ok(await rail.evaluate(el => el.offsetWidth) > 150);
-            await page.locator('.sr-collapse').click();
+            await page.reload();
+            assert.equal(await rail.evaluate(el => el.offsetWidth),70);
             if (role === 'public') {
                 await page.evaluate(() => {
                     window.geoReads = 0;

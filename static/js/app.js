@@ -163,7 +163,10 @@ class AppController {
             return;
         }
 
-        grid.innerHTML = this.state.filteredRestaurants.map(r =>
+        const isFeaturedHome = document.body.classList.contains('sr-discover') &&
+            this.state.filteredRestaurants === this.state.restaurants;
+        const visibleRestaurants = isFeaturedHome ? this.state.filteredRestaurants.slice(0, 3) : this.state.filteredRestaurants;
+        grid.innerHTML = visibleRestaurants.map(r =>
             this.renderRestaurantCard(r)
         ).join('');
 
@@ -174,6 +177,7 @@ class AppController {
     }
 
     injectCardStyles() {
+        if (document.body.classList.contains('sr-discover')) return;
         if (document.getElementById('rc-card-styles')) return;
 
         const style = document.createElement('style');
@@ -380,6 +384,9 @@ class AppController {
     }
 
     renderRestaurantCard(restaurant) {
+        if (document.body.classList.contains('sr-discover') && window.ForestUI) {
+            return window.ForestUI.renderRestaurantCard(restaurant, this.state.favorites, typeof MONEDA !== 'undefined' ? MONEDA : 'S/');
+        }
         if (!Number.isSafeInteger(Number(restaurant.id))) return "";
         const esc = window.escapeDisplayText;
         const tags = restaurant.tags?.slice(0, 3).map(t =>
@@ -499,8 +506,12 @@ class AppController {
     }
 
     applyFilter(chip) {
-        document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('.filter-chip').forEach(c => {
+            c.classList.remove('active');
+            c.setAttribute('aria-pressed', 'false');
+        });
         chip.classList.add('active');
+        chip.setAttribute('aria-pressed', 'true');
 
         const filter = chip.dataset.filter;
         const category = chip.dataset.category;

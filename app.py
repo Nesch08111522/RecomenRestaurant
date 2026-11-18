@@ -27,6 +27,10 @@ from views.ai_routes import ai_bp
 from views.market import market_bp
 from views.communication import bp as communication_bp
 from views import market_kitchen, market_trust
+from views.platform import bp as platform_bp
+from views.discovery import bp as discovery_bp
+from views.business_sites import bp as sites_bp
+from views.catalog import bp as catalog_bp
 
 logger = logging.getLogger(__name__)
 
@@ -57,6 +61,12 @@ def create_app(test_config=None):
     from views.ecosystem import bp as ecosystem_bp
     app.register_blueprint(ecosystem_bp)
     app.register_blueprint(communication_bp)
+    app.register_blueprint(platform_bp)
+    app.register_blueprint(discovery_bp)
+    app.register_blueprint(sites_bp)
+    app.register_blueprint(catalog_bp)
+    from views.food_experience import bp as food_experience_bp
+    app.register_blueprint(food_experience_bp)
 
     app.register_blueprint(admin_ai_bp)
 
@@ -201,10 +211,25 @@ def create_app(test_config=None):
 
         return render_template("500.html"), 500
 
+    from database.connection import DatabaseConfigurationError, DatabaseConnectionError
+
+    @app.errorhandler(DatabaseConfigurationError)
+    @app.errorhandler(DatabaseConnectionError)
+    def database_unavailable(error):
+        if is_api_request():
+            return jsonify(success=False, error='Catalogo temporalmente no disponible', code='database_unavailable'), 503
+        return render_template('500.html'), 503
+
     return app
 
 
 if __name__ == "__main__":
-    app = create_app()
+    from database.connection import DatabaseConfigurationError, DatabaseConnectionError
+
+    try:
+        app = create_app()
+    except (DatabaseConfigurationError, DatabaseConnectionError) as error:
+        logger.error("SmartResto no pudo iniciar: %s", error)
+        raise SystemExit(1) from None
 
     app.run(host="127.0.0.1", port=5000, debug=app.config["DEBUG"])

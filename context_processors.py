@@ -4,12 +4,13 @@ from models.category import CategoryModel
 from flask import session
 import logging
 from psycopg import OperationalError
+from database.connection import DatabaseConnectionError, DatabaseConfigurationError
 
 def inject_globals():
     """Inyecta variables globales en todos los templates"""
     try:
         categories = CategoryModel.all()
-    except OperationalError:
+    except (OperationalError, DatabaseConnectionError, DatabaseConfigurationError):
         logging.getLogger(__name__).warning("Las categorías no están disponibles temporalmente.")
         categories = []
     

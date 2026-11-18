@@ -7,6 +7,7 @@ let map = null;
 let markers = {};
 
 function initMap() {
+    if (document.body.classList.contains('sr-discover') && document.getElementById('forest-map-panel')?.hidden) return;
     // Verificar que el contenedor existe
     const mapContainer = document.getElementById('main-map');
     if (!mapContainer) {

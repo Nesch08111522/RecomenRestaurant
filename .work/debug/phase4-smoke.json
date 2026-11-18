@@ -1,0 +1,42 @@
+[
+  {
+    "path": "/owner/sites",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "path": "/owner/sites/2/preview",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "path": "/owner/api/sites/2",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "path": "/owner/sites/6/preview",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "path": "/owner/api/sites/6",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "path": "public SSR memory snapshot",
+    "status": 200,
+    "ok": true
+  },
+  {
+    "path": "css/business-sites.css",
+    "ok": true,
+    "status": 200
+  },
+  {
+    "path": "js/business-sites.js",
+    "ok": true,
+    "status": 200
+  }
+]

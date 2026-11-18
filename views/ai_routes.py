@@ -1,18 +1,15 @@
 
 """Búsqueda inteligente y chat de SmartResto mediante OpenRouter."""
 
-import os
 import re
 import json
 import time
 import logging
-import requests
 
 from datetime import datetime
 from collections import defaultdict, deque
-from utils.security import csrf
 from flask import Blueprint, request, jsonify, session
-from utils.llm_provider import log_provider_error
+from utils.llm_provider import log_provider_error, settings
 
 logger = logging.getLogger(__name__)
 
@@ -20,16 +17,6 @@ ai_bp = Blueprint("ai", __name__)
 
 # Límite de solicitudes por dirección IP.
 _hits = defaultdict(deque)
-
-# Configuración de OpenRouter.
-AI_BASE_URL = os.getenv(
-    "AI_BASE_URL",
-    "https://openrouter.ai/api/v1"
-).strip().rstrip("/")
-
-AI_MODEL = os.getenv("AI_MODEL", "").strip()
-
-AI_TIMEOUT = int(os.getenv("AI_TIMEOUT", "30"))
 
 
 def _rate_limited(limit=20, window=60):
@@ -100,92 +87,25 @@ def _parse_json(text):
     return data
 
 
-def _openrouter_json(messages):
-    """
-    Envía mensajes a OpenRouter y devuelve un objeto JSON.
-
-    Esta función centraliza la conexión para todos los módulos de IA.
-    """
-
-    api_key = (
-        os.getenv("OPENROUTER_API_KEY")
-        or os.getenv("AI_API_KEY")
-        or ""
-    ).strip()
-
-    model = AI_MODEL
-
-    if not api_key:
-        logger.error("No se encontró OPENROUTER_API_KEY ni AI_API_KEY.")
-        raise RuntimeError("Falta configurar la API Key de OpenRouter.")
-
-    if not model:
-        logger.error("No se encontró AI_MODEL.")
-        raise RuntimeError("Falta configurar el modelo de IA.")
-
-    url = f"{AI_BASE_URL}/chat/completions"
-
-    headers = {
-        "Authorization": f"Bearer {api_key}",
-        "Content-Type": "application/json",
-        "User-Agent": "SmartResto-Backend/1.0",
-        "HTTP-Referer": os.getenv(
-            "AI_HTTP_REFERER",
-            "http://127.0.0.1:5000"
-        ).strip()
-    }
-
-    payload = {
-        "model": model,
-        "messages": messages,
-        "temperature": 0.3,
-        "max_tokens": 700,
-        "response_format": {
-            "type": "json_object"
-        }
-    }
-
-    try:
-        response = requests.post(
-            url,
-            headers=headers,
-            json=payload,
-            timeout=AI_TIMEOUT
+def _llm_json(messages):
+    """Usar la misma configuración, cliente TLS y prioridad de claves que el copiloto."""
+    provider = settings()
+    with provider.client() as client:
+        result = client.chat.completions.create(
+            model=provider.model,
+            messages=messages,
+            temperature=0.3,
+            max_tokens=700,
+            response_format={"type": "json_object"},
         )
+    if not result.choices:
+        raise ValueError("La IA no devolvió ninguna respuesta.")
+    return _parse_json(result.choices[0].message.content)
 
-        if response.status_code != 200:
-            logger.error(
-                "Error OpenRouter: HTTP %s - %s",
-                response.status_code,
-                response.text[:1000]
-            )
 
-            raise RuntimeError(
-                f"OpenRouter respondió con HTTP {response.status_code}."
-            )
-
-        result = response.json()
-
-        choices = result.get("choices", [])
-
-        if not choices:
-            raise ValueError("OpenRouter no devolvió ninguna respuesta.")
-
-        content = choices[0].get("message", {}).get("content")
-
-        return _parse_json(content)
-
-    except requests.exceptions.Timeout as exc:
-        logger.error("Tiempo de espera agotado al conectar con OpenRouter.")
-        raise RuntimeError("Timeout de OpenRouter.") from exc
-
-    except requests.exceptions.RequestException as exc:
-        logger.error("Error de conexión con OpenRouter: %s", exc)
-        raise RuntimeError("Error de conexión con OpenRouter.") from exc
-
-    except (ValueError, KeyError, TypeError) as exc:
-        logger.error("Respuesta inválida de OpenRouter: %s", exc)
-        raise
+def _openrouter_json(messages):
+    """Alias compatible para los scripts de diagnóstico existentes."""
+    return _llm_json(messages)
 
 
 def _handle_ai_error(logger_message, exc):
@@ -204,7 +124,6 @@ def _handle_ai_error(logger_message, exc):
 # ============================================================
 
 @ai_bp.route("/api/ai/interpret", methods=["POST"])
-@csrf.exempt
 def interpret():
 
     if _rate_limited():
@@ -229,6 +148,11 @@ def interpret():
             error="Escribe lo que buscas."
         ), 400
 
+    from models.category import CategoryModel
+    from models.restaurant import RestaurantModel
+    catalog_rows = RestaurantModel.get_approved()
+    data = {**data, 'categories': CategoryModel.all(),
+            'available_tags': sorted({t for r in catalog_rows for t in r.get('tags', []) if isinstance(t, str)})}
     categories = [
         {
             "id": c.get("id"),
@@ -244,7 +168,9 @@ def interpret():
         if isinstance(t, str) and _clip(t, 30)
     ]
 
+    from logic.market import BUSINESSES
     system = (
+        f'Tipos de negocio: {json.dumps(BUSINESSES, ensure_ascii=False)}\n'
         "Eres el asistente de búsqueda de SmartResto "
         "(restaurantes de Trujillo, Perú; moneda S/.).\n"
 
@@ -256,6 +182,13 @@ def interpret():
         '  "min_price": número o null,\n'
         '  "category_ids": [ids tomados SOLO de la lista de categorías],\n'
         '  "keywords": [palabras tomadas SOLO de la lista de etiquetas],\n'
+        '  "business_type": tipo de negocio de la lista o null,\n'
+        '  "available_only": true o false,\n'
+        '  "at_time": horario HH:MM o null,\n'
+        '  "district": distrito mencionado o null,\n'
+        '  "dish_query": plato o ingrediente mencionado o null,\n'
+        '  "channel": "Local" | "Recojo" | "Delivery" | null,\n'
+        '  "min_rating": numero o null,\n'
         '  "promo_only": true o false,\n'
         '  "open_now": true o false,\n'
         '  "nearby": true o false,\n'
@@ -300,7 +233,7 @@ def interpret():
     ]
 
     try:
-        raw = _openrouter_json(messages)
+        raw = _llm_json(messages)
 
     except Exception as exc:
         return _handle_ai_error(
@@ -319,6 +252,13 @@ def interpret():
     }
 
     filters = {
+        "business_type": raw.get('business_type') if raw.get('business_type') in BUSINESSES else None,
+        "available_only": raw.get('available_only') is True,
+        "at_time": _clip(raw.get('at_time'), 5),
+        "district": _clip(raw.get('district'), 80),
+        "dish_query": _clip(raw.get('dish_query'), 120),
+        "channel": raw.get('channel') if raw.get('channel') in {'Local', 'Recojo', 'Delivery'} else None,
+        "min_rating": _num(raw.get('min_rating')),
         "max_price": _num(raw.get("max_price")),
         "min_price": _num(raw.get("min_price")),
 
@@ -349,11 +289,22 @@ def interpret():
         )
     }
 
-    return jsonify(
-        success=True,
-        filters=filters,
-        summary=_clip(raw.get("summary"), 160)
-    )
+    from flask import current_app
+    from views.main import search
+    from utils.geo import normalize_coordinates
+    origin = normalize_coordinates(data.get('lat', session.get('user_lat')), data.get('lng', session.get('user_lng')))
+    if origin:
+        filters.update(lat=origin[0], lng=origin[1])
+    if filters['nearby'] and not origin:
+        return jsonify(success=False, filters=filters, error='Se requiere ubicacion para buscar cercanos'), 400
+    account_session = dict(session)
+    with current_app.test_request_context('/api/search', method='POST', json=filters):
+        session.update(account_session)
+        result = current_app.make_response(search())
+    if result.status_code != 200:
+        return jsonify(success=False, filters=filters, error='No se pudo consultar el catalogo'), result.status_code
+    return jsonify(success=True, filters=filters, results=result.get_json(),
+                   summary=_clip(raw.get('summary'), 160))
 
 
 # ============================================================
@@ -361,7 +312,6 @@ def interpret():
 # ============================================================
 
 @ai_bp.route("/api/ai/chat", methods=["POST"])
-@csrf.exempt
 def chat():
 
     if _rate_limited():
@@ -486,7 +436,7 @@ def chat():
     ] + history
 
     try:
-        raw = _openrouter_json(messages)
+        raw = _llm_json(messages)
 
     except Exception as exc:
         return _handle_ai_error(

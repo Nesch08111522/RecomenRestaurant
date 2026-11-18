@@ -31,6 +31,7 @@ from logic.hybrid_recommender import recommend as hybrid_recommend
 from models.review import ReviewModel
 from config import Config
 from database.repository import document_transaction, PostgresDocumentRepository
+from database.connection import DatabaseConfigurationError, DatabaseConnectionError
 from utils.security import csrf, valid_coordinate
 from utils.geo import calculate_distance, normalize_coordinates
 import logging
@@ -321,7 +322,20 @@ def search():
             return jsonify({"error": "Los filtros deben ser un objeto JSON"}), 400
         # ✅ SOLO restaurantes aprobados/verificados
         all_restaurants = RestaurantModel.get_approved()
-        all_dishes = DishModel.all()
+        today = datetime.now(LIMA_TIMEZONE).date().isoformat()
+        all_dishes = [d for d in DishModel.all() if not d.get('menu_date') or d['menu_date'] == today]
+        if filters.get('available_only'):
+            all_dishes = [d for d in all_dishes if d.get('is_available') is True
+                          and d.get('availability', 'available') == 'available']
+        if filters.get('business_type') or filters.get('channel'):
+            stores = {k['id']: k for k in PostgresDocumentRepository.all('market_kitchens')}
+            all_restaurants = [dict(r, market_kind=stores.get(r['id'], {}).get('kind', r.get('market_kind', '')),
+                                    market_channels=stores.get(r['id'], {}).get('channels', r.get('market_channels', [])))
+                               for r in all_restaurants]
+        all_restaurants = [dict(r, is_available=any(d.get('restaurant_id') == r['id']
+                           and d.get('is_available') is True for d in all_dishes)) for r in all_restaurants]
+        if 'lat' not in filters and 'lng' not in filters:
+            filters = {**filters, 'lat': session.get('user_lat'), 'lng': session.get('user_lng')}
 
         restaurants = all_restaurants
 
@@ -384,6 +398,12 @@ def search():
                 r for r in restaurants if r.get("id") in compatible_restaurant_ids
             ]
 
+        for restaurant in restaurants:
+            restaurant['matching_dishes'] = [d for d in all_dishes if d.get('restaurant_id') == restaurant['id']
+                and (not dish_query or dish_query in (d.get('name', '') + ' ' + d.get('description', '')
+                     + ' ' + ' '.join(d.get('ingredients') or [])).lower())
+                and (not ingredient_filter or any(ingredient_filter in ing.lower() for ing in d.get('ingredients') or []))]
+
         # 4. Búsqueda por tipo de menú
         menu_type = filters.get("menu_type")
         if menu_type:
@@ -429,6 +449,12 @@ def search():
             reviews=ReviewModel.all(),
         )
 
+        sort_by = filters.get('sort_by')
+        if sort_by in {'rating', 'price', 'distance'}:
+            field = {'rating': 'rating', 'price': 'avg_price', 'distance': 'distance_km'}[sort_by]
+            ranked.sort(key=lambda r: (r.get(field) is None, -(r.get(field) or 0) if sort_by == 'rating'
+                                      else r.get(field, float('inf'))))
+
         # Compatibilidad: el contrato histórico devuelve directamente una lista.
         # Los metadatos se mantienen en cabeceras para clientes que los necesiten.
         if "page" in filters or "per_page" in filters:
@@ -443,6 +469,10 @@ def search():
         response.headers["X-Search-Total"] = str(len(ranked))
         return response
 
+    except (ValueError, TypeError, AttributeError) as e:
+        return jsonify(error='Filtros invalidos', results=[]), 400
+    except (DatabaseConfigurationError, DatabaseConnectionError):
+        return jsonify(error='Catalogo temporalmente no disponible'), 503
     except Exception as e:
         logger.exception("Error en search")
         return (
@@ -531,7 +561,7 @@ def api_nearby_restaurants():
             ]
         enriched = enrich_with_metadata(filtered_restaurants, lat, lng)
 
-        nearby = [r for r in enriched if r.get("distance_km", 999) <= radius]
+        nearby = [r for r in enriched if r.get('distance_km') is not None and r['distance_km'] <= radius]
         nearby = sorted(nearby, key=lambda x: x.get("distance_km", 999))
 
         return jsonify(
@@ -767,6 +797,78 @@ def search_dishes():
     except Exception as e:
         logger.error(f"Error buscando platos: {e}")
         return jsonify({"error": "Error interno del servidor."}), 500
+
+
+@main_bp.get('/explorar')
+def explore_catalog():
+    from logic.market import BUSINESSES
+    return render_template('catalog/explore.html', categories=CategoryModel.all(), business_types=BUSINESSES)
+
+
+@main_bp.get('/api/catalog/compare')
+def compare_catalog():
+    kind = request.args.get('kind', 'business')
+    try:
+        ids = list(dict.fromkeys(int(value) for value in request.args.get('ids', '').split(',')))
+    except ValueError:
+        return jsonify(error='Identificadores invalidos'), 400
+    if kind not in {'business', 'product'} or not 2 <= len(ids) <= 4 or any(i <= 0 for i in ids):
+        return jsonify(error='Selecciona entre dos y cuatro fichas'), 400
+    approved = {r['id']: r for r in RestaurantModel.get_approved()}
+    if kind == 'business':
+        rows = approved
+        fields = ('id', 'name', 'district', 'avg_price', 'rating', 'promo', 'open_time', 'close_time', 'market_channels')
+    else:
+        today = datetime.now(LIMA_TIMEZONE).date().isoformat()
+        rows = {d['id']: d for d in DishModel.all() if d.get('restaurant_id') in approved
+                and (not d.get('menu_date') or d['menu_date'] == today)}
+        fields = ('id', 'restaurant_id', 'name', 'price', 'ingredients', 'allergens', 'availability', 'is_available')
+    if any(i not in rows for i in ids):
+        abort(404)
+    return jsonify(kind=kind, results=[{field: rows[i].get(field) for field in fields} for i in ids])
+
+
+@main_bp.get('/api/catalog/products/<int:product_id>')
+def product_card(product_id):
+    product = DishModel.get_by_id(product_id)
+    approved = {r['id']: r for r in RestaurantModel.get_approved()}
+    today = datetime.now(LIMA_TIMEZONE).date().isoformat()
+    if not product or product.get('restaurant_id') not in approved or (product.get('menu_date') and product['menu_date'] != today):
+        abort(404)
+    fields = ('id', 'restaurant_id', 'name', 'description', 'price', 'ingredients', 'allergens',
+              'images', 'availability', 'is_available', 'ingredients_confirmed', 'allergens_confirmed')
+    return jsonify(product={field: product.get(field) for field in fields},
+                   business_url=url_for('main.detail', restaurant_id=product['restaurant_id']))
+
+
+@main_bp.get('/api/catalog/<int:restaurant_id>/map')
+def business_map(restaurant_id):
+    from models.market import kitchen
+    restaurant = next((r for r in RestaurantModel.get_approved() if r['id'] == restaurant_id), None)
+    if not restaurant:
+        abort(404)
+    store = kitchen(restaurant_id)
+    # A kitchen pin is explicitly public; do not fall back to a hidden home's address.
+    pin = store.get('pin')
+    point = normalize_coordinates(*pin) if isinstance(pin, (list, tuple)) and len(pin) == 2 else None
+    if not point and not store.get('kind'):
+        point = normalize_coordinates(restaurant.get('lat'), restaurant.get('lng'))
+    origin = normalize_coordinates(request.args.get('lat', session.get('user_lat')),
+                                   request.args.get('lng', session.get('user_lng')))
+    if ('lat' in request.args or 'lng' in request.args) and not origin:
+        return jsonify(error='Coordenadas invalidas'), 400
+    route = None
+    if origin and point:
+        route = 'https://www.openstreetmap.org/directions?engine=fossgis_osrm_car&route=' + quote(
+            f'{origin[0]},{origin[1]};{point[0]},{point[1]}', safe='')
+    radius = store.get('radius', 0)
+    return jsonify(id=restaurant_id, point=point, pickup=store.get('pickup') or None,
+                   zones=store.get('zones', []), radius_km=radius,
+                   district=restaurant.get('district'), route_url=route,
+                   distance_km=calculate_distance(*origin, *point) if origin and point else None,
+                   distance_method='straight_line',
+                   delivery_covered=(calculate_distance(*origin, *point) <= radius
+                                     if origin and point and radius else None))
 
 
 @main_bp.get("/informacion/<section>")

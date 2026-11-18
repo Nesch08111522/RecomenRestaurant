@@ -30,6 +30,16 @@
 {% if is_edit and r.service_mode %}{% set f_service_mode = r.service_mode %}{% else %}{% set f_service_mode = '' %}{% endif %}
 {% if is_edit and r.lat is defined and r.lat|string not in ['None', ''] %}{% set lat_value = r.lat|float %}{% else %}{% set lat_value = -8.1118 %}{% endif %}
 {% if is_edit and r.lng is defined and r.lng|string not in ['None', ''] %}{% set lng_value = r.lng|float %}{% else %}{% set lng_value = -79.0287 %}{% endif %}
+{% if discovery_candidate is defined and discovery_candidate %}
+  {% set prefill = discovery_candidate.data %}
+  {% set f_name = prefill.get('name','') %}
+  {% set f_address = prefill.get('address','') %}
+  {% set f_phone = prefill.get('phone','') %}
+  {% set f_description = prefill.get('description','') %}
+  {% set f_price = '' %}{% set f_rating = '' %}{% set f_open = '' %}{% set f_close = '' %}
+  {% if prefill.get('lat') is not none %}{% set lat_value = prefill.lat %}{% endif %}
+  {% if prefill.get('lng') is not none %}{% set lng_value = prefill.lng %}{% endif %}
+{% endif %}
 {% set lat_text = '%.6f'|format(lat_value) %}
 {% set lng_text = '%.6f'|format(lng_value) %}
 {% macro tag_field(name, label, values, suggestions, placeholder) %}
@@ -77,6 +87,10 @@
 <form method="POST" action="{{ form_action }}" class="admin-form" id="restaurantForm" data-mode="{{ form_mode }}">
   {% if csrf_token is defined %}
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  {% endif %}
+  {% if discovery_candidate is defined and discovery_candidate %}
+    <input type="hidden" name="discovery_candidate_id" value="{{ discovery_candidate.id }}">
+    <p class="field-hint">Ficha reclamada #{{ discovery_candidate.id }}. Confirma los datos antes de guardar. Precio, calificación y horarios no fueron inferidos. El negocio conservará sus IDs centrales y pasará por moderación.</p>
   {% endif %}
   <section class="form-section">
     <h2 class="section-title">Información básica</h2>
