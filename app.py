@@ -220,6 +220,9 @@ def create_app(test_config=None):
             return jsonify(success=False, error='Catalogo temporalmente no disponible', code='database_unavailable'), 503
         return render_template('500.html'), 503
 
+    from utils.integrity_scheduler import start_integrity_worker
+
+    start_integrity_worker(app.config)
     return app
 
 

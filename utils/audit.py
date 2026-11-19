@@ -3,17 +3,67 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 import hashlib
+import json
 from typing import Any
 
 from flask import has_request_context, request, session
 
 from config import Config
+from database.repository import document_transaction
 from models.base import DataModel
+from utils.integrity import acquire_stream_lock, chain_head, digest_payload
 from utils.security import normalize_text
 
 
 class AuditEventModel(DataModel):
     collection = "audit_events"
+
+    @classmethod
+    def create(cls, event: dict[str, Any]) -> dict[str, Any]:
+        """Persist an event and its chain link in one serialized transaction."""
+        with document_transaction() as conn:
+            with conn.cursor() as cur:
+                acquire_stream_lock(cur, "audit_events")
+                sequence, previous_hash = chain_head(cur, "audit_events")
+                payload = dict(event)
+                payload.update(
+                    integrity_sequence=sequence + 1,
+                    integrity_prev_hash=previous_hash,
+                )
+                cur.execute(
+                    """INSERT INTO public.app_records
+                       (collection, payload, integrity_sequence, integrity_prev_hash,
+                        integrity_payload_hash)
+                       VALUES ('audit_events', %s::jsonb, %s, %s, NULL)
+                       RETURNING id""",
+                    (
+                        json.dumps(payload, ensure_ascii=False),
+                        sequence + 1,
+                        previous_hash,
+                    ),
+                )
+                payload["id"] = cur.fetchone()["id"]
+                payload_hash = digest_payload(payload)
+                payload["integrity_payload_hash"] = payload_hash
+                cur.execute(
+                    """UPDATE public.app_records
+                       SET payload=%s::jsonb, integrity_payload_hash=%s
+                       WHERE collection='audit_events' AND id=%s""",
+                    (
+                        json.dumps(payload, ensure_ascii=False),
+                        payload_hash,
+                        payload["id"],
+                    ),
+                )
+        return payload
+
+    @classmethod
+    def update(cls, item_id: int, updated_data: dict[str, Any]):
+        raise RuntimeError("Los eventos de auditoría encadenados no se pueden editar.")
+
+    @classmethod
+    def delete(cls, item_id: int):
+        raise RuntimeError("Los eventos de auditoría encadenados no se pueden eliminar.")
 
 
 SENSITIVE_ACTIONS = {

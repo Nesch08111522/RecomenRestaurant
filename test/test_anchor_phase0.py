@@ -76,6 +76,103 @@ def test_store_mark_simulated():
     s.add_pending(_review(), _order(), "h1")
     row = s.mark(1, "simulated")
     assert row["status"] == "simulated" and row["attempts"] == 1
+
+
+def test_onchain_submit_persists_receipt_for_later_recovery():
+    class Publisher:
+        def submit(self, anchor_hash):
+            return "0xabc", 9
+
+        def receipt(self, tx_hash):
+            return None
+
+    store = InMemoryAnchorStore()
+    store.add_pending(_review(), _order(), "a" * 64)
+    result = anchor_pending(store, mode="onchain", publisher=Publisher())
+
+    row = store.get_by_review(1)
+    assert result["submitted"] == 1
+    assert row["status"] == "submitted"
+    assert row["tx_hash"] == "0xabc"
+    assert row["tx_nonce"] == 9
+
+
+def test_worker_recovers_submitted_transaction_without_resending():
+    class Publisher:
+        def submit(self, anchor_hash):
+            raise AssertionError("No debe reenviarse una transacción con tx_hash")
+
+        def receipt(self, tx_hash):
+            return {"status": 1}
+
+    store = InMemoryAnchorStore()
+    store.add_pending(_review(), _order(), "b" * 64)
+    row = store.mark(
+        1, "submitted", tx_hash="0xabc", submitted_at="2020-01-01T00:00:00+00:00",
+        next_attempt_at="2020-01-01T00:00:00+00:00",
+    )
+    result = anchor_pending(store, mode="onchain", publisher=Publisher())
+
+    assert result["confirmed"] == 1
+    assert row["status"] == "confirmed"
+
+
+def test_worker_marks_expired_transaction_timeout_and_reverted_receipt():
+    class Publisher:
+        def __init__(self, receipt):
+            self._receipt = receipt
+
+        def submit(self, anchor_hash):
+            raise AssertionError("No debe reenviarse una transacción con tx_hash")
+
+        def receipt(self, tx_hash):
+            return self._receipt
+
+    timeout_store = InMemoryAnchorStore()
+    timeout_store.add_pending(_review(), _order(), "d" * 64)
+    timeout_row = timeout_store.mark(
+        1, "submitted", tx_hash="0xpending", submitted_at="2020-01-01T00:00:00+00:00",
+        next_attempt_at="2020-01-01T00:00:00+00:00",
+    )
+    anchor_pending(timeout_store, mode="onchain", publisher=Publisher(None))
+    assert timeout_row["status"] == "timeout"
+
+    reverted_store = InMemoryAnchorStore()
+    reverted_store.add_pending(_review(), _order(), "e" * 64)
+    reverted_row = reverted_store.mark(
+        1, "submitted", tx_hash="0xreverted", submitted_at="2020-01-01T00:00:00+00:00",
+        next_attempt_at="2020-01-01T00:00:00+00:00",
+    )
+    result = anchor_pending(reverted_store, mode="onchain", publisher=Publisher({"status": 0}))
+    assert result["reverted"] == 1
+    assert reverted_row["status"] == "reverted"
+
+
+def test_failed_submission_uses_backoff_and_does_not_spin():
+    class Publisher:
+        def submit(self, anchor_hash):
+            raise RuntimeError("RPC unavailable")
+
+    store = InMemoryAnchorStore()
+    store.add_pending(_review(), _order(), "c" * 64)
+    result = anchor_pending(store, mode="onchain", publisher=Publisher())
+
+    row = store.get_by_review(1)
+    assert result["failed"] == 1
+    assert row["status"] == "failed"
+    assert row["attempts"] == 1
+    assert row["next_attempt_at"]
+    assert anchor_pending(store, mode="onchain", publisher=Publisher())["processed"] == 0
+
+
+def test_env_secrets_are_redacted_from_anchor_errors(monkeypatch):
+    from utils.anchor_job import _safe_error
+
+    monkeypatch.setenv("CHAIN_RPC_URL", "https://rpc.example/secret-token")
+    monkeypatch.setenv("ANCHOR_PRIVATE_KEY", "private-test-value")
+    message = _safe_error(RuntimeError("https://rpc.example/secret-token private-test-value"))
+    assert "secret-token" not in message
+    assert "private-test-value" not in message
     
 def test_verify_endpoint_returns_404_when_absent(monkeypatch):
     """Sin ancla, el endpoint devuelve 404 y verified_onchain=False."""

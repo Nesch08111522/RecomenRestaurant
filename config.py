@@ -1,6 +1,19 @@
 import os
 
 
+def _environment_bool(name, default=False):
+    value = os.environ.get(name)
+    if value is None:
+        return default
+    return value.lower() in {"1", "true", "yes", "on"}
+
+
+def _environment_int(name, default, *, minimum=1):
+    value = os.environ.get(name)
+    parsed = default if value is None else int(value)
+    return max(minimum, parsed)
+
+
 class Config:
     # --- CONFIGURACIÓN PERSONALIZABLE ---
     CIUDAD = "Trujillo"
@@ -25,8 +38,8 @@ class Config:
     # No se incluye una clave operativa en el código fuente. El arranque debe
     # recibir SECRET_KEY desde el entorno o fallar de forma explícita.
     SECRET_KEY = os.environ.get("SECRET_KEY")
-    DEBUG = os.environ.get("FLASK_DEBUG", "0").lower() in {"1", "true", "yes"}
-    TESTING = os.environ.get("FLASK_TESTING", "0").lower() in {"1", "true", "yes"}
+    DEBUG = _environment_bool("FLASK_DEBUG")
+    TESTING = _environment_bool("FLASK_TESTING")
     JSON_AS_ASCII = False
     MAX_CONTENT_LENGTH = int(os.environ.get("MAX_CONTENT_LENGTH", str(2 * 1024 * 1024)))
     SESSION_COOKIE_SECURE = os.environ.get("SESSION_COOKIE_SECURE", "0").lower() in {"1", "true", "yes"}
@@ -39,6 +52,13 @@ class Config:
     DATA_BACKEND = os.environ.get("DATA_BACKEND", "postgresql").lower()
     DATABASE_URL = os.environ.get("DATABASE_URL")
     DATABASE_SSLMODE = os.environ.get("DATABASE_SSLMODE", "require").lower()
+
+    # Optional background signing/verification worker. App testing always disables it.
+    INTEGRITY_AUTO_ENABLED = _environment_bool("INTEGRITY_AUTO_ENABLED")
+    INTEGRITY_INTERVAL_SECONDS = _environment_int(
+        "INTEGRITY_INTERVAL_SECONDS", 300, minimum=10
+    )
+    INTEGRITY_BATCH_SIZE = _environment_int("INTEGRITY_BATCH_SIZE", 500)
 
     @classmethod
     def validate(cls):

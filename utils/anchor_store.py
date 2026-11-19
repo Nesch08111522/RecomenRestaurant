@@ -48,15 +48,32 @@ def _build_row(review, order, anchor_hash, kind, prev_hash):
     }
 
 
+def _due(row: dict[str, Any], now: datetime, max_attempts: int) -> bool:
+    status = row.get("status")
+    if status not in {"pending", "failed", "submitted", "timeout"}:
+        return False
+    if status == "failed" and int(row.get("attempts", 0)) >= max_attempts:
+        return False
+    next_attempt_at = row.get("next_attempt_at")
+    if not next_attempt_at:
+        return True
+    due_at = datetime.fromisoformat(str(next_attempt_at))
+    if due_at.tzinfo is None:
+        due_at = due_at.replace(tzinfo=timezone.utc)
+    return due_at <= now
+
+
 class AnchorStore(Protocol):
     def add_pending(self, review: dict[str, Any], order: dict[str, Any], anchor_hash: str,
                     kind: str = KIND_VERIFIED, prev_hash: str | None = None) -> dict[str, Any]: ...
     def get_by_review(self, review_id: int) -> dict[str, Any] | None: ...
     def list_by_review(self, review_id: int) -> list[dict[str, Any]]: ...
-    def pending(self, limit: int = 50) -> list[dict[str, Any]]: ...
+    def pending(self, limit: int = 50, max_attempts: int = 5) -> list[dict[str, Any]]: ...
     def mark(self, review_id: int, status: str, tx_hash: str | None = None,
              error: str | None = None, kind: str = KIND_VERIFIED,
-             anchor_hash: str | None = None) -> dict[str, Any] | None: ...
+             anchor_hash: str | None = None, tx_nonce: int | None = None,
+             submitted_at: str | None = None,
+             next_attempt_at: str | None = None) -> dict[str, Any] | None: ...
 
 
 class InMemoryAnchorStore:
@@ -86,11 +103,15 @@ class InMemoryAnchorStore:
         with self._lock:
             return sorted(self._for_review(review_id), key=lambda r: r["created_at"])
 
-    def pending(self, limit: int = 50):
+    def pending(self, limit: int = 50, max_attempts: int = 5):
         with self._lock:
-            return [row for row in self._rows.values() if row["status"] == "pending"][:limit]
+            now = datetime.now(timezone.utc)
+            rows = [row for row in self._rows.values() if _due(row, now, max_attempts)]
+            rows.sort(key=lambda row: row.get("created_at", ""))
+            return rows[:limit]
 
-    def mark(self, review_id, status, tx_hash=None, error=None, kind=KIND_VERIFIED, anchor_hash=None):
+    def mark(self, review_id, status, tx_hash=None, error=None, kind=KIND_VERIFIED,
+             anchor_hash=None, tx_nonce=None, submitted_at=None, next_attempt_at=None):
         with self._lock:
             rows = [r for r in self._for_review(review_id)
                     if r["kind"] == kind and (anchor_hash is None or r["hash"] == anchor_hash)]
@@ -98,11 +119,16 @@ class InMemoryAnchorStore:
             if not row:
                 return None
             row["status"] = status
+            if status in {"submitted", "failed", "simulated"}:
+                row["attempts"] += 1
             if tx_hash:
                 row["tx_hash"] = tx_hash
-            if error:
-                row["last_error"] = error[:200]
-            row["attempts"] += 1
+            if tx_nonce is not None:
+                row["tx_nonce"] = int(tx_nonce)
+            if submitted_at:
+                row["submitted_at"] = submitted_at
+            row["next_attempt_at"] = next_attempt_at
+            row["last_error"] = error[:200] if error else None
             return row
 
 
@@ -125,20 +151,27 @@ class PostgresAnchorStore:
     def list_by_review(self, review_id: int):
         return sorted(self._rows_for(review_id), key=lambda r: r.get("created_at", ""))
 
-    def pending(self, limit: int = 50):
-        rows = [row for row in Repo.all(ANCHOR_COLLECTION) if row.get("status") == "pending"]
+    def pending(self, limit: int = 50, max_attempts: int = 5):
+        now = datetime.now(timezone.utc)
+        rows = [row for row in Repo.all(ANCHOR_COLLECTION) if _due(row, now, max_attempts)]
         rows.sort(key=lambda r: r.get("created_at", ""))
         return rows[:limit]
 
-    def mark(self, review_id, status, tx_hash=None, error=None, kind=KIND_VERIFIED, anchor_hash=None):
+    def mark(self, review_id, status, tx_hash=None, error=None, kind=KIND_VERIFIED,
+             anchor_hash=None, tx_nonce=None, submitted_at=None, next_attempt_at=None):
         row = self._find(review_id, kind, anchor_hash)
         if not row:
             return None
-        changes = {"status": status, "attempts": int(row.get("attempts", 0)) + 1}
+        changes = {"status": status, "next_attempt_at": next_attempt_at,
+                   "last_error": error[:200] if error else None}
+        if status in {"submitted", "failed", "simulated"}:
+            changes["attempts"] = int(row.get("attempts", 0)) + 1
         if tx_hash:
             changes["tx_hash"] = tx_hash
-        if error:
-            changes["last_error"] = error[:200]
+        if tx_nonce is not None:
+            changes["tx_nonce"] = int(tx_nonce)
+        if submitted_at:
+            changes["submitted_at"] = submitted_at
         return Repo.update(ANCHOR_COLLECTION, row["id"], changes)
 
     def _rows_for(self, review_id: int):

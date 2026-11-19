@@ -1,0 +1,11 @@
+{
+  "contract": "Anchor",
+  "chainId": 80002,
+  "compiler": "solc 0.8.24",
+  "source": "contracts/Anchor.sol",
+  "abi": "contracts/Anchor.abi.json",
+  "address": "",
+  "deploymentTransaction": "",
+  "runtimeBytecodeKeccak256": "",
+  "verifiedOnExplorer": false
+}

@@ -15,6 +15,26 @@ Si no ejecutas la importación, la app comienza con las colecciones que ya exist
 
 Si tu proyecto ya tiene datos en tablas relacionales como `usuarios`, `restaurantes` o `platos`, la tabla documental no los incorpora automáticamente. Esas tablas quedan intactas; se requiere un mapeo adicional si esos son los datos que deben mostrarse en la aplicación.
 
+## Integridad de auditoría y decisiones de IA
+
+Después de instalar `app_records` y `ai_decisions`, ejecuta [`database/integrity_audit.sql`](database/integrity_audit.sql) en Supabase SQL Editor. La migración agrega metadatos de cadena a `audit_events` y `ai_decisions`, y crea `integrity_roots`; los registros históricos previos a esta migración permanecen consultables, pero no se incorporan retroactivamente a las cadenas.
+
+Configura `AUDIT_SIGNING_KEY` solo en el entorno secreto del servidor. Usa al menos 32 bytes aleatorios; es independiente de `ANCHOR_PRIVATE_KEY`, `SECRET_KEY` y de cualquier clave de Polygon. Para generar una clave hexadecimal en PowerShell:
+
+```powershell
+python -c "import secrets; print(secrets.token_hex(32))"
+```
+
+La aplicación encadena los eventos sensibles en la misma transacción PostgreSQL; las decisiones de IA se encadenan al completar su reserva. El worker de verificación/firma se ejecuta por lotes y no publica eventos en redes externas:
+
+```powershell
+python -m scripts.integrity_audit verify
+python -m scripts.integrity_audit sign --batch-size 500
+python -m scripts.integrity_audit verify
+```
+
+`sign` se niega a crear raíces si detecta una cadena rota. `verify` valida las cadenas completas y las firmas HMAC-SHA256 guardadas en `integrity_roots`.
+
 ## Conexión
 
 `database/connection.py` usa psycopg, requiere SSL, establece timeout y desactiva consultas preparadas para compatibilidad con el pooler de transacciones. Quita `pgbouncer=true` de la URI antes de pasársela a libpq. Para revisar conectividad sin imprimir secretos, ejecuta:
