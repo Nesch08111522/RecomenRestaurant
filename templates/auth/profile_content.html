@@ -25,7 +25,7 @@
         </div>
         
         <div class="profile-form-container">
-            <form method="POST" action="{{ url_for('auth.update_profile') }}" class="profile-form">
+            <form method="POST" action="{{ url_for('auth.update_profile') }}" class="profile-form"><details><summary>Confirmación para cambiar el correo asociado</summary><p>Completa estos datos solo si cambias tu correo. También puedes gestionar tus contactos desde Seguridad.</p><label>Contraseña actual<input name="current_password" type="password" autocomplete="current-password"></label><label>Código del autenticador, si está activo<input name="otp" maxlength="6" pattern="[0-9]{6}" autocomplete="one-time-code"></label></details>
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <div class="form-group"><label>Mis direcciones de delivery (una por línea, máximo cinco)<textarea name="addresses" rows="3" maxlength="1105">{{ user.profile.get('addresses',[])|join('\n') }}</textarea></label>
                     <label><input type="checkbox" name="promotions_opt_in" {% if user.profile.get('notification_preferences', {}).get('marketing', user.profile.get('promotions_opt_in', false)) %}checked{% endif %}> Quiero recibir promociones en SmartResto</label>

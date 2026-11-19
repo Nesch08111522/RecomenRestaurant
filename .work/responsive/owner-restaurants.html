@@ -1,0 +1,885 @@
+
+<!DOCTYPE html>
+<html lang="es" class="sr-compact">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="csrf-token" content="IjliNzJjMmUxMDYwMmU2YTFjM2I5Y2M2MDEzMjAzYmQ0MjczNTA5MzEi.av4whg.DCxtWydLyPf66CqN_29C0ix1KlY" />
+    <title>SmartResto - Recomendación Inteligente de Restaurantes</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <link rel="stylesheet" href="/static/css/main.css" />
+    <link rel="stylesheet" href="/static/css/components.css" />
+
+    <link rel="stylesheet" href="/static/css/owner.css">
+    <link rel="stylesheet" href="/static/css/shell.css" />
+    
+      <link rel="stylesheet" href="/static/css/interface.css" />
+    
+    <link rel="stylesheet" href="/static/css/premium-system.css" />
+    
+    <link rel="stylesheet" href="/static/css/forest-depth.css">
+    <link rel="stylesheet" href="/static/css/adaptive-experience.css" />
+    <link rel="stylesheet" href="/static/css/public-navigation.css" />
+    <script src="/static/js/shell.js"></script>
+  </head>
+  <body data-role="business_owner"
+    class="sr-private ">
+    <a class="skip-link" href="#main-content">Saltar al contenido principal</a>
+
+    
+    
+
+    
+    
+      
+
+
+
+
+
+
+
+
+<header class="sr-header">
+  <div class="sr-top">
+    <button class="sr-icon sr-menu-button" type="button" aria-controls="sr-navigation" aria-expanded="false" aria-label="Abrir navegación"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+    <a class="sr-logo" href="/" aria-label="SmartResto, inicio"><span class="sr-mark" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3v5m3-5v5m3-5v5M5 7q0 5 3 5t3-5M8 12v9M18 3c-4 4-4 9 0 9V3zm0 9v9"/></svg></span>SmartResto</a>
+    <nav class="sr-public-links" aria-label="Descubrir"><a href="/" >Descubrir</a><a href="/#explorar">Restaurantes</a><a href="/recomendaciones" >Para ti</a><a href="/ofertas" >Ofertas</a><a href="/para-negocios" >Para negocios</a></nav>
+    <div class="sr-actions" data-counts-url="/bandeja/pendientes">
+      <a class="sr-icon sr-favorites-link" href="/auth/favorites" aria-label="Mis favoritos" title="Mis favoritos"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20S3 15 3 8a5 5 0 0 1 9-2 5 5 0 0 1 9 2c0 7-9 12-9 12z"/></svg></a>
+      <button id="themeToggle" class="sr-icon" type="button" aria-label="Cambiar tema" title="Cambiar tema">◐</button>
+      
+      <a class="sr-icon" href="/bandeja/notificaciones" aria-label="Notificaciones" title="Notificaciones"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17h16l-2-3v-4a6 6 0 0 0-12 0v4z M10 20q2 2 4 0"/></svg><span class="sr-count" data-count="notificaciones" hidden></span></a>
+      <a class="sr-icon sr-message-link" href="/bandeja/" aria-label="Mensajes" title="Mensajes"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11a9 8 0 0 1-9 8H9l-5 2 1-5a9 8 0 1 1 16-5z"/></svg><span class="sr-count" data-count="mensajes" hidden></span></a>
+      <a class="sr-account user-dropdown" href="/auth/profile" aria-label="Mi perfil" title="Mi perfil">M</a>
+      
+    </div>
+  </div>
+</header>
+
+<button class="sr-backdrop" hidden aria-label="Cerrar navegación"></button>
+
+
+<nav class="sr-sidebar" id="sr-navigation" aria-label="Menú principal">
+  <div class="sr-side-top">
+    <strong class="sr-group">Navegación</strong>
+    <button type="button" class="sr-icon sr-collapse" aria-label="Contraer menú" title="Contraer menú">⇤</button>
+  </div>
+
+  
+    
+      
+        <strong class="sr-group">Mi empresa</strong>
+        <a href="/owner/dashboard" title="Resumen de mi empresa" aria-current="page"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3a9 9 0 1 0 11 11H10z M13 2v9h9a10 10 0 0 0-9-9z"/></svg><span>Resumen de mi empresa</span></a><a href="/inteligencia" title="Inteligencia empresarial" ><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18 M6 15l4-6 4 3 6-8"/></svg><span>Inteligencia empresarial</span></a><a href="/copilot" title="SmartResto Copilot" ><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11a9 8 0 0 1-9 8H9l-5 2 1-5a9 8 0 1 1 16-5z"/></svg><span>SmartResto Copilot</span></a>
+        <a href="/admin/restaurants" title="Mis restaurantes" ><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10l2-6h14l2 6q-2 3-5 0-4 3-8 0-3 3-5 0 M5 12v8h14v-8 M10 20v-6h4v6"/></svg><span>Mis restaurantes</span></a>
+        <a href="/admin/restaurant/new" title="Crear restaurante" ><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0 M7 12h10m-5-5v10"/></svg><span>Crear restaurante</span></a>
+        <a href="/owner/catalog" title="Catálogo e inventario" ><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10h18l-2 10H5z M7 10l4-7m6 7-4-7"/></svg><span>Catálogo e inventario</span></a>
+        <a href="/owner/sites" title="Mi sitio y marca" ><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10l2-6h14l2 6q-2 3-5 0-4 3-8 0-3 3-5 0 M5 12v8h14v-8 M10 20v-6h4v6"/></svg><span>Mi sitio y marca</span></a>
+        <a href="/owner/discovery" title="Negocios reclamados" ><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0 M15.5 8.5l-2 5-5 2 2-5z"/></svg><span>Negocios reclamados</span></a>
+
+        <strong class="sr-group">Mi espacio</strong>
+        <a href="/experiencias/grupos" title="Comer en grupo" ><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0 M2 20a8 6 0 0 1 16 0 M17 4a4 4 0 0 1 0 7m1 3q4 1 4 6"/></svg><span>Comer en grupo</span></a>
+        <a href="/experiencias/recompensas" title="Mis recompensas" ><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h8l10 10-8 8L3 11z M7 7h1"/></svg><span>Mis recompensas</span></a>
+        <a href="/experiencias/scan" title="SmartScan" ><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0 M15.5 8.5l-2 5-5 2 2-5z"/></svg><span>SmartScan</span></a>
+      
+
+      <strong class="sr-group">Atención y cuenta</strong>
+      <a href="/bandeja/" title="Mensajes" ><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11a9 8 0 0 1-9 8H9l-5 2 1-5a9 8 0 1 1 16-5z"/></svg><span>Mensajes</span></a>
+      <a href="/bandeja/notificaciones" title="Notificaciones" ><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17h16l-2-3v-4a6 6 0 0 0-12 0v4z M10 20q2 2 4 0"/></svg><span>Notificaciones</span></a>
+      <a href="/bandeja/reclamos" title="Reclamos" ><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0 M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0 M5.5 5.5l3.5 3.5m6 6 3.5 3.5m-13 0L9 15m6-6 3.5-3.5"/></svg><span>Reclamos</span></a>
+      <a href="/auth/profile" title="Mi perfil" ><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0 M4 21v-2a8 6 0 0 1 16 0v2"/></svg><span>Mi perfil</span></a>
+      <a href="/auth/seguridad" title="Seguridad" ><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 10h14v11H5z M8 10V7a4 4 0 0 1 8 0v3"/></svg><span>Seguridad</span></a>
+    
+
+    <strong class="sr-group">Sitio web</strong>
+    <a href="/" title="Ver sitio web" ><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0 M15.5 8.5l-2 5-5 2 2-5z"/></svg><span>Ver sitio web</span></a>
+    <a href="/explorar" title="Explorar restaurantes" ><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0 M15.5 8.5l-2 5-5 2 2-5z"/></svg><span>Explorar restaurantes</span></a>
+    <a href="/ofertas" title="Ofertas" ><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h8l10 10-8 8L3 11z M7 7h1"/></svg><span>Ofertas</span></a>
+    <a href="/mercado/" title="Mercado" ><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10h18l-2 10H5z M7 10l4-7m6 7-4-7"/></svg><span>Mercado</span></a>
+    <a href="/experiencias/" title="Mi momento" ><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0 M15.5 8.5l-2 5-5 2 2-5z"/></svg><span>Mi momento</span></a>
+    <a href="/para-negocios" title="Planes para negocios" ><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10l2-6h14l2 6q-2 3-5 0-4 3-8 0-3 3-5 0 M5 12v8h14v-8 M10 20v-6h4v6"/></svg><span>Planes para negocios</span></a>
+  
+
+  
+    <form method="post" action="/auth/logout">
+      <input type="hidden" name="csrf_token" value="IjliNzJjMmUxMDYwMmU2YTFjM2I5Y2M2MDEzMjAzYmQ0MjczNTA5MzEi.av4whg.DCxtWydLyPf66CqN_29C0ix1KlY">
+      <button type="submit" title="Cerrar sesión"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3H4v18h6 M9 12h12m-5-5 5 5-5 5"/></svg><span>Cerrar sesión</span></button>
+    </form>
+  
+</nav>
+
+    
+
+    <main id="main-content" class="main-content" tabindex="-1">
+      
+<div class="owner-dashboard">
+    <!-- Sidebar -->
+    <div class="owner-sidebar">
+        <div class="owner-sidebar-header">
+            <h2><i class="fas fa-store"></i> Mi Negocio</h2>
+            <p>María Sandoval</p>
+        </div>
+        
+        <nav class="owner-nav">
+            <a href="/owner/dashboard" class="owner-nav-item active">
+                <i class="fas fa-chart-pie"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="/admin/restaurants" class="owner-nav-item ">
+                <i class="fas fa-utensils"></i>
+                <span>Mis Restaurantes</span>
+            </a>
+            <a href="/admin/restaurant/new" class="owner-nav-item ">
+                <i class="fas fa-plus-circle"></i>
+                <span>Agregar Restaurante</span>
+            </a>
+            
+            
+                <a href="/admin/restaurant/1/edit" class="owner-nav-item ">
+                    <i class="fas fa-edit"></i>
+                    <span>Editar Restaurante</span>
+                </a>
+            
+
+            
+            <!-- ✅ GESTIÓN DE MENÚ CON SUBMENÚ -->
+            
+                <div class="owner-nav-submenu">
+                    <div class="owner-nav-item submenu-toggle" onclick="toggleSubmenu('menuSubmenu')">
+                        <i class="fas fa-utensils"></i>
+                        <span>Gestionar Menú</span>
+                        <i class="fas fa-chevron-down" style="margin-left: auto; font-size: 12px;"></i>
+                    </div>
+                    <div class="submenu-items" id="menuSubmenu">
+                        
+                            <a href="/mercado/cocina/1" class="owner-nav-item submenu-item">Ventas e inventario · Cocina de prueba</a>
+                            <a href="/owner/menu/1" class="owner-nav-item submenu-item ">
+                                <i class="fas fa-utensils" style="margin-left: 20px; font-size: 12px;"></i>
+                                <span>Cocina de prueba</span>
+                            </a>
+                        
+                    </div>
+                </div>
+            
+            
+            <a href="/auth/profile" class="owner-nav-item ">
+                <i class="fas fa-user"></i>
+                <span>Mi Perfil</span>
+            </a>
+            <a href="/" class="owner-nav-item">
+                <i class="fas fa-home"></i>
+                <span>Ver Página Principal</span>
+            </a>
+        </nav>
+        
+        <div class="owner-sidebar-footer">
+            <form method="post" action="/auth/logout">
+                <input type="hidden" name="csrf_token" value="IjliNzJjMmUxMDYwMmU2YTFjM2I5Y2M2MDEzMjAzYmQ0MjczNTA5MzEi.av4whg.DCxtWydLyPf66CqN_29C0ix1KlY">
+                <button type="submit" class="owner-nav-item">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Cerrar Sesión</span>
+            </button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Contenido principal -->
+    <div class="owner-content">
+        
+<div class="owner-dashboard-content">
+    <div class="owner-header">
+        <h1>Mis Restaurantes</h1>
+        <p>Gestiona tus restaurantes desde este panel</p>
+        <div class="owner-actions">
+            <a href="/admin/restaurant/new" class="btn-primary">
+                <i class="fas fa-plus"></i> Agregar Restaurante
+            </a>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="admin-filters">
+        <div class="filter-group">
+            <input type="text" id="searchRestaurant" placeholder="Buscar restaurante..." class="form-input">
+        </div>
+        <div class="filter-group">
+            <select id="filterCategory" class="form-input">
+                <option value="">Todas las categorías</option>
+                
+                    <option value="1">Categoría 1</option>
+                
+                    <option value="2">Categoría 2</option>
+                
+                    <option value="3">Categoría 3</option>
+                
+                    <option value="4">Categoría 4</option>
+                
+                    <option value="5">Categoría 5</option>
+                
+                    <option value="6">Categoría 6</option>
+                
+                    <option value="7">Categoría 7</option>
+                
+                    <option value="8">Categoría 8</option>
+                
+                    <option value="9">Categoría 9</option>
+                
+                    <option value="10">Categoría 10</option>
+                
+                    <option value="11">Categoría 11</option>
+                
+                    <option value="12">Categoría 12</option>
+                
+                    <option value="13">Categoría 13</option>
+                
+                    <option value="14">Categoría 14</option>
+                
+                    <option value="15">Categoría 15</option>
+                
+                    <option value="16">Categoría 16</option>
+                
+                    <option value="17">Categoría 17</option>
+                
+                    <option value="18">Categoría 18</option>
+                
+                    <option value="19">Categoría 19</option>
+                
+                    <option value="20">Categoría 20</option>
+                
+            </select>
+        </div>
+        <div class="filter-group">
+            <select id="filterDistrict" class="form-input">
+                <option value="">Todos los distritos</option>
+                
+                    <option value="Trujillo">Trujillo</option>
+                
+                    <option value="Moche">Moche</option>
+                
+            </select>
+        </div>
+        <button class="btn-secondary" onclick="clearFilters()">
+            <i class="fas fa-undo"></i> Limpiar
+        </button>
+    </div>
+
+    <!-- Tabla -->
+    <div class="table-container">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Categoría</th>
+                    <th>Distrito</th>
+                    <th>Modalidad</th>
+                    <th>Rating</th>
+                    <th>Precio</th>
+                    <th>Promoción</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="restaurantsTableBody">
+                
+                    <tr data-id="1" data-category="" data-district="Trujillo">
+                        <td class="restaurant-name">Cocina de prueba</td>
+                        <td>Sin categoría</td>
+                        <td>Trujillo</td>
+                        <td>
+                            <span class="service-mode-badge">
+                                
+                                    Solo local
+                                
+                            </span>
+                        </td>
+                        <td>
+                            <span class="rating-badge">
+                                <i class="fas fa-star"></i> 4.8
+                            </span>
+                        </td>
+                        <td>S/.25</td>
+                        <td>
+                            
+                                <span class="promo-badge-small">Promoción de hoy</span>
+                            
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <a href="/admin/restaurant/1/edit" class="action-btn edit-btn" title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button class="action-btn promo-btn" onclick="addPromotion(1)" title="Agregar promoción">
+                                    <i class="fas fa-tag"></i>
+                                </button>
+                                <button class="action-btn delete-btn" onclick="deleteRestaurant(1)" title="Eliminar">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                
+            </tbody>
+        </table>
+        
+        
+    </div>
+</div>
+
+<style>
+    .owner-dashboard-content {
+        max-width: 1200px;
+    }
+    
+    .owner-header {
+        margin-bottom: 32px;
+    }
+    
+    .owner-header h1 {
+        font-size: 28px;
+        font-weight: 700;
+        margin-bottom: 4px;
+    }
+    
+    .owner-header p {
+        color: var(--gray);
+        font-size: 16px;
+    }
+    
+    .owner-actions {
+        margin-top: 12px;
+    }
+    
+    .btn-primary {
+        padding: 10px 24px;
+        background: var(--primary);
+        color: var(--white);
+        border: none;
+        border-radius: var(--radius-sm);
+        cursor: pointer;
+        transition: var(--transition);
+        font-weight: 500;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+    }
+
+    .btn-primary:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(255, 56, 92, 0.3);
+    }
+    
+    .admin-filters {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+    }
+
+    .admin-filters .filter-group {
+        flex: 1;
+        min-width: 150px;
+    }
+
+    .admin-filters .form-input {
+        width: 100%;
+        padding: 10px 14px;
+        border: 1px solid var(--light-gray);
+        border-radius: var(--radius-sm);
+        font-size: 14px;
+        transition: var(--transition);
+        font-family: var(--font-main);
+    }
+
+    .admin-filters .form-input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px var(--primary-light);
+    }
+
+    .btn-secondary {
+        padding: 10px 20px;
+        background: var(--light-gray);
+        border: none;
+        border-radius: var(--radius-sm);
+        cursor: pointer;
+        transition: var(--transition);
+        font-weight: 500;
+        font-size: 14px;
+    }
+
+    .btn-secondary:hover {
+        background: #d5d5d5;
+    }
+    
+    .table-container {
+        background: var(--white);
+        border-radius: var(--radius);
+        overflow: hidden;
+        box-shadow: var(--shadow);
+        overflow-x: auto;
+        padding: 24px;
+    }
+    
+    .admin-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+    }
+
+    .admin-table th {
+        background: #f8f9fa;
+        padding: 12px 16px;
+        text-align: left;
+        font-weight: 600;
+        border-bottom: 2px solid var(--light-gray);
+    }
+
+    .admin-table td {
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--light-gray);
+    }
+
+    .admin-table tr:hover {
+        background: #f8f9fa;
+    }
+    
+    .restaurant-name {
+        font-weight: 500;
+    }
+    
+    .rating-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        color: #FFB800;
+        font-weight: 600;
+    }
+
+    .promo-badge-small {
+        display: inline-block;
+        padding: 2px 10px;
+        background: #dcfce7;
+        color: #166534;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 500;
+        max-width: 120px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .no-promo {
+        color: var(--gray);
+        font-size: 13px;
+    }
+
+    .service-mode-badge {
+        display: inline-block;
+        padding: 4px 9px;
+        border-radius: 999px;
+        background: #eef2ff;
+        color: #3730a3;
+        font-size: 12px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 6px;
+    }
+
+    .action-btn {
+        width: 32px;
+        height: 32px;
+        border: none;
+        border-radius: var(--radius-sm);
+        cursor: pointer;
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+    }
+
+    .edit-btn {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+    .edit-btn:hover {
+        background: #bfdbfe;
+    }
+
+    .promo-btn {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .promo-btn:hover {
+        background: #fde68a;
+    }
+
+    .delete-btn {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .delete-btn:hover {
+        background: #fca5a5;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+    }
+
+    .empty-state i {
+        font-size: 48px;
+        color: var(--light-gray);
+    }
+
+    .empty-state h3 {
+        margin-top: 16px;
+        font-size: 20px;
+        font-weight: 600;
+    }
+
+    .empty-state p {
+        color: var(--gray);
+        margin-top: 8px;
+    }
+
+    .empty-state a {
+        color: var(--primary);
+        font-weight: 500;
+        text-decoration: none;
+    }
+
+    .empty-state a:hover {
+        text-decoration: underline;
+    }
+
+    @media (max-width: 768px) {
+        .admin-filters {
+            flex-direction: column;
+        }
+
+        .admin-filters .filter-group {
+            min-width: 100%;
+        }
+        
+        .admin-table {
+            font-size: 12px;
+        }
+        
+        .admin-table th,
+        .admin-table td {
+            padding: 8px 10px;
+        }
+        
+        .action-buttons {
+            flex-direction: column;
+            gap: 4px;
+        }
+    }
+</style>
+
+<script>
+    async function addPromotion(id) {
+        const promo = await showOwnerPrompt('Agregar promoción', 'Escribe la promoción');
+        if (promo !== null) {
+            fetch(`/admin/restaurant/${id}/promo`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ promo: promo })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showOwnerToast('Promoción agregada correctamente.', 'success');
+                    setTimeout(() => location.reload(), 1800);
+                } else {
+                    showOwnerToast(data.error || 'Error al agregar la promoción.', 'error');
+                }
+            })
+            .catch(error => {
+                showOwnerToast('Error al agregar la promoción.', 'error');
+                console.error(error);
+            });
+        }
+    }
+
+    async function deleteRestaurant(id) {
+        const confirmed = await showOwnerConfirm('Eliminar restaurante', '¿Estás seguro de eliminar este restaurante? Esta acción no se puede deshacer.');
+        if (!confirmed) return;
+
+        fetch(`/admin/restaurant/${id}`, {
+            method: 'DELETE'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showOwnerToast('Restaurante eliminado correctamente.', 'success');
+                setTimeout(() => location.reload(), 1800);
+            } else {
+                showOwnerToast(data.error || 'Error al eliminar el restaurante.', 'error');
+            }
+        })
+        .catch(error => {
+            showOwnerToast('Error al eliminar el restaurante.', 'error');
+            console.error(error);
+        });
+    }
+
+    function clearFilters() {
+        document.getElementById('searchRestaurant').value = '';
+        document.getElementById('filterCategory').value = '';
+        document.getElementById('filterDistrict').value = '';
+        filterTable();
+    }
+
+    function filterTable() {
+        const search = document.getElementById('searchRestaurant').value.toLowerCase();
+        const category = document.getElementById('filterCategory').value;
+        const district = document.getElementById('filterDistrict').value;
+        const rows = document.querySelectorAll('#restaurantsTableBody tr');
+
+        rows.forEach(row => {
+            const name = row.querySelector('.restaurant-name')?.textContent.toLowerCase() || '';
+            const rowCategory = row.dataset.category || '';
+            const rowDistrict = row.dataset.district || '';
+
+            const matchSearch = name.includes(search);
+            const matchCategory = !category || rowCategory == category;
+            const matchDistrict = !district || rowDistrict == district;
+
+            row.style.display = (matchSearch && matchCategory && matchDistrict) ? '' : 'none';
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('searchRestaurant').addEventListener('input', filterTable);
+        document.getElementById('filterCategory').addEventListener('change', filterTable);
+        document.getElementById('filterDistrict').addEventListener('change', filterTable);
+    });
+</script>
+
+    </div>
+</div>
+
+<div id="owner-toast-container" class="owner-toast-container"
+     aria-live="polite" aria-atomic="false"></div>
+
+<div id="owner-flash-messages" hidden>
+    
+        
+    
+</div>
+
+
+
+<script>
+    function toggleSubmenu(id) {
+        const submenu = document.getElementById(id);
+        const toggle = document.querySelector('.submenu-toggle');
+        if (submenu) {
+            submenu.classList.toggle('open');
+            if (toggle) {
+                toggle.classList.toggle('open');
+            }
+        }
+    }
+
+    function showOwnerToast(message, type = 'info') {
+        const container = document.getElementById('owner-toast-container');
+        if (!container) return;
+    
+        const validTypes = ['success', 'error', 'warning', 'info'];
+        const toastType = validTypes.includes(type) ? type : 'info';
+    
+        const icons = {
+            success: 'fa-circle-check',
+            error: 'fa-circle-exclamation',
+            warning: 'fa-triangle-exclamation',
+            info: 'fa-circle-info'
+        };
+    
+        const toast = document.createElement('div');
+        toast.className = `owner-toast owner-toast--${toastType}`;
+        toast.setAttribute('role', toastType === 'error' ? 'alert' : 'status');
+    
+        const icon = document.createElement('i');
+        icon.className = `fas ${icons[toastType]} owner-toast__icon`;
+        icon.setAttribute('aria-hidden', 'true');
+    
+        const text = document.createElement('span');
+        text.className = 'owner-toast__message';
+        text.textContent = String(message);
+    
+        const closeButton = document.createElement('button');
+        closeButton.className = 'owner-toast__close';
+        closeButton.type = 'button';
+        closeButton.setAttribute('aria-label', 'Cerrar notificación');
+        closeButton.textContent = '×';
+    
+        toast.append(icon, text, closeButton);
+        container.appendChild(toast);
+    
+        function closeToast() {
+            window.clearTimeout(timer);
+            toast.classList.remove('is-visible');
+            window.setTimeout(() => toast.remove(), 250);
+        }
+    
+        closeButton.addEventListener('click', closeToast);
+    
+        const timer = window.setTimeout(closeToast, 4500);
+        window.requestAnimationFrame(() => toast.classList.add('is-visible'));
+    }
+    
+    function showOwnerDialog({ title, message, input = false, placeholder = '', confirmLabel = 'Aceptar', danger = false }) {
+        return new Promise((resolve) => {
+            const backdrop = document.createElement('div');
+            backdrop.className = 'owner-dialog-backdrop';
+
+            const dialog = document.createElement('div');
+            dialog.className = 'owner-dialog';
+            dialog.setAttribute('role', 'dialog');
+            dialog.setAttribute('aria-modal', 'true');
+
+            const heading = document.createElement('h2');
+            heading.className = 'owner-dialog__title';
+            heading.id = 'owner-dialog-title';
+            heading.textContent = title;
+            dialog.setAttribute('aria-labelledby', heading.id);
+
+            const description = document.createElement('p');
+            description.className = 'owner-dialog__message';
+            description.id = 'owner-dialog-message';
+            description.textContent = message;
+            dialog.setAttribute('aria-describedby', description.id);
+
+            let inputElement = null;
+            if (input) {
+                inputElement = document.createElement('input');
+                inputElement.className = 'owner-dialog__input';
+                inputElement.type = 'text';
+                inputElement.placeholder = placeholder;
+                inputElement.maxLength = 500;
+                inputElement.setAttribute('aria-label', title);
+            }
+
+            const actions = document.createElement('div');
+            actions.className = 'owner-dialog__actions';
+
+            const cancelButton = document.createElement('button');
+            cancelButton.className = 'owner-dialog__button';
+            cancelButton.type = 'button';
+            cancelButton.textContent = 'Cancelar';
+
+            const confirmButton = document.createElement('button');
+            confirmButton.className = `owner-dialog__button ${danger ? 'owner-dialog__button--danger' : 'owner-dialog__button--primary'}`;
+            confirmButton.type = 'button';
+            confirmButton.textContent = confirmLabel;
+
+            let finished = false;
+            function finish(value) {
+                if (finished) return;
+                finished = true;
+                document.removeEventListener('keydown', handleKeydown);
+                backdrop.remove();
+                resolve(value);
+            }
+
+            function handleKeydown(event) {
+                if (event.key === 'Escape') {
+                    finish(input ? null : false);
+                } else if (event.key === 'Enter' && input && document.activeElement === inputElement) {
+                    event.preventDefault();
+                    finish(inputElement.value);
+                }
+            }
+
+            cancelButton.addEventListener('click', () => finish(input ? null : false));
+            confirmButton.addEventListener('click', () => finish(input ? inputElement.value : true));
+            backdrop.addEventListener('click', (event) => {
+                if (event.target === backdrop) finish(input ? null : false);
+            });
+            document.addEventListener('keydown', handleKeydown);
+
+            actions.append(cancelButton, confirmButton);
+            dialog.append(heading, description);
+            if (inputElement) dialog.appendChild(inputElement);
+            dialog.appendChild(actions);
+            backdrop.appendChild(dialog);
+            document.body.appendChild(backdrop);
+
+            (inputElement || confirmButton).focus();
+        });
+    }
+
+    function showOwnerPrompt(title, placeholder) {
+        return showOwnerDialog({
+            title,
+            message: 'Escribe la promoción que deseas publicar.',
+            input: true,
+            placeholder,
+            confirmLabel: 'Guardar'
+        });
+    }
+
+    function showOwnerConfirm(title, message, confirmLabel = 'Eliminar', danger = true) {
+        return showOwnerDialog({
+            title,
+            message,
+            confirmLabel,
+            danger
+        });
+    }
+
+    document.querySelectorAll('#owner-flash-messages [data-category]').forEach((item) => {
+        showOwnerToast(item.textContent.trim(), item.dataset.category);
+    });
+
+</script>
+
+    </main>
+
+    
+    
+    <aside class="sr-location-consent" id="location-consent" aria-label="Preferencias de ubicación" hidden>
+  <div><strong>Descubre lo que tienes cerca</strong><p>¿Permites usar tu ubicación para encontrar restaurantes cercanos y adaptar las recomendaciones al clima? Tu navegador solicitará permiso. Puedes cambiar esta decisión en cualquier momento.</p></div>
+  <button type="button" data-location-accept>Aceptar y activar</button><button type="button" class="secondary" data-location-decline>Ahora no</button>
+  <output role="status" data-location-status></output>
+  <form class="sr-location-manual"><p>También puedes indicar coordenadas aproximadas desde tu aplicación de mapas.</p><label>Latitud<input name="lat" type="number" step="any" min="-90" max="90" required></label><label>Longitud<input name="lng" type="number" step="any" min="-180" max="180" required></label><button>Usar esta ubicación</button></form>
+</aside>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="/static/vendor/chartjs/chart-4.5.1.umd.min.js"></script>
+    <script src="/static/js/security.js"></script>
+    
+
+    <!-- Custom JS -->
+    <script src="/static/js/app.js"></script>
+    <script src="/static/js/map.js"></script>
+    <script src="/static/js/search.js"></script>
+    <script src="/static/js/admin.js"></script>
+    <script src="/static/js/ai-assistant.js"></script>
+    <script src="/static/js/editorial-slides.js" defer></script>
+    
+    <script src="/static/js/experience.js" defer></script>
+  </body>
+</html>

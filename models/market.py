@@ -241,7 +241,7 @@ def indicators(orders):
     sales = [o for o in orders if o["state"] == "Entregado" and o["paid"] and not o.get("refunded")]
     customers = Counter(o["uid"] for o in sales)
     known_cost_sales = [o for o in sales if all(l["cost"] is not None for l in o["lines"])]
-    selling_hours = Counter(o["slot"][11:13] for o in sales)
+    selling_hours = Counter(o["slot"][11:13] for o in sales if isinstance(o.get("slot"),str) and len(o["slot"])>=13)
     return {"sales": len(sales), "income": sum(o["total"] for o in sales),
             "margin": sum(o["total"] - sum(l["cost"] * l["qty"] for l in o["lines"]) for o in known_cost_sales),
             "costed": len(known_cost_sales), "peak": selling_hours.most_common(1)[0][0] if selling_hours else None,

@@ -2,7 +2,7 @@
     'use strict';
 
     const API_INTERPRET = '/api/ai/interpret';
-    const API_CHAT = '/api/ai/chat';
+    const API_CHAT = ['admin','business_owner'].includes(document.body.dataset.role) ? '/api/copilot/chat' : '/api/ai/chat';
 
     // Botones rápidos del chat: [texto del botón, mensaje que se envía]
     const QUICK_REPLIES = [

@@ -316,10 +316,11 @@ def restaurants():
 
     cat_dict = {cat["id"]: cat["name"] for cat in categories}
 
-    now = datetime.datetime.now().strftime("%H:%M")
+    from utils.functional import filter_restaurants
+    restaurants = filter_restaurants(restaurants, {})
     for r in restaurants:
         r["category_name"] = cat_dict.get(r.get("category_id"), "Sin categoría")
-        r["is_open"] = r.get("open_time") <= now <= r.get("close_time")
+        r["is_open"] = r["is_open_now"]
         r["service_mode"] = _restaurant_service_mode(r)
 
     districts = getattr(

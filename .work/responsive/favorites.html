@@ -1,0 +1,509 @@
+
+<!DOCTYPE html>
+<html lang="es" class="sr-compact">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="csrf-token" content="ImNjYjM5YTI2ZmY3NTE5YTUxZjc3YzY1MzM4NzcwNjk3Y2JlNDIzMTki.av4whQ.bpxXwo6uIpi8ApAZVHUFu01WUXI" />
+    <title>SmartResto - Recomendación Inteligente de Restaurantes</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <link rel="stylesheet" href="/static/css/main.css" />
+    <link rel="stylesheet" href="/static/css/components.css" />
+
+    
+    <link rel="stylesheet" href="/static/css/shell.css" />
+    
+      <link rel="stylesheet" href="/static/css/interface.css" />
+    
+    <link rel="stylesheet" href="/static/css/premium-system.css" />
+    
+    <link rel="stylesheet" href="/static/css/forest-depth.css">
+    <link rel="stylesheet" href="/static/css/adaptive-experience.css" />
+    <link rel="stylesheet" href="/static/css/public-navigation.css" />
+    <script src="/static/js/shell.js"></script>
+  </head>
+  <body data-role="user"
+    class="sr-private ">
+    <a class="skip-link" href="#main-content">Saltar al contenido principal</a>
+
+    
+    
+
+    
+    
+      
+
+
+
+
+
+
+
+
+<header class="sr-header">
+  <div class="sr-top">
+    <button class="sr-icon sr-menu-button" type="button" aria-controls="sr-navigation" aria-expanded="false" aria-label="Abrir navegación"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+    <a class="sr-logo" href="/" aria-label="SmartResto, inicio"><span class="sr-mark" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3v5m3-5v5m3-5v5M5 7q0 5 3 5t3-5M8 12v9M18 3c-4 4-4 9 0 9V3zm0 9v9"/></svg></span>SmartResto</a>
+    <nav class="sr-public-links" aria-label="Descubrir"><a href="/" >Descubrir</a><a href="/#explorar">Restaurantes</a><a href="/recomendaciones" >Para ti</a><a href="/ofertas" >Ofertas</a><a href="/para-negocios" >Para negocios</a></nav>
+    <div class="sr-actions" data-counts-url="/bandeja/pendientes">
+      <a class="sr-icon sr-favorites-link" href="/auth/favorites" aria-label="Mis favoritos" title="Mis favoritos"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20S3 15 3 8a5 5 0 0 1 9-2 5 5 0 0 1 9 2c0 7-9 12-9 12z"/></svg></a>
+      <button id="themeToggle" class="sr-icon" type="button" aria-label="Cambiar tema" title="Cambiar tema">◐</button>
+      
+      <a class="sr-icon" href="/bandeja/notificaciones" aria-label="Notificaciones" title="Notificaciones"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17h16l-2-3v-4a6 6 0 0 0-12 0v4z M10 20q2 2 4 0"/></svg><span class="sr-count" data-count="notificaciones" hidden></span></a>
+      <a class="sr-icon sr-message-link" href="/bandeja/" aria-label="Mensajes" title="Mensajes"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11a9 8 0 0 1-9 8H9l-5 2 1-5a9 8 0 1 1 16-5z"/></svg><span class="sr-count" data-count="mensajes" hidden></span></a>
+      <a class="sr-account user-dropdown" href="/auth/profile" aria-label="Mi perfil" title="Mi perfil">M</a>
+      
+    </div>
+  </div>
+</header>
+
+<button class="sr-backdrop" hidden aria-label="Cerrar navegación"></button>
+
+
+<nav class="sr-sidebar" id="sr-navigation" aria-label="Menú principal">
+  <div class="sr-side-top">
+    <strong class="sr-group">Navegación</strong>
+    <button type="button" class="sr-icon sr-collapse" aria-label="Contraer menú" title="Contraer menú">⇤</button>
+  </div>
+
+  
+    
+      
+        <strong class="sr-group">Mi espacio</strong><a href="/copilot" title="SmartResto Copilot" ><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11a9 8 0 0 1-9 8H9l-5 2 1-5a9 8 0 1 1 16-5z"/></svg><span>SmartResto Copilot</span></a>
+        <a href="/mercado/pedidos" title="Mis pedidos" ><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h14v18l-3-2-4 2-4-2-3 2z M8 8h8m-8 4h6"/></svg><span>Mis pedidos</span></a>
+        <a href="/auth/favorites" title="Favoritos" ><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20S3 15 3 8a5 5 0 0 1 9-2 5 5 0 0 1 9 2c0 7-9 12-9 12z"/></svg><span>Favoritos</span></a>
+        <a href="/experiencias/grupos" title="Comer en grupo" ><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0 M2 20a8 6 0 0 1 16 0 M17 4a4 4 0 0 1 0 7m1 3q4 1 4 6"/></svg><span>Comer en grupo</span></a>
+        <a href="/experiencias/recompensas" title="Mis recompensas" ><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h8l10 10-8 8L3 11z M7 7h1"/></svg><span>Mis recompensas</span></a>
+        <a href="/experiencias/scan" title="SmartScan" ><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0 M15.5 8.5l-2 5-5 2 2-5z"/></svg><span>SmartScan</span></a>
+      
+
+      <strong class="sr-group">Atención y cuenta</strong>
+      <a href="/bandeja/" title="Mensajes" ><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11a9 8 0 0 1-9 8H9l-5 2 1-5a9 8 0 1 1 16-5z"/></svg><span>Mensajes</span></a>
+      <a href="/bandeja/notificaciones" title="Notificaciones" ><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17h16l-2-3v-4a6 6 0 0 0-12 0v4z M10 20q2 2 4 0"/></svg><span>Notificaciones</span></a>
+      <a href="/bandeja/reclamos" title="Reclamos" ><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0 M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0 M5.5 5.5l3.5 3.5m6 6 3.5 3.5m-13 0L9 15m6-6 3.5-3.5"/></svg><span>Reclamos</span></a>
+      <a href="/auth/profile" title="Mi perfil" aria-current="page"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0 M4 21v-2a8 6 0 0 1 16 0v2"/></svg><span>Mi perfil</span></a>
+      <a href="/auth/seguridad" title="Seguridad" ><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 10h14v11H5z M8 10V7a4 4 0 0 1 8 0v3"/></svg><span>Seguridad</span></a>
+    
+
+    <strong class="sr-group">Sitio web</strong>
+    <a href="/" title="Ver sitio web" ><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0 M15.5 8.5l-2 5-5 2 2-5z"/></svg><span>Ver sitio web</span></a>
+    <a href="/explorar" title="Explorar restaurantes" ><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0 M15.5 8.5l-2 5-5 2 2-5z"/></svg><span>Explorar restaurantes</span></a>
+    <a href="/ofertas" title="Ofertas" ><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h8l10 10-8 8L3 11z M7 7h1"/></svg><span>Ofertas</span></a>
+    <a href="/mercado/" title="Mercado" ><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10h18l-2 10H5z M7 10l4-7m6 7-4-7"/></svg><span>Mercado</span></a>
+    <a href="/experiencias/" title="Mi momento" ><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0 M15.5 8.5l-2 5-5 2 2-5z"/></svg><span>Mi momento</span></a>
+    <a href="/para-negocios" title="Planes para negocios" ><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10l2-6h14l2 6q-2 3-5 0-4 3-8 0-3 3-5 0 M5 12v8h14v-8 M10 20v-6h4v6"/></svg><span>Planes para negocios</span></a>
+  
+
+  
+    <form method="post" action="/auth/logout">
+      <input type="hidden" name="csrf_token" value="ImNjYjM5YTI2ZmY3NTE5YTUxZjc3YzY1MzM4NzcwNjk3Y2JlNDIzMTki.av4whQ.bpxXwo6uIpi8ApAZVHUFu01WUXI">
+      <button type="submit" title="Cerrar sesión"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3H4v18h6 M9 12h12m-5-5 5 5-5 5"/></svg><span>Cerrar sesión</span></button>
+    </form>
+  
+</nav>
+
+    
+
+    <main id="main-content" class="main-content" tabindex="-1">
+      
+<div class="favorites-container">
+    <div class="favorites-header">
+        <h1><i class="fas fa-heart" style="color: var(--primary);"></i> Mis Favoritos</h1>
+        <p>0 restaurantes guardados</p>
+    </div>
+    
+    
+        <div class="favorites-grid">
+            
+                <div class="restaurant-card" data-id="1">
+                    <div class="card-image">
+                        <img src="/static/images/ceviche.webp" alt="Cocina de prueba" loading="lazy">
+                        <button class="fav-btn active" onclick="toggleFavorite(1, event)" title="Quitar de favoritos">
+                            <i class="fas fa-heart"></i>
+                        </button>
+                        <div class="badges">
+                            
+                                <div class="promo-badge"><i class="fas fa-tag"></i> Promoción</div>
+                            
+                            
+                                <div class="top-rated-badge"><i class="fas fa-star"></i> Top</div>
+                            
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-header">
+                            <h3>Cocina de prueba</h3>
+                            <div class="rating">
+                                <i class="fas fa-star"></i>
+                                <span>4.8</span>
+                            </div>
+                        </div>
+                        <div class="card-location">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>Trujillo</span>
+                            
+                        </div>
+                        <div class="card-price">
+                            <span class="price">S/.25</span>
+                            <span class="price-label">por persona</span>
+                        </div>
+                        <div class="card-tags">
+                            
+                                <span class="tag">Comida peruana</span>
+                            
+                                <span class="tag">Para compartir</span>
+                            
+                        </div>
+                        <a href="/restaurant/1" class="card-link">
+                            Ver detalles <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            
+        </div>
+    
+</div>
+
+<style>
+    .favorites-container {
+        max-width: 1200px;
+        margin: 40px auto;
+        padding: 0 20px;
+    }
+    
+    .favorites-header {
+        margin-bottom: 32px;
+    }
+    
+    .favorites-header h1 {
+        font-size: 28px;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+    
+    .favorites-header p {
+        color: var(--gray);
+        font-size: 16px;
+    }
+    
+    .favorites-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 24px;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        background: var(--white);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+    }
+    
+    .empty-state i {
+        font-size: 64px;
+        color: var(--light-gray);
+    }
+    
+    .empty-state h3 {
+        margin-top: 16px;
+        font-size: 20px;
+    }
+    
+    .empty-state p {
+        color: var(--gray);
+        margin-top: 8px;
+    }
+    
+    .empty-state .btn-primary {
+        display: inline-block;
+        margin-top: 16px;
+        padding: 12px 24px;
+        background: var(--primary);
+        color: white;
+        border-radius: var(--radius-sm);
+        text-decoration: none;
+        font-weight: 600;
+        transition: var(--transition);
+        border: none;
+        cursor: pointer;
+    }
+    
+    .empty-state .btn-primary:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(255, 56, 92, 0.3);
+    }
+    
+    .fav-btn.active {
+        background: var(--primary);
+        color: white;
+    }
+    
+    .fav-btn.active i {
+        color: white;
+    }
+    
+    /* Estilos para las tarjetas en favoritos */
+    .restaurant-card {
+        background: var(--white);
+        border-radius: var(--radius);
+        overflow: hidden;
+        box-shadow: var(--shadow);
+        transition: var(--transition);
+        position: relative;
+    }
+    
+    .restaurant-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-hover);
+    }
+    
+    .card-image {
+        position: relative;
+        width: 100%;
+        padding-top: 75%;
+        overflow: hidden;
+        background: var(--light-gray);
+    }
+    
+    .card-image img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: var(--transition);
+    }
+    
+    .restaurant-card:hover .card-image img {
+        transform: scale(1.05);
+    }
+    
+    /* Contenedor de insignias: una al lado de la otra, sin taparse */
+    .badges {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        max-width: calc(100% - 64px); /* deja espacio para el botón de corazón */
+        z-index: 2;
+    }
+    
+    .badges .promo-badge,
+    .badges .top-rated-badge {
+        position: static !important;
+        top: auto !important;
+        left: auto !important;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 10px;
+        border-radius: var(--radius-sm);
+        font-size: 12px;
+        font-weight: 600;
+        line-height: 1.2;
+        white-space: nowrap;
+    }
+    
+    .promo-badge {
+        background: var(--primary);
+        color: var(--white);
+    }
+    
+    .top-rated-badge {
+        background: #FFB800;
+        color: var(--dark);
+    }
+    
+    .card-content {
+        padding: 18px 16px 20px;
+    }
+    
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 10px;
+    }
+    
+    .card-header h3 {
+        font-size: 16px;
+        font-weight: 600;
+        line-height: 1.3;
+        flex: 1;
+        margin-right: 12px;
+    }
+    
+    .rating {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 14px;
+        font-weight: 600;
+        flex-shrink: 0;
+    }
+    
+    .rating i {
+        color: #FFB800;
+        font-size: 14px;
+    }
+    
+    .card-location {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 14px;
+        color: var(--gray);
+        margin-bottom: 12px;
+    }
+    
+    .card-location .dot {
+        color: var(--light-gray);
+    }
+    
+    .card-location .distance {
+        font-weight: 500;
+    }
+    
+    .card-price {
+        display: flex;
+        align-items: baseline;
+        gap: 6px;
+        margin-bottom: 14px;
+    }
+    
+    .card-price .price {
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--dark);
+    }
+    
+    .card-price .price-label {
+        font-size: 13px;
+        color: var(--gray);
+    }
+    
+    .card-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 16px;
+    }
+    
+    .card-tags .tag {
+        padding: 4px 12px;
+        background: var(--light-gray);
+        border-radius: 12px;
+        font-size: 12px;
+        color: var(--gray);
+    }
+    
+    .card-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--primary);
+        transition: var(--transition);
+        text-decoration: none;
+    }
+    
+    .card-link:hover {
+        gap: 10px;
+        color: var(--primary-dark);
+    }
+</style>
+
+<script>
+function removeFromFavorites(restaurantId, event) {
+    if (event) event.stopPropagation();
+    
+    if (confirm('¿Quieres eliminar este restaurante de tus favoritos?')) {
+        if (window.app) {
+            window.app.toggleFavorite(restaurantId, event);
+        } else {
+            // Fallback: enviar directamente la solicitud
+            fetch('/auth/api/favorites/toggle', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ restaurant_id: restaurantId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const originalToggle = window.toggleFavorite;
+    if (window.location.pathname === '/auth/favorites') {
+        window.toggleFavorite = function(restaurantId, event) {
+            if (confirm('¿Quieres eliminar este restaurante de tus favoritos?')) {
+                originalToggle(restaurantId, event);
+            }
+        };
+    }
+});
+</script>
+
+    </main>
+
+    
+<footer class="sr-footer sr-unified-footer"><div class="sr-footer-grid">
+ <div class="sr-footer-brand"><a class="sr-logo" href="/">SmartResto</a><p>Descubre, disfruta y haz crecer la gastronomía local.</p><a href="tel:+51976399537">+51976399537</a><a href="https://wa.me/51976399537" target="_blank" rel="noopener noreferrer">Escríbenos por WhatsApp</a><div class="sr-socials" aria-label="Redes sociales"></div></div>
+ <nav aria-label="Descubrir"><strong>Descubrir</strong><a href="/#explorar">Restaurantes y mapa</a><a href="/ofertas">Ofertas</a><a href="/mercado/">Mercado gastronómico</a><a href="/explorar">Explorar catálogo</a><a href="/experiencias/">Mi momento</a></nav>
+ <nav aria-label="Crecer y participar"><strong>Tu espacio</strong><a href="/para-negocios">Planes para negocios</a><a href="/auth/register?role=business_owner">Registrar mi negocio</a><a href="/experiencias/grupos">Comer en grupo</a><a href="/experiencias/recompensas">Recompensas</a><a href="/auth/favorites">Mis favoritos</a></nav>
+ <nav aria-label="Ayuda y transparencia"><strong>Ayuda y transparencia</strong><a href="/informacion/privacidad">Política de privacidad</a><a href="/informacion/condiciones">Términos y condiciones</a><a href="/informacion/tecnologia">IA y tecnología responsable</a><a href="/#preguntas">Preguntas frecuentes</a><a href="/bandeja/reclamos">Contacto y reclamos</a></nav>
+ </div><div class="sr-footer-bottom"><span>© 2026 SmartResto</span><span>Hecho para descubrir y compartir la gastronomía local.</span></div></footer>
+
+    
+
+<nav class="sr-mobile-nav" aria-label="Accesos rápidos">
+  <a href="/" ><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0 M15.5 8.5l-2 5-5 2 2-5z"/></svg><span>Explorar</span></a>
+  <a href="/recomendaciones" ><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20S3 15 3 8a5 5 0 0 1 9-2 5 5 0 0 1 9 2c0 7-9 12-9 12z"/></svg><span>Para ti</span></a>
+  <a href="/mercado/carrito" ><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10h18l-2 10H5z M7 10l4-7m6 7-4-7"/></svg><span>Carrito</span></a>
+  <a href="/mercado/pedidos" ><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0 M4 21v-2a8 6 0 0 1 16 0v2"/></svg><span>Pedidos</span></a>
+</nav>
+
+    <aside class="sr-location-consent" id="location-consent" aria-label="Preferencias de ubicación" hidden>
+  <div><strong>Descubre lo que tienes cerca</strong><p>¿Permites usar tu ubicación para encontrar restaurantes cercanos y adaptar las recomendaciones al clima? Tu navegador solicitará permiso. Puedes cambiar esta decisión en cualquier momento.</p></div>
+  <button type="button" data-location-accept>Aceptar y activar</button><button type="button" class="secondary" data-location-decline>Ahora no</button>
+  <output role="status" data-location-status></output>
+  <form class="sr-location-manual"><p>También puedes indicar coordenadas aproximadas desde tu aplicación de mapas.</p><label>Latitud<input name="lat" type="number" step="any" min="-90" max="90" required></label><label>Longitud<input name="lng" type="number" step="any" min="-180" max="180" required></label><button>Usar esta ubicación</button></form>
+</aside>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="/static/vendor/chartjs/chart-4.5.1.umd.min.js"></script>
+    <script src="/static/js/security.js"></script>
+    
+
+    <!-- Custom JS -->
+    <script src="/static/js/app.js"></script>
+    <script src="/static/js/map.js"></script>
+    <script src="/static/js/search.js"></script>
+    <script src="/static/js/admin.js"></script>
+    <script src="/static/js/ai-assistant.js"></script>
+    <script src="/static/js/editorial-slides.js" defer></script>
+    
+    <script src="/static/js/experience.js" defer></script>
+  </body>
+</html>

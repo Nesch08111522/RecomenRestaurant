@@ -6,13 +6,13 @@ from copy import deepcopy
 
 _MANIFEST = {
     "product": "SmartResto",
-    "version": "phase-1",
+    "version": "advanced-ecosystem",
     "architecture": {
         "backend": "Flask REST API",
         "database": "PostgreSQL / Supabase",
-        "background_jobs": "Redis + Celery (prepared)",
+        "background_jobs": "Native discovery worker; scheduler activation required",
         "ai_gateway": "OpenRouter (provider-agnostic)",
-        "experience": "Responsive PWA with light/dark themes",
+        "experience": "Responsive web with light/dark themes",
     },
     "modules": {
         "marketplace": {"label": "Descubrimiento y recomendación", "audiences": ["guest", "diner"]},
@@ -22,7 +22,9 @@ _MANIFEST = {
         "smart_flow": {"label": "Aforo, mesas y lista de espera", "audiences": ["diner", "business_owner", "admin"]},
         "rewards": {"label": "Visitas, puntos y fidelización", "audiences": ["diner", "business_owner"]},
         "home_kitchen": {"label": "Despensa y recetas en casa", "audiences": ["diner"]},
-        "ai_copilot": {"label": "Copiloto empresarial", "audiences": ["business_owner", "admin"]},
+        "ai_copilot": {"label": "Copilot por rol", "audiences": ["diner", "business_owner", "admin"]},
+        "business_intelligence": {"label": "Inteligencia empresarial", "audiences": ["business_owner", "admin"]},
+        "trust_center": {"label": "Seguridad y confianza", "audiences": ["admin"]},
         "immersive_menu": {"label": "Menú 3D y experiencias inmersivas", "audiences": ["diner", "business_owner"]},
         "communications": {"label": "Notificaciones y mensajería", "audiences": ["diner", "business_owner", "admin"]},
     },

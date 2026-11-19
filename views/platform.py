@@ -83,6 +83,16 @@ def update_me_profile():
     if not changes:
         return jsonify({"success": False, "error": "No hay cambios de perfil permitidos"}), 400
     profile = dict(g.account_record.get("profile") or {})
+    if 'email' in changes and changes['email'] != profile.get('email',''):
+        from utils.account_security import configure
+        password=payload.get('current_password');otp=payload.get('otp','')
+        if not isinstance(password,str) or not isinstance(otp,str):
+            return jsonify(success=False,error='Confirma la contraseña actual para cambiar el correo de recuperación.'),403
+        try:
+            result=configure(user['id'],password,'contacts',otp,email=changes['email'],phone=profile.get('phone',''))
+            session['auth_epoch']=result['epoch']
+        except ValueError:
+            return jsonify(success=False,error='Verifica tu contraseña y, si corresponde, el código del autenticador.'),403
     if "notification_preferences" in changes:
         changes["notification_preferences"] = {
             **(profile.get("notification_preferences") or {}),

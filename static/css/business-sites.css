@@ -245,3 +245,9 @@
 .bs-public-site .bs-public-button{background:#fff;color:#18271e;border:1px solid #d5dfd7}
 .bs-inline-notice{padding:14px 18px;border-radius:14px;margin:12px 0 24px;background:var(--bs-card,#fff);border:1px solid var(--bs-line,#ccd9cf);color:var(--bs-ink,#19362b);box-shadow:0 8px 18px #12332610}
 .bs-inline-notice.is-error{background:#fae9e4;color:#793b32;border-color:#eac8bd}
+
+/* Let intrinsic form/preview content shrink inside narrow editor columns. */
+.bs-editor-shell,.bs-editor-grid,.bs-editor-grid>*,.bs-editor-aside,.bs-editor-aside>*{min-width:0;max-width:100%;}
+.bs-preview-window{overflow:clip;}
+/* Keep the editor's decorative 3D orb inside its own canvas on narrow screens. */
+.bs-editor-shell{overflow-x:clip;}

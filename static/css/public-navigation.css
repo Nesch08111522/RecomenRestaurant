@@ -1,0 +1,45 @@
+/* Public pages use the full viewport; the system rail belongs to private panels. */
+html body.sr-public-site #main-content,
+html body.sr-public-site .sr-footer {
+  margin-inline: 0 !important;
+  width: 100% !important;
+  max-width: none !important;
+}
+html body.sr-public-site { --sr-rail: 0px; }
+.sr-public-menu { display: none; }
+html body.sr-public-site .sr-menu-button { display: none !important; }
+
+@media (max-width: 1099px) {
+  html body.sr-public-site .sr-menu-button { display: inline-grid !important; }
+  html body.sr-public-site .sr-public-links { display: none !important; }
+  html body.sr-public-site .sr-top { padding-inline: clamp(8px, 2vw, 24px); gap: 8px; }
+  .sr-drawer-open body.sr-public-site .sr-public-menu {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    inset: calc(var(--sr-header) + 8px) max(8px, env(safe-area-inset-right)) auto auto;
+    width: min(420px, calc(100vw - 16px));
+    max-height: calc(100dvh - var(--sr-header) - 24px);
+    overflow: auto;
+    padding: 12px;
+    border: 1px solid var(--sr-line);
+    border-radius: 20px;
+    background: var(--sr-surface);
+    color: var(--sr-text);
+    box-shadow: 0 20px 60px #0004;
+    z-index: 1900;
+  }
+  .sr-public-menu-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-left: 12px; }
+  .sr-public-menu a { display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 10px 12px; border-radius: 12px; color: var(--sr-text); text-decoration: none; }
+  .sr-public-menu a:hover, .sr-public-menu a[aria-current=page] { background: var(--sr-tint); }
+  .sr-public-menu svg { flex: none; }
+}
+@media (max-width: 480px) {
+  html body.sr-public-site .sr-logo { font-size: 20px !important; gap: 6px; letter-spacing: -.7px; }
+  html body.sr-public-site .sr-mark { width: 28px; height: 28px; }
+  html body.sr-public-site .sr-actions { gap: 0; }
+  html body.sr-public-site .sr-favorites-link,
+  html body.sr-public-site .sr-message-link,
+  html body.sr-public-site .sr-signup,
+  html body.sr-public-site .sr-login { display: none !important; }
+}

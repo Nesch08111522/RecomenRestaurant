@@ -72,6 +72,12 @@ def create_app(test_config=None):
     from views.food_experience import bp as food_experience_bp
     app.register_blueprint(food_experience_bp)
 
+    from views.intelligence import bp as intelligence_bp
+    app.register_blueprint(intelligence_bp)
+    from views.copilot import bp as copilot_bp
+    app.register_blueprint(copilot_bp)
+    from views.trust_center import bp as trust_center_bp
+    app.register_blueprint(trust_center_bp)
     app.register_blueprint(admin_ai_bp)
 
     from utils.restaurant_review import RestaurantRejected
