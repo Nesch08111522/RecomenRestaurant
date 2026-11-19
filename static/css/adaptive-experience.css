@@ -1,0 +1,577 @@
+
+/* ================================================================
+   SMARTRESTO — FOOTER DEFINITIVO
+   Compacto · Profesional · Responsive · Sin espacios excesivos
+   ================================================================ */
+
+/* 1. CONTENEDOR GENERAL */
+
+body footer.sr-footer.sr-unified-footer {
+    display: block !important;
+    position: relative !important;
+
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+
+    margin: 0 !important;
+    padding: 34px 24px 16px !important;
+
+    box-sizing: border-box !important;
+
+    background: var(--sr-surface, var(--theme-surface)) !important;
+    color: var(--theme-text);
+
+    border-top: 1px solid var(--sr-line);
+}
+
+body footer.sr-unified-footer *,
+body footer.sr-unified-footer *::before,
+body footer.sr-unified-footer *::after {
+    box-sizing: border-box !important;
+}
+
+/* 2. SIDEBAR DE ESCRITORIO */
+
+@media (min-width: 768px) {
+
+    body.sr-discover footer.sr-unified-footer {
+        margin-left: var(--sr-rail, 250px) !important;
+        width: calc(100% - var(--sr-rail, 250px)) !important;
+    }
+
+    body.sr-auth footer.sr-unified-footer {
+        margin-left: 0 !important;
+        width: 100% !important;
+    }
+}
+
+/* 3. GRID CENTRAL — ESCRITORIO */
+
+body footer.sr-unified-footer > .sr-footer-grid {
+    display: grid !important;
+
+    width: 100% !important;
+    max-width: 1180px !important;
+
+    margin: 0 auto !important;
+    padding: 0 !important;
+
+    grid-template-columns:
+        minmax(0, 1.15fr)
+        repeat(3, minmax(0, 1fr)) !important;
+
+    align-items: start !important;
+    justify-content: center !important;
+    align-content: start !important;
+
+    column-gap: 30px !important;
+    row-gap: 20px !important;
+}
+
+body footer.sr-unified-footer .sr-footer-grid > * {
+    min-width: 0 !important;
+    max-width: 100% !important;
+}
+
+/* 4. MARCA */
+
+body footer.sr-unified-footer .sr-footer-brand {
+    display: flex !important;
+
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    justify-content: flex-start !important;
+
+    width: 100% !important;
+
+    gap: 7px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+
+    text-align: left !important;
+}
+
+body footer.sr-unified-footer .sr-logo {
+    display: inline-block !important;
+
+    width: fit-content;
+    max-width: 100%;
+
+    margin: 0 0 5px !important;
+    padding: 0 !important;
+
+    color: var(--theme-accent) !important;
+
+    font-size: 27px !important;
+    font-weight: 800 !important;
+    line-height: 1.2 !important;
+
+    text-decoration: none !important;
+}
+
+body footer.sr-unified-footer .sr-footer-brand p {
+    max-width: 260px !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    font-size: 13px !important;
+    line-height: 1.5 !important;
+
+    text-align: left !important;
+}
+
+body footer.sr-unified-footer .sr-footer-brand > a:not(.sr-logo) {
+    display: block !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    font-size: 13px !important;
+    line-height: 1.5 !important;
+
+    text-align: left !important;
+}
+
+/* 5. COLUMNAS DE NAVEGACIÓN */
+
+body footer.sr-unified-footer .sr-footer-grid > nav {
+    display: flex !important;
+
+    flex-direction: column !important;
+
+    align-items: flex-start !important;
+    justify-content: flex-start !important;
+    align-content: flex-start !important;
+
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+
+    gap: 8px !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    text-align: left !important;
+}
+
+/* Títulos */
+
+body footer.sr-unified-footer .sr-footer-grid > nav strong {
+    display: block !important;
+
+    width: auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+
+    margin: 0 0 5px !important;
+    padding: 0 !important;
+
+    font-size: 14px !important;
+    font-weight: 750 !important;
+    line-height: 1.4 !important;
+
+    text-align: left !important;
+}
+
+/* ENLACES: ELIMINAR SEPARACIONES HEREDADAS */
+
+body footer.sr-unified-footer .sr-footer-grid > nav a {
+    display: block !important;
+
+    position: static !important;
+
+    width: fit-content !important;
+    max-width: 100% !important;
+
+    height: auto !important;
+    min-height: 0 !important;
+
+    margin: 0 !important;
+    padding: 2px 0 !important;
+
+    font-size: 13px !important;
+    font-weight: 400 !important;
+    line-height: 1.45 !important;
+
+    text-align: left !important;
+    text-decoration: none !important;
+
+    overflow-wrap: anywhere !important;
+    word-break: normal !important;
+
+    transform: none !important;
+
+    transition: color .2s ease;
+}
+
+/* Neutralizar estilos generales que separen enlaces */
+
+body footer.sr-unified-footer .sr-footer-grid > nav a + a {
+    margin-top: 0 !important;
+}
+
+body footer.sr-unified-footer .sr-footer-grid > nav > * {
+    flex: 0 0 auto !important;
+}
+
+body footer.sr-unified-footer a:hover {
+    color: var(--theme-accent) !important;
+}
+
+/* 6. REDES SOCIALES */
+
+body footer.sr-unified-footer .sr-socials {
+    display: flex !important;
+
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+
+    justify-content: flex-start !important;
+    align-items: center !important;
+
+    width: 100% !important;
+
+    gap: 8px 12px !important;
+
+    margin: 7px 0 0 !important;
+    padding: 0 !important;
+}
+
+body footer.sr-unified-footer .sr-socials a {
+    display: inline-block !important;
+
+    width: auto !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    font-size: 12px !important;
+}
+
+/* 7. COPYRIGHT */
+
+body footer.sr-unified-footer > .sr-footer-bottom {
+    display: flex !important;
+
+    width: 100% !important;
+    max-width: 1180px !important;
+
+    margin: 24px auto 0 !important;
+    padding: 12px 0 0 !important;
+
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+
+    justify-content: center !important;
+    align-items: center !important;
+
+    gap: 6px 18px !important;
+
+    border-top: 1px solid var(--sr-line);
+
+    text-align: center !important;
+    color: var(--theme-muted);
+}
+
+body footer.sr-unified-footer .sr-footer-bottom span {
+    display: block !important;
+
+    width: auto !important;
+    height: auto !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    font-size: 11px !important;
+    line-height: 1.5 !important;
+
+    text-align: center !important;
+    overflow-wrap: anywhere;
+}
+
+/* ================================================================
+   8. LAPTOPS — 1101 A 1199 PX
+   ================================================================ */
+
+@media (min-width: 1101px) and (max-width: 1199px) {
+
+    body footer.sr-unified-footer > .sr-footer-grid {
+        max-width: 900px !important;
+
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+
+        column-gap: 35px !important;
+        row-gap: 20px !important;
+    }
+
+    body footer.sr-unified-footer .sr-footer-brand {
+        grid-column: 1 / -1;
+
+        align-items: center !important;
+        text-align: center !important;
+    }
+
+    body footer.sr-unified-footer .sr-footer-brand p,
+    body footer.sr-unified-footer .sr-footer-brand > a:not(.sr-logo) {
+        text-align: center !important;
+    }
+
+    body footer.sr-unified-footer .sr-footer-grid > nav {
+        align-items: center !important;
+        text-align: center !important;
+    }
+
+    body footer.sr-unified-footer .sr-footer-grid > nav strong,
+    body footer.sr-unified-footer .sr-footer-grid > nav a {
+        text-align: center !important;
+    }
+
+    body footer.sr-unified-footer nav[aria-label="Ayuda y transparencia"] {
+        grid-column: 1 / -1;
+
+        max-width: 380px !important;
+        margin-inline: auto !important;
+    }
+}
+
+/* ================================================================
+   9. TABLETS — 701 A 1100 PX
+   ================================================================ */
+
+@media (min-width: 701px) and (max-width: 1100px) {
+
+    body footer.sr-unified-footer {
+        padding: 27px 22px 16px !important;
+    }
+
+    body footer.sr-unified-footer > .sr-footer-grid {
+        max-width: 680px !important;
+
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+
+        column-gap: 28px !important;
+        row-gap: 18px !important;
+    }
+
+    body footer.sr-unified-footer .sr-footer-brand {
+        grid-column: 1 / -1;
+
+        align-items: center !important;
+        text-align: center !important;
+
+        gap: 5px !important;
+    }
+
+    body footer.sr-unified-footer .sr-logo {
+        font-size: 24px !important;
+    }
+
+    body footer.sr-unified-footer .sr-footer-brand p,
+    body footer.sr-unified-footer .sr-footer-brand > a:not(.sr-logo) {
+        text-align: center !important;
+    }
+
+    body footer.sr-unified-footer .sr-footer-grid > nav {
+        align-items: center !important;
+        justify-content: flex-start !important;
+
+        gap: 7px !important;
+
+        text-align: center !important;
+    }
+
+    body footer.sr-unified-footer .sr-footer-grid > nav strong,
+    body footer.sr-unified-footer .sr-footer-grid > nav a {
+        text-align: center !important;
+    }
+
+    body footer.sr-unified-footer nav[aria-label="Ayuda y transparencia"] {
+        grid-column: 1 / -1;
+
+        width: 100% !important;
+        max-width: 380px !important;
+
+        margin: 0 auto !important;
+    }
+
+    body footer.sr-unified-footer > .sr-footer-bottom {
+        max-width: 680px !important;
+        margin-top: 19px !important;
+    }
+}
+
+/* ================================================================
+   10. TABLETS COMPACTAS — 521 A 700 PX
+   ================================================================ */
+
+@media (min-width: 521px) and (max-width: 700px) {
+
+    body footer.sr-unified-footer {
+        padding: 24px 18px 15px !important;
+    }
+
+    body footer.sr-unified-footer > .sr-footer-grid {
+        max-width: 540px !important;
+
+        column-gap: 18px !important;
+        row-gap: 16px !important;
+    }
+
+    body footer.sr-unified-footer .sr-footer-grid > nav {
+        gap: 6px !important;
+    }
+
+    body footer.sr-unified-footer .sr-footer-grid > nav a {
+        font-size: 12px !important;
+    }
+}
+
+/* ================================================================
+   11. MÓVILES — HASTA 520 PX
+   ================================================================ */
+
+@media (max-width: 520px) {
+
+    body footer.sr-footer.sr-unified-footer {
+        padding: 25px 16px
+            calc(17px + env(safe-area-inset-bottom)) !important;
+    }
+
+    body footer.sr-unified-footer > .sr-footer-grid {
+        display: grid !important;
+
+        width: 100% !important;
+        max-width: 390px !important;
+
+        grid-template-columns: minmax(0, 1fr) !important;
+
+        gap: 18px !important;
+
+        margin-inline: auto !important;
+    }
+
+    body footer.sr-unified-footer .sr-footer-brand {
+        grid-column: 1 / -1;
+
+        align-items: center !important;
+        text-align: center !important;
+    }
+
+    body footer.sr-unified-footer .sr-logo {
+        font-size: 23px !important;
+    }
+
+    body footer.sr-unified-footer .sr-footer-brand p,
+    body footer.sr-unified-footer .sr-footer-brand > a:not(.sr-logo) {
+        text-align: center !important;
+    }
+
+    body footer.sr-unified-footer .sr-footer-grid > nav {
+        grid-column: 1 / -1;
+
+        align-items: center !important;
+        justify-content: flex-start !important;
+
+        gap: 7px !important;
+
+        text-align: center !important;
+    }
+
+    body footer.sr-unified-footer .sr-footer-grid > nav strong,
+    body footer.sr-unified-footer .sr-footer-grid > nav a {
+        text-align: center !important;
+    }
+
+    body footer.sr-unified-footer .sr-footer-grid > nav a {
+        font-size: 13px !important;
+    }
+
+    body footer.sr-unified-footer > .sr-footer-bottom {
+        max-width: 390px !important;
+
+        flex-direction: column !important;
+
+        margin-top: 19px !important;
+        padding-top: 12px !important;
+
+        gap: 5px !important;
+    }
+
+    body footer.sr-unified-footer .sr-footer-bottom span {
+        width: 100% !important;
+        font-size: 11px !important;
+    }
+}
+
+/* ================================================================
+   12. MÓVILES PEQUEÑOS — HASTA 380 PX
+   ================================================================ */
+
+@media (max-width: 380px) {
+
+    body footer.sr-footer.sr-unified-footer {
+        padding-inline: 12px !important;
+    }
+
+    body footer.sr-unified-footer > .sr-footer-grid {
+        gap: 16px !important;
+    }
+
+    body footer.sr-unified-footer .sr-logo {
+        font-size: 21px !important;
+    }
+
+    body footer.sr-unified-footer .sr-footer-brand p,
+    body footer.sr-unified-footer .sr-footer-brand > a:not(.sr-logo) {
+        font-size: 12px !important;
+    }
+
+    body footer.sr-unified-footer .sr-footer-grid > nav {
+        gap: 6px !important;
+    }
+
+    body footer.sr-unified-footer .sr-footer-grid > nav a {
+        font-size: 12px !important;
+    }
+
+    body footer.sr-unified-footer .sr-footer-bottom span {
+        font-size: 10px !important;
+    }
+}
+
+/* ================================================================
+   13. ULTRACOMPACTOS — HASTA 320 PX
+   ================================================================ */
+
+@media (max-width: 320px) {
+
+    body footer.sr-footer.sr-unified-footer {
+        padding-inline: 10px !important;
+    }
+
+    body footer.sr-unified-footer .sr-footer-grid {
+        gap: 14px !important;
+    }
+
+    body footer.sr-unified-footer .sr-footer-grid > nav strong {
+        font-size: 12px !important;
+    }
+
+    body footer.sr-unified-footer .sr-footer-grid > nav a {
+        font-size: 11px !important;
+    }
+}
+
+/* ================================================================
+   14. ACCESIBILIDAD
+   ================================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+
+    body footer.sr-unified-footer a {
+        transition: none !important;
+    }
+}

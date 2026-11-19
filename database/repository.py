@@ -8,8 +8,9 @@ from __future__ import annotations
 from contextlib import contextmanager
 from contextvars import ContextVar
 from typing import Any, ClassVar
+from copy import deepcopy
 
-from database.connection import connection
+from database.connection import connection, transaction_limits
 
 try:
     from psycopg.types.json import Jsonb
@@ -35,12 +36,14 @@ class PostgresRepository:
         limit = max(1, min(int(limit), 5000))
         offset = max(0, int(offset))
         with connection() as conn, conn.cursor() as cur:
+            transaction_limits(conn)
             cur.execute(f"SELECT * FROM {cls.table} ORDER BY id LIMIT %s OFFSET %s", (limit, offset))
             return list(cur.fetchall())
 
     @classmethod
     def get_by_id(cls, item_id: int) -> dict[str, Any] | None:
         with connection() as conn, conn.cursor() as cur:
+            transaction_limits(conn)
             cur.execute(f"SELECT * FROM {cls.table} WHERE id=%s", (int(item_id),))
             return cur.fetchone()
 
@@ -53,6 +56,7 @@ class PostgresRepository:
         placeholders = ",".join(["%s"] * len(names))
         query = f"INSERT INTO {cls.table} ({','.join(names)}) VALUES ({placeholders}) RETURNING *"
         with connection() as conn, conn.cursor() as cur:
+            transaction_limits(conn)
             cur.execute(query, tuple(values[name] for name in names))
             result = cur.fetchone()
             conn.commit()
@@ -67,6 +71,7 @@ class PostgresRepository:
         assignments = ",".join(f"{name}=%s" for name in names)
         query = f"UPDATE {cls.table} SET {assignments}, updated_at=CURRENT_TIMESTAMP WHERE id=%s RETURNING *"
         with connection() as conn, conn.cursor() as cur:
+            transaction_limits(conn)
             cur.execute(query, tuple(values[name] for name in names) + (int(item_id),))
             result = cur.fetchone()
             conn.commit()
@@ -75,6 +80,7 @@ class PostgresRepository:
     @classmethod
     def delete(cls, item_id: int) -> bool:
         with connection() as conn, conn.cursor() as cur:
+            transaction_limits(conn)
             cur.execute(f"DELETE FROM {cls.table} WHERE id=%s", (int(item_id),))
             deleted = cur.rowcount == 1
             conn.commit()
@@ -92,6 +98,7 @@ def document_transaction():
         yield active
         return
     with connection() as conn, conn.transaction():
+        transaction_limits(conn)
         token = _document_connection.set(conn)
         try:
             yield conn
@@ -104,6 +111,21 @@ class PostgresDocumentRepository:
 
     table = "public.app_records"
 
+    @staticmethod
+    def _request_cache():
+        from flask import has_request_context, g, request
+        if not has_request_context() or request.method not in {'GET', 'HEAD'} or _document_connection.get() is not None:
+            return None
+        if not hasattr(g, '_document_reads'):
+            g._document_reads = {}
+        return g._document_reads
+
+    @staticmethod
+    def _invalidate(collection):
+        from flask import has_request_context, g
+        if has_request_context():
+            getattr(g, '_document_reads', {}).pop(collection, None)
+
     @classmethod
     def _jsonb(cls, value: dict[str, Any]):
         if Jsonb is None:
@@ -112,12 +134,18 @@ class PostgresDocumentRepository:
 
     @classmethod
     def all(cls, collection: str) -> list[dict[str, Any]]:
+        cache = cls._request_cache()
+        if cache is not None and collection in cache:
+            return deepcopy(cache[collection])
         with document_transaction() as conn, conn.cursor() as cur:
             cur.execute(
                 f"SELECT payload FROM {cls.table} WHERE collection = %s ORDER BY id",
                 (collection,),
             )
-            return [row["payload"] for row in cur.fetchall()]
+            rows = [row["payload"] for row in cur.fetchall()]
+        if cache is not None and len(rows) <= 1000 and len(cache) < 16:
+            cache[collection] = deepcopy(rows)
+        return rows
 
     @classmethod
     def get_by_id(cls, collection: str, item_id: int, *, for_update: bool = False) -> dict[str, Any] | None:
@@ -132,6 +160,7 @@ class PostgresDocumentRepository:
 
     @classmethod
     def create(cls, collection: str, values: dict[str, Any]) -> dict[str, Any]:
+        cls._invalidate(collection)
         if not isinstance(values, dict):
             raise TypeError("values debe ser un objeto")
         item = dict(values)
@@ -160,6 +189,7 @@ class PostgresDocumentRepository:
     def update(
         cls, collection: str, item_id: int, values: dict[str, Any]
     ) -> dict[str, Any] | None:
+        cls._invalidate(collection)
         if not isinstance(values, dict):
             raise TypeError("values debe ser un objeto")
         changes = dict(values)
@@ -179,6 +209,7 @@ class PostgresDocumentRepository:
 
     @classmethod
     def delete(cls, collection: str, item_id: int) -> bool:
+        cls._invalidate(collection)
         with document_transaction() as conn, conn.cursor() as cur:
             cur.execute(
                 f"DELETE FROM {cls.table} WHERE collection = %s AND id = %s",
@@ -190,6 +221,7 @@ class PostgresDocumentRepository:
     @classmethod
     def replace_all(cls, collection: str, values: list[dict[str, Any]]) -> None:
         """Replace one collection atomically; used only by legacy model helpers."""
+        cls._invalidate(collection)
         if not isinstance(values, list) or any(not isinstance(item, dict) for item in values):
             raise TypeError("values debe ser una lista de objetos")
         with document_transaction() as conn, conn.cursor() as cur:

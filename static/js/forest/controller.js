@@ -17,24 +17,51 @@
     const panel = byId('forest-map-panel'), list = byId('forest-list'), map = byId('forest-map');
     const filters = byId('forest-filters'), toggle = document.querySelector('.forest-filter-toggle');
     const form = byId('search-form');
+    const place = byId('forest-district'), district = byId('district-select');
+    place?.addEventListener('change', () => { district.value = place.value; district.dispatchEvent(new Event('change',{bubbles:true})); });
+    district?.addEventListener('change', () => { if (place) place.value = district.value; });
+    form.addEventListener('reset', () => { if (place) place.value = ''; });
+
+    const dialog = document.createElement('dialog');
+    dialog.className = 'sr-map-dialog';
+    dialog.setAttribute('aria-label', 'Restaurantes cercanos y ubicación');
+    const closeMap = document.createElement('button');
+    closeMap.type = 'button'; closeMap.textContent = 'Cerrar mapa';
+    dialog.append(closeMap);
+    const choose = document.createElement('button');
+    choose.type = 'button'; choose.textContent = 'Elegir ubicación en el mapa';
+    const help = document.createElement('p'); help.className = 'sr-map-help'; help.setAttribute('role','status');
+    dialog.append(choose, help);
+    choose.addEventListener('click', () => {
+      help.textContent = 'Toca el mapa para guardar tu ubicación aproximada.';
+      const savePoint = (lat, lng) => {
+        window.dispatchEvent(new CustomEvent('smartresto:location-picked', {detail:{lat,lng}}));
+        help.textContent = 'Ubicación seleccionada.';
+      };
+      if (window.mapGL) window.mapGL.map.once('click', event => savePoint(event.lngLat.lat,event.lngLat.lng));
+      else if (typeof window.map !== 'undefined' && window.map?.once) window.map.once('click', event => savePoint(event.latlng.lat,event.latlng.lng));
+      else if (window.getLeafletMap?.()) window.getLeafletMap().once('click', event => savePoint(event.latlng.lat,event.latlng.lng));
+      else help.textContent = 'Espera a que termine de cargar el mapa y vuelve a pulsar.';
+    });
+    panel.before(dialog); dialog.append(panel);
     const setMap = visible => {
       panel.hidden = !visible;
-      document.querySelector('.forest-results-layout').classList.toggle('forest-with-map', visible);
-      for (const [button, active] of [[list, !visible], [map, visible]]) {
-        button.setAttribute('aria-pressed', String(active));
-        button.classList.toggle('active', active);
+      map.setAttribute('aria-pressed', String(visible));
+      list.setAttribute('aria-pressed', String(!visible));
+      if (!visible) { dialog.close(); return; }
+      if (!dialog.open) dialog.showModal();
+      window.dispatchEvent(new Event('forest:map-open'));
+      if (typeof maplibregl === 'undefined' && typeof initMap === 'function' && typeof L !== 'undefined' && !window.mapGL) {
+        if (!panel.querySelector('.leaflet-pane')) initMap();
       }
-      if (visible) {
-        window.dispatchEvent(new Event('forest:map-open'));
-        if (typeof maplibregl === 'undefined' && typeof initMap === 'function' && typeof L !== 'undefined' && !window.mapGL) {
-          if (!panel.querySelector('.leaflet-pane')) initMap();
-        }
-        requestAnimationFrame(() => { window.mapGL?.map.resize(); if (typeof window.map !== 'undefined') window.map?.invalidateSize?.(); window.dispatchEvent(new Event('resize')); });
-      }
+      requestAnimationFrame(() => { window.mapGL?.map.resize(); if (typeof window.map !== 'undefined') window.map?.invalidateSize?.(); window.dispatchEvent(new Event('resize')); });
     };
+    closeMap.addEventListener('click', () => setMap(false));
+    dialog.addEventListener('cancel', event => { event.preventDefault(); setMap(false); });
+    dialog.addEventListener('click', event => { if (event.target === dialog) setMap(false); });
     map.addEventListener('click', () => setMap(true));
     list.addEventListener('click', () => setMap(false));
-    byId('forest-nearby-map').addEventListener('click', () => { setMap(true); panel.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block:'center'}); });
+    byId('forest-nearby-map').addEventListener('click', () => setMap(true));
     toggle.addEventListener('click', () => { filters.open = !filters.open; if (filters.open) filters.scrollIntoView({block:'center'}); });
     filters.addEventListener('toggle', () => toggle.setAttribute('aria-expanded', String(filters.open)));
     const reset = () => {

@@ -32,6 +32,10 @@ def food_experience():
         except Exception as error:
             current_app.logger.warning('Visual catalog unavailable: %s',type(error).__name__);degraded=True
     items=select_food_scene(view,profile,dishes,favorites,favorite_dishes)
+    if not user and view == 'business':
+        from pathlib import Path
+        if (Path(current_app.static_folder) / 'images/editorial/business.webp').is_file():
+            items[0] = {**items[0], 'image':'/static/images/editorial/business.webp', 'name':'Trucha andina de autor', 'caption':'Imagen editorial generada con IA · presentación ilustrativa'}
     response=jsonify(items=items,personalized=personalized,selection='preferences' if personalized else 'editorial',degraded=degraded,
                      notice='Confirma ingredientes y alérgenos con el negocio.' if profile.get('restrictions') else None)
     response.headers['Cache-Control']='private, no-store'

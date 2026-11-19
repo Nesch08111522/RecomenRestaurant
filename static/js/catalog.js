@@ -109,6 +109,7 @@
     filtered.forEach((product) => {
       const availability = product.availability || (product.is_available === false ? 'sold_out' : 'available');
       const card = el('article', 'catalog-product-card');
+      card.setAttribute('role', 'listitem');
       card.dataset.availability = availability;
       const top = el('div', 'catalog-product-top');
       const typeNode = el('span', 'catalog-product-type', productTypeLabel(product.product_type));
@@ -156,6 +157,10 @@
   function fillForm(product = {}, draftId = '') {
     setValue('editingProductId', productId(product) || '');
     setValue('editingDraftId', draftId || '');
+    const seasons = productArray(product, 'seasons');
+    for (const input of byId('productForm').querySelectorAll('[name="seasons"]')) {
+      input.checked = seasons.some(season => text(season).toLowerCase() === input.value.toLowerCase());
+    }
     setValue('productName', product.name); setValue('productType', product.product_type || 'plato'); setValue('productCategory', product.category); setValue('productSubcategory', product.subcategory); setValue('productDescription', product.description); setValue('productPrice', product.price); setValue('productPortion', product.portion); setValue('productAvailability', product.availability || (product.is_available === false ? 'sold_out' : 'available')); setValue('productMenuType', product.menu_type || 'carta'); setValue('productMenuDate', product.menu_date); setValue('productMealTime', product.meal_time || 'almuerzo'); setChecked('productPromotional', product.promotional); setValue('productPromoText', product.promo_text); setValue('productIngredients', productArray(product, 'ingredients').join('\n')); setValue('productProbableIngredients', productArray(product, 'probable_ingredients').join('\n')); setValue('productAllergens', product.allergens === null || product.allergens === undefined ? '' : productArray(product, 'allergens').join('\n')); setChecked('ingredientsConfirmed', product.ingredients_confirmed); setChecked('rightsConfirmed', product.rights_confirmed); setChecked('allergensConfirmed', product.allergens_confirmed); setValue('productRecipe', productArray(product, 'recipe').length ? JSON.stringify(product.recipe, null, 2) : ''); setValue('productVariants', productArray(product, 'variants').length ? JSON.stringify(product.variants, null, 2) : ''); setValue('productAddons', productArray(product, 'addons').length ? JSON.stringify(product.addons, null, 2) : ''); setValue('productTags', productArray(product, 'tags').join('\n')); setValue('productImages', productArray(product, 'images').join('\n')); setValue('productVideos', productArray(product, 'videos').join('\n'));
     byId('editorTitle').textContent = productId(product) ? 'Editar producto' : 'Nuevo producto';
     byId('saveProductButton').querySelector('span').textContent = productId(product) ? 'Guardar cambios' : 'Guardar borrador';
@@ -170,6 +175,7 @@
     const price = nullablePrice(byId('productPrice').value);
     const product = {
       name, product_type: byId('productType').value, category: text(byId('productCategory').value).trim() || ({plato:'Fondo',bebida:'Bebida',postre:'Postre'}[byId('productType').value]), subcategory: text(byId('productSubcategory').value).trim(), description: text(byId('productDescription').value).trim(), price, portion: text(byId('productPortion').value).trim(), ingredients: lines(byId('productIngredients').value), probable_ingredients: lines(byId('productProbableIngredients').value), allergens: byId('allergensConfirmed').checked ? lines(byId('productAllergens').value) : null, allergens_confirmed: byId('allergensConfirmed').checked, ingredients_confirmed: byId('ingredientsConfirmed').checked, recipe: parseJson(byId('productRecipe').value, 'Receta'), variants: parseJson(byId('productVariants').value, 'Variantes'), addons: parseJson(byId('productAddons').value, 'Adicionales'), tags: lines(byId('productTags').value), images: lines(byId('productImages').value), videos, availability: byId('productAvailability').value, promotional: byId('productPromotional').checked, promo_text: text(byId('productPromoText').value).trim(), menu_type: byId('productMenuType').value, menu_date: byId('productMenuDate').value || null, meal_time: byId('productMealTime').value, rights_confirmed: byId('rightsConfirmed').checked,
+      seasons: Array.from(byId('productForm').querySelectorAll('[name="seasons"]:checked'), input => input.value),
     };
     return product;
   }

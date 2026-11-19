@@ -4,7 +4,7 @@
 <nav class="market-nav" aria-label="Mercado gastronómico">
 <a href="{{ url_for('market.browse') }}">Mercado de barrio</a><a href="{{ url_for('ecosystem.home') }}">Mi momento</a>
 <a href="{{ url_for('market.cart') }}">Carrito{% if session.market_cart %} ({{ session.market_cart.lines.values()|sum }}){% endif %}</a>
-{% if session.user %}<a href="{{ url_for('market.orders') }}">Mis pedidos</a>{% endif %}
+{% if session.user %}<a href="{{ url_for('market.orders') }}">Mis pedidos</a><a href="{{ url_for('loyalty.wallet_page') }}">Mis puntos</a>{% endif %}
 {% if session.role == 'admin' %}<a href="{{ url_for('market.trust') }}">Confianza</a>{% endif %}
 </nav>
 {% for message in get_flashed_messages() %}<p role="status" class="market-note">{{ message }}</p>{% endfor %}

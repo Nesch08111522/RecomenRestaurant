@@ -17,6 +17,12 @@ class ReviewModel(DataModel):
     collection = "reviews"
     
     @classmethod
+    def get_by_user(cls, user_id):
+        """Return only this user's reviews, newest first, for their profile."""
+        reviews = [row for row in cls._load_data() if row.get('user_id') == user_id]
+        return sorted(reviews, key=lambda row: row.get('created_at') or '', reverse=True)
+
+    @classmethod
     def get_by_restaurant(cls, restaurant_id):
         """
         Obtener todas las reseñas de un restaurante

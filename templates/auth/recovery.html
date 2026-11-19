@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% from 'partials/layouts.html' import SplitScreen with context %}
+
+{% block body_class %}sr-auth sr-recovery{% endblock %}
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+{% endblock %}
+
+{% block content %}
+{% call SplitScreen(ratio='40-60', visual_side='left', stack='visual-first', class_name='ax-stage layout-split-screen', label='Recuperación de cuenta', tag='section', id='ax-stage', mode='recover') %}
+  <div class="ax-forms" data-layout-side="content">
+    <div class="ax-card">
+      <h1 class="ax-title">Recupera tu cuenta</h1>
+      <p class="ax-subtitle">Recibe un código temporal en el contacto asociado o utiliza tu código de recuperación guardado.</p>
+
+      {% for category, message in get_flashed_messages(with_categories=true) %}
+        <p role="status" class="ax-flash ax-flash-{{ category }}">{{ message }}</p>
+      {% endfor %}
+
+      <form method="post" class="ax-form recovery-request">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="action" value="send_code">
+        <label class="ax-field">Usuario de la cuenta
+          <div class="ax-control"><input name="username" required maxlength="80" autocomplete="username" value="{{ request.form.get('username', '') }}"></div>
+        </label>
+        <label class="ax-field">Recibir código por
+          <div class="ax-control ax-control-select">
+            <select name="channel">
+              <option value="email">Correo asociado</option>
+              <option value="sms">SMS al número asociado</option>
+            </select>
+          </div>
+        </label>
+        <button class="sr-button" type="submit">Enviar código de seguridad</button>
+        <p class="ax-hint">Vence en 10 minutos y admite cinco intentos. Espera un minuto antes de solicitar otro. Nunca compartas tu código.</p>
+      </form>
+
+      <hr>
+
+      <form method="post" class="ax-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <label class="ax-field">Usuario
+          <div class="ax-control"><input name="username" required autocomplete="username" value="{{ request.form.get('username', '') }}"></div>
+        </label>
+        <label class="ax-field">Código de seguridad o recuperación
+          <div class="ax-control"><input name="code" required autocomplete="one-time-code"></div>
+        </label>
+        <label class="ax-field">Nueva contraseña
+          <div class="ax-control"><input name="password" required type="password" minlength="8" maxlength="256" autocomplete="new-password"></div>
+        </label>
+        <p class="ax-hint">Al menos ocho caracteres con letras y números.</p>
+        <button class="ax-submit" type="submit">Cambiar contraseña</button>
+      </form>
+
+      <p class="ax-switch"><a href="{{ url_for('auth.login') }}">Volver a iniciar sesión</a></p>
+    </div>
+  </div>
+
+  {% set scene_view = 'recover' %}
+  {% include 'auth/food_panel.html' %}
+{% endcall %}
+{% endblock %}
+
+{% block scripts %}
+<script type="module" src="{{ url_for('static', filename='js/auth/food-scene.js') }}"></script>
+{% endblock %}

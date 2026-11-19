@@ -4,6 +4,13 @@
   const stage = document.getElementById('ax-stage');
   if (!stage) return;
 
+  const accountRole = document.getElementById('ax-reg-role');
+  const businessFields = document.getElementById('ax-business-fields');
+  function showBusinessFields() {
+    if (businessFields) businessFields.hidden = accountRole.value !== 'business_owner';
+  }
+  accountRole?.addEventListener('change', showBusinessFields);
+  if (accountRole) showBusinessFields();
   const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
   const DURATION = 820;
   const panes = { login: stage.querySelector('[data-pane="login"]'), register: stage.querySelector('[data-pane="register"]') };
@@ -35,8 +42,7 @@
   stage.querySelectorAll('[data-ax-switch]').forEach(link => {
     link.addEventListener('click', event => {
       if (event.metaKey || event.ctrlKey || event.shiftKey || event.button !== 0) return;
-      event.preventDefault();
-      switchMode(link.dataset.axSwitch, true);
+      return; // Native navigation selects the correct food scene and preserves browser history.
     });
   });
 

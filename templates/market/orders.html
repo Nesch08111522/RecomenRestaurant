@@ -7,6 +7,7 @@
 <strong>Total {{ o.total|soles }}</strong> · {{ 'Reembolsado' if o.refunded else ('Pagado' if o.paid else 'Pago pendiente') }}
 <p>{{ o.history|map(attribute='state')|join(' → ') }}</p>
 <a href="{{ url_for('market.receipt',oid=o.id) }}">Descargar constancia de pedido</a>
+<a href="{{ url_for('market.order_traceability',oid=o.id) }}">Ver trazabilidad de ingredientes y lotes</a>
 <a href="{{ url_for('comunicacion.inbox',oid=o.id) }}">Conversar sobre el pedido</a>
 {% if o.state=='Entregado' %}<form method="post" action="{{ url_for('market.reorder',oid=o.id) }}">{{ token() }}<button class="secondary">Rearmar este combo a precios actuales</button></form>{% endif %}
 {% if o.state in ['Recibido','Confirmado'] and not o.paid %}<div class="market-inline">{% if o.method=='Digital' %}<form method="post" action="{{ url_for('market.pay',oid=o.id) }}">{{ token() }}<button>Pagar en Mercado Pago</button></form>{% endif %}<form method="post" action="{{ url_for('market.cancel',oid=o.id) }}">{{ token() }}<button class="secondary">Cancelar pedido</button></form></div>{% endif %}

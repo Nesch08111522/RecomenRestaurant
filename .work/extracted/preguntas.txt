@@ -1,0 +1,1797 @@
+Auditoría maestra de SmartResto: preguntas para el AV3 y las fases 1–6
+Lo que necesitas no es solamente una lista de preguntas sobre el código. Necesitas una auditoría funcional, técnica, académica y documental que te permita responder con evidencia:
+Qué tiene SmartResto.
+Para qué sirve cada funcionalidad.
+Qué problema resuelve.
+En qué módulo y rol se encuentra.
+Dónde se ingresa.
+Cómo se utiliza.
+Qué sucede internamente.
+Qué tecnologías intervienen.
+Dónde se encuentra implementado.
+Cómo se demuestra que funciona.
+Qué cambió respecto al APF2.
+Cómo se relaciona con la asignatura.
+Qué falta implementar o validar.
+He tomado como documentos de referencia el APF2 original de SmartResto y la rúbrica del AV3, además de tu informe de auditoría de las primeras seis fases.
+1. Primero: hay que establecer correctamente la evolución del proyecto
+Esta parte es importante para que el docente no encuentre contradicciones entre tu APF2 y el AV3.
+En el APF2, SmartResto se planteó principalmente como una plataforma de descubrimiento y recomendación para estudiantes universitarios de Trujillo. El problema era la búsqueda dispersa de restaurantes, las restricciones alimentarias, el presupuesto y la ubicación. El estudiante era el usuario principal; los negocios eran proveedores de la oferta y el administrador cumplía un papel operativo. 
+SmartResto_APF2_Informe_Integrado Original.pdf
+El APF2 también delimitó un MVP y dejó para etapas posteriores los pedidos, pagos, reservas, voz, Web-AR y la personalización avanzada. 
+SmartResto_APF2_Informe_Integrado Original.pdf
+Ahora tu proyecto ha evolucionado hacia un ecosistema que incorpora gestión comercial, automatización empresarial, QR, pedidos, producción, inventario, fidelización, experiencias 3D, analítica y funcionalidades inteligentes.
+Eso debe explicarse como una evolución del alcance, no como si todo hubiera formado parte del MVP original.
+Evolución que debe demostrar el AV3
+APF2 — Propuesta inicial
+Descubrir restaurantes, filtrar opciones, recomendar según criterios del estudiante y dar visibilidad a los negocios.
+AV3 — Evolución tecnológica
+Arquitectura modular, roles, catálogo, radar gastronómico, páginas empresariales, registro inteligente, marketplace y búsqueda contextual.
+Visión de producto — Roadmap
+Operación QR, SmartResto Flow, Machine Learning, cocina en casa, fidelización avanzada, 3D/AR y predicción empresarial.
+Cinco observaciones que debes resolver mediante la auditoría
+1. Encuestas: los anexos K del APF2 muestran gráficos con 500 respuestas. Sin embargo, la sección de diagnóstico reconoce que falta documentar la ficha técnica de la investigación. Necesitas verificar muestra, población, fechas, cuestionario y método de selección. No basta con mencionar que se encuestaron 500 personas. 
+SmartResto_APF2_Informe_Integrado Original.pdf
+2. Entrevistas: el anexo L contiene cuatro referencias a entrevistas con empresarios, pero necesitas identificar participantes, fechas, consentimiento, transcripciones y hallazgos que realmente se utilizaron. 
+SmartResto_APF2_Informe_Integrado Original.pdf
+3. Prototipo: el APF2 contiene afirmaciones que deben reconciliarse: en una parte describe un prototipo navegable en Flask, pero en otras indica que no se acreditaba una aplicación funcional y que varias pantallas eran conceptuales. El AV3 debe explicar qué existía realmente en cada momento y qué se construyó después. 
+SmartResto_APF2_Informe_Integrado Original.pdf
+4. Metodología: el APF2 presenta Design Thinking y XP; sus anexos también contienen actividades de XP y evaluación de LeSS para escalar. No debes afirmar que todos los marcos fueron utilizados en el desarrollo si solo fueron analizados o propuestos. 
+SmartResto_APF2_Informe_Integrado Original.pdf
+5. Tecnologías y costos: el APF2 planteaba Cloud, IA y ciberseguridad como tecnologías pertinentes, mientras que Blockchain e IoT no se consideraban necesarios para el MVP. También proponía servicios gratuitos y planes comerciales todavía sujetos a validación. Debes actualizar esa selección con las tecnologías que efectivamente utiliza el código y sus costos y límites reales. 
+SmartResto_APF2_Informe_Integrado Original.pdf
+2. Cómo debe responder el agente que auditará tu código
+Cada funcionalidad debe analizarse usando esta ficha. Es la estructura que permitirá localizarla, mostrarla y justificarla.
+Una regla fundamental: toda afirmación debe estar respaldada por una ruta, archivo, prueba, ejecución o evidencia identificable. El agente no debe interpretar que existe una funcionalidad solamente porque encuentre un botón, una clase o una plantilla.
+3. Preguntas sobre cada una de las seis fases implementadas
+Estas son las preguntas que necesitas responder antes de redactar el documento AV3.
+Fase 1. Arquitectura general y estructura central
+Auditar la infraestructura completa
+Objetivo de la auditoría: comprobar cómo está construido SmartResto y si sus componentes pueden trabajar de forma integrada.
+Preguntas que debe responder el agente
+A. Arquitectura del proyecto
+¿Cuál es la arquitectura real de SmartResto: monolito modular, MVC, arquitectura por capas u otra?
+¿Cuál es el punto de entrada de la aplicación Flask?
+¿Cómo se inicializa la aplicación y cómo se registran los Blueprints?
+¿Cuáles son todos los módulos y paquetes principales del proyecto?
+¿Qué responsabilidades tiene cada carpeta?
+¿Cómo se comunican las vistas, servicios, modelos y repositorios?
+¿Existen dependencias circulares o funcionalidades duplicadas?
+¿Qué componentes están desacoplados y cuáles están demasiado vinculados?
+¿Existe una separación entre lógica de presentación, lógica de negocio y persistencia?
+¿Qué mecanismos permiten agregar nuevas funcionalidades sin afectar las existentes?
+B. Base de datos
+¿Qué motor de base de datos utiliza realmente el sistema?
+¿Qué diferencia existe entre la información almacenada en tablas relacionales y los registros JSONB?
+¿Cuáles son las tablas y modelos principales?
+¿Cómo se relacionan usuarios, negocios, sucursales, platos y publicaciones?
+¿Existen claves foráneas, índices, restricciones y migraciones?
+¿Qué operaciones utilizan transacciones?
+¿Cómo se evitan operaciones duplicadas y condiciones de carrera?
+¿Existe aislamiento de información entre negocios?
+¿Cómo se realizan respaldos y recuperación de datos?
+¿Existe un registro de migraciones ejecutadas y su estado?
+C. Seguridad y servicios centrales
+¿Cómo se gestionan las sesiones y la autenticación?
+¿Cómo funcionan CSRF, rate limiting, 2FA y los permisos?
+¿Dónde se administran los secretos y variables de entorno?
+¿Qué rutas requieren autenticación?
+¿Cómo se controlan los permisos sobre información privada?
+¿Qué mecanismos de auditoría registra el sistema?
+¿Cómo se manejan los errores y excepciones?
+¿Existe un sistema central de notificaciones?
+¿Cómo se verifica la salud de la aplicación?
+¿Qué funcionalidades están disponibles realmente en los endpoints de plataforma?
+D. Interfaz y arquitectura visual
+¿Cómo se estructura la interfaz para cada rol?
+¿Qué layouts, headers, sidebars, footers y componentes son reutilizables?
+¿Cómo se implementan los temas claro y oscuro?
+¿Dónde se definen los breakpoints y cómo se aplican?
+¿Qué pruebas comprueban el responsive?
+¿Qué pantallas tienen problemas de desbordamiento o duplicación de estilos?
+Dónde debe mostrarte esta fase
+Estructura de carpetas del repositorio.
+Diagrama de arquitectura.
+Diagrama entidad-relación.
+Archivo de inicialización Flask.
+Configuración de Blueprints.
+Matriz de permisos.
+Esquema PostgreSQL.
+Endpoints de salud y manifiesto.
+Pruebas de autenticación y autorización.
+Capturas de interfaz a diferentes resoluciones.
+Resultado esperado: un diagrama que explique desde el navegador hasta la base de datos cómo circulan los datos de SmartResto.
+Fase 2. Gestión de usuarios, roles y perfiles
+Auditar los tres perfiles y sus permisos
+Objetivo: demostrar que el comensal, el empresario y el administrador tienen espacios funcionales distintos y correctamente integrados.
+A. Comensal
+¿Dónde se registra y dónde inicia sesión?
+¿Qué información solicita el registro?
+¿Qué preferencias puede configurar?
+¿Puede registrar presupuesto diario, semanal y por comida?
+¿Puede establecer restricciones alimentarias?
+¿Puede guardar ingredientes que no desea consumir?
+¿Cómo se administran favoritos?
+¿Dónde se consulta el historial de consumo?
+¿Cómo se administran las direcciones?
+¿Qué opciones de privacidad tiene?
+¿Dónde configura cookies, ubicación y notificaciones?
+¿Qué mecanismos permiten revocar consentimientos?
+¿Cómo se determina que una visita o compra pertenece realmente al usuario?
+B. Empresario
+¿Cómo se registra un empresario?
+¿Cómo crea su primer negocio?
+¿Cómo registra sucursales?
+¿Puede administrar varias sucursales?
+¿Qué información comercial debe completar?
+¿Qué documentación requiere verificación?
+¿Dónde consulta el estado de aprobación de su negocio?
+¿Puede invitar trabajadores?
+¿Qué roles de personal existen?
+¿Qué permisos tiene el propietario frente al gerente, cajero, mozo y cocina?
+¿Cómo se evita que un trabajador acceda a los datos de otro establecimiento?
+¿Dónde consulta su información de membresía o configuración comercial?
+C. Administrador
+¿Dónde se visualiza el panel general?
+¿Qué indicadores aparecen al ingresar?
+¿Cómo se consultan los usuarios?
+¿Cómo se verifica un negocio?
+¿Cómo se suspende o reactiva una cuenta?
+¿Cómo se revisan las publicaciones?
+¿Cómo se consultan los reclamos?
+¿Qué acciones quedan registradas en auditoría?
+¿Qué permisos tiene el administrador y cuáles no debería tener?
+¿Se puede identificar quién aprobó, rechazó o modificó una publicación?
+Evidencias solicitadas
+El agente debe crear una matriz como esta:
+También debe mostrar una prueba de aislamiento: un empresario intentando consultar o modificar un negocio ajeno.
+Fase 3. Descubrimiento automático de negocios gastronómicos
+Radar gastronómico e inteligencia artificial
+Objetivo: comprobar si SmartResto puede descubrir negocios, procesar su información, preparar fichas provisionales y permitir su verificación.
+A. Obtención de información
+¿Qué fuentes utiliza el radar gastronómico?
+¿Qué información obtiene de OpenStreetMap, Overpass u otros proveedores?
+¿Existe un adaptador de Google Places?
+¿Qué sucede si la API no tiene credenciales o supera sus límites?
+¿Puede localizar restaurantes, cafeterías, panaderías, juguerías, pastelerías, cocinas ocultas y emprendimientos?
+¿Cómo identifica la categoría de cada establecimiento?
+¿Puede detectar páginas oficiales y redes sociales?
+¿Cómo identifica enlaces a menús y cartas?
+¿Puede procesar documentos o archivos públicos autorizados?
+¿Qué restricciones tiene la extracción de datos de terceros?
+B. Procesamiento mediante IA
+¿Qué modelo de IA procesa la información encontrada?
+¿Se utiliza OpenRouter, Gemini, Groq u otro servicio?
+¿Cuál es el modelo real configurado?
+¿Qué instrucciones recibe el modelo?
+¿Qué campos extrae?
+¿Cómo identifica nombres, direcciones, horarios, platos y precios?
+¿Cómo distingue información encontrada de información confirmada?
+¿Cómo registra la fuente de cada dato?
+¿Cómo reconoce información incompleta?
+¿Cómo identifica posibles datos inventados o inconsistentes?
+¿Qué estructura JSON produce la IA?
+¿Cómo se validan los campos antes de guardarlos?
+¿Qué sucede cuando no responde el proveedor?
+C. Duplicados, revisión y reclamación
+¿Cómo se detectan dos registros del mismo negocio?
+¿Se utiliza comparación de nombres, direcciones o coordenadas?
+¿Qué distancia o tolerancia se aplica?
+¿Cómo se calcula el nivel de confianza?
+¿Qué significa confianza alta, media o baja?
+¿Dónde se crean las fichas provisionales?
+¿Qué estados puede tener una ficha?
+¿Qué información puede publicar automáticamente?
+¿Qué información necesita aprobación administrativa?
+¿Cómo puede un empresario reclamar un negocio existente?
+¿Cómo se comprueba que el solicitante es el propietario o representante autorizado?
+¿Cómo caduca o se consume una invitación firmada?
+¿Dónde se observa el historial de modificaciones?
+¿Cómo se actualiza periódicamente el catálogo?
+¿Qué worker o comando ejecuta la actualización?
+¿Cómo se supervisa un proceso interrumpido?
+Dónde mostrarlo
+Panel de radar gastronómico.
+Resultados de descubrimiento.
+Fichas pendientes.
+Detalle de fuente y procedencia.
+Nivel de confianza.
+Detección de duplicados.
+Panel administrativo de revisión.
+Flujo para reclamar un establecimiento.
+Historial de auditoría.
+Ejecución de un worker real.
+Prueba que debe exigir el agente: descubrir un establecimiento mediante una fuente real autorizada, generar una propuesta de ficha, mostrar su procedencia, identificar datos faltantes y someterla a revisión.
+Una prueba con JSON inventado no demuestra que el radar funcione en Internet.
+Fase 4. Portal empresarial y creación de páginas web
+Presencia digital de los negocios
+Objetivo: demostrar que un negocio puede tener su propia página dentro del ecosistema SmartResto y administrar su contenido.
+A. Página empresarial
+¿Cuál es la ruta pública de cada negocio?
+¿Cómo se genera el slug?
+¿Cómo se evita la duplicación de direcciones?
+¿Qué datos se muestran en la página?
+¿El propietario puede cambiar su logotipo?
+¿Puede personalizar los colores?
+¿Qué plantillas visuales existen?
+¿Cómo se organizan las sucursales?
+¿Cómo se muestran horarios y especialidades?
+¿Cómo se muestran fotografías?
+¿Cuántas imágenes admite la galería?
+¿Cómo se gestionan videos?
+¿Qué formatos de video están permitidos?
+¿Qué controles evitan subir archivos inseguros?
+¿Se generan metadatos Open Graph y JSON-LD?
+¿Cómo se comparte el negocio por redes sociales?
+B. IA para contenido
+¿La IA puede redactar descripciones?
+¿Puede mejorar títulos y textos comerciales?
+¿Puede proponer publicaciones?
+¿Puede adaptar textos a diferentes estilos?
+¿Cómo evita inventar características del negocio?
+¿El empresario revisa el contenido antes de publicarlo?
+¿Cómo se guardan los borradores y las versiones?
+C. Integración comercial
+¿La página empresarial muestra la carta?
+¿Muestra promociones?
+¿Puede dirigir al mercado?
+¿Puede mostrar reservas?
+¿Puede presentar modelos 3D?
+¿Cómo se diferencia una página publicada de una no verificada?
+¿Qué sucede si se suspende un negocio?
+Dónde mostrarlo
+Dashboard del empresario.
+Editor del sitio.
+Selector de plantillas.
+Editor de identidad visual.
+Gestor de imágenes y videos.
+Página pública del negocio.
+Página de sucursal.
+Vista previa antes de publicar.
+Acciones de compartir.
+Prueba que debe exigir el agente: iniciar sesión como empresario, modificar una descripción o fotografía, guardar el cambio y abrir la página pública para comprobar que se refleja correctamente.
+Fase 5. Catálogo gastronómico y registro inteligente
+Catálogo + visión + voz + Excel
+Objetivo: comprobar que el empresario puede registrar y administrar su oferta, con asistencia de IA cuando corresponda.
+A. Catálogo
+¿Qué tipos de productos gastronómicos admite?
+¿Cómo se organizan las categorías?
+¿Cómo se gestionan variantes y tamaños?
+¿Cómo se gestionan complementos?
+¿Dónde se almacenan los precios?
+¿Cómo se representan los precios en céntimos?
+¿Cómo se registran los ingredientes?
+¿Cómo se registran los alérgenos?
+¿Se registra la contaminación cruzada declarada?
+¿Cómo se vincula el producto con una receta?
+¿Cómo se controla la disponibilidad?
+¿Qué estados puede tener un plato?
+¿Cómo se marca un producto como agotado?
+¿Cómo se registran sus promociones?
+¿Qué diferencias hay entre un plato, una oferta y un menú?
+B. Visión artificial
+¿Cuál es el endpoint para subir una fotografía?
+¿Qué modelo la procesa?
+¿Qué información visual puede identificar?
+¿Qué respuesta devuelve?
+¿Se genera un borrador o se publica directamente?
+¿Cómo se valida resolución, tamaño y formato?
+¿Cómo se detectan imágenes duplicadas?
+¿Cómo se eliminan los metadatos del archivo original?
+¿El empresario puede corregir nombre, descripción, ingredientes y categoría?
+¿Qué información no se puede asegurar únicamente con una imagen?
+¿Cómo se mide cuántas sugerencias fueron aceptadas o corregidas?
+C. Gestión por voz
+¿Qué API reconoce la voz?
+¿Cómo se transforma el audio en texto?
+¿Qué campos puede extraer el sistema?
+¿Puede interpretar cantidades, precios y fechas?
+¿Cómo distingue una consulta de una orden de modificación?
+¿Qué sucede cuando la transcripción es incorrecta?
+¿Cómo confirma el empresario los cambios?
+¿Qué ocurre si el navegador no soporta el micrófono?
+D. Importación Excel
+¿Dónde se descarga la plantilla?
+¿Qué hojas contiene?
+¿Qué campos son obligatorios?
+¿Cómo se validan los tipos de datos?
+¿Cómo se identifican errores?
+¿Cómo se detectan duplicados?
+¿Cómo se relacionan negocios, platos, ingredientes y recetas?
+¿La IA participa en la interpretación de columnas?
+¿Cómo se visualiza la prevalidación?
+¿Qué sucede si una fila es correcta y otra contiene errores?
+¿La importación se realiza de forma transaccional?
+¿Existe un resumen del resultado?
+¿Se registra quién hizo la importación?
+¿Se puede revertir una importación incorrecta?
+Dónde mostrarlo
+Cocina → Catálogo.
+Crear plato.
+Subir fotografía.
+Borrador generado por IA.
+Corrección del contenido.
+Registro por voz.
+Descarga de plantilla Excel.
+Importación de Excel.
+Previsualización y confirmación.
+Productos en el catálogo publicado.
+Prueba que debe exigir el agente: crear un plato por fotografía, verificar que el modelo proponga datos, corregirlos y guardar. Después, importar un Excel y comparar lo cargado con la base de datos.
+Fase 6. Marketplace gastronómico y buscador inteligente
+Descubrimiento y recomendación contextual
+Objetivo: demostrar que el comensal encuentra opciones gastronómicas mediante el catálogo, los filtros y el procesamiento de consultas.
+A. Marketplace
+¿Dónde se encuentra la portada del marketplace?
+¿Qué tipos de negocios aparecen?
+¿Cómo se muestran restaurantes, huariques, cafeterías, pastelerías y emprendimientos?
+¿Cómo se presenta cada tarjeta?
+¿Qué información procede del negocio?
+¿Qué información procede de fuentes externas?
+¿Cómo se identifica si un precio está confirmado, declarado o desconocido?
+¿Cómo se identifica si un negocio está abierto?
+¿Cómo se actualiza la disponibilidad?
+¿Cuántos resultados se muestran por página?
+¿Cómo funciona la paginación?
+¿Cómo se muestran los estados vacíos y errores?
+B. Búsqueda y filtros
+¿Qué filtros existen?
+¿Cómo se aplican presupuesto diario, semanal y por comida?
+¿Cómo se buscan platos específicos?
+¿Cómo se buscan ingredientes?
+¿Cómo se filtran categorías?
+¿Cómo se filtran las modalidades de recojo, local y delivery?
+¿Cómo se aplican restricciones alimentarias?
+¿Qué ocurre cuando no existe una coincidencia exacta?
+¿Cómo se explica por qué aparece un negocio?
+¿Cómo se evita recomendar un plato agotado?
+¿Cómo se ordenan los resultados?
+¿El ordenamiento es determinista o utiliza un modelo entrenado?
+¿Cómo se comprueba que el precio está dentro del presupuesto?
+¿Cómo se evita que la IA altere el precio real del catálogo?
+C. Asistente de búsqueda con IA
+¿Qué endpoint recibe la pregunta?
+¿Qué proveedor y modelo utiliza?
+¿Cómo se interpreta el lenguaje natural?
+¿Qué estructura de filtros devuelve?
+¿Qué pasa cuando la consulta es ambigua?
+¿Qué sucede si el proveedor de IA falla?
+¿Cuál es el mecanismo de búsqueda local alternativo?
+¿Cómo se comprueba que el resultado provenga de registros existentes?
+¿Qué consultas se registran?
+¿Cómo se controlan las cuotas de uso?
+¿Se explica al usuario por qué se recomienda una opción?
+D. Mapas y geolocalización
+¿Qué biblioteca representa el mapa?
+¿Qué proveedor aporta los mapas base?
+¿Qué información se utiliza para localizar establecimientos?
+¿Cómo se solicita permiso de ubicación?
+¿Qué alternativa existe cuando el usuario no comparte ubicación?
+¿Cómo se calculan las distancias?
+¿Se utiliza Haversine, PostGIS o un servicio de rutas?
+¿Existe cálculo de rutas reales?
+¿Existe tiempo estimado de viaje?
+¿Qué funcionalidades dependen de una API externa?
+¿Qué errores de mapas, estilos, fuentes o tiles se presentan?
+¿Cómo se manejan los límites y costos del proveedor?
+Dónde mostrarlo
+Portada.
+Mercado.
+Filtros.
+Asistente de consumo.
+Tarjetas.
+Fichas de negocio.
+Mapa.
+Vista de resultados.
+Búsqueda por lenguaje natural.
+Prueba que debe exigir el agente: ingresar una consulta con presupuesto, ubicación y preferencia alimentaria; comprobar los filtros interpretados, los registros recuperados y los motivos de recomendación.
+4. Preguntas transversales: IA, algoritmos y otras tecnologías
+Esta sección es indispensable porque una misma funcionalidad puede utilizar varias tecnologías. No basta con enumerar proveedores.
+A. Inteligencia artificial generativa
+¿Cuáles son todas las funcionalidades que utilizan modelos generativos?
+¿Qué proveedor se utiliza en cada una?
+¿Qué modelo exacto se encuentra configurado?
+¿Qué endpoint consume?
+¿Qué prompt o instrucciones se le envían?
+¿Qué formato de salida produce?
+¿Cómo se valida la salida?
+¿Cómo se maneja una respuesta inválida?
+¿Qué datos del usuario se envían al proveedor?
+¿Qué datos personales se excluyen?
+¿Qué límites de uso tiene?
+¿Qué costo genera?
+¿Qué latencia registra?
+¿Qué mecanismos de fallback existen?
+¿Cómo se mide la precisión de sus sugerencias?
+¿Qué acciones necesitan aprobación humana?
+B. Visión artificial y voz
+¿Qué modelos pueden interpretar fotografías?
+¿Qué tareas realiza la IA visual?
+¿Se procesa una imagen o varias?
+¿Qué datos puede inferir de la fotografía?
+¿Qué datos requieren validación humana?
+¿Cómo se procesa el audio?
+¿Qué motor reconoce el habla?
+¿Cómo se representa la transcripción?
+¿Qué pasa cuando el audio no se comprende?
+¿Qué operaciones se permiten desde voz?
+¿Qué operaciones requieren confirmación?
+C. Machine Learning
+¿Existe algún modelo entrenado con datos de SmartResto?
+¿Qué problema resuelve?
+¿Qué conjunto de datos utiliza?
+¿Qué variables predictoras tiene?
+¿Cuál es la variable objetivo?
+¿Cómo se prepara el conjunto de entrenamiento?
+¿Cómo se separan entrenamiento, validación y prueba?
+¿Qué algoritmo se ha seleccionado?
+¿Cómo se compara con una línea base?
+¿Qué métricas se utilizaron?
+¿Qué resultados se obtuvieron?
+¿Cómo se guarda y se carga el modelo?
+¿Cómo se actualiza?
+¿Qué limitaciones tiene?
+¿Cómo se detecta una degradación del modelo?
+Pregunta especialmente importante: ¿el sistema utiliza realmente Machine Learning o simplemente reglas de negocio, consultas SQL, filtros o respuestas generativas? El agente debe demostrarlo con clases, código, entrenamiento y métricas, no con el nombre de una funcionalidad.
+D. Tecnologías de infraestructura y operación
+¿Qué servicios Cloud se utilizan realmente?
+¿Dónde se aloja backend, frontend, base de datos y archivos?
+¿Qué servicios se encuentran en local y cuáles en nube?
+¿Existe Docker?
+¿Existen archivos de configuración de despliegue?
+¿Existe integración continua?
+¿Se ejecutan pruebas automáticamente al integrar cambios?
+¿Existe despliegue continuo?
+¿Cómo se monitorean errores?
+¿Cómo se gestionan logs?
+¿Cómo se controla disponibilidad y consumo de recursos?
+E. APIs y tecnología geográfica
+¿Qué APIs externas consume SmartResto?
+¿Qué información recibe y devuelve cada una?
+¿Qué autenticación exige?
+¿Qué límites y costos aplica?
+¿Qué datos almacena la plataforma y cuáles solo consulta?
+¿Se utilizan servicios de mapas, rutas, geocodificación y lugares?
+¿Se utiliza PostGIS o solamente cálculos geométricos propios?
+¿Qué datos geográficos se consideran confiables?
+¿Qué ocurre si un proveedor deja de estar disponible?
+F. Seguridad, privacidad y trazabilidad
+¿Qué controles de autenticación existen?
+¿Cómo se controlan roles y permisos?
+¿Cómo se protege la información entre negocios?
+¿Cómo se manejan secretos?
+¿Cómo se almacenan las contraseñas?
+¿Cómo se protegen los documentos privados?
+¿Cómo se verifica el consentimiento?
+¿Cómo se separan cookies, ubicación, notificaciones y comunicaciones comerciales?
+¿Cómo se registra la actividad de IA?
+¿Cómo se detectan accesos no autorizados?
+¿Qué políticas de retención y eliminación están implementadas?
+¿Qué controles requieren una evaluación adicional antes de producción?
+5. Preguntas para alinear SmartResto con las tres unidades del sílabo
+Esta sección permite que el docente vea la relación entre lo desarrollado y lo aprendido en el curso. No debes limitarte a incluir conceptos teóricos: necesitas explicar cómo los aplicaste o por qué no corresponde aplicarlos.
+Unidad 1. Gestión de la innovación y transformación digital
+Innovación y proceso innovador
+¿Qué tipo de innovación representa SmartResto?
+¿Es innovación de servicio, producto, proceso, organizacional o de modelo de negocio?
+¿Qué situación anterior mejora?
+¿Cuál fue el proceso seguido para identificar la oportunidad?
+¿Qué alternativas de solución se evaluaron?
+¿Por qué se seleccionó SmartResto frente a las alternativas?
+¿Qué características son realmente diferenciadoras?
+¿Qué funcionalidades son mejoras incrementales y cuáles representan cambios más significativos?
+¿Qué evidencia demuestra que la propuesta responde a una necesidad?
+Gestión del conocimiento
+¿Cómo se recopila información sobre clientes y negocios?
+¿Cómo se transforma esa información en datos estructurados?
+¿Cómo se utiliza el conocimiento para recomendar restaurantes?
+¿Cómo se aprovecha el historial de consumo?
+¿Cómo se conserva el conocimiento de las operaciones?
+¿Cómo se evita utilizar información obsoleta?
+¿Cómo se comparte conocimiento entre los módulos?
+¿Cómo aprende el equipo de los resultados y errores?
+Relaciones interculturales en negocios globales
+¿Cómo se adapta SmartResto a diferentes tipos de gastronomía?
+¿Cómo considera distintas culturas y preferencias alimentarias?
+¿Cómo evita asumir que todos los consumidores tienen los mismos hábitos?
+¿Cómo se podría ampliar a otras ciudades o países?
+¿Qué aspectos deberían localizarse: moneda, idioma, categorías, ingredientes o regulaciones?
+Championing de la innovación
+¿Quién promueve la visión del producto?
+¿Quién representa las necesidades del usuario?
+¿Quién lidera las decisiones tecnológicas?
+¿Quién gestiona la relación con los empresarios?
+¿Cómo se presenta y consigue apoyo para la innovación?
+¿Cómo se manejan las resistencias a adoptar SmartResto?
+¿Qué estrategia permitiría que un restaurante pase de su proceso manual a la plataforma?
+Tecnologías clave
+¿Por qué se seleccionó Cloud?
+¿Por qué se seleccionó inteligencia artificial?
+¿Cómo se aplica ciberseguridad?
+¿Se justifica IoT para el alcance actual?
+¿Se justifica Blockchain para el alcance actual?
+¿Qué otras tecnologías son necesarias?
+¿Cuál es la tecnología clave principal y por qué?
+¿Qué ventajas y limitaciones tiene cada tecnología?
+¿Qué alternativas se evaluaron?
+¿Qué costos y restricciones deben considerarse?
+Referencia al APF2: en el trabajo de la semana 4 se eligió Inteligencia Artificial como tecnología principal, se consideró Cloud y ciberseguridad y se descartó IoT y Blockchain para el MVP. El AV3 debe actualizar esta decisión, explicar la evolución y no cambiarla sin justificación. 
+SmartResto_APF2_Informe_Integrado Original.pdf
+Unidad 2. Metodologías de innovación y marcos de transformación digital
+Design Thinking
+¿Cómo se aplicó la etapa de comprender?
+¿Qué información se obtuvo de usuarios?
+¿Cómo se desarrolló la etapa de observar?
+¿Qué evidencias se recogieron?
+¿Cómo se definió el problema?
+¿Cuál es la pregunta «¿Cómo podríamos…?» vigente?
+¿Qué alternativas se idearon?
+¿Cómo se priorizaron?
+¿Qué prototipos se construyeron?
+¿Con quiénes se probaron?
+¿Qué observaciones se recogieron?
+¿Qué cambios se aplicaron después de las pruebas?
+Lean Startup
+¿Qué hipótesis de negocio se desea validar?
+¿Cuál es la hipótesis de valor?
+¿Cuál es la hipótesis de crecimiento?
+¿Qué MVP se construyó?
+¿Qué experimento se realizó?
+¿Qué métricas se midieron?
+¿Qué se aprendió?
+¿Qué decisión se tomó: perseverar, ajustar o pivotar?
+¿Qué pruebas permiten sustentar esa decisión?
+No debes afirmar que Lean Startup se aplicó operativamente si solo se estudió en clase. Puedes explicar su pertinencia o por qué se eligió otro método.
+Lean Change Management
+¿Qué cambios organizacionales introduce SmartResto?
+¿Qué personas deben adaptarse?
+¿Qué resistencias podrían presentarse?
+¿Cómo se comunica el cambio?
+¿Cómo se capacita a empresarios y trabajadores?
+¿Cómo se obtiene retroalimentación?
+¿Cómo se mejora la adopción de la plataforma?
+Scrum, Kanban y XP
+¿Qué metodología se utilizó realmente para desarrollar el software?
+¿Cómo se organiza el backlog?
+¿Existen historias de usuario?
+¿Cada historia tiene criterios de aceptación?
+¿Cómo se priorizan las tareas?
+¿Cuánto dura cada iteración?
+¿Cómo se revisa el código?
+¿Cómo se realizan pruebas?
+¿Se aplica TDD?
+¿Cómo se integra el código?
+¿Existe propiedad colectiva del código?
+¿Se utiliza programación en pareja?
+¿Cómo se administra el trabajo pendiente?
+¿Hay un tablero Kanban?
+¿Existen reuniones de planificación y retrospectiva?
+¿Qué evidencias muestran la aplicación del marco elegido?
+Frameworks de escalamiento
+¿Se evaluaron SAFe, LeSS y Scrum Scale?
+¿Por qué se eligió o descartó cada uno?
+¿La estructura actual del equipo necesita escalamiento?
+¿Qué problemas surgirían al dividir SmartResto en varios equipos?
+¿Cómo se controlarían dependencias e integraciones?
+Referencia al APF2: sus anexos H e I desarrollan XP y una actividad de selección de marco ágil; el anexo J contiene el análisis de LeSS. Hay que separar lo propuesto como marco de escalamiento de lo efectivamente aplicado en el día a día del equipo. 
+SmartResto_APF2_Informe_Integrado Original.pdf
+Unidad 3. Tecnologías para la transformación digital
+Cloud y DevOps
+¿Qué arquitectura Cloud se utiliza?
+¿Qué componentes se despliegan?
+¿Qué proveedores están realmente configurados?
+¿Cómo se manejan los ambientes de desarrollo, pruebas y producción?
+¿Cómo se automatizan las pruebas?
+¿Cómo se despliega una nueva versión?
+¿Cómo se administra la configuración?
+¿Cómo se registran fallos y se recupera el servicio?
+¿Qué recursos se consumen?
+¿Cuáles son los costos reales y los límites gratuitos?
+Fundamentos de IA y razonamiento
+¿Qué problemas de SmartResto pueden modelarse como espacios de búsqueda?
+¿Cuál es el estado inicial?
+¿Qué acciones están disponibles?
+¿Qué restricciones existen?
+¿Cuál es el estado objetivo?
+¿Cuál es el costo de una solución?
+¿Qué función heurística se utiliza?
+¿Qué criterios permiten comparar soluciones?
+¿Qué problema se resuelve con reglas y cuál requiere un algoritmo de búsqueda?
+Algoritmos de búsqueda
+¿Dónde se podría aplicar búsqueda en profundidad?
+¿Dónde se podría aplicar búsqueda en anchura?
+¿Qué caso requiere búsqueda exhaustiva?
+¿Qué problema se podría optimizar mediante Hill Climbing?
+¿Qué problema se podría resolver con A*?
+¿Qué heurística sería admisible o apropiada?
+¿Cómo se comparan tiempo, memoria y calidad de solución?
+Por ejemplo, A* podría utilizarse para navegación si SmartResto incorpora un grafo de calles y costos de desplazamiento; no debes afirmar que ya se usa porque exista un mapa con marcadores.
+Machine Learning
+¿Qué variable necesita predecirse?
+¿La tarea es de clasificación, regresión o clustering?
+¿Qué datos están disponibles?
+¿Cuántos registros existen?
+¿Cómo se limpian y preparan los datos?
+¿Qué atributos se utilizan?
+¿Cómo se separa entrenamiento y prueba?
+¿Qué algoritmo se compara?
+¿Qué resultado obtiene cada algoritmo?
+¿Qué métricas se calculan?
+¿Qué modelo se selecciona y por qué?
+¿Cómo se explica su resultado a un empresario?
+¿Cómo se evita utilizar información futura en el entrenamiento?
+Algoritmos exigidos en el sílabo
+El agente debe responder individualmente, no de forma agrupada, para cada algoritmo:
+Regresión lineal: ¿está implementada? ¿Qué variable estima? ¿Dónde está su código y resultado?
+Regresión no lineal: ¿qué relación modela y cómo se compara?
+Regresión logística: ¿qué evento binario predice?
+SVM: ¿qué problema de clasificación resuelve?
+KNN: ¿qué similitud calcula y con qué atributos?
+Árboles de decisión: ¿qué reglas aprende y cómo se interpreta?
+Boosting: ¿qué algoritmo se utiliza y qué mejora frente a una línea base?
+K-Means: ¿qué grupos identifica y cómo se selecciona K?
+Mean-Shift: ¿qué agrupaciones descubre sin fijar previamente el número de grupos?
+DBSCAN: ¿qué densidad y parámetros utiliza para descubrir grupos y ruido?
+GMM: ¿qué distribuciones probabilísticas estima?
+Agglomerative Clustering: ¿qué distancia, enlace y dendrograma utiliza?
+Para cada uno debe indicar expresamente uno de estos estados: implementado y probado, implementado sin pruebas, prototipo experimental, no implementado o no pertinente.
+No es necesario integrar artificialmente los doce algoritmos a la plataforma productiva. Sí es necesario demostrar dominio de los contenidos que correspondan a la evaluación. Si alguno no se implementó, debe quedar como trabajo pendiente o ejercicio experimental, no como funcionalidad existente.
+6. Preguntas sobre la visión ampliada de SmartResto
+Estas preguntas corresponden a la visión completa que has definido. El agente debe verificar si cada capacidad ya existe en las fases 1–6, si está parcialmente resuelta o si constituye una fase posterior.
+No se debe sumar como cumplimiento de las seis fases una funcionalidad que todavía esté en el roadmap.
+A. Descubrimiento automático e incorporación de negocios
+¿Cómo se descubre un nuevo negocio?
+¿Qué fuentes están permitidas?
+¿Cómo se identifica un restaurante duplicado?
+¿Cómo se extraen los menús?
+¿Cómo se detectan cambios de carta?
+¿Cómo se registran origen, fecha y confianza de los datos?
+¿Cómo se genera una ficha provisional?
+¿Cómo reclama el negocio su ficha?
+¿Cómo se comprueba su identidad?
+¿Qué ocurre cuando se detectan palabras o contenidos problemáticos?
+¿La IA propone una corrección o decide automáticamente?
+¿Qué casos requieren intervención del administrador?
+B. Recomendaciones conectadas con el consumo
+¿Cómo se registra una compra completada?
+¿Cómo se registra una visita presencial verificada?
+¿Cómo se relaciona la visita con un plato?
+¿Cómo se crea el historial gastronómico?
+¿Cómo se recomiendan platos similares?
+¿Cómo se sugieren platos nuevos?
+¿Cómo se ofrece una alternativa de delivery?
+¿Cómo se conecta el consumo con una receta doméstica?
+¿Cómo se explica al usuario por qué recibe cada recomendación?
+¿Cómo se evita recomendar opciones incompatibles con restricciones alimentarias?
+¿Cómo se distingue una recomendación de IA de una recomendación por reglas?
+C. Páginas empresariales y contenido comercial
+¿Cada negocio tiene una página pública?
+¿Puede administrar fotografías y videos?
+¿Puede mostrar platos destacados?
+¿Puede personalizar colores, plantillas y contenido?
+¿Puede actualizar precios y disponibilidad?
+¿Puede integrar su carta digital?
+¿Puede compartir su página?
+¿La IA redacta el contenido?
+¿Existe aprobación antes de publicar?
+¿Cómo se miden visitas e interacciones de la página?
+D. QR, pisos, zonas y mesas
+¿Cada QR está vinculado a un negocio?
+¿Está vinculado a una sucursal?
+¿Está vinculado a un piso y zona?
+¿Está vinculado a una mesa específica?
+¿Cómo se verifica que el QR no sea manipulado?
+¿Cómo se crea una sesión de atención?
+¿Cómo se impide que dos sesiones ocupen la misma mesa?
+¿Cómo consulta el cliente la carta?
+¿Cómo agrega productos al pedido?
+¿Cómo solicita la cuenta?
+¿Cómo solicita un mozo?
+¿Cómo se divide una cuenta?
+¿Cómo se actualizan los pedidos en cocina?
+¿Qué ocurre cuando un plato se agota mientras está en el carrito?
+E. SmartResto Flow: aforo y cola virtual
+¿Cómo se define el aforo máximo de un local?
+¿Cómo se define la capacidad por piso, zona y mesa?
+¿Cómo se determina que una mesa está ocupada?
+¿Cómo se diferencia un QR escaneado de una sesión real de atención?
+¿Cómo se contabilizan las personas?
+¿Qué ocurre cuando una persona abandona la sesión sin pedir la cuenta?
+¿Cómo se confirma el cierre de consumo?
+¿Cómo se calcula la ocupación por mesas y por personas?
+¿Cómo se estima el tiempo de espera?
+¿Qué datos alimentan la estimación?
+¿Cómo se registra una cola virtual?
+¿Cómo se emite un turno?
+¿Cómo se asigna una mesa compatible con el tamaño del grupo?
+¿Cómo se confirma que el cliente sigue interesado?
+¿Cómo se notifica que una mesa está próxima a liberarse?
+¿Cómo se evita asignar una misma mesa a dos grupos?
+¿Cómo se preparan pedidos anticipados sin enviarlos a cocina antes de tiempo?
+F. Producción, inventario y disponibilidad
+¿Cómo se registra la producción de un plato?
+¿Cómo se calcula la capacidad teórica según los ingredientes?
+¿Cómo se calcula el número real de porciones?
+¿Cómo se registran las mermas?
+¿Cómo se descuentan los ingredientes por venta?
+¿Cómo se reserva el stock cuando se confirma un pedido?
+¿Cómo se evita descontar dos veces?
+¿Cómo se identifica un producto agotado?
+¿Cómo se actualiza la disponibilidad de la carta?
+¿Cómo se recomienda una alternativa cuando se agota un plato?
+¿Cómo se notifica al empresario que un ingrediente está por agotarse?
+G. Fidelización, privacidad y notificaciones
+¿Cómo se acumulan puntos?
+¿Qué eventos generan puntos?
+¿Cómo se evitan duplicaciones?
+¿Cómo se revierten puntos por cancelaciones o devoluciones?
+¿Cómo se registra el número de visitas verificadas?
+¿Cómo se activa una encuesta posconsumo?
+¿Cómo se evita enviar encuestas duplicadas?
+¿Qué canales de notificación existen?
+¿Cómo se solicita consentimiento para notificaciones push?
+¿Cómo se separa ese consentimiento del uso de cookies?
+¿Cómo se solicita permiso de ubicación?
+¿Cómo se permite revocar cada permiso?
+¿Cómo se limita la frecuencia de campañas promocionales?
+H. SmartResto Home y cocina doméstica
+¿Dónde se registra la despensa?
+¿Cómo se escanean alimentos?
+¿Cómo se registran vencimientos?
+¿Cómo se proponen recetas según ingredientes disponibles?
+¿Cómo se calculan cantidades y porciones?
+¿Cómo se genera un plan semanal?
+¿Cómo se calcula el presupuesto?
+¿Cómo se sustituyen ingredientes?
+¿Cómo se crea una lista de compras?
+¿Cómo se conectan las recetas con los negocios del marketplace?
+I. Modelos 3D, AR y experiencias inmersivas
+¿Dónde se carga un modelo GLB?
+¿Qué formatos se admiten?
+¿Qué proceso valida los modelos?
+¿Cómo se mide la dimensión real?
+¿Cómo se configura la escala?
+¿Cómo se representa el tamaño de una porción?
+¿Cómo se rota el plato?
+¿Cómo funciona el visor 3D?
+¿Cómo se activa realidad aumentada?
+¿Qué dispositivos son compatibles?
+¿Qué ocurre si el navegador no soporta WebGL o WebXR?
+¿Cómo se comprueba que la representación coincida con el plato real?
+J. Analítica y popularidad
+¿Cómo se calcula el ranking de restaurantes más visitados?
+¿Cómo se distinguen visitas de clics?
+¿Cómo se cuentan pedidos y compras reales?
+¿Cómo se calculan clientes recurrentes?
+¿Cómo se detectan negocios emergentes?
+¿Cómo se calcula la ocupación por horario?
+¿Cómo se mide la rotación de mesas?
+¿Cómo se detectan tendencias por distrito?
+¿Qué información se muestra al empresario?
+¿Qué métricas agregadas se muestran al administrador?
+¿Cómo se evita exponer datos personales en los paneles?
+7. Preguntas exactas para los nueve criterios de la documentación AV3
+Estos son los apartados que el documento final debe poder responder. Los criterios, escalas y máximos corresponden a la primera página de la rúbrica. 
+RUBRICA PROYECTO AV3.pdf
+Criterio 1. Modificación del contenido del Avance 2
+¿Cuál era el objetivo original de SmartResto?
+¿Cuál era el problema original?
+¿Cuál era el usuario principal?
+¿Qué funcionalidades estaban previstas?
+¿Qué tecnologías se proponían?
+¿Qué limitaciones tenía el APF2?
+¿Qué funcionalidades fueron implementadas posteriormente?
+¿Qué módulos nuevos se incorporaron?
+¿Qué cambios se realizaron en arquitectura?
+¿Qué cambios se realizaron en la base de datos?
+¿Qué integraciones de IA se agregaron?
+¿Qué mejoras se hicieron a la experiencia del usuario?
+¿Qué funcionalidades se ampliaron más allá del MVP?
+¿Qué decisiones anteriores se conservaron?
+¿Qué decisiones fueron modificadas y por qué?
+¿Qué funcionalidades continúan pendientes?
+¿Cómo se evidencia cada cambio?
+Entregable: matriz comparativa APF2 vs. AV3, con estado y evidencia.
+Criterio 2. Selección de tecnologías clave
+¿Qué lenguaje de programación utiliza cada capa?
+¿Qué framework backend se utiliza?
+¿Qué tecnologías frontend se utilizan?
+¿Qué motor de base de datos se utiliza?
+¿Qué servicios Cloud se utilizan?
+¿Qué proveedores de IA se integran?
+¿Qué APIs externas se consumen?
+¿Qué algoritmos se utilizan para recomendar?
+¿Qué herramientas de búsqueda se utilizan?
+¿Qué tecnologías geográficas se utilizan?
+¿Qué tecnologías de visualización 3D existen?
+¿Qué tecnología de voz se utiliza?
+¿Qué librerías de interfaz y GUI se utilizan?
+¿Qué herramientas de ciberseguridad existen?
+¿Qué herramientas de DevOps se usan?
+¿Qué tecnologías emergentes se han incorporado?
+¿Qué tecnologías se evaluaron, pero no se utilizaron?
+Entregable: inventario tecnológico que conecte cada tecnología con el módulo y la necesidad que resuelve.
+Criterio 3. Justificación técnica
+¿Por qué se eligió Python?
+¿Por qué se eligió Flask?
+¿Por qué se eligió PostgreSQL?
+¿Por qué se utilizan servicios Cloud?
+¿Por qué se utiliza cada proveedor de IA?
+¿Qué ventaja tiene la integración de modelos mediante OpenRouter?
+¿Qué ventaja ofrece Gemini para visión?
+¿Qué diferencia existe entre IA generativa y Machine Learning?
+¿Por qué se utiliza cada algoritmo de recomendación?
+¿Qué ventaja y limitación tiene cada mapa o proveedor geográfico?
+¿Por qué se elige una biblioteca 3D?
+¿Qué alternativa se pudo utilizar?
+¿Por qué se descartó?
+¿Qué costo y complejidad introduce la tecnología?
+¿Qué riesgos técnicos existen?
+¿Qué controles reducen esos riesgos?
+Entregable: matriz comparativa con justificación, ventajas, desventajas, alternativas y limitaciones.
+Criterio 4. Plan de trabajo
+La rúbrica exige Gantt, recursos, responsables, tiempos e hitos. 
+RUBRICA PROYECTO AV3.pdf
+¿Qué fases comprende el proyecto completo?
+¿Qué actividades pertenecen a cada fase?
+¿Qué depende de qué?
+¿Cuáles se completaron?
+¿Cuáles están en proceso?
+¿Cuáles están pendientes?
+¿Cuál es la fecha de inicio y fin de cada actividad?
+¿Cuánto tiempo se asignó?
+¿Qué recursos humanos se requieren?
+¿Qué recursos tecnológicos se requieren?
+¿Qué costos se estiman?
+¿Quién es responsable de cada actividad?
+¿Quién revisa y aprueba cada entregable?
+¿Qué hitos permiten medir el avance?
+¿Qué entregables se presentan en cada hito?
+¿Qué riesgos pueden afectar el cronograma?
+¿Qué actividades requieren proveedores externos?
+¿Qué actividades dependen de disponer de datos reales?
+Entregables: cronograma Gantt, matriz de responsabilidades, inventario de recursos y matriz de hitos.
+Criterio 5. Desarrollo preliminar, demo o arquitectura
+La rúbrica establece como estándar un desarrollo funcional equivalente aproximadamente al 20 % del proyecto, con evidencia tangible. 
+RUBRICA PROYECTO AV3.pdf
+¿Qué módulo se presenta como desarrollo preliminar?
+¿Por qué se eligió?
+¿Qué problema resuelve?
+¿Qué rol lo utiliza?
+¿Dónde se encuentra en el sistema?
+¿Qué pasos realiza el usuario?
+¿Qué procesos ejecuta el backend?
+¿Qué registros genera en la base de datos?
+¿Qué APIs intervienen?
+¿Qué validaciones existen?
+¿Qué casos de error se probaron?
+¿Qué pruebas automatizadas pasaron?
+¿Qué resultados se pueden mostrar?
+¿Qué partes son funcionales?
+¿Qué partes son prototipo o simulación?
+¿Qué integraciones requieren validación externa?
+¿Cómo se justifica el 20 % de avance?
+¿Qué captura demuestra el funcionamiento?
+¿Qué recorrido puede repetirse en vivo?
+Entregable: demo funcional, arquitectura y evidencia de pruebas.
+Criterio 6. Impacto esperado
+La rúbrica pide analizar impacto tecnológico, organizacional, económico o social con argumentos sustentados. 
+RUBRICA PROYECTO AV3.pdf
+¿Qué impacto tecnológico se espera?
+¿Qué procesos se digitalizan?
+¿Qué impacto organizacional se espera?
+¿Qué actividades de los empresarios podrían simplificarse?
+¿Qué impacto económico se espera?
+¿Cómo se reduciría la merma?
+¿Cómo se podría mejorar la conversión?
+¿Qué impacto social se espera?
+¿Cómo se facilita el descubrimiento de pequeños negocios?
+¿Qué beneficio recibe el comensal?
+¿Qué beneficio recibe el empresario?
+¿Qué indicadores permiten medir el resultado?
+¿Qué valor base existe actualmente?
+¿Qué meta se plantea?
+¿Qué método de medición se utilizará?
+¿Qué resultados ya se observaron y cuáles son solamente esperados?
+Entregable: matriz de impacto con línea base, indicador, meta, método de medición y estado de validación.
+Criterio 7. Conclusiones parciales y próximos pasos
+¿Qué se logró desde el APF2?
+¿Qué se logró en las fases 1–6?
+¿Qué problema se encuentra mejor resuelto?
+¿Qué tecnologías aportaron mayor valor?
+¿Qué limitaciones técnicas se identificaron?
+¿Qué integraciones no están verificadas?
+¿Qué pruebas faltan?
+¿Qué funcionalidades deben priorizarse?
+¿Qué módulos quedan para la siguiente fase?
+¿Qué dependencias deben resolverse?
+¿Qué decisión se recomienda tomar?
+¿Qué evidencia respalda esa decisión?
+Entregable: conclusiones conectadas con resultados reales y una hoja de ruta priorizada.
+Criterio 8. Referencias y formato APA
+¿Qué fuentes sustentan la problemática?
+¿Qué fuentes sustentan la metodología?
+¿Qué fuentes sustentan cada tecnología?
+¿Qué documentación oficial respalda las APIs?
+¿Qué publicaciones respaldan las decisiones de Machine Learning?
+¿Qué fuentes respaldan seguridad y protección de datos?
+¿Las citas aparecen dentro del texto?
+¿Cada cita tiene su referencia?
+¿Cada referencia aparece citada?
+¿Se aplica APA 7?
+¿Las fuentes son actuales, pertinentes y verificables?
+¿Se distinguen las investigaciones del equipo de las fuentes externas?
+Entregable: bibliografía APA 7 y citas integradas.
+Criterio 9. Presentación del documento
+¿Respeta la estructura solicitada?
+¿El contenido tiene una secuencia lógica?
+¿Existe consistencia entre problema, objetivos, solución y resultados?
+¿Las figuras están numeradas y explicadas?
+¿Las tablas tienen títulos y fuentes?
+¿Las capturas corresponden a la versión real?
+¿Se distingue implementación de propuesta?
+¿Existe coherencia entre las afirmaciones y la evidencia?
+¿La redacción está libre de errores ortográficos y gramaticales?
+¿El formato es uniforme?
+¿El documento evita páginas con texto excesivo o diagramas ilegibles?
+Entregable: revisión editorial completa del AV3.
+8. Preguntas para preparar la exposición
+La segunda página de la rúbrica evalúa el dominio del tema, organización, argumentación, recursos visuales, comunicación, participación y manejo del tiempo. 
+RUBRICA PROYECTO AV3.pdf
+El agente debe preparar respuestas a estas preguntas:
+Dominio del tema
+¿Cuál es el problema principal que aborda SmartResto?
+¿Por qué es un problema de innovación y transformación digital?
+¿Cómo evolucionó desde el APF2?
+¿Cómo se relacionan los tres roles?
+¿Cómo funciona la recomendación?
+¿Qué tecnologías intervienen?
+¿Qué diferencias hay entre IA generativa, reglas y Machine Learning?
+¿Qué resultados se han comprobado?
+¿Qué limitaciones continúan?
+Organización
+¿Cómo se presenta el problema?
+¿Cómo se presenta la propuesta?
+¿Cómo se explica la arquitectura?
+¿Cómo se presenta el desarrollo preliminar?
+¿Cómo se muestran resultados?
+¿Cómo se presentan limitaciones y próximos pasos?
+Argumentación
+¿Por qué SmartResto es una innovación?
+¿Por qué se eligió la arquitectura?
+¿Por qué se eligieron los proveedores de IA?
+¿Por qué se utilizan reglas deterministas para datos críticos?
+¿Qué diferencia a SmartResto de un directorio gastronómico?
+¿Qué evidencia existe de que soluciona el problema?
+Recursos visuales
+¿Qué pantalla demuestra el flujo principal?
+¿Qué diagrama explica la arquitectura?
+¿Qué captura demuestra la IA?
+¿Qué evidencia demuestra el catálogo?
+¿Qué pruebas demuestran los permisos?
+¿Qué gráfico presenta los resultados?
+¿Las diapositivas muestran solo lo necesario?
+Comunicación y equipo
+¿Quién presenta la problemática?
+¿Quién explica la arquitectura?
+¿Quién muestra la demo?
+¿Quién explica las tecnologías?
+¿Quién presenta impacto y conclusiones?
+¿Cómo responden de forma coordinada?
+¿Qué tiempo tiene cada integrante?
+¿Qué preguntas difíciles pueden hacerles?
+9. Preguntas para evaluar si SmartResto realmente se diferencia
+Esta sección es para demostrar el valor innovador de la plataforma, no solamente describir su arquitectura.
+El agente debe responder:
+¿Qué hace SmartResto que no hace un directorio de restaurantes convencional?
+¿Qué hace que sus recomendaciones sean diferentes de una búsqueda normal?
+¿Qué hace que el empresario pueda gestionar su negocio de una manera más integrada?
+¿Qué aporta el registro de menús mediante IA, voz y Excel?
+¿Qué aporta combinar catálogo, marketplace, reservas, pedidos e inventario?
+¿Qué aporta identificar una mesa y una sesión de atención mediante QR?
+¿Cómo mejora SmartResto la gestión de aforo y las colas?
+¿Cómo conecta el consumo real con nuevas recomendaciones?
+¿Cómo transforma el historial de consumo en una experiencia gastronómica personalizada?
+¿Cómo conecta restaurantes, delivery y cocina en casa?
+¿Qué aporta la visualización de platos en 3D y realidad aumentada?
+¿Cómo puede ayudar a pequeños negocios que no tienen una página web?
+¿Qué aporta la analítica empresarial?
+¿Qué aporta el descubrimiento automático de establecimientos?
+¿Qué funcionalidades pueden convertirse en una ventaja competitiva sostenible?
+¿Qué características son técnicamente costosas de replicar?
+¿Qué funcionalidades requieren datos propios para mejorar?
+¿Qué elementos deben probarse con usuarios reales antes de afirmar que generan valor?
+El agente deberá separar las respuestas en tres grupos:
+Diferenciación demostrada: funciona y existe evidencia.
+Diferenciación en desarrollo: tiene código o prototipo parcial.
+Diferenciación propuesta: forma parte del roadmap, pero aún no está implementada.
+10. Prompt maestro para realizar la auditoría completa del repositorio
+Este es el prompt que puedes entregar al agente que tiene acceso al repositorio de SmartResto. Está pensado para que investigue el código real, responda la batería de preguntas y te entregue un informe ordenado para preparar el AV3.
+AUDITORÍA TÉCNICA, FUNCIONAL Y ACADÉMICA INTEGRAL DE SMARTRESTO — APF2 → AV3
+1. Rol que debes asumir
+Actúa como auditor senior de software, arquitecto de soluciones, analista de sistemas, especialista en inteligencia artificial y Machine Learning, consultor de transformación digital y evaluador académico universitario.
+Tu responsabilidad es analizar el repositorio completo de SmartResto y preparar un diagnóstico verificable que permita elaborar el Avance de Proyecto Final 3 del curso Innovación y Transformación Digital.
+No debes limitarte a explicar qué hace el sistema. Debes identificar exactamente dónde está implementado, cómo funciona internamente, cómo se demuestra, qué tecnologías utiliza, qué valor aporta y qué falta.
+2. Documentos de referencia
+Debes utilizar estos documentos como fuentes obligatorias:
+SmartResto_APF2_Informe_Integrado Original.pdf.
+RUBRICA PROYECTO AV3.pdf.
+El informe de auditoría técnica que describe las fases 1 a 6.
+El sílabo del curso Innovación y Transformación Digital.
+El repositorio y su estado actual.
+El APF2 representa la línea base histórica del proyecto. No reemplaces sus decisiones ni su alcance silenciosamente.
+El proyecto original se orientaba a estudiantes universitarios de Trujillo que necesitaban descubrir y comparar opciones gastronómicas según presupuesto, ubicación, modalidad y restricciones alimentarias.
+El alcance ha evolucionado hacia un ecosistema gastronómico integrado con funciones para comensales, empresarios y administradores.
+Debes explicar y justificar esta evolución.
+3. Reglas obligatorias de la auditoría
+Inspecciona el código real antes de emitir conclusiones.
+No deduzcas funcionalidades por el nombre de un archivo.
+No declares una función operativa porque exista una pantalla o un botón.
+No confundas IA generativa con Machine Learning.
+No confundas una API configurada con una integración validada.
+No confundas una prueba con mocks con una prueba del proveedor real.
+No inventes rutas, endpoints, modelos, tablas ni métricas.
+No afirmes que una función está terminada si solo existe un prototipo.
+No expongas los secretos ni valores del archivo .env.
+No ejecutes pagos reales ni operaciones destructivas.
+No cambies código durante esta auditoría. Primero diagnostica y documenta.
+Cuando exista una limitación, indica qué no se pudo comprobar y por qué.
+Cuando encuentres información contradictoria, regístrala.
+Si una funcionalidad no existe, indica NO IMPLEMENTADA.
+Si no hay evidencia suficiente, indica NO VERIFICADA.
+4. Clasificación obligatoria del estado de cada funcionalidad
+Utiliza únicamente los siguientes estados:
+A. IMPLEMENTADA Y PROBADA: existe código, se ejecutó y pasó las pruebas relevantes.
+B. IMPLEMENTADA CON VALIDACIÓN EXTERNA PENDIENTE: existe código funcional, pero requiere credenciales, proveedor o despliegue para validarse completamente.
+C. IMPLEMENTACIÓN PARCIAL: existe una parte operativa, pero faltan pasos importantes.
+D. SIMULADA O MOCK: la funcionalidad utiliza respuestas controladas o datos simulados.
+E. INTERFAZ ÚNICAMENTE: hay pantalla o diseño, pero no existe comportamiento backend suficiente.
+F. PROPUESTA / ROADMAP: está descrita, pero todavía no está implementada.
+G. NO PERTINENTE: no corresponde al alcance técnico definido, con justificación.
+No conviertas automáticamente las categorías B, C, D, E o F en cumplimiento completo.
+5. Auditoría de las fases 1 a 6
+FASE 1 — Arquitectura general y estructura central
+Investiga:
+Arquitectura real.
+Punto de entrada Flask.
+Registro de Blueprints.
+Estructura de carpetas.
+Capas de presentación, negocio y persistencia.
+Servicios y repositorios.
+Modelos.
+Base de datos PostgreSQL / Supabase.
+Tablas relacionales.
+Uso de JSONB.
+Relaciones e índices.
+Migraciones.
+Transacciones.
+Autenticación.
+Autorización.
+CSRF.
+Rate limiting.
+2FA / TOTP.
+Auditoría.
+Notificaciones.
+Configuración.
+Variables de entorno.
+Servicios externos.
+Tema claro y oscuro.
+Responsive.
+Componentes reutilizables.
+Pregunta central: ¿cómo funciona SmartResto desde que un usuario interactúa con la interfaz hasta que se procesa y almacena la información?
+ENTREGAR:
+Diagrama de arquitectura.
+Diagrama de base de datos.
+Inventario de carpetas.
+Rutas principales.
+Servicios principales.
+Evidencias de seguridad.
+Pruebas ejecutadas.
+FASE 2 — Usuarios, roles y perfiles
+Audita individualmente:
+COMENSAL:
+Registro.
+Inicio de sesión.
+Perfil.
+Presupuesto.
+Preferencias.
+Restricciones alimentarias.
+Historial.
+Favoritos.
+Direcciones.
+Privacidad.
+Notificaciones.
+Consentimientos.
+EMPRESARIO:
+Registro.
+Creación de negocios.
+Sucursales.
+Perfil comercial.
+Personal.
+Membresías.
+Permisos.
+Verificación.
+Administración de establecimientos.
+ADMINISTRADOR:
+Usuarios.
+Roles.
+Verificación.
+Moderación.
+Suspensión.
+Reclamos.
+Auditoría.
+Configuración.
+ENTREGAR:
+Matriz de roles y permisos.
+Ruta de cada vista.
+Menús de navegación.
+Endpoints.
+Tablas.
+Casos de prueba.
+Evidencia de aislamiento entre negocios.
+FASE 3 — Radar gastronómico y descubrimiento automático
+Audita:
+Fuentes de datos.
+OpenStreetMap.
+Overpass.
+Google Places adapter, si existe.
+Consultas de descubrimiento.
+Clasificación de establecimientos.
+Extracción de información.
+Identificación de menús.
+URLs y redes.
+Detección de duplicados.
+Geolocalización.
+Fichas provisionales.
+Niveles de confianza.
+Procedencia y fecha de datos.
+Revisión administrativa.
+Reclamación empresarial.
+Invitaciones firmadas.
+Procesos de actualización.
+Workers.
+Comandos CLI.
+Manejo de errores y límites.
+Identifica exactamente qué datos son descubiertos, cuáles son propuestos por IA, cuáles son confirmados y cuáles permanecen desconocidos.
+ENTREGAR:
+Flujo del radar.
+Fuentes y proveedores.
+Endpoints.
+Servicios.
+Modelos.
+Rutas administrativas.
+Evidencia de ejecución.
+Resultado de una prueba real de descubrimiento.
+Limitaciones externas.
+FASE 4 — Portal empresarial
+Audita:
+Página pública por negocio.
+Página por sucursal.
+Slugs.
+Identidad visual.
+Logotipo.
+Plantillas.
+Descripciones.
+Historia.
+Fotografías.
+Videos.
+Especialidades.
+Platos destacados.
+Carta digital.
+Promociones.
+Horarios.
+Ubicación.
+Redes sociales.
+Metadatos SEO.
+Open Graph.
+JSON-LD.
+Asistencia mediante IA.
+Publicación.
+Vista previa.
+Seguridad de archivos.
+ENTREGAR:
+Ruta de edición.
+URL pública.
+Templates.
+Componentes.
+Servicios backend.
+Esquema de persistencia.
+Integración IA.
+Capturas.
+Prueba de edición y publicación.
+FASE 5 — Catálogo e incorporación inteligente
+Audita el catálogo completo:
+Platos.
+Bebidas.
+Postres.
+Categorías.
+Variantes.
+Complementos.
+Precios.
+Ingredientes.
+Alérgenos.
+Recetas.
+Fotografías.
+Videos.
+Promociones.
+Disponibilidad.
+Productos agotados.
+Audita por separado las tres vías de incorporación:
+A. Fotografía:
+Endpoint.
+Proveedor.
+Modelo.
+Prompt.
+Validación.
+Borrador.
+Corrección manual.
+Confirmación.
+Almacenamiento.
+Duplicados.
+Privacidad.
+B. Voz:
+API.
+Transcripción.
+Campos interpretados.
+Normalización.
+Validaciones.
+Confirmación.
+Errores.
+C. Excel:
+Plantilla.
+Hojas.
+Columnas.
+Formatos.
+Validación.
+Previsualización.
+Corrección.
+Confirmación.
+Importación.
+Transacciones.
+Resumen de registros.
+ENTREGAR:
+Ruta de cada funcionalidad.
+Capturas.
+Endpoints.
+Servicios.
+Proveedores.
+Modelos de datos.
+Pruebas.
+Resultado de una importación controlada.
+FASE 6 — Marketplace, recomendador y mapas
+Audita:
+Catálogo público.
+Categorías.
+Negocios gastronómicos.
+Filtros.
+Presupuesto.
+Ubicación.
+Distrito.
+Modalidad.
+Horarios.
+Disponibilidad.
+Ingredientes.
+Favoritos.
+Paginación.
+Búsqueda por plato.
+Búsqueda por ingredientes.
+Búsqueda de promociones.
+Explicabilidad.
+Ranking.
+Fichas de negocio y producto.
+IA:
+Endpoint de interpretación.
+Proveedor y modelo.
+Prompt.
+Filtros estructurados.
+JSON de salida.
+Validaciones backend.
+Fallback.
+Costos y límites.
+Mapas:
+MapLibre / Leaflet.
+Proveedor de tiles.
+Google Places adapter, si existe.
+Coordenadas.
+Ubicación del usuario.
+Permisos.
+Distancias.
+Haversine.
+PostGIS, si está instalado.
+Routing.
+ETA.
+Errores de estilos y recursos.
+Cuotas y credenciales.
+ENTREGAR:
+Recorrido completo del comensal.
+Rutas y endpoints.
+Algoritmo de recomendación.
+Cálculo de distancias.
+Evidencia del mapa.
+Prueba de consulta natural.
+Resultados obtenidos del catálogo real.
+6. Auditoría de inteligencia artificial
+Construye un inventario independiente de todas las funcionalidades con IA.
+Para cada una, responde:
+¿Qué problema resuelve?
+¿Qué modelo usa?
+¿Qué proveedor utiliza?
+¿Dónde se configura?
+¿Qué prompt utiliza?
+¿Qué datos recibe?
+¿Qué salida produce?
+¿Dónde se procesa la respuesta?
+¿Qué reglas deterministas la validan?
+¿Qué fallback existe?
+¿Qué errores se controlan?
+¿Qué datos personales se transmiten?
+¿Qué límites y costos existen?
+¿Qué pruebas se realizaron?
+¿Cómo puede demostrarse visualmente?
+Separa claramente:
+IA generativa.
+Visión artificial.
+Reconocimiento de voz.
+Sistemas basados en reglas.
+Automatización.
+Algoritmos de búsqueda.
+Machine Learning.
+Analítica descriptiva.
+Analítica predictiva.
+No declares que un recomendador aprende automáticamente por tener historial de usuarios. Comprueba si existe un modelo entrenado, una actualización de parámetros o un procedimiento de aprendizaje.
+7. Auditoría de Machine Learning y del sílabo
+Busca evidencia de:
+Regresión lineal.
+Regresión no lineal.
+Regresión logística.
+SVM.
+KNN.
+Árboles de decisión.
+Boosting.
+K-Means.
+Mean-Shift.
+DBSCAN.
+Gaussian Mixture Model.
+Agglomerative Clustering.
+Para cada algoritmo indica:
+Implementado o no.
+Archivo y función.
+Dataset.
+Variables.
+Variable objetivo.
+Entrenamiento.
+Validación.
+Prueba.
+Métricas.
+Resultados.
+Limitaciones.
+Aplicación dentro de SmartResto.
+Busca también:
+DFS.
+BFS.
+Búsqueda exhaustiva.
+Hill Climbing.
+A*.
+No inventes implementaciones si no existen.
+Si algún algoritmo no es pertinente para el producto, justifica su exclusión y, si resulta necesario para el curso, propone una prueba experimental separada.
+8. Auditoría de tecnologías de transformación digital
+Construye una matriz para:
+Python.
+Flask.
+PostgreSQL.
+Supabase.
+OpenRouter.
+Gemini.
+Groq.
+Open-Meteo.
+MapLibre.
+Google Maps / Places.
+Three.js.
+WebGL.
+WebXR.
+GLB.
+APIs de voz.
+Mercado Pago.
+Redis / Celery, si existen.
+Docker.
+CI/CD.
+Servicios de almacenamiento.
+Ciberseguridad.
+Cloud.
+DevOps.
+Para cada tecnología informa:
+Función.
+Módulo que la utiliza.
+Proveedor.
+Configuración.
+Dependencias.
+Entradas y salidas.
+Ventajas.
+Limitaciones.
+Costos.
+Riesgos.
+Evidencia.
+Alternativas consideradas.
+También explica por qué Blockchain o IoT se utilizan o no se utilizan. No se deben incorporar solamente para aparentar cobertura de tecnologías emergentes.
+9. Auditoría de metodología e innovación
+Compara lo que está declarado en el APF2 con las actividades y evidencias del equipo.
+Design Thinking:
+Comprender.
+Observar.
+Definir.
+Idear.
+Prototipar.
+Testear.
+Extreme Programming:
+Historias de usuario.
+Planning Game.
+Iteraciones.
+Programación en pareja.
+TDD.
+Integración continua.
+Propiedad colectiva.
+Diseño simple.
+Refactorización.
+Lean Startup:
+Hipótesis.
+MVP.
+Experimentos.
+Métricas.
+Aprendizaje validado.
+Perseverar, pivotar o ajustar.
+Lean Change Management:
+Gestión del cambio.
+Comunicación.
+Adopción.
+Retroalimentación.
+Scrum y Kanban:
+Backlog.
+Priorización.
+Iteraciones.
+Tablero.
+Flujo de trabajo.
+Revisiones.
+SAFe, LeSS y Scrum Scale:
+Comparación.
+Escalabilidad.
+Pertinencia.
+Razones para utilizar o descartar.
+Distingue los métodos realmente aplicados de los que solo fueron estudiados o propuestos.
+10. Comparación APF2 frente a AV3
+Crea una matriz que contenga:
+Problema original.
+Usuario principal.
+Alcance inicial.
+MVP inicial.
+Arquitectura anterior.
+Tecnologías propuestas.
+Evidencia disponible.
+Alcance actual.
+Funcionalidades nuevas.
+Tecnologías realmente implementadas.
+Integraciones verificadas.
+Limitaciones corregidas.
+Limitaciones actuales.
+Próximas mejoras.
+Investiga y resuelve las contradicciones documentales del APF2:
+500 respuestas de encuesta frente a la ausencia de ficha técnica.
+Entrevistas citadas frente a hallazgos cualitativos no desarrollados.
+Prototipo descrito como navegable frente a afirmaciones de ausencia de software funcional.
+Etapa de testeo declarada como completa frente a conclusiones que reconocen falta de pruebas.
+Stack propuesto frente al stack finalmente implementado.
+Costos gratuitos propuestos frente a tarifas, límites y costos reales.
+No resuelvas una contradicción inventando información. Indica qué evidencia debe aportar el equipo.
+11. Nuevos módulos y visión de producto
+Identifica, sin asumir que están implementados, el estado de:
+Descubrimiento automático de restaurantes y menús.
+Asistente empresarial.
+Sitios web empresariales.
+QR por sucursal, piso, zona y mesa.
+Pedidos por QR.
+Solicitud de cuenta.
+Aforo inteligente.
+Rotación de mesas.
+Cola virtual.
+Notificaciones de turno.
+Pedidos anticipados.
+Producción y porciones.
+Inventario por receta.
+Disponibilidad en tiempo real.
+Platos agotados.
+Puntos.
+Visitas verificadas.
+Encuestas posconsumo.
+Notificaciones.
+SmartResto Home.
+Despensa y recetas.
+3D.
+Realidad aumentada.
+Google Maps y rutas.
+Analítica y rankings.
+Predicción de demanda.
+SmartResto Copilot.
+Para cada uno indica si está implementado dentro de las fases 1–6, parcialmente implementado, o pertenece al roadmap posterior.
+12. Preparación de entregables de la rúbrica AV3
+Responde uno a uno los criterios de documentación:
+Mejoras sobre Avance 2.
+Selección de tecnologías.
+Justificación técnica.
+Plan de trabajo.
+Desarrollo preliminar y evidencia del 20%.
+Impacto esperado.
+Conclusiones y próximos pasos.
+Referencias APA 7.
+Estructura y redacción.
+Para cada criterio entrega:
+Pregunta que debe responder el documento.
+Información obtenida del código.
+Evidencia.
+Información pendiente del equipo.
+Recomendación.
+Estado de cumplimiento.
+También analiza los criterios de exposición:
+Dominio del tema.
+Organización.
+Argumentación.
+Recursos visuales.
+Comunicación.
+Participación del equipo.
+Manejo del tiempo.
+13. Plan de trabajo
+Revisa el cronograma del APF2 y determina qué actividades se realizaron, cuáles se modificaron y cuáles siguen pendientes.
+Construye una tabla de trabajo con:
+Fase.
+Actividad.
+Entregable.
+Responsable.
+Fecha de inicio.
+Fecha de fin.
+Duración.
+Dependencias.
+Recursos.
+Hito.
+Estado.
+No inventes fechas reales ni asignaciones. Si la información no existe, indica qué debe confirmar el equipo.
+Prepara una estructura de Gantt que cubra las actividades restantes y el cierre del proyecto.
+14. Impacto esperado
+Propón indicadores verificables para:
+Tiempo de búsqueda.
+Satisfacción del comensal.
+Negocios incorporados.
+Actualización del catálogo.
+Tiempo de registro de platos.
+Precisión de disponibilidad.
+Conversiones.
+Pedidos.
+Recompra.
+Visitas verificadas.
+Ocupación.
+Tiempo de espera.
+Rotación de mesas.
+Merma.
+Rentabilidad.
+Aceptación de sugerencias de IA.
+Distingue:
+Línea base.
+Meta propuesta.
+Resultado real.
+Método de medición.
+Limitación.
+No inventes mejoras porcentuales.
+15. Plan de demostración del 20%
+Selecciona el módulo más sólido para demostrar el desarrollo preliminar.
+Considera un recorrido que incluya:
+Empresario.
+Registro o selección de negocio.
+Creación de producto.
+IA.
+Catálogo.
+Comensal.
+Búsqueda.
+Resultado.
+Administrador.
+Moderación o auditoría.
+Indica:
+Qué pantalla abrir.
+Qué usuario utilizar.
+Qué acción ejecutar.
+Qué resultado esperar.
+Qué endpoint se invoca.
+Qué registro se crea o modifica.
+Qué prueba respalda el comportamiento.
+Qué captura debe incluirse en el documento.
+No basta con presentar mockups.
+16. Formato obligatorio del informe de auditoría
+Estructura la respuesta final así:
+Resumen ejecutivo.
+Identidad y evolución de SmartResto.
+Comparación APF2 vs. AV3.
+Arquitectura general.
+Auditoría de la Fase 1.
+Auditoría de la Fase 2.
+Auditoría de la Fase 3.
+Auditoría de la Fase 4.
+Auditoría de la Fase 5.
+Auditoría de la Fase 6.
+Matriz por rol.
+Inventario de funcionalidades.
+Inventario de tecnologías.
+Auditoría de IA.
+Auditoría de Machine Learning.
+Alineación con las unidades del sílabo.
+Matriz de cumplimiento de la rúbrica.
+Evidencia de desarrollo preliminar.
+Gantt y responsables.
+Impacto esperado.
+Riesgos y brechas.
+Conclusiones parciales.
+Próximos pasos.
+Referencias técnicas recomendadas.
+17. Formato para documentar cada funcionalidad
+Utiliza siempre esta ficha:
+18. Entrega final
+Tu respuesta no debe ser una descripción promocional de SmartResto.
+Debe ser una auditoría técnica y académica objetiva, con rutas, archivos, endpoints, tablas, modelos, pruebas y evidencias.
+Al final, presenta tres listas claramente separadas:
+A. FUNCIONALIDADES IMPLEMENTADAS Y DEMOSTRABLES.
+B. FUNCIONALIDADES IMPLEMENTADAS QUE REQUIEREN VALIDACIÓN O CORRECCIÓN.
+C. FUNCIONALIDADES PENDIENTES O PERTENECIENTES AL ROADMAP.
+Incluye una tabla de brechas priorizadas con:
+Brecha.
+Impacto académico.
+Impacto técnico.
+Severidad.
+Dependencias.
+Evidencia faltante.
+Acción recomendada.
+Finaliza indicando qué información adicional debe proporcionar el equipo y qué debe corregirse para preparar un AV3 sólido, coherente con el APF2, el código actual, el sílabo y la rúbrica.
+No modifiques el proyecto durante esta auditoría. Primero entrega el diagnóstico completo y verificable.
+11. Aspectos específicos del APF2 que no debes dejar pasar
+Al revisar las actividades y anexos, encontré otros elementos que debes pedir que se verifiquen expresamente.
+SmartResto_APF2_Informe_Integrado Original.pdf
+Diferencias tecnológicas que el informe debe explicar
+En el APF2 se mencionaban alternativas como FastAPI o Node.js para el backend, PostgreSQL/PostGIS, Docker, Render, Supabase, Vercel, Groq y Google AI Studio. La implementación que describes actualmente está construida sobre Flask y ha incorporado otros proveedores e integraciones. El agente debe identificar la decisión tecnológica definitiva y justificar el cambio. 
+SmartResto_APF2_Informe_Integrado Original.pdf
+También debe verificar si el costo realmente sigue siendo cero. Una capa gratuita no significa que el sistema pueda operar indefinidamente con tráfico ilimitado, modelos de IA, almacenamiento de fotografías, videos y archivos 3D.
+Preguntas adicionales sobre la investigación original
+Estas son particularmente importantes para fortalecer la validez del proyecto:
+¿Se conserva el archivo original de las 500 respuestas?
+¿Existe la ficha técnica de la encuesta?
+¿En qué fecha se realizó?
+¿Qué población fue considerada?
+¿Cómo se seleccionaron los participantes?
+¿Se encuestó realmente a estudiantes universitarios de Trujillo?
+¿Cómo se calculó el 69,6 %?
+¿Cómo se calculó el 47,8 %?
+¿Se transcribieron y analizaron las cuatro entrevistas?
+¿Qué necesidades empresariales concretas se confirmaron?
+¿Qué problemas encontrados se convirtieron en funcionalidades de las fases 1–6?
+¿Qué nuevas pruebas con usuarios respaldan la expansión de SmartResto?
+El APF2 muestra los gráficos de la encuesta y cuatro enlaces a entrevistas, pero eso no reemplaza una ficha metodológica ni un análisis sistemático de los hallazgos. 
+SmartResto_APF2_Informe_Integrado Original.pdf
+12. Cómo sabrás que recibiste una auditoría de calidad
+No deberías aceptar una respuesta del agente que diga simplemente:
+«La arquitectura está completa».
+«La IA funciona».
+«El módulo está implementado».
+«El sistema cumple el 100 %».
+«Todas las pruebas pasan».
+Cada afirmación necesita una demostración.
+Utiliza esta matriz de control para revisar la calidad de la auditoría:
+13. Qué debe quedar al terminar la auditoría
+Paquete de evidencias que necesitas para el AV3
+Matriz APF2 vs. AV3
+Cambios de alcance, arquitectura, roles, funcionalidades y tecnologías.
+Inventario funcional por los tres roles
+Qué existe, dónde se encuentra, cómo se utiliza y cómo se prueba.
+Inventario tecnológico y de IA
+Proveedores, algoritmos, APIs, integraciones, configuraciones y limitaciones.
+Matriz de alineación con el sílabo
+Innovación, transformación digital, metodología, Cloud, IA, búsqueda y Machine Learning.
+Matriz de cumplimiento de la rúbrica
+Los nueve criterios documentales y los siete de exposición.
+Evidencia de desarrollo preliminar
+Demo, capturas, rutas, pruebas, registros y arquitectura del módulo elegido.
+Gantt y responsables
+Actividades, fechas, recursos, dependencias, hitos y estado real.
+Impacto y conclusiones
+Indicadores, resultados observados, limitaciones y próximos pasos.
+Referencias APA 7
+Fuentes académicas y documentación técnica correctamente citadas.
+14. Mi recomendación para tu trabajo
+No intentaría demostrar las 18 fases de la visión general en el AV3. Concentraría el desarrollo preliminar en lo que ya se reportó de las primeras seis fases y seleccionaría un recorrido que integre varios de sus componentes.
+La demostración más convincente sería:
+Empresario registra su negocio → crea un plato mediante IA → importa productos → el comensal encuentra el establecimiento mediante el buscador inteligente → consulta la ficha → el administrador revisa y audita la publicación.
+Ese recorrido demuestra arquitectura, roles, persistencia, integración de IA, catálogo, marketplace, búsqueda, seguridad y trazabilidad. Si cada etapa se ejecuta realmente, es una evidencia mucho más sólida que mostrar diez pantallas desconectadas.
+Y mantendría una distinción esencial durante todo el documento:
+Implementado y probado: puedes demostrarlo.
+Implementado, pero pendiente de validación: puedes mostrar el código y explicar lo pendiente.
+En desarrollo: puedes documentar el avance.
+Propuesto para el futuro: puedes justificarlo como roadmap.
+No se debe presentar el roadmap como cumplimiento.
+Mi criterio de éxito para SmartResto AV3: que puedas seleccionar cualquier funcionalidad y explicar, sin improvisar, cuál es su propósito, dónde se utiliza, cómo está construida, qué tecnología aplica, qué demuestra su funcionamiento, qué valor genera y qué limitaciones conserva. Esa es la profundidad que necesitas para defender técnicamente el proyecto y responder con seguridad ante el docente.
+
+[Tabla 1]
+Campo obligatorio | Qué debe responder
+Identificación | Nombre del módulo, componente y funcionalidad.
+Propósito | Qué problema resuelve y qué valor produce.
+Rol | Comensal, empresario o administrador.
+Ubicación visual | Menú, submenú, página y URL.
+Interacción | Qué hace el usuario paso a paso.
+Interfaz | Template, componente, JavaScript y CSS.
+Backend | Blueprint, ruta, método HTTP, controlador y servicio.
+Base de datos | Tablas, modelos, colecciones, relaciones e índices.
+Integraciones | Proveedores, API, modelos, librerías y servicios externos.
+Inteligencia | IA generativa, Machine Learning, reglas, algoritmos o automatización.
+Procesamiento | Entradas, operaciones, validaciones y resultados.
+Seguridad | Autorizaciones, aislamiento por negocio y tratamiento de datos.
+Pruebas | Archivos de pruebas, casos ejecutados y resultados.
+Evidencia | Captura, recorrido demostrable, respuesta de API o registro.
+Estado | Implementado, probado, parcial, simulado, pendiente o bloqueado.
+Relación académica | Unidad, tema y criterio de la rúbrica que sustenta.
+Diferenciación | Qué aporta frente a un directorio o sistema gastronómico convencional.
+
+[Tabla 2]
+Rol | Ruta de acceso | Módulos visibles | Funciones operativas | Pruebas
+Comensal | Ruta real | Menú real | Acciones reales | Archivo de pruebas
+Empresario | Ruta real | Menú real | Acciones reales | Archivo de pruebas
+Administrador | Ruta real | Menú real | Acciones reales | Archivo de pruebas
+
+[Tabla 3]
+Campo | Información
+Nombre | 
+Propósito | 
+Problema resuelto | 
+Rol | 
+Módulo | 
+Ruta de menú | 
+URL | 
+Template/componente | 
+Endpoint | 
+Método HTTP | 
+Servicio | 
+Modelo | 
+Tabla o colección | 
+Tecnología | 
+Proveedor | 
+IA/ML/reglas/automatización | 
+Entradas | 
+Proceso | 
+Salidas | 
+Validaciones | 
+Seguridad | 
+Pruebas | 
+Evidencia visual | 
+Cómo demostrarla | 
+Diferencia frente al APF2 | 
+Estado | 
+Pendiente | 
+Relación con el sílabo | 
+Relación con la rúbrica | 
+
+[Tabla 4]
+Evidencia del APF2 | Qué debes comprobar en el AV3
+Anexo B, semanas iniciales | Problema, alternativas, innovación y propuesta de valor.
+Anexo D | Adaptación del proyecto y gestión del cambio.
+Anexo E | Selección de Cloud, IA, ciberseguridad, IoT y Blockchain.
+Anexo H | Aplicación de XP, historias de usuario, TDD y planificación.
+Anexo I | Selección y aplicación del marco ágil.
+Anexo J | Evaluación de LeSS y escalamiento.
+Anexo K, páginas 67–68 | Encuestas y resultados preliminares.
+Anexo L, página 69 | Entrevistas a empresarios.
+Anexo M, página 69 | Repositorio del proyecto.
+Anexo N, página 70 | Costos estimados de infraestructura y servicios.
+Anexo O, página 71 | Propuesta de membresías y precios.
+
+[Tabla 5]
+Lo que necesitas conocer | Respuesta que debes recibir
+¿Dónde está? | Menú, submenú y URL exacta.
+¿Cómo funciona? | Secuencia completa de acciones.
+¿Qué lo ejecuta? | Endpoint, controlador y servicio.
+¿Qué almacena? | Tabla, modelo y relaciones.
+¿Qué tecnología usa? | Lenguaje, librería, API y proveedor.
+¿Dónde interviene la IA? | Entrada, modelo, prompt, salida y validación.
+¿Cómo se comprueba? | Prueba automatizada o ejecución reproducible.
+¿Qué se puede mostrar? | Captura y guion de demostración.
+¿Qué aporta? | Problema resuelto y valor generado.
+¿Qué falta? | Brecha, dependencia y acción correctiva.
+¿Cómo se relaciona con el curso? | Unidad, tema y criterio de rúbrica.

@@ -2,8 +2,8 @@
 <div class="forest-shell">
   <form id="search-form" class="forest-search" role="search" action="{{ url_for('main.index', _anchor='explorar') }}" method="get">
     <div class="forest-search-row">
-      <a class="forest-city" href="#cerca" aria-label="Explorar cerca de {{ CIUDAD }}"><i class="fas fa-location-dot" aria-hidden="true"></i><span>{{ CIUDAD }}, Perú</span><i class="fas fa-chevron-down" aria-hidden="true"></i></a>
-      <label class="forest-query"><i class="fas fa-magnifying-glass" aria-hidden="true"></i><span class="sr-only">Buscar restaurantes o platos</span><input type="search" id="forest-query" name="q" maxlength="300" placeholder="¿Qué se te antoja hoy? Busca restaurantes o platos…" autocomplete="off"></label>
+      <label class="forest-city"><span class="sr-only">Elegir distrito</span><select id="forest-district" aria-label="Elegir lugar"><option value="">{{ CIUDAD }}, Perú</option>{% for district in restaurants|selectattr('district')|map(attribute='district')|unique|sort %}<option>{{ district }}</option>{% endfor %}</select></label>
+      <label class="forest-query"><i class="fas fa-magnifying-glass" aria-hidden="true"></i><span class="sr-only">Buscar restaurantes o platos</span><input type="search" id="forest-query" name="q" data-search-history maxlength="300" placeholder="¿Qué se te antoja hoy? Busca restaurantes o platos…" autocomplete="off"></label>
       <button class="forest-search-submit" type="submit" aria-label="Buscar restaurantes"><i class="fas fa-magnifying-glass" aria-hidden="true"></i></button>
       <button id="recommendationBtn" class="forest-ai-search" type="button"><i class="fas fa-wand-magic-sparkles" aria-hidden="true"></i> Buscar con IA</button>
     </div>
@@ -19,8 +19,8 @@
   </form>
 
   <section class="forest-hero" aria-labelledby="forest-headline">
-    <div class="forest-hero-copy"><p class="forest-campaign"><span></span> Selección de hoy</p><h1 id="forest-headline">Sabores del norte,<br>a un paso de ti</h1><p>Descubre los mejores restaurantes de {{ CIUDAD }}<br class="forest-desktop-break"> y vive una experiencia gastronómica única.</p><a class="forest-light-button" href="#explorar">Explorar restaurantes <i class="fas fa-chevron-right" aria-hidden="true"></i></a></div>
-    <picture class="forest-hero-photo"><source media="(max-width: 600px)" srcset="{{ url_for('static', filename='images/ceviche-small.webp') }}"><img src="{{ url_for('static', filename='images/ceviche.webp') }}" alt="Ceviche peruano con camote, choclo y cebolla morada" width="1100" height="734" fetchpriority="high"></picture>
+    <div class="forest-hero-copy"><p class="forest-campaign"><span></span> Selección de hoy</p><h1 id="forest-headline">Sabores del norte,<br>a un paso de ti</h1><p>Descubre los mejores restaurantes de {{ CIUDAD }}<br class="forest-desktop-break"> y vive una experiencia gastronómica única.</p><div class="forest-hero-actions"><a class="forest-light-button" href="#explorar">Explorar restaurantes <i class="fas fa-chevron-right" aria-hidden="true"></i></a><a class="forest-hero-personal" href="{{ url_for('recommendations.index') }}">Para ti <i class="fas fa-arrow-right" aria-hidden="true"></i></a></div></div>
+    <div class="forest-hero-photo sr-editorial-slides" data-editorial-slides='{{ [editorial_images.home, "/static/images/auth/lomo.webp", "/static/images/auth/ceviche.webp"]|tojson }}'><img src="{{ editorial_images.home }}" alt="Inspiración gastronómica peruana" width="1100" height="734" fetchpriority="high"><span>Imagen editorial ilustrativa · IA</span><button type="button" data-slide-next aria-label="Ver otro plato">Otro plato</button><button type="button" data-slide-pause aria-label="Pausar cambio de platos">Pausar</button></div>
   </section>
 
   <nav class="forest-categories" aria-label="Categorías gastronómicas">
@@ -52,5 +52,5 @@
 
   <section class="forest-home-kitchen" aria-labelledby="forest-home-kitchen-title"><div class="forest-home-kitchen-copy"><span class="forest-compact-icon"><i class="fas fa-kitchen-set" aria-hidden="true"></i></span><div><h2 id="forest-home-kitchen-title">¿Prefieres cocinar en casa?</h2><p>Encuentra ingredientes y productos para preparar algo delicioso.</p></div></div><a class="forest-text-link" href="{{ url_for('market.browse', q='ingredientes') }}">Ver ingredientes <span aria-hidden="true">→</span></a></section>
 
-  <section class="forest-business" id="negocios" aria-labelledby="forest-business-title"><img src="{{ url_for('static', filename='images/forest/shop-reference.webp') }}" alt="" loading="lazy" width="270" height="90"><div><h2 id="forest-business-title">¿Tienes un negocio gastronómico?</h2><p>Hazlo crecer con SmartResto</p></div><a class="forest-light-button" href="{{ url_for('owner.dashboard') if session.get('user', {}).get('role')=='business_owner' else url_for('auth.register', role='business_owner') }}">Conocer SmartResto para negocios <span aria-hidden="true">→</span></a></section>
+  <section class="forest-business" id="negocios" aria-labelledby="forest-business-title"><img src="{{ url_for('static', filename='images/forest/shop-reference.webp') }}" alt="" loading="lazy" width="270" height="90"><div><h2 id="forest-business-title">¿Tienes un negocio gastronómico?</h2><p>Hazlo crecer con SmartResto</p></div><a class="forest-light-button" href="{{ url_for('main.business_plans') }}">Conocer SmartResto para negocios <span aria-hidden="true">→</span></a></section>
 </div>

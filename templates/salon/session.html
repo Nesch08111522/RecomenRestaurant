@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block extra_head %}<link rel="stylesheet" href="{{ url_for('static', filename='css/service.css') }}">{% endblock %}
+{% block content %}
+<div class="sr-service" data-session-status="{{ url_for('salon.session_status', token=table.qr_token) }}">
+  <nav class="sr-service-nav" aria-label="Sesión de mesa">
+    <a href="{{ url_for('salon.menu', token=table.qr_token) }}">{{ restaurant.name }} · Mesa {{ table.label }}</a>
+    <span class="sr-chip" data-state="{{ state }}">{{ state }}</span>
+    {% if session.user and session.user.role in ['business_owner','admin'] %}<a href="{{ url_for('salon.desk', rid=restaurant.id) }}">Panel del salón</a>{% endif %}
+  </nav>
+  <header class="sr-service-hero">
+    <div>
+      <h1>Mesa {{ table.label }}</h1>
+      <p>{{ restaurant.name }} · {{ table.floor }} · {{ table.zone }} · {{ visit.party_size }} personas</p>
+      <p class="sr-muted">Sesión #{{ visit.id }} abierta {{ visit.opened_at[:16].replace('T',' ') }}{% if visit.closed_at %} · cerrada {{ visit.closed_at[:16].replace('T',' ') }}{% endif %}</p>
+    </div>
+    <div class="sr-note"><strong>Consumo: {{ total|soles }}</strong><br><span class="sr-muted">{{ state }}</span></div>
+  </header>
+
+  {% if visit.status == 'Finalizada' %}
+    <p class="sr-note">La mesa quedó cerrada.{% if visit.paid %} El cobro fue confirmado.{% endif %} Gracias por tu visita.</p>
+  {% endif %}
+
+  {% if state not in ['Disponible','Limpieza'] and visit.status not in ['Finalizada','Cancelada'] %}
+  <div class="sr-actions">
+    <a class="sr-chip" href="{{ url_for('salon.menu', token=table.qr_token) }}">Agregar más platos</a>
+    <form method="post" action="{{ url_for('salon.request_waiter', token=table.qr_token) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="kind" value="Mozo"><button class="secondary">Solicitar al mozo</button></form>
+    <form method="post" action="{{ url_for('salon.request_waiter', token=table.qr_token) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="kind" value="Cuenta"><button class="ghost">Pedir la cuenta</button></form>
+  </div>
+  {% endif %}
+
+  <section class="sr-service-card sr-service-card--wide" aria-labelledby="pedidos">
+    <h2 id="pedidos">Pedidos de la mesa</h2>
+    {% for order in orders if order.state != 'Cancelado' %}
+    <article class="sr-service-card">
+      <div class="sr-actions"><strong>Pedido #{{ order.id }}</strong><span class="sr-chip">{{ order.state }}</span><span>{{ order.total|soles }}</span></div>
+      <ul class="sr-list">{% for line in order.lines %}<li><span>{{ line.qty }} × {{ line.name }}</span><span>{{ (line.qty * line.unit)|soles }}</span></li>{% endfor %}</ul>
+    </article>
+    {% else %}
+    <p class="sr-muted">Todavía no hay pedidos enviados desde esta mesa.</p>
+    {% endfor %}
+  </section>
+
+  {% if requests %}
+  <section class="sr-service-card" aria-labelledby="solicitudes">
+    <h2 id="solicitudes">Solicitudes pendientes</h2>
+    <ul class="sr-list">{% for row in requests %}<li><span>{{ row.kind }}</span><span class="sr-chip">Pendiente</span></li>{% endfor %}</ul>
+  </section>
+  {% endif %}
+
+  {% if total %}
+  <section class="sr-service-card" aria-labelledby="dividir">
+    <h2 id="dividir">División del consumo</h2>
+    {% if split %}
+      <p>Modo {{ 'partes iguales' if split.mode == 'equal' else 'importes indicados' }} · {{ split.people }} partes · total {{ split.total|soles }}</p>
+      <table>
+        <caption class="sr-muted">Cada parte se marca como cobrada por el personal.</caption>
+        <thead><tr><th scope="col">Parte</th><th scope="col">Importe</th><th scope="col">Estado</th></tr></thead>
+        <tbody>{% for share in split.shares %}<tr><td>{{ share.n }}</td><td>{{ share.amount|soles }}</td><td>{{ 'Cobrada' if share.paid else 'Pendiente' }}</td></tr>{% endfor %}</tbody>
+      </table>
+    {% endif %}
+    <form class="sr-service-form" method="post" action="{{ url_for('salon.divide', token=table.qr_token) }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label>Dividir en partes iguales entre<input type="number" name="people" min="2" max="30" value="{{ visit.party_size or 2 }}"></label>
+      <button class="secondary">Calcular división</button>
+    </form>
+    <form class="sr-service-form" method="post" action="{{ url_for('salon.divide', token=table.qr_token) }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label>O escribe importes en soles separados por coma<input name="shares" placeholder="12.50, 12.50" inputmode="decimal"></label>
+      <button class="ghost">Usar importes</button>
+    </form>
+  </section>
+  {% endif %}
+
+  {% if can_review %}
+  <section class="sr-service-card" aria-labelledby="valorar">
+    <h2 id="valorar">¿Cómo estuvo la experiencia?</h2>
+    <form class="sr-service-form" method="post" action="{{ url_for('salon.review_table', token=table.qr_token) }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label>Calificación<select name="rating" required><option value="5">5 · Excelente</option><option value="4">4 · Muy buena</option><option value="3">3 · Aceptable</option><option value="2">2 · Mejorable</option><option value="1">1 · Mala</option></select></label>
+      <label>Comentario (opcional)<textarea name="comment" maxlength="800" rows="3"></textarea></label>
+      <button>Publicar reseña verificada</button>
+    </form>
+    <p class="sr-muted">Solo puedes valorar visitas cerradas con consumo pagado. La reseña queda vinculada a esta sesión.</p>
+  </section>
+  {% elif review %}
+  <p class="sr-note">Tu reseña de esta visita quedó registrada con {{ review.rating }}/5.</p>
+  {% endif %}
+</div>
+<script>
+(function(){
+  const root=document.querySelector('[data-session-status]');
+  if(!root) return;
+  const state=document.querySelector('.sr-chip[data-state]');
+  async function refresh(){
+    try{
+      const response=await fetch(root.dataset.sessionStatus,{headers:{'Accept':'application/json'}});
+      if(!response.ok) return;
+      const data=await response.json();
+      if(state && data.session && state.textContent!==data.session.state){
+        state.textContent=data.session.state;
+        state.dataset.state=data.session.state;
+      }
+    }catch(error){/* sin conexión: se conserva el estado visible */}
+  }
+  let timer=setInterval(refresh,20000);
+  document.addEventListener('visibilitychange',()=>{
+    if(document.hidden){clearInterval(timer);}else{timer=setInterval(refresh,20000);refresh();}
+  });
+})();
+</script>
+{% endblock %}

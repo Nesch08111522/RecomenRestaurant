@@ -1,0 +1,180 @@
+{
+  "configured": true,
+  "port": 6543,
+  "mode_hint": "transaction_pooler",
+  "sslmode": "require",
+  "dns": {
+    "ms": 12.12,
+    "ok": true,
+    "value": {
+      "ipv4": 3,
+      "ipv6": 0
+    }
+  },
+  "tcp": {
+    "ms": 154.75,
+    "ok": true,
+    "value": "reachable"
+  },
+  "tcp_plus_tls": {
+    "ms": 494.22,
+    "ok": false,
+    "type": "SSLCertVerificationError",
+    "sqlstate": null
+  },
+  "connect_auth": {
+    "ms": 881.1,
+    "ok": true
+  },
+  "select1_0": {
+    "ms": 455.03,
+    "ok": true,
+    "value": 1
+  },
+  "select1_1": {
+    "ms": 143.75,
+    "ok": true,
+    "value": 1
+  },
+  "select1_2": {
+    "ms": 143.19,
+    "ok": true,
+    "value": 1
+  },
+  "read20": {
+    "ms": 288.83,
+    "ok": true,
+    "value": 20
+  },
+  "explain": {
+    "ms": 145.32,
+    "ok": true,
+    "value": [
+      {
+        "Plan": {
+          "Node Type": "Limit",
+          "Parallel Aware": false,
+          "Async Capable": false,
+          "Startup Cost": 41.27,
+          "Total Cost": 41.32,
+          "Plan Rows": 20,
+          "Plan Width": 650,
+          "Actual Startup Time": 0.073,
+          "Actual Total Time": 0.075,
+          "Actual Rows": 20,
+          "Actual Loops": 1,
+          "Shared Hit Blocks": 36,
+          "Shared Read Blocks": 0,
+          "Shared Dirtied Blocks": 0,
+          "Shared Written Blocks": 0,
+          "Local Hit Blocks": 0,
+          "Local Read Blocks": 0,
+          "Local Dirtied Blocks": 0,
+          "Local Written Blocks": 0,
+          "Temp Read Blocks": 0,
+          "Temp Written Blocks": 0,
+          "Plans": [
+            {
+              "Node Type": "Sort",
+              "Parent Relationship": "Outer",
+              "Parallel Aware": false,
+              "Async Capable": false,
+              "Startup Cost": 41.27,
+              "Total Cost": 41.34,
+              "Plan Rows": 26,
+              "Plan Width": 650,
+              "Actual Startup Time": 0.071,
+              "Actual Total Time": 0.073,
+              "Actual Rows": 20,
+              "Actual Loops": 1,
+              "Sort Key": [
+                "id"
+              ],
+              "Sort Method": "quicksort",
+              "Sort Space Used": 58,
+              "Sort Space Type": "Memory",
+              "Shared Hit Blocks": 36,
+              "Shared Read Blocks": 0,
+              "Shared Dirtied Blocks": 0,
+              "Shared Written Blocks": 0,
+              "Local Hit Blocks": 0,
+              "Local Read Blocks": 0,
+              "Local Dirtied Blocks": 0,
+              "Local Written Blocks": 0,
+              "Temp Read Blocks": 0,
+              "Temp Written Blocks": 0,
+              "Plans": [
+                {
+                  "Node Type": "Seq Scan",
+                  "Parent Relationship": "Outer",
+                  "Parallel Aware": false,
+                  "Async Capable": false,
+                  "Relation Name": "app_records",
+                  "Alias": "app_records",
+                  "Startup Cost": 0.0,
+                  "Total Cost": 40.66,
+                  "Plan Rows": 26,
+                  "Plan Width": 650,
+                  "Actual Startup Time": 0.01,
+                  "Actual Total Time": 0.056,
+                  "Actual Rows": 26,
+                  "Actual Loops": 1,
+                  "Filter": "(collection = 'restaurants'::text)",
+                  "Rows Removed by Filter": 350,
+                  "Shared Hit Blocks": 36,
+                  "Shared Read Blocks": 0,
+                  "Shared Dirtied Blocks": 0,
+                  "Shared Written Blocks": 0,
+                  "Local Hit Blocks": 0,
+                  "Local Read Blocks": 0,
+                  "Local Dirtied Blocks": 0,
+                  "Local Written Blocks": 0,
+                  "Temp Read Blocks": 0,
+                  "Temp Written Blocks": 0
+                }
+              ]
+            }
+          ]
+        },
+        "Planning": {
+          "Shared Hit Blocks": 0,
+          "Shared Read Blocks": 0,
+          "Shared Dirtied Blocks": 0,
+          "Shared Written Blocks": 0,
+          "Local Hit Blocks": 0,
+          "Local Read Blocks": 0,
+          "Local Dirtied Blocks": 0,
+          "Local Written Blocks": 0,
+          "Temp Read Blocks": 0,
+          "Temp Written Blocks": 0
+        },
+        "Planning Time": 0.063,
+        "Triggers": [],
+        "Execution Time": 0.092
+      }
+    ]
+  },
+  "indexes": {
+    "ms": 144.37,
+    "ok": true,
+    "value": []
+  },
+  "activity": {
+    "ms": 143.32,
+    "ok": true,
+    "value": [
+      {
+        "state": "active",
+        "count": 1
+      },
+      {
+        "state": "idle",
+        "count": 8
+      },
+      {
+        "state": null,
+        "count": 1
+      }
+    ]
+  }
+}

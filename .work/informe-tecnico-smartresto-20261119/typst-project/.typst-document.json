@@ -1,0 +1,10 @@
+{
+  "entry": "main.typ",
+  "metadata": {
+    "author": "Equipo SmartResto",
+    "subtitle": "Informe APF3 · arquitectura, módulos, evidencias, impacto y plan de trabajo",
+    "title": "SmartResto: análisis tecnológico y funcional del proyecto"
+  },
+  "mode": "report",
+  "theme": "report-theme.typ"
+}

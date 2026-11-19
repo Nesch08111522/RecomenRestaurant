@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block extra_head %}<link rel="stylesheet" href="{{ url_for('static', filename='css/service.css') }}">{% endblock %}
+{% block content %}
+<div class="sr-service" data-queue-status="{{ url_for('flow.public_status', rid=restaurant.id) }}">
+  <nav class="sr-service-nav" aria-label="Cola de espera">
+    <a href="{{ url_for('flow.public', rid=restaurant.id) }}">{{ restaurant.name }} · Cola virtual</a>
+    <a href="{{ url_for('main.detail', restaurant_id=restaurant.id) }}">Ver negocio</a>
+    {% if is_staff %}<a href="{{ url_for('flow.desk', rid=restaurant.id) }}">Panel de cola</a>{% endif %}
+  </nav>
+  <header class="sr-service-hero">
+    <div><h1>Tu turno, sin filas a ciegas</h1><p>Registra tu grupo y sigue tu posición desde el teléfono. La espera estimada se calcula con sesiones cerradas reales; no es una garantía.</p></div>
+    <div class="sr-service-stats">
+      <div><strong>{{ seats.occupied }}/{{ seats.seats }}</strong>Personas sentadas</div>
+      <div><strong>{{ mine.waiting }}</strong>Grupos esperando</div>
+      <div><strong>{{ seats.available_tables }}</strong>Mesas libres</div>
+    </div>
+  </header>
+
+  {% if not mine.accepting %}<p class="sr-note">El negocio no está recibiendo turnos en este momento. Puedes consultar la carta mientras tanto.</p>{% endif %}
+  {% if seats.occupancy >= 80 %}<p class="sr-note">Alta ocupación: {{ seats.occupancy }}% del aforo está sentado. La espera puede variar; el personal actualiza los turnos en tiempo real.</p>{% endif %}
+  {% if not has_tables %}<p class="sr-note">El negocio aún no configuró sus mesas. El personal puede ayudarte en la entrada.</p>{% endif %}
+
+  {% if mine.mine %}
+  <section class="sr-service-card sr-service-card--wide" aria-labelledby="miturno">
+    <h2 id="miturno">Mi turno</h2>
+    {% for row in mine.mine %}
+    <div class="sr-service-card">
+      <div class="sr-actions"><strong style="font-size:1.6rem">{{ row.code }}</strong><span class="sr-chip">{{ row.status }}</span><span>{{ row.party_size }} personas</span></div>
+      {% if row.status == 'Esperando' %}
+        <p>Posición {{ row.position }} de {{ mine.waiting }}. Espera estimada:
+          {% if row.estimate.minutes is none %}sin mesa para ese tamaño todavía.
+          {% elif row.estimate.minutes == 0 %}mesa disponible ahora.
+          {% else %}{{ row.estimate.minutes }} min (rango {{ row.estimate.low }}–{{ row.estimate.high }} min).{% endif %}
+        </p>
+        <p class="sr-muted">Base: {{ row.estimate.basis }}.</p>
+        <form method="post" action="{{ url_for('flow.cancel_turn', rid=restaurant.id, qid=row.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="ghost">Cancelar turno</button></form>
+      {% elif row.status == 'Llamado' %}
+        <p class="sr-note">Te estamos llamando. Acércate a la entrada; si no llegas, el personal puede marcar el turno como no presentado.</p>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </section>
+  {% endif %}
+
+  {% if mine.accepting %}
+  <section class="sr-service-card">
+    <h2>Registrar mi grupo</h2>
+    <form class="sr-service-form" method="post" action="{{ url_for('flow.take_turn', rid=restaurant.id) }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label>Nombre o iniciales<input name="name" maxlength="60" required></label>
+      <label>Personas<input name="party_size" type="number" min="1" max="40" value="2" required></label>
+      <label>Nota para el personal (opcional)<input name="note" maxlength="160" placeholder="Silla para bebé, terraza..."></label>
+      <button>Tomar turno</button>
+    </form>
+    <p class="sr-muted">No pedimos teléfono ni ubicación. Si tienes cuenta, las notificaciones de turno llegan a tu cuenta de SmartResto.</p>
+  </section>
+  {% endif %}
+
+  <section class="sr-service-card">
+    <h2>Aforo por piso y zona</h2>
+    <table>
+      <caption class="sr-muted">Capacidad declarada por el negocio y personas sentadas según sesiones activas.</caption>
+      <thead><tr><th scope="col">Piso</th><th scope="col">Sentadas</th><th scope="col">Plazas</th><th scope="col">Mesas ocupadas</th></tr></thead>
+      <tbody>{% for floor, row in seats.by_floor.items() %}<tr><td>{{ floor }}</td><td>{{ row.occupied }}</td><td>{{ row.seats }}</td><td>{{ row.busy }}/{{ row.tables }}</td></tr>{% endfor %}</tbody>
+    </table>
+  </section>
+</div>
+{% endblock %}

@@ -1,5 +1,5 @@
 """Merchant workbench: one inventory, catalog and sales ledger per business."""
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 from uuid import uuid4
 from math import ceil
 from flask import abort, flash, redirect, render_template, request, session, url_for
@@ -8,7 +8,7 @@ from models.market_measurement import signer
 
 from database.repository import PostgresDocumentRepository as Repo, document_transaction
 from models.commerce_settings import commerce_settings
-from logic.context import TAGS
+from logic.context import SEASONS, TAGS, normalize_seasons
 from logic.market import (BUSINESSES, CHANNELS, OCCASIONS, MarketError, forecast, integer, key, money,
                           now, quote, recipe_cost, words)
 from models.dish import DishModel
@@ -46,6 +46,16 @@ def day_value(value):
         raise MarketError("Selecciona una fecha válida.") from None
 
 
+def can_record_attendance(booking, at):
+    if booking.get("status") != "confirmada":
+        return False
+    try:
+        scheduled = datetime.strptime(f"{booking.get('date')}T{booking.get('time')}", "%Y-%m-%dT%H:%M")
+    except ValueError:
+        return False
+    return scheduled.replace(tzinfo=at.tzinfo) <= at
+
+
 def desk_page(rid, **extra):
     business = authorize(rid)
     store = kitchen(rid)
@@ -54,14 +64,44 @@ def desk_page(rid, **extra):
     finished = [o for o in offers if o["ends"] <= now().isoformat() and o.get("produced")]
     produced = sum(o["produced"] for o in finished)
     surplus = sum(o["stock"] for o in finished)
-    target = now().date() + timedelta(days=1)
+    at = now()
+    needs = {}
+    for offer in offers:
+        if offer.get("paused") or offer.get("ends", "") <= at.isoformat():
+            continue
+        for name, amount in (offer.get("recipe") or {}).items():
+            needs[name] = needs.get(name, 0) + int(amount) * int(offer.get("stock") or 0)
+    alerts = []
+    for name, lot in store.get("pantry", {}).items():
+        quantity = int(lot.get("quantity") or 0)
+        expires = lot.get("expires") or ""
+        try:
+            days = (date.fromisoformat(expires) - at.date()).days
+        except ValueError:
+            days = None
+        if quantity <= 0:
+            state, detail = "Agotado", "Sin existencias registradas."
+        elif expires and expires < at.date().isoformat():
+            state, detail = "Vencido", f"El lote venció el {expires}."
+        elif days is not None and days <= 3:
+            state, detail = "Vence pronto", f"Vence en {days} día(s)."
+        elif needs.get(name, 0) > quantity:
+            state, detail = "No cubre lo publicado", f"Necesitas {needs[name]} {lot.get('unit','')} para las porciones vigentes."
+        else:
+            continue
+        alerts.append({"name": name, "state": state, "detail": detail, "quantity": quantity,
+                       "unit": lot.get("unit", ""), "expires": expires})
+    production = [offer for offer in offers if offer.get("produced")]
+    reservations = ReservationModel.get_by_restaurant(rid)
+    target = at.date() + timedelta(days=1)
     predictions = [(d["name"], forecast(orders, d["id"], target)) for d in records("dishes", restaurant_id=rid)]
-    return render_template("market/kitchen.html", context_tags=TAGS, business=business, store=store, offers=offers[::-1],
+    return render_template("market/kitchen.html", context_tags=TAGS, seasons=SEASONS, business=business, store=store, offers=offers[::-1],
         dishes=records("dishes", restaurant_id=rid), orders=orders[::-1], metrics=indicators(orders),
         moves=records("market_movements", rid=rid)[-12:][::-1], forecasts=predictions, target=target,
-        produced=produced, surplus=surplus,
-        reservations=ReservationModel.get_by_restaurant(rid), kinds=BUSINESSES, channels=CHANNELS,
-        occasions=OCCASIONS, diets=commerce_settings()['diets'], today=now().date().isoformat(),
+        produced=produced, surplus=surplus, alerts=alerts, production=production[::-1][:12],
+        reservations=reservations, kinds=BUSINESSES, channels=CHANNELS,
+        occasions=OCCASIONS, diets=commerce_settings()['diets'], today=at.date().isoformat(),
+        attendance_ids={booking["id"] for booking in reservations if can_record_attendance(booking, at)},
         draft_clock=signer("draft").dumps({"rid":rid, "uid":session["user_id"]}), **extra)
 
 
@@ -165,7 +205,7 @@ def inventory(rid):
         store["pantry"][name] = lot
         save_kitchen(store)
         Repo.create("market_movements", {"rid": rid, "name": name, "move": move, "delta": lot["quantity"] - old,
-                                         "actor": session["user_id"], "at": now().isoformat()})
+                                         "actor": session["user_id"], "at": now().isoformat(), "unit":lot.get('unit'), "unit_cost":lot.get('cost'), "basis":lot.get('basis')})
     return return_desk(rid, "Inventario actualizado.")
 
 
@@ -198,6 +238,10 @@ def publish(rid):
         occasion, cross = f.get("occasion"), f.get("cross")
         if not price or occasion not in OCCASIONS or cross not in {"unknown", "possible", "declared"}:
             raise MarketError("Revisa precio, ocasión y declaración de contacto cruzado.")
+        try:
+            seasons = normalize_seasons(f.getlist("seasons"))
+        except ValueError as error:
+            raise MarketError(str(error)) from None
         recipe = parse_recipe(f.get("recipe", ""), store["pantry"])
         rescue = money(f["rescue_price"]) if f.get("rescue_price") else None
         if rescue is not None and (not 0 < rescue < price or day != at.date()):
@@ -218,10 +262,12 @@ def publish(rid):
                 raise MarketError("Confirma el nombre del plato.")
             dish = DishModel.create({"restaurant_id": rid, "name": name, "price": price / 100, "category": category,
                 "meal_time": "almuerzo" if occasion == "Almuerzo" else key(occasion), "description": f.get("description", "")[:500],
-                "ingredients": list(recipe), "tags": words(f.get("tags", "")[:150]), "is_available": True, "menu_date": day.isoformat()})
+                "ingredients": list(recipe), "tags": words(f.get("tags", "")[:150]), "is_available": True,
+                "menu_date": day.isoformat(), "market_only": True})
         listing = {"rid": rid, "dish_id": dish["id"], "day": day.isoformat(), "stock": stock, "price": price,
                    "diets": [d for d in commerce_settings()['diets'] if d in f.getlist("diet")],
                    "context_tags": [tag for tag in TAGS if tag in f.getlist("context_tag")],
+                   "seasons": seasons,
                    "variant": f.get("variant", "").strip()[:80], "name": dish["name"], "occasion": occasion, "cross": cross, "recipe": recipe, "ends": ends.isoformat(),
                    "allergens": words(f.get("allergens", "")[:300]) if f.get("declared") else None,
                    "origin": f.get("origin", "")[:240], "preparation": f.get("preparation", "")[:400],
@@ -343,9 +389,15 @@ def confirm_reservation(rid, reservation_id):
         status = request.form.get("status")
         if not item or item["restaurant_id"] != rid:
             abort(404)
-        if status not in {"confirmada", "cancelada"} or item["status"] != "pendiente":
+        at = now()
+        valid_response = item["status"] == "pendiente" and status in {"confirmada", "cancelada"}
+        valid_attendance = status == "asistida" and can_record_attendance(item, at)
+        if not (valid_response or valid_attendance):
             raise MarketError("La reserva ya fue atendida o la acción no es válida.")
-        ReservationModel.update(reservation_id, {"status": status})
+        update = {"status": status}
+        if valid_attendance:
+            update["attended_at"] = at.isoformat()
+        ReservationModel.update(reservation_id, update)
         from models.notification import NotificationModel
         NotificationModel.create_notification(item["user_id"], "Reserva actualizada", f"Reserva #{reservation_id}: {status}.",
                                                link=f"/restaurant/{rid}")

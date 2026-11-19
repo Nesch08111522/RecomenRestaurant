@@ -1,0 +1,961 @@
+[
+  {
+    "view": "400",
+    "width": 320,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "400",
+    "width": 768,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "400",
+    "width": 1280,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "404",
+    "width": 320,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "404",
+    "width": 768,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "404",
+    "width": 1280,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "500",
+    "width": 320,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "500",
+    "width": 768,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "500",
+    "width": 1280,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "copilot",
+    "width": 320,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "copilot",
+    "width": 768,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "copilot",
+    "width": 1280,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "favorites",
+    "width": 320,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "favorites",
+    "width": 768,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "favorites",
+    "width": 1280,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "information",
+    "width": 320,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "information",
+    "width": 768,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "information",
+    "width": 1280,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "intelligence",
+    "width": 320,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "intelligence",
+    "width": 768,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "intelligence",
+    "width": 1280,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "admin-categories",
+    "width": 320,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "admin-categories",
+    "width": 768,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "admin-categories",
+    "width": 1280,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "admin-controls",
+    "width": 320,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "admin-controls",
+    "width": 768,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "admin-controls",
+    "width": 1280,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "admin-operations",
+    "width": 320,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "admin-operations",
+    "width": 768,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "admin-operations",
+    "width": 1280,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "admin-restaurants",
+    "width": 320,
+    "overflow": true,
+    "bad": [
+      {
+        "tag": "DIV",
+        "cls": "stat-card",
+        "text": "1Con promoción",
+        "right": 335
+      },
+      {
+        "tag": "SPAN",
+        "cls": "stat-value",
+        "text": "1",
+        "right": 323
+      },
+      {
+        "tag": "SPAN",
+        "cls": "stat-label",
+        "text": "Con promoción",
+        "right": 323
+      },
+      {
+        "tag": "DIV",
+        "cls": "pager",
+        "text": "Filas por página\n      \n        10 por página",
+        "right": 356
+      },
+      {
+        "tag": "BUTTON",
+        "cls": "page-btn",
+        "text": "",
+        "right": 356
+      }
+    ]
+  },
+  {
+    "view": "admin-restaurants",
+    "width": 768,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "admin-restaurants",
+    "width": 1280,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "admin-restaurant_form",
+    "width": 320,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "admin-restaurant_form",
+    "width": 768,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "admin-restaurant_form",
+    "width": 1280,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "admin-users",
+    "width": 320,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "admin-users",
+    "width": 768,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "admin-users",
+    "width": 1280,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "admin-website_settings",
+    "width": 320,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "admin-website_settings",
+    "width": 768,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "admin-website_settings",
+    "width": 1280,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "auth-profile",
+    "width": 320,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "auth-profile",
+    "width": 768,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "auth-profile",
+    "width": 1280,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "auth-profile_owner",
+    "width": 320,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "auth-profile_owner",
+    "width": 768,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "auth-profile_owner",
+    "width": 1280,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "auth-security",
+    "width": 320,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "auth-security",
+    "width": 768,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "auth-security",
+    "width": 1280,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "catalog-dashboard",
+    "width": 320,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "catalog-dashboard",
+    "width": 768,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "catalog-dashboard",
+    "width": 1280,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "catalog-explore",
+    "width": 320,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "catalog-explore",
+    "width": 768,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "catalog-explore",
+    "width": 1280,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "communication-base",
+    "width": 320,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "communication-base",
+    "width": 768,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "communication-base",
+    "width": 1280,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "communication-cases",
+    "width": 320,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "communication-cases",
+    "width": 768,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "communication-cases",
+    "width": 1280,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "communication-inbox",
+    "width": 320,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "communication-inbox",
+    "width": 768,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "communication-inbox",
+    "width": 1280,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "communication-notifications",
+    "width": 320,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "communication-notifications",
+    "width": 768,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "communication-notifications",
+    "width": 1280,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "communication-thread",
+    "width": 320,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "communication-thread",
+    "width": 768,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "communication-thread",
+    "width": 1280,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "discovery-claim",
+    "width": 320,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "discovery-claim",
+    "width": 768,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "discovery-claim",
+    "width": 1280,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "discovery-dashboard",
+    "width": 320,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "discovery-dashboard",
+    "width": 768,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "discovery-dashboard",
+    "width": 1280,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "discovery-google",
+    "width": 320,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "discovery-google",
+    "width": 768,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "discovery-google",
+    "width": 1280,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "discovery-owner",
+    "width": 320,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "discovery-owner",
+    "width": 768,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "discovery-owner",
+    "width": 1280,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "ecosystem-city",
+    "width": 320,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "ecosystem-city",
+    "width": 768,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "ecosystem-city",
+    "width": 1280,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "ecosystem-groups",
+    "width": 320,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "ecosystem-groups",
+    "width": 768,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "ecosystem-groups",
+    "width": 1280,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "ecosystem-publications",
+    "width": 320,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "ecosystem-publications",
+    "width": 768,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "ecosystem-publications",
+    "width": 1280,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "ecosystem-scan",
+    "width": 320,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "ecosystem-scan",
+    "width": 768,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "ecosystem-scan",
+    "width": 1280,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "market-base",
+    "width": 320,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "market-base",
+    "width": 768,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "market-base",
+    "width": 1280,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "market-browse",
+    "width": 320,
+    "overflow": false,
+    "bad": [
+      {
+        "tag": "INPUT",
+        "cls": "",
+        "text": "",
+        "right": 366
+      }
+    ]
+  },
+  {
+    "view": "market-browse",
+    "width": 768,
+    "overflow": false,
+    "bad": [
+      {
+        "tag": "INPUT",
+        "cls": "",
+        "text": "",
+        "right": 803
+      }
+    ]
+  },
+  {
+    "view": "market-browse",
+    "width": 1280,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "market-cart",
+    "width": 320,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "market-cart",
+    "width": 768,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "market-cart",
+    "width": 1280,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "market-message",
+    "width": 320,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "market-message",
+    "width": 768,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "market-message",
+    "width": 1280,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "owner-base",
+    "width": 320,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "owner-base",
+    "width": 768,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "owner-base",
+    "width": 1280,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "owner-dashboard",
+    "width": 320,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "owner-dashboard",
+    "width": 768,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "owner-dashboard",
+    "width": 1280,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "owner-restaurants",
+    "width": 320,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "owner-restaurants",
+    "width": 768,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "owner-restaurants",
+    "width": 1280,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "sites-editor",
+    "width": 320,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "sites-editor",
+    "width": 768,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "sites-editor",
+    "width": 1280,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "public",
+    "width": 320,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "public",
+    "width": 768,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "public",
+    "width": 1280,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "offers",
+    "width": 320,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "offers",
+    "width": 768,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "offers",
+    "width": 1280,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "plans",
+    "width": 320,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "plans",
+    "width": 768,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "plans",
+    "width": 1280,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "login",
+    "width": 320,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "login",
+    "width": 768,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "login",
+    "width": 1280,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "register",
+    "width": 320,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "register",
+    "width": 768,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "register",
+    "width": 1280,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "recover",
+    "width": 320,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "recover",
+    "width": 768,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "recover",
+    "width": 1280,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "admin",
+    "width": 320,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "admin",
+    "width": 768,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "admin",
+    "width": 1280,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "business_owner",
+    "width": 320,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "business_owner",
+    "width": 768,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "business_owner",
+    "width": 1280,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "detail",
+    "width": 320,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "detail",
+    "width": 768,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "detail",
+    "width": 1280,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "market",
+    "width": 320,
+    "overflow": false,
+    "bad": [
+      {
+        "tag": "INPUT",
+        "cls": "",
+        "text": "",
+        "right": 366
+      }
+    ]
+  },
+  {
+    "view": "market",
+    "width": 768,
+    "overflow": false,
+    "bad": [
+      {
+        "tag": "INPUT",
+        "cls": "",
+        "text": "",
+        "right": 803
+      }
+    ]
+  },
+  {
+    "view": "market",
+    "width": 1280,
+    "overflow": false,
+    "bad": []
+  }
+]

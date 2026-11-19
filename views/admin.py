@@ -13,6 +13,7 @@ from flask import (
     jsonify,
     request,
     flash,
+    g,
 )
 from models.restaurant import RestaurantModel
 from models.user import UserModel
@@ -60,12 +61,20 @@ def _restaurant_service_mode(restaurant):
 
 @admin_bp.app_context_processor
 def inject_sidebar_restaurants():
+    # Public pages and error templates must not depend on a private sidebar query.
+    if request.blueprint not in {'admin', 'owner', 'catalog', 'sites'} or getattr(g, 'database_unavailable', False):
+        return {}
     user = session.get("user") or {}
     role = user.get("role")
-    if role == "admin":
-        return {"restaurants": RestaurantModel.all()}
-    if role == "business_owner":
-        return {"restaurants": RestaurantModel.get_by_owner(user.get("id"))}
+    from database.connection import DatabaseConfigurationError, DatabaseConnectionError
+    from psycopg import OperationalError
+    try:
+        if role == "admin":
+            return {"restaurants": RestaurantModel.all()}
+        if role == "business_owner":
+            return {"restaurants": RestaurantModel.get_by_owner(user.get("id"))}
+    except (DatabaseConfigurationError, DatabaseConnectionError, OperationalError):
+        logger.warning('La navegación interna no pudo cargar negocios temporalmente.')
     return {}
 
 
@@ -153,6 +162,17 @@ def admin_required(f):
         return f(*args, **kwargs)
 
     return decorated_function
+
+
+@admin_bp.get('/api/performance')
+@admin_required
+def performance_metrics():
+    """Process-local aggregates; no credentials, SQL text or personal data."""
+    from database.metrics import snapshot
+    from database.pool import pool_stats
+    response = jsonify(pool=pool_stats(), timings=snapshot(), scope='current_process')
+    response.headers['Cache-Control'] = 'no-store'
+    return response
 
 
 def admin_or_owner_required(f):
@@ -316,10 +336,11 @@ def restaurants():
 
     cat_dict = {cat["id"]: cat["name"] for cat in categories}
 
-    now = datetime.datetime.now().strftime("%H:%M")
+    from utils.functional import filter_restaurants
+    restaurants = filter_restaurants(restaurants, {})
     for r in restaurants:
         r["category_name"] = cat_dict.get(r.get("category_id"), "Sin categoría")
-        r["is_open"] = r.get("open_time") <= now <= r.get("close_time")
+        r["is_open"] = r["is_open_now"]
         r["service_mode"] = _restaurant_service_mode(r)
 
     districts = getattr(
@@ -539,6 +560,14 @@ def new_restaurant():
             )
             return redirect(url_for("admin.new_restaurant"))
 
+        from utils.restaurant_review import review_restaurant, RestaurantRejected
+        try:
+            evaluation = review_restaurant(data)
+        except RestaurantRejected as error:
+            record_event("RESTAURANT_AUTO_REJECT", resource_type="restaurant_submission", resource_id=0)
+            flash(str(error), "error")
+            return redirect(url_for("admin.new_restaurant"))
+        data.update(verified=False, status="pending_review", automated_review=evaluation)
         with document_transaction() as conn:
             if discovery_candidate:
                 from models.discovery import CandidateModel, lock
@@ -552,6 +581,8 @@ def new_restaurant():
                             discovery_candidate_id=latest['id'])
                 data['verified'] = False
             restaurant = RestaurantModel.create(data)
+            from models.moderation import ModerationModel
+            ModerationModel.create_moderation_entry("restaurant", restaurant["id"], data, session["user"]["id"], ai_evaluation=evaluation)
             if discovery_candidate:
                 CandidateModel.update(discovery_candidate['id'], {'commercial_restaurant_id': restaurant['id']})
             record_event("ADMIN_RESTAURANT_CREATE", resource_type="restaurant", resource_id=restaurant["id"])
@@ -1533,3 +1564,21 @@ def auto_filter_restaurants():
         ),
         200,
     )
+
+
+@admin_bp.route("/configuracion-sitio", methods=["GET", "POST"])
+@admin_required
+def website_settings():
+    from models.site_settings import site_settings, save_site_settings
+    settings = site_settings()
+    if request.method == "POST":
+        try:
+            with document_transaction():
+                settings = save_site_settings(request.form)
+                record_event("ADMIN_SITE_SETTINGS", resource_type="site_settings", resource_id=1)
+            flash("Configuración del sitio actualizada.", "success")
+            return redirect(url_for("admin.website_settings"))
+        except ValueError as error:
+            flash(str(error), "error")
+            return render_template("admin/website_settings.html", settings={**settings, **{k:request.form[k] for k in settings if k in request.form}}), 400
+    return render_template("admin/website_settings.html", settings=settings)

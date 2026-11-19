@@ -2,7 +2,7 @@
    Real WebGL scene: PerspectiveCamera, PBR GLB, hemisphere + key + rim lights, contact shadow,
    slow rotation, floating, bounded pointer parallax, lazy load, visibility pause, WebP fallback. */
 import { Scene, PerspectiveCamera, WebGLRenderer, HemisphereLight, DirectionalLight, SpotLight, Group, Box3, Vector3,
-  Mesh, CircleGeometry, MeshBasicMaterial, CanvasTexture, SRGBColorSpace, ACESFilmicToneMapping, PCFSoftShadowMap, MathUtils, Clock, Color } from 'three';
+  Mesh, PlaneGeometry, TextureLoader, CircleGeometry, MeshBasicMaterial, CanvasTexture, SRGBColorSpace, ACESFilmicToneMapping, PCFSoftShadowMap, MathUtils, Clock, Color } from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 const reduce = matchMedia('(prefers-reduced-motion: reduce)');
@@ -18,6 +18,7 @@ function shadowTexture() {
 
 export function createFoodScene(host, options = {}) {
   const canvas = host.querySelector('canvas');
+  const viewport = host.querySelector('.ax-food-canvas') || host;
   const fallback = host.querySelector('[data-scene-fallback]');
   const state = { renderer: null, current: null, loading: null, pointer: { x: 0, y: 0 }, target: { x: 0, y: 0 }, visible: true, raf: 0, disposed: false };
   const showFallback = (reason) => { host.dataset.sceneState = 'fallback'; host.dataset.sceneReason = reason; if (fallback) fallback.hidden = false; canvas.hidden = true; stop(); };
@@ -45,11 +46,11 @@ export function createFoodScene(host, options = {}) {
   const loader = new GLTFLoader(); const clock = new Clock();
 
   function resize() {
-    const w = host.clientWidth || 1, h = host.clientHeight || 1;
+    const w = viewport.clientWidth || 1, h = viewport.clientHeight || 1;
     renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
     const compact = w < 560; camera.position.set(0, compact ? 1.7 : 2.1, compact ? 6.4 : 5.6); camera.lookAt(0, 0.25, 0);
   }
-  const ro = new ResizeObserver(() => { resize(); renderOnce(); }); ro.observe(host); resize();
+  const ro = new ResizeObserver(() => { resize(); renderOnce(); }); ro.observe(viewport); resize();
 
   function fit(object) {
     const box = new Box3().setFromObject(object); const size = box.getSize(new Vector3()); const center = box.getCenter(new Vector3());
@@ -61,9 +62,33 @@ export function createFoodScene(host, options = {}) {
 
   function setDish(item) {
     if (state.disposed || !item || !item.model) return Promise.resolve(false);
-    if (fallback) { const img = fallback.querySelector('img'); if (img && item.image) { img.src = item.image; img.alt = item.name || ''; } }
+    if (fallback) { const img = fallback.matches('img') ? fallback : fallback.querySelector('img'); if (img && item.image) { img.src = item.image; img.alt = item.name || ''; } }
     host.dataset.sceneState = 'loading';
     const token = state.loading = {};
+    // A photographic relief, not a reconstruction of unseen sides of the dish.
+    if (host.dataset.photoRelief === 'true' && item.model_kind !== 'catalog' && item.image) {
+      return new Promise(resolve => new TextureLoader().load(item.image, texture => {
+        if (state.loading !== token || state.disposed) { texture.dispose(); return resolve(false); }
+        texture.colorSpace = SRGBColorSpace;
+        const ratio = texture.image.width / texture.image.height;
+        const geometry = new PlaneGeometry(3.25, 3.25 / ratio, 40, 40);
+        const positions = geometry.attributes.position;
+        for (let i = 0; i < positions.count; i++) {
+          const x = positions.getX(i), y = positions.getY(i);
+          positions.setZ(i, 0.12 * Math.exp(-(x*x + y*y)));
+        }
+        geometry.computeVertexNormals();
+        const next = new Mesh(geometry, new MeshBasicMaterial({map:texture, transparent:true, toneMapped:false}));
+        next.rotation.x = -0.32;
+        next.userData.enter = 0;
+        if (state.current) { pivot.remove(state.current); disposeObject(state.current); }
+        state.current = next; pivot.add(next); state.photo = true;
+        host.dataset.sceneState = 'ready'; host.dataset.presentation = 'photo-relief';
+        canvas.hidden = false; if (fallback) fallback.hidden = true;
+        start(); renderOnce(); resolve(true);
+      }, undefined, () => { if (state.loading === token) showFallback('image'); resolve(false); }));
+    }
+    state.photo = false;
     return new Promise((resolve) => {
       loader.load(item.model, (gltf) => {
         if (state.loading !== token || state.disposed) { disposeObject(gltf.scene); return resolve(false); }
@@ -82,7 +107,7 @@ export function createFoodScene(host, options = {}) {
     const t = clock.getElapsedTime(); const dt = Math.min(clock.getDelta() || 0.016, 0.05);
     state.pointer.x = MathUtils.lerp(state.pointer.x, state.target.x, 0.06); state.pointer.y = MathUtils.lerp(state.pointer.y, state.target.y, 0.06);
     const motion = reduce.matches ? 0 : 1;
-    pivot.rotation.y = motion * t * 0.11 + state.pointer.x * 0.22;
+    pivot.rotation.y = (state.photo ? motion * Math.sin(t * 0.35) * 0.1 : motion * t * 0.11) + state.pointer.x * 0.22;
     pivot.rotation.x = -0.08 + state.pointer.y * 0.09 + motion * Math.sin(t * 0.7) * 0.015;
     pivot.position.y = motion * Math.sin(t * 0.9) * 0.045;
     contact.scale.setScalar(1 - pivot.position.y * 0.35);
@@ -98,8 +123,19 @@ export function createFoodScene(host, options = {}) {
   io.observe(host);
   document.addEventListener('visibilitychange', () => { state.visible = !document.hidden; state.visible ? start() : stop(); });
   const area = options.pointerArea || host;
+  let drag = null;
+  viewport.style.touchAction = 'pan-y';
+  viewport.addEventListener('pointerdown', e => { drag = {x:e.clientX, y:e.clientY}; viewport.setPointerCapture(e.pointerId); });
+  viewport.addEventListener('pointermove', e => {
+    if (!drag) return;
+    state.target.x = MathUtils.clamp((e.clientX - drag.x) / 100, -1.5, 1.5);
+    state.target.y = MathUtils.clamp((e.clientY - drag.y) / 150, -1, 1); start();
+  });
+  const release = () => { drag = null; state.target.x = 0; state.target.y = 0; start(); };
+  viewport.addEventListener('pointerup', release);
+  viewport.addEventListener('pointercancel', release);
   area.addEventListener('pointermove', (e) => {
-    if (!fine.matches || reduce.matches) return;
+    if (drag || !fine.matches || reduce.matches) return;
     const r = area.getBoundingClientRect();
     state.target.x = MathUtils.clamp((e.clientX - r.left) / r.width * 2 - 1, -1, 1); state.target.y = MathUtils.clamp((e.clientY - r.top) / r.height * 2 - 1, -1, 1); start();
   }, { passive: true });
@@ -122,13 +158,14 @@ function boot() {
   let items = [], index = 0, timer = 0;
   const esc = (v) => String(v ?? '');
   function describe(item) {
-    if (title) title.textContent = esc(item.name); if (caption) caption.textContent = esc(item.caption);
+    if (title) title.textContent = esc(item.name); if (caption) caption.textContent = host.dataset.photoRelief === 'true' && item.model_kind !== 'catalog' ? 'Fotografía con relieve · arrastra para inclinar' : esc(item.caption);
     if (badge) { badge.textContent = item.source === 'catalog' ? (item.model_kind === 'catalog' ? 'Modelo del negocio' : 'Del catálogo') : 'Selección editorial'; badge.hidden = false; }
     if (dots) dots.querySelectorAll('button').forEach((b, i) => { b.setAttribute('aria-pressed', String(i === index)); });
     const link = host.querySelector('[data-dish-link]'); if (link) { link.href = /^\/(?!\/)/.test(item.href || '') ? item.href : '/mercado/'; }
   }
   async function show(i) { index = (i + items.length) % items.length; const item = items[index]; describe(item); await sceneApi.setDish(item); }
-  function schedule() { clearInterval(timer); if (items.length > 1 && !reduce.matches) timer = setInterval(() => show(index + 1), 14000); }
+  function schedule() { clearInterval(timer); if (items.length > 1 && !reduce.matches) timer = setInterval(() => { if (!document.hidden && host.getBoundingClientRect().bottom > 0 && host.getBoundingClientRect().top < innerHeight) show(index + 1); }, 14000); }
+  reduce.addEventListener('change', schedule);
   function render(data) {
     items = Array.isArray(data.items) ? data.items.filter((x) => x && typeof x.model === 'string' && /^\/(?!\/)/.test(x.model)) : [];
     host.dataset.personalized = String(Boolean(data.personalized));

@@ -1,19 +1,54 @@
+import os
+import re
 from io import BytesIO
-import os,re
 from urllib.parse import urlsplit
+
 import qrcode
 from qrcode.image.svg import SvgPathImage
 
 
-def build_table_qr(token):
-    if not isinstance(token,str) or not re.fullmatch('[0-9a-f]{32}',token):raise ValueError('Token de mesa inválido')
-    origin=os.getenv('SMARTRESTO_PUBLIC_ORIGIN','').rstrip('/')
+def _svg(url):
+    image = qrcode.make(url, image_factory=SvgPathImage, box_size=10, border=4)
+    stream = BytesIO()
+    image.save(stream)
+    return stream.getvalue()
+
+
+def _origin():
+    origin = os.getenv('SMARTRESTO_PUBLIC_ORIGIN', '').rstrip('/')
     if origin:
-        parts=urlsplit(origin)
-        if parts.scheme!='https' or not parts.hostname or parts.username or parts.path or parts.query or parts.fragment:
+        parts = urlsplit(origin)
+        if (parts.scheme != 'https' or not parts.hostname or parts.username
+                or parts.path or parts.query or parts.fragment):
             raise ValueError('Configura un origen público HTTPS válido para imprimir QR de producción')
-    else:origin='http://127.0.0.1:5000'
-    url=origin+'/catalog/qr/'+token
-    image=qrcode.make(url,image_factory=SvgPathImage,box_size=10,border=4)
-    stream=BytesIO();image.save(stream)
-    return stream.getvalue(),url
+        return origin
+    return 'http://127.0.0.1:5000'
+
+
+def build_table_qr(token):
+    if not isinstance(token, str) or not re.fullmatch('[0-9a-f]{32}', token):
+        raise ValueError('Token de mesa inválido')
+    origin = _origin()
+    url = origin + '/catalog/qr/' + token
+    return _svg(url), url
+
+
+def build_menu_qr(token):
+    """QR que abre la carta digital y la sesión de esa mesa."""
+    if not isinstance(token, str) or not re.fullmatch('[0-9a-f]{32}', token):
+        raise ValueError('Token de mesa inválido')
+    origin = _origin()
+    url = origin + '/mesa/' + token
+    return _svg(url), url
+
+
+def build_queue_qr(rid):
+    try:
+        rid = int(rid)
+    except (TypeError, ValueError):
+        raise ValueError('Negocio inválido') from None
+    if rid < 1:
+        raise ValueError('Negocio inválido')
+    origin = _origin()
+    url = f'{origin}/cola/{rid}'
+    return _svg(url), url

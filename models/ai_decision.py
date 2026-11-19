@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 import json
-from database.connection import connection
+from database.connection import connection, transaction_limits
 from utils.integrity import acquire_stream_lock, chain_head, digest_payload
 
 
@@ -60,6 +60,7 @@ class AIDecisionModel:
         if estado == "reserved":
             raise ValueError("Usa reserve() para crear una decisión pendiente.")
         with connection() as conn:
+            transaction_limits(conn)
             with conn.cursor() as cur:
                 acquire_stream_lock(cur, "ai_decisions")
                 sequence, previous_hash = chain_head(cur, "ai_decisions")
@@ -112,6 +113,7 @@ class AIDecisionModel:
     def reserve(*, actor_user_id, tipo, entrada_hash, limit=10):
         """Reserva una solicitud de manera atómica por administrador y minuto."""
         with connection() as conn:
+            transaction_limits(conn)
             with conn.cursor() as cur:
                 cur.execute(
                     "SELECT pg_advisory_xact_lock(%s,%s)", (74931, actor_user_id)
@@ -151,6 +153,7 @@ class AIDecisionModel:
         if estado == "reserved":
             raise ValueError("finish() requiere un estado final.")
         with connection() as conn:
+            transaction_limits(conn)
             with conn.cursor() as cur:
                 acquire_stream_lock(cur, "ai_decisions")
                 sequence, previous_hash = chain_head(cur, "ai_decisions")

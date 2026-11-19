@@ -81,7 +81,9 @@
         try { render(await api('/api/search',filters)); } catch(error) { status.textContent=error.message; }
     };
     document.getElementById('catalog-ai').onclick = async () => { try {
-        const data=await api('/api/ai/interpret',{text:document.getElementById('catalog-natural').value,...origin}); render(data.results); status.textContent += ` | ${data.summary}`;
+        const query = document.getElementById('catalog-natural').value;
+        void window.smartRestoSearchHistory?.record(query);
+        const data=await api('/api/ai/interpret',{text:query,...origin}); render(data.results); status.textContent += ` | ${data.summary}`;
     } catch(error) { status.textContent=error.message; } };
     document.getElementById('catalog-compare-products').onclick = async () => { try {
         const data = await api(`/api/catalog/compare?kind=product&ids=${[...products].join(',')}`);

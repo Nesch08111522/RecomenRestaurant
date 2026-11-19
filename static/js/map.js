@@ -5,6 +5,7 @@
 
 let map = null;
 let markers = {};
+window.getLeafletMap = () => map;
 
 function initMap() {
     if (document.body.classList.contains('sr-discover') && document.getElementById('forest-map-panel')?.hidden) return;
@@ -141,10 +142,10 @@ function addUserLocationMarker(lat, lng) {
         html: `<div style="
             width: 20px;
             height: 20px;
-            background: #3B82F6;
+            background: var(--theme-info-bg);
             border-radius: 50%;
-            border: 3px solid white;
-            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.3), 0 2px 8px rgba(0,0,0,0.2);
+            border: 3px solid var(--theme-border);
+            box-shadow: 0 0 0 4px var(--theme-shadow), 0 2px 8px var(--theme-shadow);
             animation: pulse 1.5s ease-in-out infinite;
         "></div>`,
         iconSize: [20, 20],
@@ -158,8 +159,8 @@ function addUserLocationMarker(lat, lng) {
     if (window._userAccuracy) {
         L.circle([lat, lng], {
             radius: window._userAccuracy,
-            color: '#3B82F6',
-            fillColor: '#3B82F6',
+            color: window.SRTheme.color('info'),
+            fillColor: window.SRTheme.color('info'),
             fillOpacity: 0.1,
             weight: 1
         }).addTo(map);

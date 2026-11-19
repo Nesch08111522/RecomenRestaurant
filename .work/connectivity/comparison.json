@@ -1,0 +1,37 @@
+{
+  "before": {
+    "samples_ms": [
+      1661.45,
+      1630.61,
+      1306.59
+    ],
+    "mean_ms": 1532.88,
+    "restaurant_count": 26
+  },
+  "after": {
+    "samples_ms": [
+      1438.4,
+      567.79,
+      568.59
+    ],
+    "mean_ms": 858.26,
+    "restaurant_count": 26
+  },
+  "schema": {
+    "relkind": "r",
+    "relrowsecurity": false,
+    "primary_keys": 0,
+    "indexes": 1
+  },
+  "duplicate_id_groups": 0,
+  "pool": {
+    "maximum": 4,
+    "total": 1,
+    "available": 1,
+    "in_use": 0,
+    "created": 1,
+    "wait_timeouts": 0,
+    "cooldown": false
+  },
+  "improvement_pct": 44.0
+}

@@ -1,0 +1,68 @@
+/* Canonical design tokens: dark without any OS media query. */
+:root {
+  --theme-shadow-rgb: 9 17 22;
+  --theme-bg: #14191d;
+  --theme-surface: #1d252b;
+  --theme-elevated: #29333b;
+  --theme-text: #f2f6f8;
+  --theme-muted: #c3ced5;
+  --theme-border: #81939f;
+  --theme-accent: #a6dfc6;
+  --theme-accent-bg: #233b34;
+  --theme-success: #a6dfc6;
+  --theme-success-bg: #233b34;
+  --theme-warning: #f2d08b;
+  --theme-warning-bg: #3c3424;
+  --theme-danger: #ffb9bb;
+  --theme-danger-bg: #402c32;
+  --theme-info: #b7d8ff;
+  --theme-info-bg: #283748;
+  --theme-focus: #f2d08b;
+  --theme-shadow: #09111666;
+  --theme-edge: #c3ced51a;
+  --theme-overlay: #10171de6;
+  --theme-chart-1: #a6dfc6;
+  --theme-chart-2: #b7d8ff;
+  --theme-chart-3: #f2d08b;
+  --theme-chart-4: #ffb9bb;
+  --theme-chart-5: #d6c6ff;
+  --theme-chart-6: #a7dce2;
+  --theme-brand-primary: #245447;
+  --theme-brand-secondary: #d8a65d;
+  color-scheme: dark;
+}
+[data-theme="light"] {
+  --theme-shadow-rgb: 24 36 44;
+  --theme-bg: #f3f5f6;
+  --theme-surface: #ffffff;
+  --theme-elevated: #e6ecef;
+  --theme-text: #18242c;
+  --theme-muted: #41515d;
+  --theme-border: #667b88;
+  --theme-accent: #17533f;
+  --theme-accent-bg: #dcece5;
+  --theme-success: #17533f;
+  --theme-success-bg: #dcece5;
+  --theme-warning: #674500;
+  --theme-warning-bg: #f4ead4;
+  --theme-danger: #852737;
+  --theme-danger-bg: #fae4e8;
+  --theme-info: #214d78;
+  --theme-info-bg: #e1ecf9;
+  --theme-focus: #674500;
+  --theme-shadow: #18242c26;
+  --theme-edge: #ffffffb3;
+  --theme-overlay: #e6eceff2;
+  --theme-chart-1: #17533f;
+  --theme-chart-2: #214d78;
+  --theme-chart-3: #674500;
+  --theme-chart-4: #852737;
+  --theme-chart-5: #584182;
+  --theme-chart-6: #23535b;
+  --theme-brand-primary: #245447;
+  --theme-brand-secondary: #d8a65d;
+  color-scheme: light;
+}
+
+/* Stable contrast over food photography, independent of the selected theme. */
+:root { --theme-photo-bg:#111; --theme-photo-text:#fff; --theme-photo-rgb:0 0 0; --theme-promo-bg:#a34813; }

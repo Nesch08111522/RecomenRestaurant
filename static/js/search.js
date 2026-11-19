@@ -171,11 +171,12 @@ class RealTimeSearch {
         }
         
         if (results.length === 0) {
+            document.getElementById('restaurant-pagination')?.remove();
             grid.innerHTML = `
                 <div class="empty-state">
-                    <i class="fas fa-utensils" style="font-size: 48px; color: var(--gray);"></i>
+                    <i class="fas fa-utensils" style="font-size:var(--text-display); color: var(--theme-text);"></i>
                     <h3 style="margin-top: 16px;">No encontramos restaurantes</h3>
-                    <p style="color: var(--gray);">Intenta con otros filtros o ubicación</p>
+                    <p style="color: var(--theme-text);">Intenta con otros filtros o ubicación</p>
                 </div>
             `;
             return;
@@ -279,10 +280,10 @@ class RealTimeSearch {
         const grid = this.resultsGrid;
         if (grid) {
             grid.innerHTML = `
-                <div class="empty-state" style="border: 1px solid #fca5a5; background: #fee2e2;">
-                    <i class="fas fa-exclamation-triangle" style="font-size: 48px; color: #991b1b;"></i>
-                    <h3 style="margin-top: 16px; color: #991b1b;">Error</h3>
-                    <p style="color: #991b1b;">${message}</p>
+                <div class="empty-state" style="border: 1px solid var(--theme-border); background: var(--theme-surface);">
+                    <i class="fas fa-exclamation-triangle" style="font-size:var(--text-display); color: var(--theme-danger);"></i>
+                    <h3 style="margin-top: 16px; color: var(--theme-danger);">Error</h3>
+                    <p style="color: var(--theme-danger);">${message}</p>
                 </div>
             `;
         }

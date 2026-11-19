@@ -15,7 +15,7 @@ from models.user import UserModel
 from database.repository import document_transaction, PostgresDocumentRepository as Repo
 from logic.business_radar import now,clean,duplicate_reason,validate_source_url,claim_transition
 from utils.audit import record_event
-from utils.discovery_sources import osm_search, official_fetch, OVERPASS
+from utils.discovery_sources import osm_search, official_fetch, OVERPASS, SourceUnavailable
 
 
 class CandidateModel(DataModel):
@@ -131,7 +131,7 @@ def run_source(source_id,actor=None):
             SourceModel.update(source['id'],{'last_success_at':now(),'next_refresh_at':(datetime.now(timezone.utc)+timedelta(days=source['refresh_days'])).isoformat(),'last_error':None})
         return {**run,**counts,'status':'completed'}
     except Exception as error:
-        safe=clean(error,250) if isinstance(error,ValueError) else 'La fuente o proveedor no respondió; se conservaron los datos anteriores'
+        safe=clean(error,250) if isinstance(error,(ValueError,SourceUnavailable)) else 'La fuente o proveedor no respondió; se conservaron los datos anteriores'
         with document_transaction():
             RunModel.update(run['id'],{'status':'failed','finished_at':now(),'error':safe,'error_type':type(error).__name__})
             SourceModel.update(source['id'],{'last_error':safe,'next_refresh_at':(datetime.now(timezone.utc)+timedelta(days=1)).isoformat()})

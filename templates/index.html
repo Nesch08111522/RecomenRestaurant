@@ -21,7 +21,7 @@
             <form id="aiRecForm">
                 <div class="form-group">
                     <label for="aiRecText">¿Qué se te antoja?</label>
-                    <textarea id="aiRecText" class="form-input" rows="3" maxlength="300" required
+                    <textarea id="aiRecText" class="form-input" rows="3" maxlength="300" data-search-history required
                         placeholder="Ej: una cena romántica y económica para esta noche"></textarea>
                 </div>
                 <button type="submit" id="aiRecBtn" class="btn-primary btn-block">
@@ -60,33 +60,33 @@
 <!-- Estilos mínimos del mapa nuevo (no tocan tamaños de tarjetas, filtros ni layout) -->
 <style>
     .map-control-btn.active {
-        background: var(--primary);
-        color: #fff;
+        background: var(--theme-accent-bg);
+        color: var(--theme-text);
     }
 
     .maplibregl-popup-content {
-        padding: 12px 14px;
+        padding:var(--space-sm) var(--space-md);
         border-radius: 12px;
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
+        box-shadow: 0 6px 20px var(--theme-shadow);
     }
 
     .rm-popup {
         display: flex;
         flex-direction: column;
-        gap: 4px;
-        font-size: 13px;
+        gap:var(--space-xs);
+        font-size:var(--text-sm);
         line-height: 1.4;
-        color: #374151;
+        color: var(--theme-text);
     }
 
     .rm-popup strong {
-        font-size: 14px;
-        color: #111827;
+        font-size:var(--text-sm);
+        color: var(--theme-info);
     }
 
     .rm-popup a {
         margin-top: 4px;
-        color: var(--primary);
+        color: var(--theme-accent);
         font-weight: 600;
         text-decoration: none;
     }
@@ -94,10 +94,10 @@
     .rm-user-dot {
         width: 16px;
         height: 16px;
-        border: 3px solid #fff;
+        border: 3px solid var(--theme-border);
         border-radius: 50%;
-        background: #2563eb;
-        box-shadow: 0 0 0 6px rgba(37, 99, 235, 0.25);
+        background: var(--theme-info-bg);
+        box-shadow: 0 0 0 6px var(--theme-shadow);
     }
 </style>
 {% endblock %}
@@ -136,7 +136,7 @@
     'use strict';
 
 const STYLE_URL = 'https://tiles.openfreemap.org/styles/positron';
-    const COLOR = (typeof APP_CONFIG !== 'undefined' && APP_CONFIG.primaryColor) || '#ff385c';
+    const COLOR = (typeof APP_CONFIG !== 'undefined' && APP_CONFIG.primaryColor) || window.SRTheme.color('danger');
     const DEFAULT_CENTER = [-79.03, -8.11]; // [lng, lat] Trujillo
 
     const num = (v) => {
@@ -365,7 +365,7 @@ const STYLE_URL = 'https://tiles.openfreemap.org/styles/positron';
                     'circle-opacity': 0.9,
                     'circle-radius': ['step', ['get', 'point_count'], 16, 10, 20, 30, 26],
                     'circle-stroke-width': 3,
-                    'circle-stroke-color': '#ffffff'
+                    'circle-stroke-color': window.SRTheme.color('text')
                 }
             });
 
@@ -379,7 +379,7 @@ const STYLE_URL = 'https://tiles.openfreemap.org/styles/positron';
                     'text-font': ['Noto Sans Bold'],
                     'text-size': 13
                 },
-                paint: { 'text-color': '#ffffff' }
+                paint: { 'text-color': window.SRTheme.color('text') }
             });
 
             map.addLayer({
@@ -399,7 +399,7 @@ const STYLE_URL = 'https://tiles.openfreemap.org/styles/positron';
                     'circle-color': COLOR,
                     'circle-radius': ['interpolate', ['linear'], ['zoom'], 10, 6, 16, 11],
                     'circle-stroke-width': 2.5,
-                    'circle-stroke-color': '#ffffff'
+                    'circle-stroke-color': window.SRTheme.color('text')
                 }
             });
 
@@ -418,8 +418,8 @@ const STYLE_URL = 'https://tiles.openfreemap.org/styles/positron';
                     'text-optional': true
                 },
                 paint: {
-                    'text-color': '#1f2937',
-                    'text-halo-color': '#ffffff',
+                    'text-color': window.SRTheme.color('info'),
+                    'text-halo-color': window.SRTheme.color('text'),
                     'text-halo-width': 1.5
                 }
             });
@@ -433,7 +433,7 @@ if (!map.getLayer('rm-buildings-3d') && map.getSource('openmaptiles')) {
                     'source-layer': 'building',
                     minzoom: 14,
                     paint: {
-    'fill-extrusion-color': '#e5e7eb',
+    'fill-extrusion-color': window.SRTheme.color('text'),
     'fill-extrusion-height': [
         'coalesce',
         ['to-number', ['get', 'render_height']],
@@ -562,7 +562,7 @@ const last = window.app?.state?.userLocation;
 <script src="{{ url_for('static', filename='js/forest/' ~ module ~ '.js') }}"></script>
 {% endfor %}
 <!-- Asistente de IA (Qwen): búsqueda inteligente + chat -->
-<script src="{{ url_for('static', filename='js/ai-assistant.js') }}"></script>
+
 
 <!-- Recomendación Inteligente simple: un texto -> la IA responde con hasta 3 restaurantes -->
 <script>
@@ -598,18 +598,18 @@ const last = window.app?.state?.userLocation;
 
     function showResult(reply, ids) {
         out.textContent = '';
-        out.appendChild(node('p', reply, 'margin:0 0 12px;line-height:1.5;color:#374151;'));
+        out.appendChild(node('p', reply, 'margin:0 0 12px;line-height:1.5;color:var(--theme-text);'));
 
         const all = appRestaurants();
         (ids || []).forEach(id => {
             const r = all.find(x => String(x.id) === String(id));
             if (!r) return;
             const a = node('a', null,
-                'display:block;margin-bottom:8px;padding:10px 12px;border:1px solid #eceff3;' +
-                'border-left:3px solid var(--primary,#ff385c);border-radius:10px;' +
-                'text-decoration:none;color:#374151;font-size:13px;');
+                'display:block;margin-bottom:8px;padding:10px 12px;border:1px solid var(--theme-border);' +
+                'border-left:3px solid var(--primary,var(--theme-text));border-radius:10px;' +
+                'text-decoration:none;color:var(--theme-text);font-size:13px;');
             a.href = '/restaurant/' + encodeURIComponent(r.id);
-            a.appendChild(node('strong', r.name, 'display:block;color:#111827;font-size:14px;'));
+            a.appendChild(node('strong', r.name, 'display:block;color:var(--theme-text);font-size:14px;'));
             a.appendChild(node('span',
                 (typeof MONEDA !== 'undefined' ? MONEDA : 'S/.') + r.avg_price +
                 ' · ★ ' + r.rating + (r.district ? ' · ' + r.district : '')));
@@ -643,7 +643,7 @@ const last = window.app?.state?.userLocation;
             showResult(data.reply, data.restaurant_ids);
         } catch (err) {
             out.textContent = '';
-            out.appendChild(node('p', err.message, 'margin:0;color:#b91c1c;'));
+            out.appendChild(node('p', err.message, 'margin:0;color:var(--theme-text);'));
         } finally {
             btn.disabled = false;
             btn.innerHTML = idleHTML;

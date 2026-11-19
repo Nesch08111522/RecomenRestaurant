@@ -1,0 +1,275 @@
+
+===== PAGINA 1 =====
+
+CURSO
+DOCENTE 
+SECCIÓN
+EQUIPO
+%
+NO PARTICIPO
+PARTICIPO
+PARTICIPO
+PARTICIPO
+NO PARTICIPO FECHA DE PRESENTACIÓN
+ESTÁNDAR ESPERADO EN PROCESO 2 EN PROCESO 1 INICIAL NO DESARROLADO PUNTAJE TOTAL OBSERVACIONES
+2 1.5 0
+Realiza mejoras sustanciales 
+en el contenido de su avance 2
+Realiza mejoras parciales a su 
+avance 2 No hace mejoras 0
+2 1 0.5 0
+Selecciona tecnologías pertinentes 
+(IA, Cloud, ML, IoT, Blockchain, 
+APIs, GUIs, LP, etc.) 
+completamente alineadas con la 
+solución propuesta.
+Las tecnologías son adecuadas, 
+aunque algunas podrían justificarse 
+mejor.
+Selecciona tecnologías poco 
+relacionadas con la propuesta o 
+parcialmente pertinentes o 
+incompleta.
+No identifica tecnologías relevantes. 0
+3 2 1 0
+Explica técnica y funcionalmente 
+por qué cada tecnología fue 
+seleccionada, demostrando 
+conocimiento de sus ventajas y 
+limitaciones.
+Justifica adecuadamente la mayoría 
+de tecnologías.
+Presenta explicaciones poco técnicas 
+o ambiguas o superficial o 
+incompleta.
+No presenta justificación técnica. 0
+3 2 1 0
+Presenta un plan completo con 
+cronograma Gantt, recursos, 
+responsables, tiempos e hitos 
+claramente definidos y viables.
+El plan está casi completo con 
+pequeñas omisiones.
+El plan es incompleto, poco realista o 
+Incluye los elementos principales, 
+pero con deficiencias de 
+planificación.
+No presenta plan de trabajo. 0
+4 3 2 1 0
+Presenta un desarrollo funcional 
+equivalente aproximadamente al 
+20% del proyecto, demostrando 
+evidencia tangible del avance.
+Presenta un prototipo funcional con 
+limitadas funcionalidades.
+Presenta una simulación o 
+arquitectura parcialmente 
+desarrollada.
+Solo muestra bosquejos o ideas sin 
+implementación significativa.
+No presenta evidencia del 
+desarrollo. 0
+2 1 0.5 0
+Analiza claramente el impacto 
+tecnológico, organizacional, 
+económico o social de la 
+propuesta mediante argumentos 
+sólidos.
+Presenta impactos generales con 
+escasa fundamentación.
+Menciona beneficios de forma muy 
+superficial. No analiza el impacto. 0
+2 2 1 0.5 0
+Conclusiones coherentes,  
+argumentadas y alineadas al 
+diagnóstico. Propone próximos 
+pasos claros y viables.
+Conclusiones coherentes, sin 
+embargo poco argumentadas o 
+propone próximos pasos pero 
+con poca profundidad. 
+Conclusiones generales sin 
+conexión clara con el análisis. 
+Limitaciones fundamentales en la  
+formulación de los próximos 
+pasos.
+Conclusiones débiles o 
+incompletas. Se omite próximo 
+pasos o no se diferencian de las 
+conclusiones.
+No presenta conclusiones. 0
+1 0.5 0
+Rúbrica de Evaluación – Avance de Proyecto Final 3 - INNOVACIÓN Y TRANSFORMACIÓN DIGITAL
+DATOS
+2026-1
+Trujillo
+Ingeniería
+Ingeniería de Sistemas
+CICLO ACADÉMICO
+SEDE
+FACULTAD
+CARRERA
+NOMBRE DE LA 
+EMPRESA/EMPRENDIMIENTO/PRODU
+CTO/SERVICIO/PROCESO DE 
+TEMA DE PRESENTACIÓN
+INTEGRANTES
+U22222222 - NOMBRE APELLIDO
+3. Justificación técnica 
+de las tecnologías
+5. Desarrollo preliminar 
+(Demo, simulación o 
+arquitectura)
+4. Plan de trabajo del 
+proyecto
+6. Impacto esperado de la 
+solución
+7. Conclusiones y 
+Próximos Pasos
+CRITERIOS
+DOCUMENTACIÓN (ENTREGABLES)
+2. Selección de 
+tecnologías de 
+transformación digital
+1. MEJORAS sobre el 
+AVANCE 2
+
+===== PAGINA 2 =====
+
+ESTÁNDAR ESPERADO EN PROCESO 2 EN PROCESO 1 INICIAL NO DESARROLADO PUNTAJE TOTAL OBSERVACIONESCRITERIOS
+Uso correcto de formato APA, 
+fuentes actuales y pertinentes. 
+Citas bien integradas.
+Referencias limitadas o con 
+errores frecuentes. No presenta referencias. 0
+1 0.5 0
+Cumple completamente con la 
+estructura solicitada, redacción 
+clara, coherente y sin errores 
+ortográficos, gramaticales o de 
+redacción.
+Presenta desorden o errores 
+frecuentes que cambian incluso el 
+sentido del párrafo en algunos 
+momentos.
+No cumple con la estructura. 0
+0
+ESTÁNDAR ESPERADO EN PROCESO 2 EN PROCESO 1 INICIAL NO DESARROLADO
+5 3 2 1 0
+Demuestra dominio total del 
+tema, fundamentos, 
+aplicaciones, impacto, plan de 
+trabajo
+Maneja adecuadamente el tema 
+con leves imprecisiones en los 
+conceptos, aplicación o 
+contenido. Expone  con algunas 
+omisiones.
+Conocimiento parcial del tema. 
+Expone algunos elementos sin 
+relación completa con los 
+conceptos, aplicación o contenido
+Desconocimiento evidente del 
+contenido, conceptos o aplicación.
+No logra exponer los elementos 
+del proyecto. 0
+3 2 1 0.5 0
+Expone ideas de forma lógica, 
+clara y estructurada. 
+Presenta la mayoría ideas con 
+leves omisiones de concepto, 
+aplicación o contenido. Presenta 
+ideas comprensibles y 
+ordenadas.
+Presenta elementos sin orden 
+definido, desorganización de ideas 
+en su mayoría.
+Exposción totalmente 
+desordenada. No sigue una secuencia. 0
+3 2 1 0.5 0
+Justifica ideas y decisiones con 
+argumentos sólidos y responde 
+con criterio lógica y relacionado 
+con el tema.
+Relaciona parcialmente sus 
+ideas con los elementos del 
+proyecto. Responde 
+adecuadamente con sustento 
+básico.
+Presenta ideas sin relación clara 
+entre problema y/o solución. 
+Respuestas limitadas o poco 
+claras.
+No logra sustentar sus ideas en la 
+mayoría de su exposición No sustenta 0
+3 2 1 0.5 0
+Presenta diapositivas u otro 
+recurso con secciones del 
+proyecto (problema, 
+innovación, tecnología). Sin 
+saturación de texto, imágnes o 
+transiciones. Uso de recurso de 
+forma profesional.
+Presenta recursos con 
+información parcial, adecuados 
+pero mejorables.
+Presenta recursos sin relación con 
+la exposición, poco claros o 
+saturados
+Usa recursos con saturación de 
+imágenes, texto, transiciones, 
+otros. Información desorganizada 
+o desactualizada.
+No utiliza recursos. 0
+3 2 1 0.5 0
+Expone ideas completas 
+Expresión fluida, segura y con 
+lenguaje técnico asociado al 
+tema, durante toda la 
+presentación.
+Comunicación clara con leves 
+dificultades en el lenguaje 
+técnico.
+Expone ideas con interrupciones o 
+vacíos. Lenguaje técnico limitado. 
+Dificultades de fluidez o seguridad
+Expone ideas incompletas. No 
+maneja lenguaje técnico. Falta de 
+fluidez o seguridad.
+No logra comunicar el contenido. 0
+2 1 0
+Excelente coordinación y 
+participación equilibrada.
+Participación con leves 
+desbalances. No hay participación 0
+1 0.5 0
+Cumple el tiempo de forma 
+precisa y equilibrada. Se desvia del tiempo mayormente No respeta el tiempo 0
+0
+0
+PUNTAJE
+NOTA FINAL
+Observaciones / Comentarios del Docente
+EXPOSICIÓN
+PUNTAJE 
+TOTAL
+PUNTAJE
+OBSERVACIONES
+6. Participación del 
+equipo
+7. Manejo del tiempo
+CRITERIOS
+1. Dominio del tema
+2. Organización de la 
+exposición
+3. Argumentación de la 
+propuesta
+8. Referencias y Formato 
+APA
+9. Presentación del 
+Documento (Estructura y 
+Redacción)
+4. Recursos visuales de 
+apoyo
+5. Comunicación del 
+contenido

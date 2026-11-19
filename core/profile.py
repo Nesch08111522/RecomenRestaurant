@@ -2,12 +2,14 @@
 from __future__ import annotations
 
 import re
+from datetime import date
 from typing import Any, Mapping
 
 
 _ALLOWED = {
     "name", "email", "preferences", "restrictions", "daily_budget", "weekly_budget",
     "addresses", "notification_preferences", "location_consent", "cookies_consent",
+    "birthday",
 }
 _EMAIL = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
@@ -57,6 +59,18 @@ def normalize_profile_patch(source: Mapping[str, Any] | None) -> dict[str, Any]:
             result[key] = amount
         elif key == "addresses":
             result[key] = _list(value, 5, 220)
+        elif key == "birthday":
+            birthday = _text(value, 10)
+            if birthday:
+                try:
+                    parsed = date.fromisoformat(birthday)
+                except ValueError:
+                    raise ValueError("La fecha de cumpleaños debe usar el formato AAAA-MM-DD") from None
+                if parsed > date.today() or parsed.year < 1900:
+                    raise ValueError("La fecha de cumpleaños no es válida")
+                result[key] = parsed.isoformat()
+            else:
+                result[key] = ""
         elif key == "notification_preferences":
             if not isinstance(value, Mapping):
                 raise ValueError("Las preferencias de notificación deben ser un objeto")

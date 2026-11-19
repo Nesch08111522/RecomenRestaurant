@@ -28,6 +28,7 @@ from utils.functional import (
 )
 from logic.recommender import RecommenderEngine
 from logic.hybrid_recommender import recommend as hybrid_recommend
+from logic.product_catalog import published_menu_dish
 from models.review import ReviewModel
 from config import Config
 from database.repository import document_transaction, PostgresDocumentRepository
@@ -35,7 +36,7 @@ from database.connection import DatabaseConfigurationError, DatabaseConnectionEr
 from utils.security import csrf, valid_coordinate
 from utils.geo import calculate_distance, normalize_coordinates
 import logging
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 
 
 # Configurar logging
@@ -146,9 +147,41 @@ def index():
         abort(500)
 
 
+@main_bp.get('/ofertas')
+def offers():
+    restaurants = [r for r in RestaurantModel.get_approved() if r.get('promo')]
+    districts = sorted({r.get('district') for r in restaurants if r.get('district')})
+    filters = {'district':request.args.get('district'), 'search_query':request.args.get('q','')}
+    if request.args.get('max_price'):
+        filters['max_price'] = request.args['max_price']
+    try:
+        matches = filter_restaurants(restaurants, filters)
+    except ValueError:
+        abort(400)
+    page = max(1, request.args.get('page',1,type=int))
+    pages = max(1,(len(matches)+5)//6)
+    page = min(page,pages)
+    return render_template('offers.html', restaurants=matches[(page-1)*6:page*6], districts=districts, page=page, pages=pages, total=len(matches), page_args={k:v for k,v in request.args.items() if k!='page'})
+
+
+@main_bp.get('/para-negocios')
+def business_plans():
+    return render_template('business_plans.html')
+
+
 @main_bp.route("/restaurant/<int:restaurant_id>")
 def detail(restaurant_id):
     """Página de detalles de un restaurante"""
+    today = datetime.now(LIMA_TIMEZONE).date()
+    menu_day = today
+    if requested_day := request.args.get("day"):
+        try:
+            menu_day = date.fromisoformat(requested_day)
+        except ValueError:
+            abort(400)
+        if menu_day.isoformat() != requested_day or not today <= menu_day <= today + timedelta(days=30):
+            abort(400)
+
     try:
         restaurant = RestaurantModel.get_by_id(restaurant_id)
         if not restaurant:
@@ -156,7 +189,7 @@ def detail(restaurant_id):
 
         # ✅ Verificar que el restaurante esté aprobado
         # Los restaurantes no verificados solo pueden ser vistos por administradores
-        if not restaurant.get("verified", False):
+        if not restaurant.get("verified", False) or restaurant.get("status") in ("suspended", "archived"):
             user = session.get("user") or {}
             role = str(user.get("role", user.get("rol", ""))).upper()
 
@@ -166,16 +199,15 @@ def detail(restaurant_id):
                     404,
                 )
 
-        # Show permanent carta items and only the variable dishes scheduled for
-        # today. Future dates remain hidden until they become active.
-        today_iso = datetime.now(LIMA_TIMEZONE).date().isoformat()
-        dishes = [
-            dish for dish in load_dishes(restaurant_id)
-            if not dish.get("menu_date") or dish.get("menu_date") == today_iso
-        ]
-
-        # Obtener menú del día
-        daily_menu = DailyMenuModel.get_active(restaurant_id)
+        dishes = [dish for dish in load_dishes(restaurant_id) if published_menu_dish(dish, menu_day)]
+        menu_url = request.path
+        if menu_day == today:
+            daily_menu = DailyMenuModel.get_active(restaurant_id)
+        else:
+            menu_url = url_for("main.detail", restaurant_id=restaurant_id, day=menu_day.isoformat())
+            daily_menu = DailyMenuModel.get_by_date(restaurant_id, menu_day.isoformat())
+            if daily_menu and not daily_menu.get("is_active", True):
+                daily_menu = None
 
         # Obtener perfil del usuario
         user_profile = get_user_profile()
@@ -230,9 +262,10 @@ def detail(restaurant_id):
             restaurant=restaurant,
             dishes=dishes,
             daily_menu=daily_menu,
+            menu_day_label=menu_day.strftime("%d/%m/%Y") if menu_day != today else "",
             explanation=explanation,
             user_profile=user_profile,
-            login_url=get_login_url(request.path),
+            login_url=get_login_url(menu_url),
             table_service=("Local" in restaurant["market_channels"] if restaurant.get("market_channels")
                            else restaurant.get("service_mode") not in {"delivery_only", "pickup_only"}),
             verified_reviews=[r for r in ReviewModel.get_by_restaurant(restaurant_id) if r.get("verified_purchase") and not r.get("hidden") and r.get("status") not in {"hidden","rejected"}][:5],
@@ -614,6 +647,11 @@ def save_location():
             lat, lng = coordinates
             session["user_lat"] = lat
             session["user_lng"] = lng
+            if data.get("context_consent") is True:
+                from logic.market import now
+                from datetime import timedelta
+                session["food_context"] = {**(session.get("food_context") or {}), "weather": True,
+                                           "until": (now()+timedelta(hours=4)).isoformat()}
             logger.info("Ubicación válida guardada en sesión")
             return jsonify(
                 {
@@ -915,6 +953,6 @@ def business_map(restaurant_id):
 
 @main_bp.get("/informacion/<section>")
 def information(section):
-    if section not in {"privacidad", "condiciones"}:
+    if section not in {"privacidad", "condiciones", "tecnologia"}:
         abort(404)
     return render_template("information.html", section=section)

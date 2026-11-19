@@ -22,6 +22,7 @@ from utils import market_payments as payments
 from utils.security import csrf
 from utils.geo import calculate_distance, normalize_coordinates
 from utils.ia_qwen import QwenIAError, obtener_respuesta_ia
+from utils.traceability import build_order_traceability
 
 market_bp = Blueprint("market", __name__, url_prefix="/mercado")
 
@@ -321,6 +322,15 @@ def orders():
                            spent=sum(o["total"] for o in completed),
                            points=sum(o["total"] // 1000 for o in completed),
                            repeat=repeats[0][0] if reminders and repeats else None, due=due)
+
+
+@market_bp.get("/pedidos/<int:oid>/trazabilidad")
+def order_traceability(oid):
+    user = identity()
+    order = Repo.get_by_id("market_orders", oid)
+    if not order or order.get("uid") != user["id"]:
+        abort(404)
+    return build_order_traceability(order)
 
 
 @market_bp.post("/pedidos/<int:oid>/repetir")

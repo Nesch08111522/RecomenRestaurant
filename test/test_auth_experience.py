@@ -92,20 +92,20 @@ def test_auth_adaptive_grid_and_panel_do_not_overflow(auth_page,auth_origin,widt
     if width>=1024:
         assert visual['x']<forms['x']
         assert .38<=visual['width']/(visual['width']+forms['width'])<=.46
-    if width<768:assert visual['height']<=260
+    if width<=900:assert visual is None  # Compact auth intentionally prioritizes the form.
     for control in page.locator('.ax-pane:not([inert]) .ax-control').all():
         box=control.bounding_box();assert box['width']>=100 and box['x']+box['width']<=width+1
 
-def test_business_steps_preserve_values_and_submit_contract(auth_page,auth_origin):
+def test_business_role_fields_preserve_values(auth_page,auth_origin):
     p=auth_page;p.set_viewport_size({'width':375,'height':950});p.goto(auth_origin+'/auth/register?role=business_owner')
-    p.locator('#ax-reg-name').fill('María Test');p.locator('#ax-reg-username').fill('maria_test');p.locator('#ax-reg-email').fill('maria@example.test')
-    p.get_by_role('button',name='Continuar',exact=True).click()
+    p.locator('#ax-reg-name').fill('María Test')
     p.locator('#ax-business-name').fill('Mesa de María')
-    p.get_by_role('button',name='Atrás',exact=True).click()
-    assert p.locator('#ax-reg-name').input_value()=='María Test'
-    assert p.locator('#ax-reg-role').input_value()=='business_owner'
-    p.get_by_role('button',name='Continuar',exact=True).click()
+    p.locator('#ax-reg-role').select_option('user')
+    assert not p.locator('#ax-business-fields').is_visible()
+    p.locator('#ax-reg-role').select_option('business_owner')
     assert p.locator('#ax-business-name').input_value()=='Mesa de María'
+    assert p.locator('#ax-reg-name').input_value()=='María Test'
+
 
 def test_password_visibility_and_two_factor_are_accessible(auth_page,auth_origin):
     p=auth_page;p.goto(auth_origin+'/auth/login')
@@ -116,8 +116,8 @@ def test_password_visibility_and_two_factor_are_accessible(auth_page,auth_origin
 def test_switch_keeps_next_and_never_stores_credentials(auth_page,auth_origin):
     p=auth_page;p.goto(auth_origin+'/auth/login?next=/market/carrito')
     p.locator('#ax-login-username').fill('visual')
-    p.locator('[data-ax-switch="register"]').click();p.wait_for_timeout(50)
-    p.locator('[data-ax-switch="login"]').click()
+    p.locator('[data-ax-switch="register"]').click();p.wait_for_url('**/auth/register?**')
+    p.locator('[data-ax-switch="login"]').click();p.wait_for_url('**/auth/login?**')
     assert 'next=' in p.url
-    assert p.locator('#ax-login-username').input_value()=='visual'
-    assert p.evaluate('localStorage.length')==0
+    assert p.locator('#ax-login-username').input_value()==''
+    assert p.evaluate("!Object.entries(localStorage).some(([k,v]) => /password|credential/i.test(k) || v.includes('Password123'))")

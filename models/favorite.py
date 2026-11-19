@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from database.connection import connection
+from database.connection import connection, transaction_limits
 from models.base import DataModel
 
 try:
@@ -40,6 +40,7 @@ class FavoriteModel(DataModel):
 
         lock_key = f"favorite:{user_id}:{restaurant_id}"
         with connection() as conn, conn.cursor() as cur:
+            transaction_limits(conn)
             cur.execute("SELECT pg_advisory_xact_lock(hashtext(%s))", (lock_key,))
             cur.execute(
                 """SELECT id FROM public.app_records

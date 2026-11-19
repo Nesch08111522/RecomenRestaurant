@@ -88,3 +88,9 @@ Para actualización periódica: `python -m scripts.refresh_discovery`. El instal
 Entra como empresario a `/owner/sites` o usa **Mi sitio y marca**. Edita borradores, sube tu logo, pide propuestas con el proveedor IA ya configurado y publica una copia revisada en `/negocio/<slug>`; las sucursales relacionadas tienen rutas propias. No se modifica `.env` ni se duplican la carta y el mercado. La IA pagada se comprobó con texto e imagen, ambas con HTTP 200.
 
 Consulta [la guía completa de Fase 4](FASE_4_PORTAL_EMPRESARIAL.md) para cobertura de los 18 requisitos, publicación, cuota de IA, formatos de contenido y requisitos de despliegue. Publicar dentro del proyecto local no equivale a desplegarlo en Internet. Reinicia `python app.py` para cargar el nuevo blueprint.
+
+## Menú inmersivo, inteligencia y seguridad
+
+Los módulos `/inteligencia`, `/copilot` y `/admin/confianza` amplían los espacios por rol. La recuperación en `/auth/recuperar` admite códigos temporales mediante Resend y SMS opcional con Twilio. Completa los secretos del servidor y el remitente autorizado antes de probar la entrega real.
+
+Consulta [implementación y alcance de fases 14–17](docs/vision/FASES_14_17_Y_RECUPERACION.md) para los controles de escala 3D, confirmación de acciones, indicadores disponibles, requisitos de los proveedores y pruebas ejecutadas. Los indicadores de ocupación, rotación y espera necesitan instrumentación de sesiones de mesa; no se presentan como datos medidos mientras falte esa fuente.

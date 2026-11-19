@@ -52,6 +52,15 @@ class Config:
     DATA_BACKEND = os.environ.get("DATA_BACKEND", "postgresql").lower()
     DATABASE_URL = os.environ.get("DATABASE_URL")
     DATABASE_SSLMODE = os.environ.get("DATABASE_SSLMODE", "require").lower()
+    DATABASE_POOL_MAX = int(os.environ.get("DATABASE_POOL_MAX", "4"))
+    DATABASE_POOL_TIMEOUT = float(os.environ.get("DATABASE_POOL_TIMEOUT", "5"))
+    DATABASE_CONNECT_TIMEOUT = int(os.environ.get("DATABASE_CONNECT_TIMEOUT", "5"))
+    DATABASE_STATEMENT_TIMEOUT_MS = int(os.environ.get("DATABASE_STATEMENT_TIMEOUT_MS", "8000"))
+    DATABASE_LOCK_TIMEOUT_MS = int(os.environ.get("DATABASE_LOCK_TIMEOUT_MS", "2000"))
+
+    # Worker automático de anclas de reseñas; se activa con ANCHOR_MODE=onchain.
+    ANCHOR_STORE = os.environ.get("ANCHOR_STORE", "postgres").lower()
+    ANCHOR_MODE = os.environ.get("ANCHOR_MODE", "off").lower()
 
     # Optional background signing/verification worker. App testing always disables it.
     INTEGRITY_AUTO_ENABLED = _environment_bool("INTEGRITY_AUTO_ENABLED")

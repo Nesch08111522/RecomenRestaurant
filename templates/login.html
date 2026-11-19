@@ -1,8 +1,22 @@
 {% extends 'base.html' %}
 {% block body_class %}sr-auth{% endblock %}
-{% block extra_head %}<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">{% endblock %}
-{% block content %}
-{% set auth_mode = 'login' %}
-{% include 'auth/experience.html' %}
+{% block extra_head %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
 {% endblock %}
-{% block scripts %}<script src="{{ url_for('static', filename='js/auth.js') }}"></script>{% endblock %}
+{% block content %}
+  {% set auth_mode = 'login' %}
+  {% include 'auth/experience.html' %}
+{% endblock %}
+{% block scripts %}
+  <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+  <script>
+    (function () {
+      if (window.matchMedia('(min-width: 901px)').matches) {
+        var s = document.createElement('script');
+        s.type = 'module';
+        s.src = "{{ url_for('static', filename='js/auth/food-scene.js') }}";
+        document.body.appendChild(s);
+      }
+    })();
+  </script>
+{% endblock %}

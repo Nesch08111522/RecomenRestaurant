@@ -27,7 +27,7 @@ const assert = require('node:assert/strict');
                 await page.locator('[data-pane="login"] [name=password]').fill(process.env.VISUAL_PASSWORD);
                 await Promise.all([page.waitForURL(url => !url.pathname.endsWith('/login')),page.locator('[data-pane="login"] button[type=submit].auth-btn').click()]);
             }
-            for(const width of [320,375,480,640,768,1024,1280,1440,1920]) {
+            for(const width of [360,768,1024,1366,1440,1920,2560]) {
                 await page.setViewportSize({width,height:850});
                 const res = await page.goto(origin+route);
                 assert.equal(res.status(),200,role+' '+route);
@@ -37,9 +37,9 @@ const assert = require('node:assert/strict');
                     if(await page.locator('html').getAttribute('data-theme') !== theme) await page.locator('#themeToggle').click();
                     assert.equal(await page.locator('html').getAttribute('data-theme'), theme);
                     await page.waitForTimeout(150);
-                    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
+                    const overflow = await page.evaluate(() => Math.max(document.documentElement.scrollWidth, document.body.scrollWidth) - innerWidth);
                     results.push({role,width,theme,overflow,...await page.evaluate(() => window.vitals)});
-                    if([375,1440].includes(width)) {
+                    if([360,1366,1920,2560].includes(width)) {
                         const cdp = await context.newCDPSession(page);
                         const shot = await cdp.send('Page.captureScreenshot', {format:'png',fromSurface:true,captureBeyondViewport:false});
                         const png = Buffer.from(shot.data,'base64');
@@ -59,7 +59,7 @@ const assert = require('node:assert/strict');
                 assert.equal(await page.evaluate(() => navigator.clipboard.readText()),origin+publicPath);
                 assert.equal((await page.goto(origin+publicPath)).status(),200);
             }
-            await page.setViewportSize({width:375,height:850});
+            await page.setViewportSize({width:360,height:850});
             await page.locator('.sr-menu-button').click();
             assert.equal(await page.locator('#sr-navigation').getAttribute('aria-modal'),'true');
             await page.keyboard.press('Escape');

@@ -74,6 +74,11 @@ def test_interpret_csrf_methods_and_upstream_diagnostics(router, monkeypatch, ca
     from openai import PermissionDeniedError
     from itsdangerous import URLSafeTimedSerializer
     from app import create_app
+    from models.category import CategoryModel
+    from models.restaurant import RestaurantModel
+
+    monkeypatch.setattr(CategoryModel, "all", staticmethod(lambda: []))
+    monkeypatch.setattr(RestaurantModel, "get_approved", staticmethod(lambda: []))
 
     app = create_app({"TESTING": True, "SECRET_KEY": "test-request-secret"})
     client = app.test_client()
@@ -89,6 +94,7 @@ def test_interpret_csrf_methods_and_upstream_diagnostics(router, monkeypatch, ca
     headers = {"X-CSRFToken": token}
     monkeypatch.setattr("views.ai_routes._rate_limited", lambda: False)
     monkeypatch.setattr("views.ai_routes._llm_json", lambda messages: {"max_price": 20, "summary": "Almuerzo"})
+    monkeypatch.setattr("views.main.search", lambda: {"success": True, "results": []})
     response = client.post("/api/ai/interpret", json={"text": "Un almuerzo"}, headers=headers)
     assert response.status_code == 200
     assert response.json["filters"]["max_price"] == 20
