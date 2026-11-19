@@ -14,11 +14,11 @@
 </div>
 
 <style>
-    .error-container { display: flex; justify-content: center; align-items: center; min-height: 60vh; padding: 40px 20px; }
+    .error-container { display: flex; justify-content: center; align-items: center; min-height: 60vh; padding:var(--space-xl) var(--space-md); }
     .error-content { text-align: center; max-width: 52ch; }
-    .error-content h1 { font-size: 64px; font-weight: 700; color: var(--primary); margin-bottom: 12px; }
-    .error-content h2 { font-size: 28px; margin-bottom: 12px; }
-    .error-content p { color: var(--gray); margin-bottom: 24px; }
-    .error-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .error-content h1 { font-size:var(--text-display); font-weight: 700; color: var(--theme-accent); margin-bottom: 12px; }
+    .error-content h2 { font-size:var(--text-2xl); margin-bottom: 12px; }
+    .error-content p { color: var(--theme-text); margin-bottom: 24px; }
+    .error-actions { display: flex; gap:var(--space-sm); justify-content: center; flex-wrap: wrap; }
 </style>
 {% endblock %}

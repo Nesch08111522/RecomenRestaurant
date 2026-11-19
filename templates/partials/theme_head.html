@@ -1,0 +1,11 @@
+{# Runs synchronously before styles and the first paint; never consult OS preference. #}
+<script>
+(function () {
+  var theme = 'dark';
+  try { if (localStorage.getItem('theme') === 'light') theme = 'light'; } catch (_) {}
+  document.documentElement.dataset.theme = theme;
+  document.documentElement.style.colorScheme = theme;
+})();
+</script>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/theme-tokens.css') }}">
+<script src="{{ url_for('static', filename='js/theme.js') }}"></script>

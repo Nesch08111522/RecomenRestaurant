@@ -1,0 +1,109 @@
+/* Final shared component contract. Color values come only from theme-tokens.css. */
+:root, :root body {
+  --ax-panel-text: var(--theme-text);
+  --bp-gold: var(--theme-warning);
+  --bs-card: var(--theme-surface);
+  --bs-ink: var(--theme-text);
+  --bs-line: var(--theme-border);
+  --bs-muted: var(--theme-muted);
+  --bs-paper: var(--theme-bg);
+  --bs-primary: var(--theme-accent);
+  --bs-secondary: var(--theme-accent);
+  --cat-accent: var(--theme-accent);
+  --cat-accent-deep: var(--theme-accent);
+  --cat-accent-soft: var(--theme-elevated);
+  --cat-amber: var(--theme-warning);
+  --cat-amber-soft: var(--theme-warning-bg);
+  --cat-bg: var(--theme-bg);
+  --cat-blue: var(--theme-info);
+  --cat-blue-soft: var(--theme-info-bg);
+  --cat-danger: var(--theme-danger);
+  --cat-faint: var(--theme-muted);
+  --cat-green: var(--theme-success);
+  --cat-green-soft: var(--theme-success-bg);
+  --cat-ink: var(--theme-text);
+  --cat-line: var(--theme-border);
+  --cat-muted: var(--theme-muted);
+  --cat-panel: var(--theme-surface);
+  --cat-panel-solid: var(--theme-surface);
+  --dark: var(--theme-text);
+  --forest-light-edge: var(--theme-edge);
+  --forest-shadow: var(--theme-shadow-rgb);
+  --gray: var(--theme-muted);
+  --light-gray: var(--theme-border);
+  --mg-card: var(--theme-surface);
+  --mg-ink: var(--theme-text);
+  --mg-stroke: var(--theme-border);
+  --primary: var(--theme-accent);
+  --primary-dark: var(--theme-accent);
+  --primary-light: var(--theme-accent);
+  --radar-accent: var(--theme-accent);
+  --radar-ink: var(--theme-text);
+  --radar-subtle: var(--theme-elevated);
+  --radar-surface: var(--theme-surface);
+  --rec-gold: var(--theme-warning);
+  --rec-hero-text: var(--theme-text);
+  --rec-highlight: var(--theme-surface);
+  --secondary: var(--theme-accent);
+  --secondary-dark: var(--theme-accent);
+  --sr-accent: var(--theme-accent);
+  --sr-bg: var(--theme-bg);
+  --sr-brand: var(--theme-accent);
+  --sr-danger: var(--theme-danger);
+  --sr-danger-bg: var(--theme-danger-bg);
+  --sr-focus: var(--theme-focus);
+  --sr-glow: var(--theme-elevated);
+  --sr-gold: var(--theme-warning);
+  --sr-hero: var(--theme-surface);
+  --sr-info: var(--theme-info);
+  --sr-info-bg: var(--theme-info-bg);
+  --sr-ink: var(--theme-text);
+  --sr-line: var(--theme-border);
+  --sr-muted: var(--theme-muted);
+  --sr-on-brand: var(--theme-text);
+  --sr-secondary: var(--theme-accent);
+  --sr-success: var(--theme-success);
+  --sr-success-bg: var(--theme-success-bg);
+  --sr-surface: var(--theme-surface);
+  --sr-text: var(--theme-text);
+  --sr-tint: var(--theme-elevated);
+  --sr-warning: var(--theme-warning);
+  --sr-warning-bg: var(--theme-warning-bg);
+  --white: var(--theme-surface);
+}
+html, html body { background-color: var(--theme-bg); color:var(--theme-text); }
+html { color-scheme:dark; }
+html[data-theme="light"] { color-scheme:light; }
+.theme-toggle { display:inline-flex; align-items:center; justify-content:center; gap:var(--space-sm); min-height:44px; min-width:44px; padding:var(--space-sm) var(--space-sm); border:1px solid var(--theme-border); border-radius:12px; background: var(--theme-surface); color:var(--theme-text); font:inherit; font-size:var(--text-sm); cursor:pointer; }
+body :is(button,a,input,select,textarea,summary):focus-visible { outline:3px solid var(--theme-focus); outline-offset:3px; }
+body :is(input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]),select,textarea) { background-color: var(--theme-surface); color:var(--theme-text); border-color:var(--theme-border); }
+body :is(input,textarea)::placeholder { color:var(--theme-muted); opacity:1; }
+body option { color:var(--theme-text); background: var(--theme-surface); }
+body :is(input[type=checkbox],input[type=radio],input[type=range]) { accent-color:var(--theme-accent); }
+body :is(dialog,.modal-box,.modal-content,.dropdown-menu,.user-dropdown,.notification-panel,.toast,.leaflet-popup-content-wrapper,.leaflet-popup-tip,.leaflet-control) { background: var(--theme-elevated); color:var(--theme-text); border-color:var(--theme-border); }
+dialog::backdrop { background: var(--theme-overlay); }
+body :is(th,td) { border-color:var(--theme-border); }
+body th { background: var(--theme-elevated); color:var(--theme-text); }
+body tbody tr:hover { background: var(--theme-elevated); }
+body :is(.badge,.tag,.status-badge) { color:var(--theme-text); }
+/* Brand inputs remain editable data; readable surfaces never inherit arbitrary brand contrast. */
+body.bs-public-site { --site-primary:var(--theme-accent); --site-secondary:var(--theme-warning); --site-on-primary:var(--theme-text); background: var(--theme-bg); color:var(--theme-text); }
+body.bs-public-site :is(.bs-public-hero,.bs-reserve-section,.bs-promo-card) { background: var(--theme-accent-bg); color:var(--theme-text); }
+body.bs-public-site :is(.bs-hero-copy,.bs-hero-stamp) { background: var(--theme-accent-bg); color:var(--theme-text); }
+body.bs-public-site .bs-public-button { background: var(--theme-elevated); color:var(--theme-text); border-color:var(--theme-border); }
+body.bs-public-site :is(.bs-hero-description,.bs-hero-secondary,.bs-kicker) { color:var(--theme-text); opacity:1; }
+body .bs-preview-hero { background: var(--theme-accent-bg); color:var(--theme-text); }
+body :is(.forest-hero-copy,.rec-hero-copy) { background: var(--theme-accent-bg); color:var(--theme-text); }
+@media(max-width:600px) { .sr-header .theme-toggle [data-theme-label] { display:none; } }
+
+/* Hero photographs never lower text contrast; use an opaque copy surface. */
+body .bs-public-menu span { background: var(--theme-text); }
+body .bs-hero-scroll { color:var(--theme-text); background: var(--theme-accent-bg); padding:var(--space-xs) var(--space-sm); border-radius:8px; }
+body :is(.forest-hero,.rec-hero) { color:var(--theme-text); }
+
+body.bs-public-site .bs-hero-art { background: color-mix(in srgb,var(--theme-accent-bg) 94%,var(--theme-accent-bg)); }
+body .bs-preview-window { border-top-color:var(--preview-primary,var(--theme-border)); }
+
+/* Disabled controls remain legible; state is also conveyed by border and cursor. */
+:root body button:disabled, :root body [aria-disabled="true"] { opacity:1; color:var(--theme-muted); background-color:var(--theme-elevated); border-style:dashed; cursor:not-allowed; }
+body .service-mode-copy strong { opacity:1; color:var(--theme-text); }

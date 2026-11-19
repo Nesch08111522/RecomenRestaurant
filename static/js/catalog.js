@@ -109,6 +109,7 @@
     filtered.forEach((product) => {
       const availability = product.availability || (product.is_available === false ? 'sold_out' : 'available');
       const card = el('article', 'catalog-product-card');
+      card.setAttribute('role', 'listitem');
       card.dataset.availability = availability;
       const top = el('div', 'catalog-product-top');
       const typeNode = el('span', 'catalog-product-type', productTypeLabel(product.product_type));

@@ -105,12 +105,12 @@ class AdminController {
         const errorDiv = document.createElement('div');
         errorDiv.style.cssText = `
             grid-column: 1 / -1;
-            padding: 20px;
-            background: #fee2e2;
+            padding:var(--space-md);
+            background: var(--theme-surface);
             border-radius: 8px;
-            color: #991b1b;
+            color: var(--theme-danger);
             text-align: center;
-            border: 1px solid #fca5a5;
+            border: 1px solid var(--theme-border);
         `;
 
         const icon = document.createElement('i');
@@ -141,11 +141,10 @@ class AdminController {
 
     createCharts(data) {
         const css = getComputedStyle(document.documentElement);
-        const primaryColor = css.getPropertyValue('--primary').trim() || '#FF385C';
-        const secondaryColor = css.getPropertyValue('--secondary').trim() || '#008489';
+        const primaryColor = css.getPropertyValue('--primary').trim() || window.SRTheme.color('danger');
+        const secondaryColor = css.getPropertyValue('--secondary').trim() || window.SRTheme.color('info');
 
-        const palette = ['#FF385C', '#008489', '#FFB800', '#00A699', '#FF5A5F',
-                         '#767676', '#4A90D9', '#27AE60', '#E74C3C', '#8E44AD'];
+        const palette = Array.from({length: 10}, (_, i) => window.SRTheme.color('chart-' + (i % 6 + 1)));
 
         const legendBottom = {
             position: 'bottom',
@@ -193,7 +192,7 @@ class AdminController {
                         label: 'Rating',
                         data: data.ratings,
                         borderColor: secondaryColor,
-                        backgroundColor: secondaryColor + '33',
+                        backgroundColor: window.SRTheme.color('info-bg'),
                         fill: true,
                         tension: 0.1,
                         pointBackgroundColor: secondaryColor,
@@ -232,7 +231,7 @@ class AdminController {
                         data: Object.values(source),
                         backgroundColor: palette.slice(0, labels.length),
                         borderWidth: 2,
-                        borderColor: '#fff'
+                        borderColor: window.SRTheme.color('text')
                     }]
                 },
                 options: {

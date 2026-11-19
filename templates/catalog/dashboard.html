@@ -1,4 +1,5 @@
 {% extends 'owner/base.html' %}
+{% from 'partials/layouts.html' import BentoGrid with context %}
 
 {% block extra_head %}
     {{ super() }}
@@ -74,7 +75,7 @@
     </section>
     {% endif %}
 
-    <section class="catalog-metrics" aria-label="Resumen del catálogo">
+    {% call BentoGrid(columns=4, class_name='catalog-metrics', label='Resumen del catálogo') %}
         <article class="catalog-metric-card catalog-metric-card--accent">
             <div class="catalog-metric-icon"><i class="fas fa-layer-group" aria-hidden="true"></i></div>
             <div><span>Productos publicados</span><strong id="metricPublished">0</strong><small id="metricPublishedHint">Sin cargar</small></div>
@@ -91,7 +92,7 @@
             <div class="catalog-metric-icon"><i class="fas fa-sparkles" aria-hidden="true"></i></div>
             <div><span>Calidad del dato</span><strong id="metricQuality">—</strong><small>Basada en confirmaciones</small></div>
         </article>
-    </section>
+    {% endcall %}
 
     <div class="catalog-layout">
         <main class="catalog-main-column">
@@ -119,7 +120,7 @@
                         </label>
                     </div>
                 </div>
-                <div id="productsList" class="catalog-product-grid" aria-live="polite"></div>
+                <div id="productsList" class="catalog-product-grid layout-masonry" data-layout="masonry" style="--layout-columns:3" role="list" aria-live="polite"></div>
                 <div id="productsEmpty" class="catalog-inline-empty" hidden>
                     <i class="fas fa-bowl-food" aria-hidden="true"></i>
                     <strong>No hay productos que coincidan</strong>
