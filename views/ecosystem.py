@@ -88,6 +88,11 @@ def scan():
         if draft["vision"]:
             profile = food_preferences(UserModel.get_by_id(identity()["id"]))
             matches, _ = discover(catalog(), {"q":draft["name"]}, profile, [])
+    if request.method == 'POST' and request.accept_mimetypes.best == 'application/json':
+        from flask import jsonify
+        response = jsonify(success=True, html=render_template('ecosystem/scan_result.html', draft=draft, rows=matches[:6]))
+        response.headers['Cache-Control'] = 'private, no-store'
+        return response
     return render_template("ecosystem/scan.html", draft=draft, rows=matches[:6])
 
 
@@ -225,7 +230,7 @@ def campaign(rid):
             log = records("campaign_deliveries",rid=rid,uid=uid)
             if any(r["created"] > (now()-timedelta(days=7)).isoformat() for r in log):
                 continue
-            NotificationModel.create_notification(uid,restaurant["name"],message,link=f"/mercado/?negocio={rid}")
+            NotificationModel.create_notification(uid,restaurant["name"],message,type_='promotion',link=f"/mercado/?negocio={rid}")
             Repo.create("campaign_deliveries",{"rid":rid,"uid":uid,"created":now().isoformat(),"segment":tag})
             sent += 1
     flash(f"Promoción publicada en {sent} bandejas con consentimiento.","success")

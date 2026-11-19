@@ -91,7 +91,14 @@ def ingest(rows,source_id,actor=None):
             row['source_id']=source_id
             old=next((item for item in previous if item.get('source_key')==row['source_key']),None)
             if old:
-                if old['data']!=row['data']:
+                # Retrieval timestamps alone do not require review; provenance does.
+                fields=('data','channels','menu_links','media','content_hash','permission_evidence')
+                changed=any(old.get(key)!=row.get(key) for key in fields)
+                old_evidence={k:{f:v for f,v in evidence.items() if f!='retrieved_at'}
+                              for k,evidence in old.get('evidence',{}).items()}
+                new_evidence={k:{f:v for f,v in evidence.items() if f!='retrieved_at'}
+                              for k,evidence in row.get('evidence',{}).items()}
+                if changed or old_evidence!=new_evidence:
                     change={'proposed_update':row,'last_seen_at':now(),'update_pending':True}
                 else:
                     change={'last_seen_at':now()}

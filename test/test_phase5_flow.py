@@ -16,7 +16,11 @@ def repo(memory_repo,monkeypatch):
     monkeypatch.setattr(catalog,'record_event',lambda *args,**kwargs:None)
     monkeypatch.setattr(catalog_import,'record_event',lambda *args,**kwargs:None)
     RestaurantModel.create({'owner_id':5,'name':'Café','verified':True})
-    return memory_repo
+    from flask import Flask
+    app = Flask(__name__)
+    app.secret_key = 'isolated-unit-catalog-import-secret'
+    with app.app_context():
+        yield memory_repo
 
 
 def product():

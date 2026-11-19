@@ -153,7 +153,7 @@ function addUserLocationMarker(lat, lng) {
     });
     
     userLocationMarker = L.marker([lat, lng], { icon: userIcon }).addTo(map);
-    userLocationMarker.bindPopup('📍 Tu ubicación actual');
+    userLocationMarker.bindPopup('<i class="fas fa-map-marker-alt" aria-hidden="true"></i> Tu ubicación actual');
     
     // Añadir círculo de precisión
     if (window._userAccuracy) {

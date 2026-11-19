@@ -40,8 +40,9 @@ def service_metrics(sessions,queue_rows,tables_count,start,end):
 
 
 def report(orders,products,start,end):
-    eligible=[o for o in orders if paid(o)]
-    selected=[o for o in eligible if start.isoformat()<=day(o)<=end.isoformat()]
+    first_day,last_day=start.isoformat(),end.isoformat()
+    eligible=[o for o in orders if paid(o) and day(o)<=last_day]
+    selected=[o for o in eligible if first_day<=day(o)<=last_day]
     income=sum(int(o.get('total',0)) for o in selected)
     lines=[line for o in selected for line in o.get('lines',[])]
     known=[l for l in lines if l.get('cost') is not None]
@@ -61,14 +62,20 @@ def report(orders,products,start,end):
     all_ids={str(o.get('uid')) for o in eligible if day(o)<=end.isoformat()}
     names={p.get('name') for p in products if p.get('name')}
     total_units=sum(int(l.get('qty',0)) for l in lines);costed=sum(int(l.get('qty',0)) for l in known)
-    history=[date.fromisoformat(day(o)) for o in eligible if len(day(o))==10]
+    order_days=Counter()
+    history=[]
+    for o in eligible:
+        try: stamp=date.fromisoformat(day(o))
+        except ValueError: continue
+        history.append(stamp);order_days[stamp]+=1
+    earliest=min(history) if history else end
     forecast=[]
     if len(eligible)>=10 and history and (end-min(history)).days>=28:
         for i in range(1,8):
             target=end+timedelta(days=i);samples=[]
             for week in range(1,9):
                 comparable=target-timedelta(days=7*week)
-                if min(history)<=comparable<=end:samples.append(sum(1 for o in eligible if day(o)==comparable.isoformat()))
+                if earliest<=comparable<=end:samples.append(order_days[comparable])
             if len(samples)>=4:
                 forecast.append({'day':target.isoformat(),'orders':round(mean(samples),1),'low':max(0,round(mean(samples)-pstdev(samples),1)),'high':round(mean(samples)+pstdev(samples),1),'sample_days':len(samples)})
     return {'income':income,'orders':len(selected),'average_ticket':round(income/len(selected)) if selected else None,'known_costs':costs,'cost_coverage':round(costed/total_units*100,1) if total_units else None,'margin':income-costs if total_units and costed==total_units else None,'previous_income':previous,'income_change':round((income-previous)/previous*100,1) if previous else None,'customers':len(customers),'new_customers':sum(first[uid]>=start.isoformat() for uid in customers),'frequent_customers':sum(n>1 for n in customers.values()),'inactive_customers':len(all_ids-set(customers)),'top_products':quantities.most_common(8),'least_products':sorted(((name,quantities[name]) for name in names),key=lambda x:(x[1],x[0]))[:8],'daily':[( (start+timedelta(days=i)).isoformat(),daily[(start+timedelta(days=i)).isoformat()]) for i in range(duration)],'hours':sorted(hours.items()),'forecast':forecast,'forecast_method':'Media histórica del mismo día de semana, hasta ocho semanas; intervalo descriptivo, no garantía.' if forecast else 'Datos insuficientes: se requieren diez compras completadas y al menos cuatro semanas comparables.','missing_metrics':['Ocupación, rotación y espera: requieren sesiones de mesa y cola instrumentadas.','Merma: requiere un registro de movimientos de desperdicio.']}

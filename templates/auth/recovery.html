@@ -17,6 +17,27 @@
         <p role="status" class="ax-flash ax-flash-{{ category }}">{{ message }}</p>
       {% endfor %}
 
+      {% if state.get('step') == 'code' %}
+      <form method="post" class="ax-form" data-recovery-step="code">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="action" value="verify_code">
+        <label class="ax-field">Codigo recibido por {{ 'celular' if state.channel == 'sms' else 'correo' }}
+          <div class="ax-control"><input name="code" required inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code"></div>
+        </label>
+        <p class="ax-hint">Seis digitos. Esta pagina no se recarga automaticamente. El codigo vence en diez minutos y admite cinco intentos.</p>
+        <button class="ax-submit" type="submit">Verificar codigo</button>
+      </form>
+      {% elif state.get('step') == 'password' %}
+      <form method="post" class="ax-form" data-recovery-step="password">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="action" value="reset_password">
+        <p role="status">Codigo verificado. Autorizacion valida durante cinco minutos.</p>
+        <label class="ax-field">Nueva contrasena<div class="ax-control"><input name="password" required type="password" minlength="8" maxlength="256" autocomplete="new-password"></div></label>
+        <label class="ax-field">Confirmar contrasena<div class="ax-control"><input name="password_confirm" required type="password" minlength="8" maxlength="256" autocomplete="new-password"></div></label>
+        <button class="ax-submit" type="submit">Cambiar contrasena</button>
+      </form>
+      {% endif %}
+      <details {% if not state %}open{% endif %}><summary>Solicitar un codigo</summary>
       <form method="post" class="ax-form recovery-request">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <input type="hidden" name="action" value="send_code">
@@ -35,9 +56,10 @@
         <p class="ax-hint">Vence en 10 minutos y admite cinco intentos. Espera un minuto antes de solicitar otro. Nunca compartas tu código.</p>
       </form>
 
-      <hr>
-
+      </details>
+      <details><summary>Usar mi clave de recuperacion guardada</summary>
       <form method="post" class="ax-form">
+        <input type="hidden" name="action" value="backup">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <label class="ax-field">Usuario
           <div class="ax-control"><input name="username" required autocomplete="username" value="{{ request.form.get('username', '') }}"></div>
@@ -52,6 +74,8 @@
         <button class="ax-submit" type="submit">Cambiar contraseña</button>
       </form>
 
+      </details>
+      <p class="ax-hint">Resend onboarding limita los destinatarios al correo autorizado por el proveedor. Para otros destinatarios se requiere un dominio verificado. SMS tambien depende de permisos y limites de Twilio; aceptar la solicitud no garantiza entrega.</p>
       <p class="ax-switch"><a href="{{ url_for('auth.login') }}">Volver a iniciar sesión</a></p>
     </div>
   </div>
@@ -62,5 +86,5 @@
 {% endblock %}
 
 {% block scripts %}
-<script type="module" src="{{ url_for('static', filename='js/auth/food-scene.js') }}"></script>
+<script defer src="{{ url_for('static', filename='js/auth/food-scene-loader.js') }}" data-scene-module="{{ url_for('static', filename='js/auth/food-scene.js') }}"></script>
 {% endblock %}

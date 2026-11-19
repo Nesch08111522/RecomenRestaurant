@@ -1,11 +1,6 @@
 {% extends "communication/base.html" %}{% block communication %}
 <h1>Mensajes</h1>
-<form method="get" class="market-inline"><label>Buscar conversaciones <input type="search" name="q" value="{{ q }}" placeholder="Asunto, negocio o pedido"></label><button>Buscar</button></form>
-{% for t in threads %}<article class="market-panel">
-<h2><a href="{{ url_for('comunicacion.thread',tid=t.id) }}">{{ t.subject }}</a></h2>
-<p>{{ 'Soporte' if t.support else t.business }}{% if t.oid %} · Pedido #{{ t.oid }}{% endif %} · {{ t.updated[:16]|replace('T',' ') }}
-{% if pending(t,uid) %} · <strong>Sin leer</strong>{% endif %}</p></article>
-{% else %}<p>{{ 'No se encontraron conversaciones.' if q else 'Todavía no tienes conversaciones.' }}</p>{% endfor %}
+<div class="comm-split">{% include 'communication/conversation_list.html' %}<section class="comm-detail" aria-label="Nueva conversación">
 <h2>Iniciar conversación</h2>
 <form method="post" action="{{ url_for('comunicacion.start') }}" enctype="multipart/form-data" class="market-form">{{ token() }}
 <label>Destinatario<select name="destination"><option value="soporte">Soporte de SmartResto</option><option value="negocio">Negocio</option></select></label>
@@ -13,4 +8,4 @@
 {% if request.args.get('oid') %}<input type="hidden" name="oid" value="{{ request.args.oid }}"><p>Relacionado con el pedido #{{ request.args.oid }}</p>{% endif %}
 <label>Asunto<input name="subject" required maxlength="120"></label>{% include 'communication/message_fields.html' %}
 <button>Enviar mensaje</button></form>
-{% endblock %}
+</section></div>{% endblock %}

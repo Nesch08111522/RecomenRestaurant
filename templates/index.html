@@ -304,12 +304,18 @@ const STYLE_URL = 'https://tiles.openfreemap.org/styles/positron';
             title.textContent = p.name;
             wrap.appendChild(title);
 
-            const meta = [];
-            if (p.rating != null) meta.push('★ ' + Number(p.rating).toFixed(1));
-            if (p.district) meta.push(p.district);
-            if (meta.length) {
+            if (p.rating != null || p.district) {
                 const m = document.createElement('span');
-                m.textContent = meta.join(' · ');
+                if (p.rating != null) {
+                    const rating = document.createElement('span');
+                    rating.setAttribute('aria-label', 'Calificación: ' + Number(p.rating).toFixed(1) + ' de 5');
+                    const star = document.createElement('i');
+                    star.className = 'fas fa-star';
+                    star.setAttribute('aria-hidden', 'true');
+                    rating.append(star, document.createTextNode(' ' + Number(p.rating).toFixed(1)));
+                    m.appendChild(rating);
+                }
+                if (p.district) m.appendChild(document.createTextNode((p.rating != null ? ' · ' : '') + p.district));
                 wrap.appendChild(m);
             }
 
@@ -610,9 +616,15 @@ const last = window.app?.state?.userLocation;
                 'text-decoration:none;color:var(--theme-text);font-size:13px;');
             a.href = '/restaurant/' + encodeURIComponent(r.id);
             a.appendChild(node('strong', r.name, 'display:block;color:var(--theme-text);font-size:14px;'));
-            a.appendChild(node('span',
-                (typeof MONEDA !== 'undefined' ? MONEDA : 'S/.') + r.avg_price +
-                ' · ★ ' + r.rating + (r.district ? ' · ' + r.district : '')));
+            const meta = node('span', (typeof MONEDA !== 'undefined' ? MONEDA : 'S/.') + r.avg_price + ' · ');
+            const rating = node('span');
+            rating.setAttribute('aria-label', 'Calificación: ' + r.rating + ' de 5');
+            const star = node('i');
+            star.className = 'fas fa-star';
+            star.setAttribute('aria-hidden', 'true');
+            rating.append(star, document.createTextNode(' ' + r.rating));
+            meta.append(rating, document.createTextNode(r.district ? ' · ' + r.district : ''));
+            a.appendChild(meta);
             out.appendChild(a);
         });
     }

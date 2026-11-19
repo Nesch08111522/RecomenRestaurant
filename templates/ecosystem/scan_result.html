@@ -1,0 +1,7 @@
+<section class="saas-panel">
+<p>{{ draft.quality }}</p>
+{% if draft.vision %}<h2>Posible identificación</h2><p>{{ draft.name }} · {{ draft.description }}</p>
+{% else %}<h2>Identificación no disponible</h2><p>Puedes buscar por el nombre del plato. No se ha inventado una identificación.</p>{% endif %}
+<p>Confirma ingredientes y alérgenos con el negocio.</p>
+{% include 'ecosystem/options.html' %}
+</section>

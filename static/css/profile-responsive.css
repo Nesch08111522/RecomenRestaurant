@@ -1,0 +1,45 @@
+/* Loaded only by authenticated profile views. */
+.profile-container .profile-header { margin-bottom: 1rem; }
+.profile-container .profile-form-container, .profile-container .profile-sidebar { padding: 1rem; }
+.profile-container .profile-form .form-group { padding: .85rem; border: 1px solid var(--theme-border); border-radius: var(--radius-sm); grid-column: 1 / -1; }
+.profile-container .profile-identity-grid p { grid-column: 1 / -1; margin: 0; font-size: .85rem; }
+.profile-container .profile-feedback { padding: .75rem; border: 1px solid var(--theme-accent); border-radius: var(--radius-sm); background: var(--theme-accent-bg); color: var(--theme-text); overflow-wrap: anywhere; }
+.profile-container :is(input, textarea, button, summary, a):focus-visible { outline: 2px solid var(--theme-accent); outline-offset: 2px; }
+.profile-container .profile-avatar { overflow-wrap: anywhere; }
+.profile-container .profile-background-image { display: block; margin-bottom: .75rem; }
+.profile-container .profile-avatar-image { display: block; margin-inline: auto; }
+.profile-container input[type=checkbox] { accent-color: var(--theme-accent); }
+.profile-container { width: min(100%, 1120px) !important; max-width: none !important; padding-inline: clamp(.75rem, 2vw, 1.5rem) !important; }
+.profile-account-links { display: flex; flex-wrap: wrap; gap: .55rem; margin: 0 0 1rem; }
+.profile-account-links a { min-width: 0; padding: .5rem .7rem; border: 1px solid var(--theme-border); border-radius: .7rem; background: var(--theme-surface); color: var(--theme-text); font-size: .85rem; text-decoration: none; }
+.profile-account-links a:hover { border-color: var(--theme-accent); background: var(--theme-accent-bg); }
+.profile-content { grid-template-columns: minmax(13rem, .7fr) minmax(0, 1.8fr) !important; align-items: start; }
+.profile-sidebar, .profile-form-container { min-width: 0; border: 1px solid var(--theme-border); box-shadow: none !important; }
+.profile-sidebar { position: sticky; top: 1rem; }
+.profile-form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.profile-form .form-group { min-width: 0; margin: 0 !important; }
+.profile-form .form-group:not(.profile-budget-grid):not(.profile-identity-grid) { grid-column: 1 / -1; }
+.profile-form :is(input:not([type="checkbox"]), textarea, select) { inline-size: 100%; max-inline-size: 100%; box-sizing: border-box; }
+.profile-form details { grid-column: 1 / -1; min-width: 0; padding: .75rem; border: 1px solid var(--theme-border); border-radius: .75rem; background: var(--theme-elevated); }
+.profile-form details label { display: grid; gap: .35rem; margin-top: .7rem; }
+.profile-budget-grid, .profile-identity-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.profile-identity-grid label { display: grid !important; gap: .38rem; min-width: 0; }
+.profile-form .checkbox-group { grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)) !important; }
+.profile-form .checkbox-label { min-width: 0; overflow-wrap: anywhere; }
+.profile-form .btn-block { grid-column: 1 / -1; min-height: 2.85rem; }
+
+@media (max-width: 760px) {
+  .profile-content { grid-template-columns: 1fr !important; gap: 1rem !important; }
+  .profile-sidebar { position: static; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; gap: 1rem; text-align: start !important; }
+  .profile-avatar { margin: 0 !important; }
+  .profile-stats { padding-top: 0 !important; border-top: 0 !important; }
+}
+
+@media (max-width: 520px) {
+  .profile-container { padding-inline: .75rem !important; }
+  .profile-account-links { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .profile-account-links a { text-align: center; overflow-wrap: anywhere; }
+  .profile-form, .profile-budget-grid, .profile-identity-grid { grid-template-columns: 1fr !important; }
+  .profile-sidebar { grid-template-columns: 1fr; text-align: center !important; }
+  .profile-stats { padding-top: 1rem !important; border-top: 1px solid var(--theme-border) !important; }
+}

@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>Empresas y suscripciones</h1>
+<a href="{{ url_for('companies.connected') }}">Usuarios conectados</a>
+{% for owner in demo_owners %}<form method="post" action="{{ url_for('companies.activation_link',uid=owner.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><p>{{ owner.username }}: activacion pendiente</p><label><input type="checkbox" name="confirm" value="yes" required>Entregare el enlace solo al destinatario verificado</label><button>Generar enlace privado de activacion</button></form>{% endfor %}
+<form method="get"><label>Nombre <input name="name" value="{{ request.args.get('name','') }}"></label><label>Plan <select name="plan"><option value="">Todos</option>{% for plan in plans %}<option>{{ plan }}</option>{% endfor %}</select></label><label>Estado <select name="status"><option value="">Todos</option><option>active</option><option>suspended</option></select></label><button>Filtrar</button></form>
+<p>Basic: perfil, catalogo y pedidos. Decente: personal, mesas, informes, sitio y promociones. Premium: IA, Flow y fidelizacion. Los roles individuales siguen siendo obligatorios.</p>
+{% for company in companies %}{% set sub=company.metadata.get('subscription',{}) %}
+<section class="card"><h2>{{ company.name }}</h2>{% if company.metadata.get('demo') %}<p>Demostracion, sin existencia comercial atribuida.</p>{% endif %}
+<p>{{ sub.get('plan','Pendiente') }} / {{ sub.get('status','Pendiente') }}. Contratacion: {{ sub.get('starts_on') or 'No registrada' }}. Vencimiento: {{ sub.get('expires_on') or 'No registrado' }}.</p>
+<form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="id" value="{{ company.id }}"><input type="hidden" name="revision" value="{{ sub.get('revision',0) }}">
+<label>Plan <select name="plan">{% for plan in plans %}<option {% if sub.get('plan')==plan %}selected{% endif %}>{{ plan }}</option>{% endfor %}</select></label>
+<label>Estado <select name="status">{% for status in ['active','suspended'] %}<option {% if sub.get('status')==status %}selected{% endif %}>{{ status }}</option>{% endfor %}</select></label>
+<label>Contratacion <input type="date" name="starts_on" value="{{ sub.get('starts_on','') }}"></label><label>Vencimiento <input type="date" name="expires_on" value="{{ sub.get('expires_on','') }}"></label>
+<details><summary>Desactivar capacidades</summary>{% for capability in capabilities %}<label><input type="checkbox" name="disabled" value="{{ capability }}" {% if capability in sub.get('disabled',[]) %}checked{% endif %}>{{ capability }}</label>{% endfor %}</details>
+<label><input type="checkbox" name="confirm" value="yes" required>Confirmo el cambio y la notificacion al propietario</label><button>Aplicar</button></form>
+{% if company.metadata.get('demo') %}<p>Activacion pendiente: confirmar destinatario real y configurar contacto desde administracion; usar recuperacion de cuenta existente. No hay contrasena compartida.</p>{% endif %}
+</section>{% else %}<p>No hay empresas para estos filtros.</p>{% endfor %}
+{% endblock %}

@@ -70,8 +70,12 @@
                         <i class="fas fa-robot"></i>
                     </div>
                     <div class="ia-content">
-                        <h3>🧠 Análisis de SmartResto</h3>
+                        <h3><i class="fas fa-brain" aria-hidden="true"></i> Análisis de SmartResto</h3>
 
+                        <p>Restricciones: {{ user_profile.restrictions|join(', ') or 'No registradas' }}.<br>
+                        Preferencias: {{ user_profile.preferences|join(', ') or 'No registradas' }}.</p>
+                        <button type="button" class="reserve-btn" id="analyzeProfile" data-url="{{ url_for('main.api_analyze_restaurant', restaurant_id=restaurant.id) }}">Analizar con IA mi perfil actual</button>
+                        <p id="profileAnalysis" role="status" aria-live="polite"></p>
                         {% if explanation %}
                             {% if explanation is string %}
                                 <p>{{ explanation }}</p>
@@ -80,18 +84,18 @@
                                     {% if explanation.compatible %}
                                         <div class="ia-status compatible">
                                             <i class="fas fa-check-circle"></i>
-                                            <span>✅ Restaurante compatible con tus preferencias</span>
+                                            <span>Coincide con las opciones declaradas; confirma tus restricciones</span>
                                         </div>
                                     {% else %}
                                         <div class="ia-status incompatible">
                                             <i class="fas fa-times-circle"></i>
-                                            <span>❌ No compatible con tus preferencias</span>
+                                            <span>No compatible con tus preferencias</span>
                                         </div>
                                     {% endif %}
 
                                     {% if explanation.reasons and explanation.reasons|length > 0 %}
                                         <div class="ia-reasons">
-                                            <strong>📌 Recomendado porque:</strong>
+                                            <strong><i class="fas fa-thumbtack" aria-hidden="true"></i> Recomendado porque:</strong>
                                             <ul>
                                                 {% for reason in explanation.reasons %}
                                                     <li><i class="fas fa-star" style="color: var(--theme-warning);"></i> {{ reason }}</li>
@@ -102,7 +106,7 @@
 
                                     {% if explanation.exclusions and explanation.exclusions|length > 0 %}
                                         <div class="ia-exclusions">
-                                            <strong>⚠️ Consideraciones:</strong>
+                                            <strong><i class="fas fa-exclamation-triangle" aria-hidden="true"></i> Consideraciones:</strong>
                                             <ul>
                                                 {% for exclusion in explanation.exclusions %}
                                                     <li><i class="fas fa-exclamation-triangle" style="color: var(--theme-danger);"></i> {{ exclusion }}</li>
@@ -112,19 +116,19 @@
                                     {% endif %}
 
                                     <div class="ia-dietary">
-                                        <strong>🥗 Opciones dietéticas:</strong>
+                                        <strong><i class="fas fa-leaf" aria-hidden="true"></i> Opciones dietéticas:</strong>
                                         <div class="dietary-tags">
                                             {% if explanation.dietary_options.vegan %}
-                                                <span class="dietary-tag vegan">🌱 Vegano</span>
+                                                <span class="dietary-tag vegan"><i class="fas fa-seedling" aria-hidden="true"></i> Vegano</span>
                                             {% endif %}
                                             {% if explanation.dietary_options.vegetarian %}
-                                                <span class="dietary-tag vegetarian">🥬 Vegetariano</span>
+                                                <span class="dietary-tag vegetarian"><i class="fas fa-leaf" aria-hidden="true"></i> Vegetariano</span>
                                             {% endif %}
                                             {% if explanation.dietary_options.gluten_free %}
-                                                <span class="dietary-tag gluten-free">🌾 Sin gluten</span>
+                                                <span class="dietary-tag gluten-free"><i class="fas fa-ban" aria-hidden="true"></i> Sin gluten</span>
                                             {% endif %}
                                             {% if not explanation.dietary_options.vegan and not explanation.dietary_options.vegetarian and not explanation.dietary_options.gluten_free %}
-                                                <span class="dietary-tag none">Sin restricciones específicas</span>
+                                                <span class="dietary-tag none">No hay opciones dieteticas declaradas</span>
                                             {% endif %}
                                         </div>
                                     </div>
@@ -183,11 +187,11 @@
                                                         <span class="variable-menu-badge">Menú variable · {{ menu_day_label or 'hoy' }}</span>
                                                     {% endif %}
                                                     {% if dish.is_recommended %}
-                                                        <span class="chef-recommendation">👨‍🍳 Recomendado</span>
+                                                        <span class="chef-recommendation"><i class="fas fa-award" aria-hidden="true"></i> Recomendado</span>
                                                     {% endif %}
                                                     {% if dish.spiciness and dish.spiciness > 0 %}
-                                                        <span class="spiciness">
-                                                            {% for i in range(dish.spiciness) %}🌶️{% endfor %}
+                                                        <span class="spiciness" role="img" aria-label="Picante: {{ dish.spiciness }} de 5">
+                                                            {% for i in range(dish.spiciness) %}<i class="fas fa-pepper-hot" aria-hidden="true"></i>{% endfor %}
                                                         </span>
                                                     {% endif %}
                                                 </div>
@@ -269,6 +273,7 @@
                     {% endif %}
                 </div>
 
+                <button type="button" class="reserve-btn fav-btn" data-restaurant-id="{{ restaurant.id }}" onclick="toggleFavorite({{ restaurant.id }}, event)" aria-pressed="false"><i class="far fa-heart"></i><span data-favorite-label>Guardar favorito</span></button>
                 <a class="reserve-btn" href="{{ url_for('market.browse', negocio=restaurant.id) }}">Ver porciones y pedir</a>
                 {% for review in verified_reviews %}
                 <article class="vr-item">
@@ -572,7 +577,7 @@
         border-radius: 12px;
         font-weight: 500;
     }
-    .spiciness { font-size:var(--text-sm); letter-spacing: -2px; }
+    .spiciness { display: inline-flex; gap: 3px; font-size:var(--text-sm); color: var(--theme-warning); }
     .dish-description { font-size:var(--text-sm); color: var(--theme-text); margin: 4px 0 8px; line-height: 1.5; }
     .dish-meta { display: flex; flex-wrap: wrap; gap:var(--space-sm); font-size:var(--text-sm); color: var(--theme-text); }
     .dish-ingredients { display: flex; align-items: center; gap:var(--space-xs); }
@@ -799,6 +804,26 @@ document.addEventListener('DOMContentLoaded', function () {
         statusEl.textContent = isOpen ? 'Abierto' : 'Cerrado';
         statusEl.classList.add(isOpen ? 'is-open' : 'is-closed');
     }
+
+    const analyze = document.getElementById('analyzeProfile');
+    analyze?.addEventListener('click', async () => {
+        const output = document.getElementById('profileAnalysis');
+        analyze.disabled = true;
+        output.textContent = 'Analizando los datos de tu perfil...';
+        try {
+            const response = await fetch(analyze.dataset.url, {method: 'POST', headers: {
+                'X-CSRFToken': document.querySelector('meta[name="csrf-token"]')?.content || ''
+            }});
+            if (response.status === 401) {
+                window.location.href = {{ login_url|tojson }};
+                return;
+            }
+            const data = await response.json();
+            output.textContent = data.explanation?.ai_text || data.error || 'No se pudo obtener el analisis.';
+        } catch (error) {
+            output.textContent = 'No se pudo conectar. Puedes volver a intentarlo.';
+        } finally { analyze.disabled = false; }
+    });
 
     // Modal de reserva
     const modal = document.getElementById('reserveModal');

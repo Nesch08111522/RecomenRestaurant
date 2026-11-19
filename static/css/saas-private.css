@@ -1,0 +1,147 @@
+/* Loaded last, exclusively for authenticated internal views. */
+.sr-saas-private .private-account { position: relative; }
+.sr-saas-private .private-account-menu { position: absolute; right: 0; top: calc(100% + 8px); width: 224px; padding: 6px; border: 1px solid var(--theme-border); background: var(--theme-surface); border-radius: 8px; z-index: 110; }
+.sr-saas-private .private-account-menu a { display: block; padding: 10px; color: var(--theme-text); text-decoration: none; border-radius: 6px; }
+.sr-saas-private .private-account-menu a:hover { background: var(--theme-elevated); }
+.sr-saas-private .sr-header { height: 54px; border-bottom: 1px solid var(--theme-border); background: var(--theme-surface); z-index: 100; }
+.sr-saas-private .sr-menu-button { display: inline-flex !important; }
+.sr-saas-private .sr-sidebar { position: fixed; border-right: 1px solid var(--theme-border); z-index: 102; overflow-y: auto; overflow-x: hidden; }
+.sr-saas-private .sr-top .theme-toggle { width: auto; white-space: nowrap; }
+.sr-saas-private .sr-favorites-link { display: none; }
+@media(min-width:1100px) {
+  .sr-saas-private .sr-sidebar .sr-collapse { display: inline-flex !important; }
+  .sr-compact .sr-saas-private .sr-sidebar { width: 64px !important; padding: 8px; }
+  .sr-compact .sr-saas-private #main-content { margin-left: 64px !important; }
+  .sr-compact .sr-saas-private .sr-sidebar :is(a span,form span,.sr-group,.sr-section-label,.sr-section-chevron) { position: absolute !important; width: 1px !important; height: 1px !important; overflow: hidden !important; clip-path: inset(50%) !important; white-space: nowrap; }
+  .sr-compact .sr-saas-private .sr-sidebar :is(a,summary,form button) { justify-content: center; padding: 9px; }
+  .sr-compact .sr-saas-private .sr-side-top { justify-content: center; }
+  .sr-compact .sr-saas-private .sr-section-links { padding: 0; }
+}
+@media(max-width:1099px) {
+  .sr-drawer-open .sr-saas-private .sr-sidebar { width: min(280px,85vw) !important; transform: none !important; top: 0 !important; bottom: 0; }
+  .sr-drawer-open .sr-saas-private .sr-backdrop { display: block; position: fixed; inset: 0; z-index: 101; background: var(--theme-bg); opacity: .8; }
+  .sr-drawer-open:has(.sr-saas-private) { overflow: hidden; }
+}
+@media(max-width:699px) {
+  .sr-saas-private .sr-top [data-theme-label], .sr-saas-private .saas-context { display: none; }
+}
+
+.sr-saas-private .saas-list-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--theme-border); }
+.sr-saas-private .saas-list-row:last-child { border-bottom: 0; }
+.sr-saas-private .saas-kpi-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 16px; }
+.sr-saas-private .saas-kpi { font-size: 26px; font-weight: 600; }
+.sr-saas-private .saas-info-banner { border: 1px solid var(--theme-border); border-radius: 8px; padding: 12px 16px; background: var(--theme-surface); }
+.sr-saas-private .admin-container { width: 100%; padding: 0; background: transparent; }
+.sr-saas-private .admin-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 0 0 20px; background: transparent; border: 0; }
+.sr-saas-private .table-container { overflow-x: auto; border: 1px solid var(--theme-border); border-radius: 8px; background: var(--theme-surface); }
+.sr-saas-private .admin-filters { padding: 16px; border: 1px solid var(--theme-border); border-radius: 8px; background: var(--theme-surface); }
+@media(max-width:699px) {
+  .sr-saas-private .saas-kpi-grid { grid-template-columns: 1fr; }
+  .sr-saas-private .admin-header { flex-wrap: wrap; }
+}
+body.sr-saas-private {
+  --sr-header: 54px; --sr-rail: 232px; --workspace-radius: 8px;
+  --font-main: 'Manrope', system-ui, sans-serif;
+  --font-heading: var(--font-main); --sr-display: var(--font-main);
+  --sr-text: var(--theme-text); --sr-gutter: 24px;
+  background: var(--theme-bg); color: var(--theme-text);
+  font-size: 13px; font-variant-numeric: tabular-nums;
+}
+.sr-saas-private *, .sr-saas-private *::before, .sr-saas-private *::after {
+  box-shadow: none !important; text-shadow: none !important;
+  background-image: none !important; backdrop-filter: none !important;
+}
+.sr-saas-private [hidden] { display: none !important; }
+.sr-saas-private :is(h1,h2,h3) { font-family: var(--font-main); color: var(--theme-text); }
+.sr-saas-private h1 { font-size: 22px !important; font-weight: 600 !important; letter-spacing: -.02em; line-height: 1.35 !important; max-width: none !important; margin: 0 0 6px; }
+.sr-saas-private :is(h2,h3) { font-size: 14px !important; font-weight: 500; line-height: 1.5; }
+.sr-saas-private p { font-size: 13px; color: var(--theme-muted); line-height: 1.6; }
+.sr-saas-private :is(code,kbd,pre) { font-family: Consolas, monospace; overflow-wrap: anywhere; }
+.sr-saas-private .sr-top { height: 54px; max-width: none; padding: 0 20px; gap: 16px; }
+.sr-saas-private .sr-logo { font-size: 15px; font-weight: 600; letter-spacing: -.02em; min-height: 32px; }
+.sr-saas-private .sr-mark { width: 28px; height: 28px; border: 1px solid var(--theme-border); border-radius: 6px; background: var(--theme-elevated); }
+.sr-saas-private .saas-context { padding-left: 16px; border-left: 1px solid var(--theme-border); color: var(--theme-text); text-decoration: none; }
+.sr-saas-private .saas-global-links { display: flex; gap: 20px; margin-left: auto; }
+.sr-saas-private .saas-global-links a { color: var(--theme-muted); text-decoration: none; }
+.sr-saas-private .sr-actions { margin-left: 0; }
+.sr-saas-private :is(.sr-icon,.sr-account) { min-height: 32px; min-width: 32px; width: 32px; height: 32px; border-radius: 6px; }
+.sr-saas-private .sr-account { border-radius: 999px; }
+.sr-saas-private .sr-sidebar { width: 232px !important; padding: 12px; background: var(--theme-surface); gap: 2px; }
+.sr-saas-private .sr-sidebar :is(a,form button) { min-height: 34px; padding: 7px 10px; font-size: 13px; font-weight: 500; gap: 10px; border-radius: 6px; }
+.sr-saas-private .sr-sidebar :is(a span,form span,.sr-group,.sr-section-label) { position: static !important; clip-path: none !important; width: auto !important; height: auto !important; overflow: visible !important; white-space: normal; }
+.sr-saas-private .sr-sidebar svg { width: 16px; height: 16px; flex: 0 0 16px; stroke-width: 1.5; }
+.sr-saas-private .sr-group { font-size: 11px; font-weight: 500; letter-spacing: .06em; text-transform: uppercase; margin: 20px 10px 6px; }
+.sr-saas-private .sr-nav-section { border: 0; }
+.sr-saas-private .sr-nav-section summary { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; padding: 10px; color: var(--theme-muted); }
+.sr-saas-private .sr-section-links { padding: 0; }
+.sr-saas-private .sr-side-top { margin-bottom: 8px; }
+.sr-saas-private .saas-sidebar-footer { margin-top: auto; padding-top: 16px; border-top: 1px solid var(--theme-border); }
+.sr-saas-private .saas-sidebar-footer .theme-toggle { width: 100%; border: 0; justify-content: flex-start; font-size: 13px; background: transparent; color: var(--theme-text); }
+.sr-saas-private .sr-footer, .sr-saas-private .sr-mobile-nav { display: none !important; }
+.sr-saas-private #main-content { width: auto !important; max-width: none !important; min-width: 0; padding: 24px 32px; background: var(--theme-bg); }
+.sr-saas-private #main-content > :is(section,div,header) { max-width: 1280px; margin-inline: auto; }
+.sr-saas-private .sr-workspace-header { border: 0; border-bottom: 1px solid var(--theme-border); border-radius: 0; padding: 0 0 14px; margin-bottom: 24px; background: transparent; }
+.sr-saas-private .sr-workspace-kicker { font-size: 11px; font-weight: 500; color: var(--theme-muted); }
+.sr-saas-private .sr-workspace-tools > a:not(.sr-workspace-avatar) { padding: 6px 10px; font-size: 12px; border-radius: 6px; font-weight: 500; }
+.sr-saas-private :is(.mgr,.market-shell,.catalog-shell,.bs-editor-shell,.sr-service,.radar,.profile-container,.copilot-page) { width: 100% !important; max-width: 1280px !important; margin: 0 auto; padding: 0; background: transparent; border: 0; }
+.sr-saas-private :is(.mgr-hero,.catalog-hero,.bs-editor-header,.sr-service-hero,.radar-heading,.profile-header,.saas-view-heading) { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 0; padding: 0 0 20px; border: 0; border-radius: 0; background: transparent !important; }
+.sr-saas-private :is(.catalog-atmosphere,.catalog-pulse,.bs-eyebrow-dot,.mgr-metric::before,.intelligence-hero::before,.intelligence-hero::after) { display: none; }
+.sr-saas-private :is(.catalog-eyebrow,.bs-eyebrow,.bs-kicker,.radar-kicker,.copilot-kicker) { font-size: 11px; letter-spacing: .06em; font-weight: 500; color: var(--theme-muted); }
+.sr-saas-private :is(.mgr-card,.mgr-metric,.stat-card,.market-panel,.catalog-panel,.catalog-metric-card,.bs-panel,.bs-preview-card,.bs-action-card,.sr-service-card,.sr-table-card,.radar-panel,.radar-candidate,.radar-empty,.profile-sidebar,.profile-form-container,.saas-panel) { background: var(--theme-surface) !important; color: var(--theme-text); border: 1px solid var(--theme-border); border-radius: 8px !important; padding: 16px 20px; }
+.sr-saas-private :is(.mgr-metrics,.mgr-grid,.catalog-metrics,.intelligence-analysis-grid,.intelligence-detail-grid,.sr-zone-tables) { gap: 16px; }
+.sr-saas-private .mgr-metrics > dl.mgr-metrics { display: contents; }
+.sr-saas-private :is(.mgr-metric dd,.stat-value,.catalog-metric-card strong) { font-size: 26px; font-weight: 600; line-height: 1.4; }
+.sr-saas-private :is(.mgr-filter,.market-form,.sr-service-form) { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,220px),1fr)); gap: 16px; align-items: end; padding: 16px 20px; margin: 0 0 20px; background: var(--theme-surface); border: 1px solid var(--theme-border); border-radius: 8px; }
+.sr-saas-private label { font-size: 13px; font-weight: 500; color: var(--theme-text); }
+.sr-saas-private :is(.market-form,.sr-service-form) label { display: grid; gap: 6px; min-width: 0; }
+.sr-saas-private :is(input:not([type=checkbox]):not([type=radio]):not([type=hidden]):not([type=color]),select,textarea) { min-width: 0; max-width: 100%; width: 100%; min-height: 36px; padding: 8px 12px; font-size: 13px; color: var(--theme-text); background: var(--theme-elevated); border: 1px solid var(--theme-border); border-radius: 6px; }
+.sr-saas-private textarea { min-height: 80px; resize: vertical; }
+.sr-saas-private :is(button,.sr-button,.catalog-button,.bs-button,.radar-primary,.mgr-hero>a) { min-height: 34px; border: 1px solid var(--theme-border); border-radius: 6px; padding: 6px 12px; font-size: 13px; font-weight: 500; background: var(--theme-elevated); color: var(--theme-text); }
+.sr-saas-private :is(.catalog-button--primary,.bs-button-primary,.copilot-send) { background: var(--theme-accent); color: var(--theme-bg); border-color: var(--theme-accent); }
+.sr-saas-private :is(button,input,select,textarea,a,summary):focus-visible { outline: 2px solid var(--theme-focus); outline-offset: 2px; }
+.sr-saas-private :is(.saas-badge,.sr-badge,.sr-chip,.intelligence-badge,.catalog-count-pill,.radar-badge,.bs-live-pill) { border: 1px solid var(--theme-border); border-radius: 999px; padding: 2px 8px; font-size: 11px; background: var(--theme-elevated); }
+.sr-saas-private :is(.saas-tabs,.sr-service-nav,.profile-account-links,.mgr-links,.market-nav) { display: flex; flex-wrap: wrap; gap: 20px; padding: 0; margin-bottom: 20px; background: transparent; border: 0; border-bottom: 1px solid var(--theme-border); border-radius: 0; }
+.sr-saas-private :is(.saas-tabs,.sr-service-nav,.profile-account-links,.market-nav) a { padding: 8px 0; border-radius: 0; border-bottom: 2px solid transparent; color: var(--theme-muted); background: transparent; text-decoration: none; }
+.sr-saas-private .saas-tabs [aria-current=page] { border-bottom-color: var(--theme-accent); color: var(--theme-text); }
+.sr-saas-private :is(.table-responsive,.mgr-table,.catalog-table-wrap) { overflow-x: auto; border: 1px solid var(--theme-border); border-radius: 8px; }
+.sr-saas-private table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.sr-saas-private :is(td,th) { padding: 12px 16px; border-bottom: 1px solid var(--theme-border); text-align: left; }
+.sr-saas-private th { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--theme-muted); }
+.sr-saas-private .saas-copilot-grid { display: grid; grid-template-columns: minmax(0,3fr) minmax(240px,1fr); gap: 16px; }
+.sr-saas-private .copilot-modes { padding: 0 0 16px; border: 0; border-bottom: 1px solid var(--theme-border); border-radius: 0; }
+.sr-saas-private .copilot-shortcuts { display: grid; gap: 0; }
+.sr-saas-private .copilot-shortcuts a { border: 0; border-bottom: 1px solid var(--theme-border); border-radius: 0; padding: 12px 0; background: transparent; }
+.sr-saas-private .copilot-composer { border: 1px solid var(--theme-border); border-radius: 8px; background: var(--theme-elevated); }
+.sr-saas-private .catalog-layout { display: grid; grid-template-columns: minmax(0,1.5fr) minmax(320px,1fr); gap: 16px; }
+.sr-saas-private .catalog-product-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); column-count: auto; gap: 12px; }
+.sr-saas-private .bs-editor-grid { display: grid; grid-template-columns: minmax(0,3fr) minmax(280px,1fr); gap: 16px; }
+.sr-saas-private :is(.bs-panel,.catalog-form-section,.profile-form .form-group) { border-bottom: 1px solid var(--theme-border); }
+.sr-saas-private .bs-editor-form { display: grid; gap: 0; border: 1px solid var(--theme-border); border-radius: 8px; overflow: hidden; background: var(--theme-surface); }
+.sr-saas-private .bs-editor-form .bs-panel { border: 0; border-bottom: 1px solid var(--theme-border); border-radius: 0 !important; }
+.sr-saas-private .profile-content { display: grid; grid-template-columns: 220px minmax(0,1fr); gap: 16px; }
+.sr-saas-private .profile-form-container { padding: 0; overflow: hidden; }
+.sr-saas-private .profile-form .form-group { margin: 0; padding: 16px 20px; }
+.sr-saas-private .profile-form > details { padding: 16px 20px; }
+.sr-saas-private .profile-avatar i { font-size: 32px !important; }
+@media (min-width:1100px) {
+  .sr-saas-private #main-content { margin-left: 232px !important; }
+  .sr-saas-private .sr-sidebar { inset: 54px auto 0 0 !important; transform: none !important; }
+  .sr-saas-private .sr-collapse { display: none; }
+}
+@media (max-width:1099px) {
+  .sr-saas-private #main-content { margin-left: 0 !important; padding: 24px; }
+  .sr-saas-private :is(.catalog-layout,.bs-editor-grid) { grid-template-columns: 1fr; }
+  .sr-saas-private .sr-sidebar { display: none; }
+  .sr-drawer-open .sr-saas-private .sr-sidebar { display: flex; inset: 0 auto 0 0; }
+}
+@media (max-width:699px) {
+  .sr-saas-private #main-content { padding: 16px; }
+  .sr-saas-private .sr-top { padding: 0 12px; gap: 8px; }
+  .sr-saas-private .saas-global-links { display: none; }
+  .sr-saas-private .sr-actions { margin-left: auto; }
+  .sr-saas-private .saas-context { font-size: 12px; padding-left: 8px; }
+  .sr-saas-private :is(.saas-copilot-grid,.profile-content,.catalog-product-grid) { grid-template-columns: 1fr; }
+  .sr-saas-private :is(.sr-workspace-header,.catalog-hero,.bs-editor-header,.saas-view-heading) { flex-wrap: wrap; }
+  .sr-saas-private .mgr-metrics { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .sr-saas-private :is(.mgr-hero,.sr-service-hero) { align-items: flex-start; flex-direction: column; }
+}

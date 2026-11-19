@@ -110,8 +110,10 @@ def events(uid):
 def wallet(uid):
     rows = events(uid)
     balance = sum(row["points"] for row in rows)
-    earned = sum(row["points"] for row in rows if row["points"] > 0)
-    visits = _sessions(uid)
+    earned = max(0, sum(row["points"] for row in rows if row["points"] > 0
+                        or row["kind"] == "Reversión por reembolso"))
+    visits = [session for session in _sessions(uid)
+              if any(_paid(order) for order in _session_orders(session))]
     businesses = {visit["rid"] for visit in visits}
     dishes = Counter()
     for visit in visits:
@@ -144,6 +146,8 @@ def visits(uid):
     rows = []
     for session in _sessions(uid):
         orders = [o for o in _session_orders(session) if _paid(o)]
+        if not orders:
+            continue
         rows.append({
             "session_id": session["id"], "rid": session["rid"],
             "business": (Repo.get_by_id("restaurants", session["rid"]) or {}).get("name", ""),
@@ -157,7 +161,10 @@ def visits(uid):
 
 def birthday_claim(uid):
     user = UserModel.get_by_id(uid) or {}
-    birthday = str((user.get("profile") or {}).get("birthday") or "")[:10]
+    profile = user.get("profile") or {}
+    if (profile.get("loyalty") or {}).get("birthday_visible") is False:
+        raise ValueError("Activa el consentimiento de cumpleanos para solicitar este beneficio.")
+    birthday = str(profile.get("birthday") or "")[:10]
     if len(birthday) < 10:
         raise ValueError("Registra tu fecha de cumpleaños en el perfil para reclamar el beneficio.")
     today = now().date()
@@ -168,13 +175,19 @@ def birthday_claim(uid):
     if (month, day) != (today.month, today.day):
         raise ValueError("El beneficio de cumpleaños solo se puede reclamar el día de tu cumpleaños.")
     year = today.year
-    if any(row.get("kind") == "Cumpleaños" and str(row.get("at", ""))[:4] == str(year)
-           for row in records(BONUSES, uid=uid)):
-        raise ValueError("Ya reclamaste el beneficio de este año.")
-    with document_transaction():
-        return Repo.create(BONUSES, {"uid": uid, "kind": "Cumpleaños", "points": BIRTHDAY_POINTS,
+    with document_transaction() as conn:
+        conn.execute("SELECT pg_advisory_xact_lock(hashtextextended(%s, 0))",
+                     (f"loyalty-birthday:{uid}:{year}",))
+        if any(row.get("kind") == "Cumpleaños" and str(row.get("at", ""))[:4] == str(year)
+               for row in records(BONUSES, uid=uid)):
+            raise ValueError("Ya reclamaste el beneficio de este año.")
+        result = Repo.create(BONUSES, {"uid": uid, "kind": "Cumpleaños", "points": BIRTHDAY_POINTS,
                                      "at": now().isoformat(), "business": "SmartResto",
                                      "note": f"Beneficio anual {year}"})
+        from utils.audit import record_event
+        record_event("LOYALTY_BIRTHDAY_CLAIMED", resource_type="loyalty_bonus",
+                     resource_id=result["id"], actor_user_id=uid, metadata={"year": year})
+        return result
 
 
 def save_preferences(uid, *, marketing, visits_visible, birthday_visible):
@@ -220,10 +233,15 @@ def owner_customers(rid, days=60):
     rows = []
     for uid, item in stats.items():
         user = UserModel.get_by_id(uid) or {}
-        name = (user.get("profile") or {}).get("name") or f"Cliente #{uid}"
+        profile = user.get("profile") or {}
+        privacy = profile.get("loyalty") or {}
+        if privacy.get("visits_visible") is False:
+            continue
+        name = profile.get("name") or f"Cliente #{uid}"
         active = bool(item["last"]) and _timestamp(item["last"]) >= cutoff
         rows.append({"uid": uid, "name": name, **item, "active": active,
-                     "frequent": item["orders"] >= 3})
+                      "marketing_allowed": privacy.get("marketing") is True,
+                      "frequent": item["orders"] >= 3})
     dishes = Counter()
     for order in orders:
         for line in order.get("lines", []):

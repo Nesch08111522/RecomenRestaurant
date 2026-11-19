@@ -26,6 +26,7 @@ from models.notification import NotificationModel
 from config import Config
 from database.repository import document_transaction
 from utils.security import normalize_text, fresh_session_user
+from core.profile import normalize_profile_patch
 from utils.audit import record_event, AuditEventModel
 from analytics.metrics import build_bi_snapshot
 from functools import wraps
@@ -371,6 +372,41 @@ def restaurants():
     )
 
 
+@admin_bp.get('/restaurant/template.xlsx')
+@admin_or_owner_required
+def restaurant_excel_template():
+    from flask import send_file
+    from utils.catalog_workbook import build_catalog_workbook_es
+    return send_file(build_catalog_workbook_es(), as_attachment=True,
+                     download_name='Plantilla_carga_SmartResto_ES.xlsx',
+                     mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+
+
+@admin_bp.post('/restaurant/import-excel')
+@admin_or_owner_required
+def restaurant_excel_import():
+    from models.catalog_import import preview_import, confirm_import
+    from utils.catalog_workbook import MAX_XLSX_BYTES
+    actor = session['user']['id']
+    rid = request.form.get('restaurant_id', type=int)
+    try:
+        if request.form.get('confirm') == 'yes':
+            result = confirm_import(request.form.get('token', ''), rid, actor)
+            flash(result['notice'], 'success')
+            return redirect(url_for('admin.restaurants'))
+        upload = request.files.get('file')
+        if not upload or not upload.filename.lower().endswith('.xlsx'):
+            raise ValueError('Selecciona un XLSX')
+        preview = preview_import(upload.read(MAX_XLSX_BYTES + 1), rid, actor)
+        return render_template('admin/restaurant_import_preview.html', preview=preview, rid=rid)
+    except (ValueError, TypeError, KeyError) as error:
+        flash(str(error), 'error')
+        return redirect(url_for('admin.new_restaurant'))
+    except Exception:
+        logger.exception('Excel import transaction failed')
+        flash('No se confirmo la carga. La transaccion se revirtio; vuelve a analizar antes de reintentar.', 'error')
+        return redirect(url_for('admin.new_restaurant'))
+
 @admin_bp.route("/restaurant/analyze-file", methods=["POST"])
 @admin_or_owner_required
 def analyze_restaurant_upload():
@@ -390,6 +426,8 @@ def analyze_restaurant_upload():
     try:
         # Analizar documento
         extracted, provider = analyze_restaurant_file(uploaded)
+        from utils.restaurant_review import check_restaurant
+        check_restaurant(extracted)
 
         # Obtener distritos
         districts = getattr(
@@ -1017,14 +1055,14 @@ def manage_user(id: int):
             profile_allowed = {"name", "email", "preferences", "restrictions"}
             if set(profile) - profile_allowed:
                 return jsonify({"error": "Campos de perfil no permitidos"}), 400
-            payload["profile"] = {
-                key: (
-                    _clean_list(profile.get(key), max_items=30, max_length=80)
-                    if key in {"preferences", "restrictions"}
-                    else normalize_text(profile.get(key), max_length=255)
-                )
-                for key in profile
-            }
+            try:
+                normalized_profile = normalize_profile_patch(profile)
+            except ValueError as error:
+                return jsonify({"error": str(error)}), 400
+            current_profile = user.get("profile")
+            merged_profile = dict(current_profile) if isinstance(current_profile, dict) else {}
+            merged_profile.update(normalized_profile)
+            payload["profile"] = merged_profile
         if not payload:
             return jsonify({"error": "No hay cambios permitidos"}), 400
         updated = UserModel.update(id, payload)

@@ -134,7 +134,7 @@
       <section class="rec-feed rec-feed-personal" id="para-ti" aria-labelledby="rec-for-you-title" data-rec-list>
         <div class="rec-feed-heading">
           <span class="rec-feed-icon">{{ glyph('heart') }}</span>
-          <div><h2 id="rec-for-you-title">Para ti</h2><p>{% if active_history_topic %}Opciones relacionadas con «{{ active_history_topic.query }}».{% else %}Platos, negocios y experiencias relacionados con tus búsquedas y compras confirmadas.{% endif %}</p></div>
+          <div><h2 id="rec-for-you-title">Para ti</h2><p>{% if active_history_topic %}Opciones relacionadas con «{{ active_history_topic.query }}».{% else %}Platos, negocios y experiencias relacionados con tus preferencias, búsquedas y compras confirmadas.{% endif %}</p></div>
           {{ option_count(for_you['items']) }}
         </div>
         {% if history_topics %}

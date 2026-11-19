@@ -110,6 +110,61 @@ def test_estimate_uses_declared_duration_then_history(service_db):
     assert historical["minutes"] is not None
 
 
+def test_concurrent_registration_has_unique_codes_and_one_active_turn(service_db):
+    from concurrent.futures import ThreadPoolExecutor
+    from threading import Barrier
+
+    owner, business, small, big = setup(service_db)
+    barrier = Barrier(2)
+
+    def register(index):
+        barrier.wait(timeout=10)
+        return join(business["id"], f"Cliente {index}", 2)
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        rows = list(pool.map(register, range(2)))
+    assert {row["code"] for row in rows} == {"T-001", "T-002"}
+    barrier = Barrier(2)
+
+    def repeat(index):
+        barrier.wait(timeout=10)
+        return join(business["id"], "Cliente registrado", 2, uid=owner["id"])
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        rows = list(pool.map(repeat, range(2)))
+    assert rows[0]["id"] == rows[1]["id"]
+    assert len(queue(business["id"])) == 3
+
+
+def test_turn_cannot_be_changed_from_another_business(service_db):
+    owner, business, small, big = setup(service_db)
+    other = make_business(owner["id"], "Otra sede")
+    row = join(business["id"], "Ana", 2)
+    with pytest.raises(ServiceError):
+        cancel(other["id"], row["id"])
+    assert queue(business["id"])[0]["status"] == "Esperando"
+
+
+def test_public_queue_refresh_contract_and_cancel_authorization(service_db):
+    from app import create_app
+    from uuid import uuid4
+    owner, business, small, big = setup(service_db)
+    app = create_app({"TESTING": True, "SECRET_KEY": uuid4().hex, "WTF_CSRF_ENABLED": False})
+    client = app.test_client()
+    stranger = app.test_client()
+    assert client.post(f"/cola/{business['id']}", data={"name": "Ana", "party_size": 2}).status_code == 302
+    row = queue(business["id"])[0]
+    page = client.get(f"/cola/{business['id']}")
+    assert page.status_code == 200
+    assert b"setInterval(refresh, 15000)" in page.data
+    assert b"data-turn-estimate" in page.data
+    assert stranger.post(f"/cola/{business['id']}/turno/{row['id']}/cancelar").status_code == 403
+    data = stranger.get(f"/cola/{business['id']}/estado.json").get_json()
+    assert data["mine"] == [] and all("name" not in item for item in data["ahead"])
+    call_next(business["id"], row["id"])
+    assert client.get(f"/cola/{business['id']}/estado.json").get_json()["mine"][0]["status"] == "Llamado"
+
+
 def test_demand_pattern_counts_real_turns(service_db):
     owner, business, small, big = setup(service_db)
     join(business["id"], "Ana", 2)

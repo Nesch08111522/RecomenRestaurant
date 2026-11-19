@@ -9,8 +9,9 @@ pytestmark = pytest.mark.usefixtures("test_database")
 
 
 def _client():
-    app = create_app()
-    app.config.update(TESTING=True, WTF_CSRF_ENABLED=False)
+    from uuid import uuid4
+    app = create_app({"TESTING": True, "SECRET_KEY": uuid4().hex,
+                      "WTF_CSRF_ENABLED": False})
     return app, app.test_client()
 
 

@@ -1,0 +1,87 @@
+
+
+
+
+
+
+<!doctype html>
+<html lang="es" data-theme="dark">
+<head>
+    <meta charset="utf-8">
+    
+<script>
+(function () {
+  var theme = 'dark';
+  try { if (localStorage.getItem('theme') === 'light') theme = 'light'; } catch (_) {}
+  document.documentElement.dataset.theme = theme;
+  document.documentElement.style.colorScheme = theme;
+})();
+</script>
+<link rel="stylesheet" href="/static/css/theme-tokens.css">
+<script src="/static/js/theme.js"></script>
+    <link rel="stylesheet" href="/static/css/responsive-tokens.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Mesa del bosque</title>
+    <meta name="description" content="Cocina con identidad y productos locales.">
+    <meta name="theme-color" content="#ffffff">
+    
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Mesa del bosque">
+    <meta property="og:title" content="Mesa del bosque">
+    <meta property="og:description" content="Cocina con identidad y productos locales.">
+    
+    
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Mesa del bosque">
+    <meta name="twitter:description" content="Cocina con identidad y productos locales.">
+    
+    
+    
+    
+    <link rel="stylesheet" href="/static/css/business-sites.css">
+    <link rel="stylesheet" href="/static/css/layout-system.css">
+    
+<link rel="stylesheet" href="/static/css/adaptive-experience.css">
+<link rel="stylesheet" href="/static/css/theme-components.css">
+<link rel="stylesheet" href="/static/css/responsive-layout.css">
+
+</head>
+<body style="--site-brand-primary: #ffffff; --site-brand-secondary: #ffff00" class="bs-public-site bs-template-atelier bs-hero-commercial">
+    
+    <header class="bs-public-nav" data-public-nav>
+        <a class="bs-public-logo" href="#inicio" aria-label="Ir al inicio de Mesa del bosque"><span class="bs-public-logo-mark">✦</span><span>Mesa del bosque</span></a>
+        <nav aria-label="Navegación principal"><a href="#historia">Historia</a><a href="#carta">Carta</a><a href="#visitanos">Visítanos</a></nav>
+        <div class="bs-public-actions"><button type="button" class="theme-toggle" data-theme-toggle aria-label="Tema oscuro" aria-pressed="true"><span aria-hidden="true" data-theme-icon>☀</span><span data-theme-label>Usar tema claro</span></button><a class="bs-text-link" href="#reservar">Reservar <span aria-hidden="true">↗</span></a><button class="bs-public-menu" type="button" data-public-menu aria-expanded="false" aria-controls="bs-public-links"><span></span><span></span><span></span><b class="sr-only">Abrir menú</b></button></div>
+    </header>
+    <div class="bs-public-mobile-links" id="bs-public-links"><a href="#historia">Historia</a><a href="#carta">Carta</a><a href="#visitanos">Visítanos</a><a href="#reservar">Reservar</a></div>
+
+    <main>
+        <section class="layout-full-bleed bs-public-hero" data-layout="full-bleed" data-layout-reveal aria-label="Presentación de Mesa del bosque" id="inicio">
+            <div class="bs-hero-copy"><p class="bs-eyebrow"><span class="bs-eyebrow-dot"></span> Sitio oficial · Trujillo</p><h1>Sabores para compartir</h1><p class="bs-hero-description">Cocina con identidad y productos locales.</p><div class="bs-hero-actions"><a class="bs-public-button" href="#carta">Explorar la carta <span aria-hidden="true">↗</span></a><a class="bs-hero-secondary" href="#historia">Conócenos <span aria-hidden="true">↓</span></a></div></div>
+            <div class="bs-hero-art has-placeholder"><div class="bs-image-placeholder"><span class="bs-placeholder-glyph">✦</span><span>Tu portada propia aquí</span><small>Sin fotografías de terceros</small></div><div class="bs-hero-stamp"><span class="material-icons" aria-hidden="true">eco</span><span>Hecho con intención</span></div></div>
+            <div class="bs-hero-scroll"><span></span> Desliza para descubrir</div>
+        </section>
+
+        <section class="bs-specialty-strip" aria-label="Especialidades"><span class="bs-strip-label">En nuestra mesa</span><div class="layout-bento layout-gap-sm" data-layout="bento" data-layout-reveal style="--layout-columns:3"><span>Cocina peruana</span><span>Productos locales</span></div></section>
+
+        <section class="bs-public-section bs-story-section" id="historia"><div class="bs-section-marker">01 <span></span> Historia</div><div class="layout-editorial bs-story-layout" data-layout="editorial" data-layout-reveal role="group" aria-label="Historia del negocio"><div class="bs-story-editorial-copy"><h2>Lo que empieza en la cocina, <em>se queda contigo.</em></h2><div class="bs-story-copy"><p>Cocina con identidad y productos locales.</p><a class="bs-underlined-link" href="#visitanos">Ven a conocernos <span aria-hidden="true">↗</span></a></div></div></div></section>
+
+        
+
+        <section class="bs-public-section bs-menu-section" id="carta"><div class="bs-section-heading"><div class="bs-section-marker">03 <span></span> La carta</div><div class="bs-heading-row"><h2>Platos para quedarse <em>un poco más.</em></h2><a class="bs-underlined-link" href="/market/browse">Pedir online <span aria-hidden="true">↗</span></a></div></div><div class="layout-bento layout-gap-md bs-featured-dishes" data-layout="bento" data-layout-reveal style="--layout-columns:3" role="group" aria-label="Platos destacados"><article class="bs-dish-card" data-layout-span="2x1"><div class="bs-dish-art"><div class="bs-dish-placeholder"><span>✦</span></div><span class="bs-dish-number">01</span></div><div class="bs-dish-copy"><div><h3>Arroz de la casa</h3><p>Preparado al momento</p></div><strong>S/ 25</strong></div></article></div><details class="bs-menu-details"><summary><span>Ver carta completa</span><span class="bs-summary-icon" aria-hidden="true">＋</span></summary><div class="bs-full-menu"><div class="bs-menu-line"><div><h3>Arroz de la casa</h3><p>Preparado al momento</p></div><strong>S/ 25</strong></div></div></details></section>
+
+        <section class="bs-promo-section" aria-label="Promoción"><div class="bs-promo-card"><span class="bs-promo-icon material-icons" aria-hidden="true">local_activity</span><div><p class="bs-kicker">Para celebrar hoy</p><h2>Especial de temporada</h2></div><a class="bs-public-button bs-public-button-light" href="#reservar">Ver disponibilidad <span aria-hidden="true">↗</span></a></div></section>
+
+        <section class="bs-public-section bs-visit-section" id="visitanos"><div class="bs-section-marker">04 <span></span> Visítanos</div><div class="bs-visit-grid"><div><h2>Una buena excusa para <em>salir de casa.</em></h2><div class="bs-visit-details"><div><span class="material-icons" aria-hidden="true">place</span><p><b>Dirección</b><br>Calle principal 123<br>Trujillo</p></div><div><span class="material-icons" aria-hidden="true">schedule</span><p><b>Horarios</b><br>12:00 – 22:00</p></div><div><span class="material-icons" aria-hidden="true">room_service</span><p><b>Modalidad</b><br>Modalidad por confirmar</p></div></div></div><div class="bs-visit-note"><p class="bs-kicker">Antes de venir</p><a class="bs-public-button" href="/main/detail">Ver detalles del restaurante <span aria-hidden="true">↗</span></a></div></div></section>
+
+        <section class="bs-review-section" aria-label="Reseñas"><div class="bs-public-section"><div class="bs-section-marker">05 <span></span> Palabras de la mesa</div><div class="bs-review-heading"><h2>Lo dicen quienes <em>ya volvieron.</em></h2><span class="bs-review-quote">“</span></div><div class="layout-masonry layout-gap-md bs-review-grid" data-layout="masonry" data-layout-reveal style="--layout-columns:3" role="region" aria-label="Reseñas de clientes"><blockquote><div class="bs-stars" aria-label="5 de 5">★★★★★</div><p>“Excelente experiencia”</p><footer>Cliente verificado</footer></blockquote></div></div></section>
+
+        
+
+        <section class="bs-reserve-section" id="reservar"><div><p class="bs-kicker">Hazlo especial</p><h2>Tu próxima mesa<br><em>empieza aquí.</em></h2></div><a class="bs-public-button bs-public-button-light" href="/main/detail">Reservar o consultar <span aria-hidden="true">↗</span></a></section>
+    </main>
+    
+    
+    
+</body>
+</html>

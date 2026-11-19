@@ -20,6 +20,16 @@ DISHES = [
 ]
 
 
+def test_cold_start_uses_declared_preferences_without_inventing_history():
+    result = recommend(restaurants=RESTAURANTS, dishes=DISHES, at=AT,
+                       profile={"preferences": ["Cocina marina"]})
+    personal = result["for_you"]["items"]
+    assert personal
+    assert all(card["personalization_basis"] == "declared_preferences" for card in personal)
+    assert result["history"] == {"dishes": [], "restaurants": []}
+    assert all("compras confirmadas" not in " ".join(card["reasons"]) for card in personal)
+
+
 def test_confirmed_purchases_learn_affinity_but_surface_new_merchants():
     delivered = {"rid": 1, "business": "Costa", "day": "2026-11-16", "state": "Entregado", "channel": "Local",
                  "paid": True, "lines": [{"dish_id": 11, "name": "Ceviche de pescado", "qty": 2, "unit": 3600}]}
@@ -439,7 +449,7 @@ def test_a_search_for_excluding_an_ingredient_does_not_learn_it_as_a_taste():
     assert not result["context"]["personalized"]
 
 
-def test_personal_feed_requires_purchases_or_searches_and_discovery_works_without_them():
+def test_personal_feed_accepts_preferences_and_keeps_discovery_without_history():
     result = recommend(
         restaurants=RESTAURANTS, dishes=DISHES, at=AT,
         profile={"preferences": ["mariscos"]}, favorites=[2],
@@ -447,7 +457,9 @@ def test_personal_feed_requires_purchases_or_searches_and_discovery_works_withou
         visits=[{"restaurant_id": 1, "date": "2026-11-17", "status": "asistida"}],
     )
     assert not result["context"]["has_recommendation_history"]
-    assert all(not cards for cards in result["for_you"].values())
+    assert result["for_you"]["items"]
+    assert all(card["personalization_basis"] == "declared_preferences"
+               for card in result["for_you"]["items"])
     assert result["discovery_items"]["items"]
     assert all(card["is_new"] for card in result["discovery_items"]["items"])
 

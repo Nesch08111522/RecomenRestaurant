@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>Verificación empresarial</h1>
+<a href="{{ url_for('admin.users') }}">Gestión de cuentas</a>
+<p>Revisa procedencia y documentación antes de decidir. Aprobar identidad no publica el negocio.</p>
+{% for item in verifications %}
+<section class="card"><h2>{{ item.legal_name }}</h2><p>Establecimiento {{ item.rid }} · RUC {{ item.tax_id }} · {{ item.status }}</p>
+<p>Referencia documental: {{ item.evidence }}</p>
+{% if item.status == 'pending' %}
+<form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="id" value="{{ item.id }}">
+<label>Decisión <select name="status"><option value="approved">Aprobar identidad</option><option value="rejected">Rechazar</option></select></label>
+<label>Justificación <textarea name="note" required minlength="5" maxlength="1000"></textarea></label><button type="submit">Registrar revisión</button></form>
+{% else %}<p>{{ item.note }}</p>{% endif %}</section>
+{% else %}<p>No hay solicitudes.</p>{% endfor %}
+{% endblock %}

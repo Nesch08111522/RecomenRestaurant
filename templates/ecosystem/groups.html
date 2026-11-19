@@ -1,1 +1,15 @@
-{% extends "market/base.html" %}{% from "market/base.html" import token with context %}{% block market %}<h1>¿Qué comemos entre todos?</h1>{% for g in groups %}<p><a href="{{ url_for('ecosystem.group',gid=g.id) }}">{{ g.title }}</a> · {{ g.members|length }} personas</p>{% endfor %}<form method="post" class="market-form">{{ token() }}<label>Nuevo grupo<input name="title" maxlength="100" required></label><button>Crear grupo</button></form><form method="post" class="market-form" action="{{ url_for('ecosystem.join_group') }}">{{ token() }}<label>Código privado de invitación<input name="invite" maxlength="80" required></label><button>Unirme</button></form>{% endblock %}
+{% extends "market/base.html" %}
+{% from "market/base.html" import token with context %}
+{% block market %}
+<header class="saas-view-heading"><div><h1>Comer en grupo</h1><p>Organiza preferencias y vota una opción común.</p></div></header>
+<div class="saas-copilot-grid">
+<section class="saas-panel"><h2>Mis grupos</h2>
+{% for g in groups %}<div class="saas-list-row"><a href="{{ url_for('ecosystem.group',gid=g.id) }}">{{ g.title }}</a><span class="saas-badge">{{ g.members|length }} personas</span></div>
+{% else %}<p>No perteneces a ningún grupo todavía.</p>{% endfor %}</section>
+<section class="saas-panel"><h2>Crear o unirse</h2>
+<form method="post" class="market-form">{{ token() }}
+<label>Nuevo grupo<input name="title" maxlength="100" required></label><button>Crear grupo</button></form>
+<form method="post" class="market-form" action="{{ url_for('ecosystem.join_group') }}">{{ token() }}
+<label>Código privado de invitación<input name="invite" maxlength="80" required></label><button>Unirme</button></form>
+</section></div>
+{% endblock %}

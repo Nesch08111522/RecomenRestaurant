@@ -8,6 +8,16 @@ from database.repository import PostgresDocumentRepository as Repo, document_tra
 from database.pool import close_pool, pool_stats
 
 
+def test_isolation_blocks_other_schemas_and_destructive_sql(test_database):
+    from database.connection import DatabaseConfigurationError, isolated_query, test_schema
+    schema = test_schema()
+    assert schema
+    assert isolated_query('DELETE FROM public.app_records', None) == 'DELETE FROM ' + schema + '.app_records'
+    for query in ('DROP SCHEMA public CASCADE', 'SELECT * FROM public.unknown', 'TRUNCATE app_records'):
+        with pytest.raises(DatabaseConfigurationError):
+            isolated_query(query, None)
+
+
 def test_pool_rolls_back_uncommitted_work(test_database):
     collection = 'pool_' + uuid4().hex
     with connection() as conn:
@@ -65,10 +75,12 @@ def test_statement_timeout_releases_pool_and_recovers(test_database, monkeypatch
 
 
 def test_transaction_settings_do_not_leak_to_next_lease(test_database):
+    with connection() as conn:
+        baseline = conn.execute('SHOW statement_timeout').fetchone()['statement_timeout']
     with document_transaction() as conn:
         assert int(conn.execute("SELECT current_setting('statement_timeout')::interval = interval '8 seconds' AS ok").fetchone()['ok']) == 1
     with connection() as conn:
-        assert conn.execute("SHOW statement_timeout").fetchone()['statement_timeout'] == '0'
+        assert conn.execute("SHOW statement_timeout").fetchone()['statement_timeout'] == baseline
 
 
 def test_for_update_bypasses_request_cache(test_database):

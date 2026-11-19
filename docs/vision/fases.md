@@ -1,0 +1,2 @@
+Fase 1, en progreso — 430 pruebas aprobadas; 70 omitidas por no disponer de PostgreSQL desechable. Pendiente validar membresías/tenancy y esquema en PostgreSQL.
+Fase 2, en progreso — corregida la edición administrativa parcial del perfil para conservar preferencias/consentimientos y rechazar emails inválidos; 11 pruebas dirigidas aprobadas. Suite completa: 430 aprobadas, 70 omitidas. Pendiente personal con permisos por sucursal, verificación empresarial/identidad y validación PostgreSQL.

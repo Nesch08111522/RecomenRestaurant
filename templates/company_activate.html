@@ -1,0 +1,7 @@
+{% extends 'base.html' %}
+{% block content %}<h1>Activar cuenta empresarial demo</h1>
+<form method="post" id="company-activation"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="token"><input type="hidden" name="challenge"><input type="hidden" name="username"><label>Tu contrasena personal <input name="password" type="password" minlength="8" maxlength="256" required autocomplete="new-password"></label><button>Activar</button></form>
+<script>
+const parts=location.hash.slice(1).split(':');history.replaceState(null,'',location.pathname);const form=document.getElementById('company-activation');['token','challenge','username'].forEach((name,i)=>form.elements[name].value=parts[i]||'');
+</script>
+{% endblock %}

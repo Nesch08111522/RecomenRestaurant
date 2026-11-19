@@ -10,11 +10,16 @@
     message.textContent = 'Tu navegador permite preparar el borrador escribiendo la instrucción.';
   }
   microphone.addEventListener('click', () => {
+    if (!Speech || microphone.disabled) return;
+    microphone.disabled = true;
     const speech = new Speech();
+    speech.onend = () => { microphone.disabled = false; window.smartrestoVoice?.release('market'); };
     speech.lang = 'es-PE';
     speech.onresult = e => { input.value = e.results[0][0].transcript; message.textContent = 'Revisa el dictado antes de usarlo.'; };
     speech.onerror = () => { message.textContent = 'No se recibió el audio. Puedes escribir la instrucción.'; };
-    speech.start();
+    const begin = () => { try { speech.start(); } catch (_) { microphone.disabled = false; window.smartrestoVoice?.release('market'); } };
+    if (window.smartrestoVoice) window.smartrestoVoice.acquire('market', begin);
+    else begin();
   });
   const numbers = ['cero','uno','dos','tres','cuatro','cinco','seis','siete','ocho','nueve','diez','once','doce','trece','catorce','quince','dieciseis','diecisiete','dieciocho','diecinueve','veinte'];
   document.getElementById('parse-voice').addEventListener('click', () => {

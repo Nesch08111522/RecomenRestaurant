@@ -30,6 +30,8 @@ def snapshot():
 
 class TimedCursor(psycopg.Cursor):
     def execute(self, query, params=None, **kwargs):
+        from database.connection import isolated_query
+        query = isolated_query(query, self.connection)
         # The digest distinguishes query shapes without logging their contents.
         fingerprint = sha256(str(query).encode()).hexdigest()[:12]
         start = perf_counter()

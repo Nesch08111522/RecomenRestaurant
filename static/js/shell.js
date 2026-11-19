@@ -79,6 +79,7 @@
                     if (!response.ok) return;
                     const counts = await response.json();
                     counters.querySelectorAll('[data-count]').forEach(node => {
+                        if (node.dataset.count === 'notificaciones' && window.srNotificationFeed) return;
                         const count = counts[node.dataset.count] || 0;
                         node.textContent = String(count);
                         node.hidden = count === 0;
@@ -90,6 +91,33 @@
             document.addEventListener('visibilitychange', refresh);
             window.addEventListener('pagehide', () => clearInterval(timer), {once:true});
         }
+
+        const account = document.querySelector('[data-account-toggle]');
+        const options = document.getElementById('private-account-menu');
+        function accountOpen(value, restore = false) {
+            if (!options || !account) return;
+            options.hidden = !value;
+            account.setAttribute('aria-expanded', String(value));
+            if (value) options.querySelector('a')?.focus();
+            else if (restore) account.focus();
+        }
+        account?.addEventListener('click', () => accountOpen(options.hidden));
+        document.addEventListener('click', event => {
+            if (!event.target.closest('.private-account')) accountOpen(false);
+        });
+        document.addEventListener('keydown', event => {
+            if (event.key === 'Escape' && options && !options.hidden) {
+                event.preventDefault(); event.stopImmediatePropagation(); accountOpen(false, true);
+            }
+        }, true);
+        options?.addEventListener('focusout', () => queueMicrotask(() => {
+            if (!document.activeElement?.closest('.private-account')) accountOpen(false);
+        }));
+        document.querySelector('.sr-menu-button')?.addEventListener('click', () => accountOpen(false), true);
+        window.addEventListener('pagehide', () => accountOpen(false));
+
+        // Private navigation owns its drawer lifecycle and compact rail.
+        if (document.body.classList.contains('sr-private')) return;
 
         // ===== MENÚ / DRAWER =====
         const menu = document.getElementById('sr-navigation');

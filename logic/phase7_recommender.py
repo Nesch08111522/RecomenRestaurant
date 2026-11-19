@@ -866,6 +866,12 @@ def recommend(*, restaurants=(), dishes=(), categories=(), offers=(), profile=No
             score += search_score
             reasons.append(SEARCH_HISTORY_REASON)
         score_history(card, topics, terms, search_score, support)
+        if not orders and not interests and (declared or topics.keys() & preferred_topics):
+            history_evidence[card["key"]] = {
+                "score": min(19, 13 + 3 * len(declared)),
+                "reasons": ["Coincide con tus preferencias gastronómicas"],
+                "personalization_basis": "declared_preferences",
+            }
         topic_strength = sum(interactions[topic] for topic in topics)
         term_strength = sum(sorted((term_interactions[term] for term in terms), reverse=True)[:2])
         signal = max(-5, min(9, topic_strength * 0.7 + term_strength * 0.45))

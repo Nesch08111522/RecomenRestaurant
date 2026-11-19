@@ -1,0 +1,95 @@
+{
+  "verified": true,
+  "run": "c340bdf8f9d94347827d8d22f743bd55",
+  "companies": [
+    {
+      "id": 1,
+      "name": "Empresa de empresario",
+      "plan": "premium",
+      "user_id": 2
+    },
+    {
+      "id": 2,
+      "name": "Empresa de empresario",
+      "plan": "premium",
+      "user_id": 3
+    },
+    {
+      "id": 3,
+      "name": "Empresa de Enrique12",
+      "plan": "premium",
+      "user_id": 5
+    },
+    {
+      "id": 4,
+      "name": "Empresa de RicaPizza",
+      "plan": "premium",
+      "user_id": 6
+    },
+    {
+      "id": 5,
+      "name": "Empresa de Mathias",
+      "plan": "premium",
+      "user_id": 7
+    },
+    {
+      "id": 6,
+      "name": "Empresa de Pollos",
+      "plan": "premium",
+      "user_id": 8
+    },
+    {
+      "id": 7,
+      "name": "Sakura Nori",
+      "plan": "basic",
+      "user_id": 250
+    },
+    {
+      "id": 8,
+      "name": "Drag\u00f3n de Jade",
+      "plan": "decente",
+      "user_id": 252
+    },
+    {
+      "id": 9,
+      "name": "Trattoria Bellavista",
+      "plan": "premium",
+      "user_id": 254
+    }
+  ],
+  "preserved_restaurant_ids": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    23,
+    25,
+    26,
+    27,
+    28,
+    29
+  ],
+  "demo_restaurant_ids": [
+    251,
+    253,
+    255
+  ],
+  "activation_pending": true,
+  "emails_sent": 0
+}

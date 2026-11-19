@@ -55,9 +55,10 @@ def available(offer, pantry, day):
     portions = offer["stock"]
     for name, amount in offer.get("recipe", {}).items():
         ingredient = pantry.get(name)
-        if not ingredient or ingredient["expires"] < day:
+        from logic.inventory_lots import quantity
+        if not ingredient:
             return 0
-        portions = min(portions, ingredient["quantity"] // amount)
+        portions = min(portions, quantity(ingredient, day) // amount)
     return portions
 
 
@@ -79,6 +80,9 @@ def quote(price, variable_cost, fixed):
 def recipe_cost(recipe, pantry):
     if not recipe or any(name not in pantry for name in recipe):
         return None
+    if any('lots' in pantry[name] for name in recipe):
+        from logic.inventory_lots import cost
+        return cost(recipe, pantry)
     cost = sum(Decimal(qty * pantry[name]["cost"]) / pantry[name]["basis"] for name, qty in recipe.items())
     return int(cost.quantize(Decimal(1), rounding=ROUND_HALF_UP))
 

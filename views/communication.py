@@ -110,8 +110,13 @@ def start():
 @bp.get("/mensajes/<int:tid>")
 def thread(tid):
     thread = fetch_thread(tid)
+    user = identity()
+    threads = records("threads", participants=[user["id"]])
+    if user["role"] == "admin":
+        threads += records("threads", support=True)
+    threads = sorted({t["id"]: t for t in threads}.values(), key=lambda t: t["updated"], reverse=True)
     return render_template("communication/thread.html", thread=thread, messages=records("thread_messages",tid=tid),
-                           uid=identity()["id"], pending=pending)
+                            threads=threads, uid=user["id"], pending=pending)
 
 
 @bp.post("/mensajes/<int:tid>/responder")
@@ -249,7 +254,11 @@ def update_case(cid):
 @bp.get("/notificaciones")
 def notifications():
     uid = identity()["id"]
-    return render_template("communication/notifications.html", rows=NotificationModel.get_by_user(uid, limit=100))
+    archived = request.args.get('archivo') == '1'
+    before = integer(request.args['antes'], 1) if request.args.get('antes') else None
+    rows = NotificationModel.get_by_user(uid, limit=100, archived=archived, before=before)
+    return render_template("communication/notifications.html", rows=rows, archived=archived,
+                           next_before=rows[-1]['id'] if len(rows) == 100 else None)
 
 
 @bp.post("/notificaciones/leer")
@@ -262,3 +271,25 @@ def read_notifications():
     else:
         NotificationModel.mark_all_as_read(uid)
     return redirect(url_for("comunicacion.notifications"))
+
+
+@bp.post('/notificaciones/<int:nid>/<action>')
+def notification_action(nid, action):
+    if action not in {'archive', 'restore', 'delete'}:
+        abort(404)
+    if not NotificationModel.change_state(identity()['id'], nid, action):
+        abort(404)
+    return redirect(url_for('comunicacion.notifications', archivo=request.form.get('archivo', '0')))
+
+
+@bp.get('/notificaciones/feed')
+def notification_feed():
+    # Transaction pooling cannot support LISTEN safely. This is explicitly periodic
+    # reconciliation, not strict real-time SSE; no connection is held between reads.
+    uid = identity()['id']
+    with document_transaction():
+        rows = NotificationModel.get_by_user(uid, limit=100)
+        count = NotificationModel.get_unread_count(uid)
+    response = jsonify(notifications=rows, unread_count=count)
+    response.headers['Cache-Control'] = 'private, no-store'
+    return response

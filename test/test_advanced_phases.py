@@ -106,17 +106,17 @@ def test_scoped_intelligence_and_privileged_pages(setup):
 
 def test_copilot_confirmation_actor_scope_and_replay(setup):
     _,_,clients,shop,other=setup;owner=clients['business_owner']
-    assert clients['user'].post('/api/copilot/actions',json={'action':'restaurant_promo','rid':shop['id'],'text':'Cena especial'}).status_code==403
-    assert owner.post('/api/copilot/actions',json={'action':'restaurant_promo','rid':other['id'],'text':'Cena especial'}).status_code==404
-    response=owner.post('/api/copilot/actions',json={'action':'restaurant_promo','rid':shop['id'],'text':'Cena especial'})
+    assert clients['user'].post('/api/copilot/actions',json={'mode':'full','action':'restaurant_promo','rid':shop['id'],'text':'Cena especial'}).status_code==403
+    assert owner.post('/api/copilot/actions',json={'mode':'full','action':'restaurant_promo','rid':other['id'],'text':'Cena especial'}).status_code==404
+    response=owner.post('/api/copilot/actions',json={'mode':'full','action':'restaurant_promo','rid':shop['id'],'text':'Cena especial'})
     assert response.status_code==200
     proposal=response.json;url='/api/copilot/actions/'+str(proposal['id'])+'/confirm'
     assert RestaurantModel.get_by_id(shop['id']).get('promo') is None
-    assert owner.post(url,json={'token':proposal['token'],'confirm':False}).status_code==400
-    assert clients['admin'].post(url,json={'token':proposal['token'],'confirm':True}).status_code==404
-    assert owner.post(url,json={'token':proposal['token'],'confirm':True}).status_code==200
+    assert owner.post(url,json={'mode':'full','token':proposal['token'],'confirm':False}).status_code==400
+    assert clients['admin'].post(url,json={'mode':'full','token':proposal['token'],'confirm':True}).status_code==404
+    assert owner.post(url,json={'mode':'full','token':proposal['token'],'confirm':True}).status_code==200
     assert RestaurantModel.get_by_id(shop['id'])['promo']=='Cena especial'
-    assert owner.post(url,json={'token':proposal['token'],'confirm':True}).status_code==409
+    assert owner.post(url,json={'mode':'full','token':proposal['token'],'confirm':True}).status_code==409
 
 
 def test_new_routes_keep_csrf():
@@ -180,10 +180,10 @@ def test_security_delivery_uses_fixed_provider_and_no_redirects(monkeypatch):
 
 def test_copilot_rechecks_promotion_before_confirming(setup):
     _,_,clients,shop,_=setup;owner=clients['business_owner']
-    response=owner.post('/api/copilot/actions',json={'action':'restaurant_promo','rid':shop['id'],'text':'Cena especial'})
+    response=owner.post('/api/copilot/actions',json={'mode':'full','action':'restaurant_promo','rid':shop['id'],'text':'Cena especial'})
     proposal=response.json
     RestaurantModel.update(shop['id'],{'promo':'Almuerzo familiar'})
-    response=owner.post('/api/copilot/actions/'+str(proposal['id'])+'/confirm',json={'confirm':True,'token':proposal['token']})
+    response=owner.post('/api/copilot/actions/'+str(proposal['id'])+'/confirm',json={'mode':'full','confirm':True,'token':proposal['token']})
     assert response.status_code==409
     assert RestaurantModel.get_by_id(shop['id'])['promo']=='Almuerzo familiar'
 

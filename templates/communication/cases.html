@@ -4,6 +4,7 @@
 <label>Fecha de registro<input type="date" name="fecha" value="{{ request.args.get('fecha','') }}"></label>
 <label>Número de usuario<input type="number" name="usuario" value="{{ request.args.get('usuario','') }}"></label>
 <label>Número de negocio<input type="number" name="negocio" value="{{ request.args.get('negocio','') }}"></label><button>Filtrar</button></form>
-{% for c in cases %}<article class="market-panel"><h2><a href="{{ url_for('comunicacion.case_detail',cid=c.id) }}">{{ code(c) }} · {{ c.category or 'Pedido' }}</a></h2>
-<p>{{ state(c) }} · Prioridad {{ c.priority or 'Normal' }} · Negocio #{{ c.rid }} · Pedido #{{ c.oid }}</p></article>{% else %}<p>No hay reclamos para estos filtros.</p>{% endfor %}
+<div class="comm-split" data-mailbox><aside class="comm-list" aria-label="Lista de reclamos"><label>Buscar en estos reclamos<input type="search" data-mail-search></label><p role="status" data-mail-status></p>
+{% for c in cases %}<button type="button" class="comm-row" data-mail-item="case-{{ c.id }}" aria-controls="case-{{ c.id }}" aria-expanded="false"><span><strong>{{ code(c) }} · {{ c.category or 'Pedido' }}</strong><small>{{ state(c) }} · {{ c.priority or 'Normal' }} · Negocio #{{ c.rid }} · Pedido #{{ c.oid }}</small></span></button>{% else %}<p>No hay reclamos para estos filtros.</p>{% endfor %}</aside>
+<section class="comm-detail" aria-label="Detalle de reclamo">{% for c in cases %}<article id="case-{{ c.id }}" data-mail-detail {% if not loop.first %}hidden{% endif %}><h2>{{ code(c) }} · {{ c.category or 'Pedido' }}</h2><p>{{ c.reason }}</p><p>{{ state(c) }} · Prioridad {{ c.priority or 'Normal' }}</p><p>Negocio #{{ c.rid }} · Pedido #{{ c.oid }}</p><a href="{{ url_for('comunicacion.case_detail',cid=c.id) }}">Abrir historial y gestión del reclamo</a></article>{% endfor %}</section></div>
 {% endblock %}

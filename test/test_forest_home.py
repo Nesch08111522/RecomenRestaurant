@@ -39,6 +39,30 @@ def visual_origin():
     server.shutdown()
     CategoryModel.all = original
 
+@pytest.mark.parametrize('consent,available', [(False,False),(True,False),(True,True)])
+def test_save_location_weather_requires_consent(monkeypatch, consent, available):
+    from flask import Flask
+    from views.main import main_bp
+    from utils import weather
+    app = Flask(__name__)
+    app.secret_key = 'isolated-location-test'
+    app.register_blueprint(main_bp)
+    calls = []
+    forecast = {'apparent_temperature': 25, 'source': 'Open-Meteo'} if available else None
+    def conditions(lat, lng):
+        calls.append((lat, lng))
+        return forecast
+    monkeypatch.setattr(weather, 'conditions', conditions)
+    client = app.test_client()
+    response = client.post('/api/save-location', json={'lat': -8.11, 'lng': -79.03, 'context_consent': consent})
+    assert response.status_code == 200
+    assert response.json['weather'] == (forecast if consent else None)
+    assert calls == ([(-8.11, -79.03)] if consent else [])
+    with client.session_transaction() as saved:
+        assert saved['user_lat'] == -8.11
+        assert bool(saved.get('food_context', {}).get('weather')) == consent
+
+
 @pytest.fixture(scope='module')
 def browser():
     from playwright.sync_api import sync_playwright
@@ -55,6 +79,7 @@ def page(browser, visual_origin):
     p.route('**/*', lambda route: route.continue_() if route.request.url.startswith(visual_origin) else route.abort())
     p.route('**/auth/api/favorites', lambda route: route.fulfill(status=200, json={'favorites': []}))
     p.route('**/api/search', lambda route: route.fulfill(json={'results': RESTAURANTS[:1]}))
+    p.route('**/api/save-location', lambda route: route.fulfill(json={'success': True, 'weather': None}))
     p.goto(visual_origin + '/__forest_test')
     p.wait_for_load_state('networkidle')
     yield p
@@ -84,6 +109,68 @@ def test_map_switch_preserves_current_results_and_query(page):
     assert page.locator('#resultsGrid .restaurant-card').count() == 1
     page.get_by_role('button', name='Cerrar mapa', exact=True).click()
     assert not page.locator('.map-column').is_visible()
+
+
+@pytest.mark.parametrize('width,height', [(320,568),(375,667),(390,844),(640,360),(768,900),(1440,900)])
+def test_map_dialog_and_controls_fit_viewport(page, width, height):
+    page.set_viewport_size({'width': width, 'height': height})
+    page.locator('#forest-map').click()
+    box = page.locator('.sr-map-dialog').bounding_box()
+    assert box['x'] >= 0 and box['y'] >= 0
+    assert box['x'] + box['width'] <= width
+    assert box['y'] + box['height'] <= height
+    assert abs(box['x'] + box['width']/2 - width/2) <= 1
+    assert abs(box['y'] + box['height']/2 - height/2) <= 1
+    location = page.locator('#locationBtn').bounding_box()
+    controls = page.locator('.map-controls').bounding_box()
+    assert location['y'] + location['height'] <= controls['y'] + 1 or location['x'] + location['width'] <= controls['x'] + 1
+    assert page.locator('.sr-map-dialog').evaluate('(el) => el.scrollWidth <= el.clientWidth')
+
+
+def test_location_requests_browser_without_closing_map(page):
+    page.evaluate('''() => { navigator.geolocation.getCurrentPosition = success => {
+      window.locationCalls = (window.locationCalls || 0) + 1;
+      success({coords:{latitude:-8.11,longitude:-79.03}});
+    }; }''')
+    page.locator('#forest-map').click()
+    page.locator('#locationBtn').click()
+    page.wait_for_function('document.querySelector("#geo-status").textContent.includes("No hay datos")')
+    assert page.evaluate('window.locationCalls') == 1
+    assert page.locator('.sr-map-dialog').evaluate('(el) => el.open')
+    assert page.locator('#location-consent input[required]').count() == 0
+
+
+def test_location_denial_is_reported_in_open_map(page):
+    page.evaluate('() => { navigator.geolocation.getCurrentPosition = (success, failure) => failure({code:1}); }')
+    page.locator('#forest-map').click()
+    page.locator('#locationBtn').click()
+    assert 'denegó' in page.locator('#geo-status').inner_text()
+    assert page.locator('.sr-map-dialog').evaluate('(el) => el.open')
+    assert page.locator('#locationBtn').is_enabled()
+
+
+@pytest.mark.parametrize('name', ['chef-reference', 'creole-inspiration', 'food-inspiration',
+                                 'marine-inspiration', 'shop-reference'])
+def test_forest_webp_http_type_and_body(visual_origin, name):
+    from urllib.request import urlopen
+    with urlopen(f'{visual_origin}/static/images/forest/{name}.webp') as response:
+        assert response.status == 200
+        assert response.headers.get_content_type() == 'image/webp'
+        assert response.headers.get('X-Content-Type-Options') == 'nosniff'
+        body = response.read()
+    assert body == (ROOT / 'static' / 'images' / 'forest' / f'{name}.webp').read_bytes()
+    assert body[:4] == b'RIFF' and body[8:12] == b'WEBP'
+
+
+def test_inspiration_images_load_and_are_not_covered(page):
+    for image in page.locator('.forest-promo img,.forest-chef,.forest-business img').all():
+        image.scroll_into_view_if_needed()
+        image.evaluate('(el) => el.decode()')
+        assert image.evaluate('(el) => el.complete && el.naturalWidth > 0')
+        assert image.evaluate('''el => {
+          const b = el.getBoundingClientRect();
+          return document.elementFromPoint(b.right - 10, b.top + b.height/2) === el;
+        }''')
 
 
 def test_inline_recommendation_transfers_text_and_escape_restores_focus(page):

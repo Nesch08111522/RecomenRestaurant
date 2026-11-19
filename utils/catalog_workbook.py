@@ -1,6 +1,7 @@
 """Safe XLSX catalogue workbook builder and preview validator.
 
-The module deliberately has no database, network, AI, or environment dependencies.
+Generation has no database, network, AI, or environment dependencies.
+Spanish category-name parsing performs a lazy, read-only registered-category lookup.
 """
 from __future__ import annotations
 
@@ -14,7 +15,7 @@ from unicodedata import normalize as unicode_normalize
 from zipfile import BadZipFile, ZipFile
 
 from openpyxl import Workbook, load_workbook
-from openpyxl.formatting.rule import FormulaRule
+from openpyxl.comments import Comment
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.datavalidation import DataValidation
@@ -27,6 +28,7 @@ MAX_ZIP_MEMBERS = 1000
 MAX_TOTAL_ROWS = 1500
 
 SHEETS: dict[str, tuple[str, ...]] = {
+    "Restaurantes": ("ref", "name", "category_id", "district", "service_mode", "avg_price", "address", "phone", "description", "open_time", "close_time"),
     "Negocios": ("ref", "name", "description", "business_type"),
     "Sucursales": ("ref", "business_ref", "name", "address", "district", "lat", "lng", "open_time", "close_time"),
     "Categorias": ("ref", "branch_ref", "name", "parent_ref", "product_type"),
@@ -89,6 +91,7 @@ def _key(value: Any) -> str:
     return re.sub(r"[^a-z0-9]+", "", text.lower())
 
 
+_ALIASES.update({key: {key} for key in ("category_id", "service_mode", "avg_price", "phone")})
 _ALIAS_INDEX: dict[str, str] = {}
 for _canonical, _values in _ALIASES.items():
     for _value in {_canonical, *_values}:
@@ -263,6 +266,114 @@ def _safe_zip(raw: bytes) -> tuple[ZipFile | None, list[str]]:
     return archive, []
 
 
+ES_HEADERS = dict(zip(
+    ('ref name category_id district service_mode avg_price address phone description open_time close_time '
+     'business_type business_ref branch_ref lat lng parent_ref product_type category_ref product_ref '
+     'ingredient_ref portion ingredients allergens ingredients_confirmed allergens_confirmed availability '
+     'menu_type menu_date image video quantity unit price cost basis expires lot floor zone capacity').split(),
+    ('Código|Nombre|Categoría registrada|Distrito|Modalidad de servicio|Precio medio|Dirección|Teléfono|Descripción|Hora apertura|Hora cierre|'
+     'Tipo de negocio|Código negocio|Código sucursal|Latitud|Longitud|Código categoría padre|Tipo de producto|Código categoría|Código producto|'
+     'Código ingrediente|Porción|Ingredientes|Alérgenos|Ingredientes confirmados|Alérgenos confirmados|Disponibilidad|'
+     'Tipo menú|Fecha menú|Imagen|Vídeo|Cantidad|Unidad|Precio|Costo|Base de costo|Vencimiento|Lote|Piso|Zona|Capacidad').split('|')))
+ES_VALUES = {
+    'availability': {'disponible': 'available', 'agotado': 'sold_out', 'pausado': 'paused'},
+    'service_mode': {'solo salón': 'dine_in_only', 'salón y reparto': 'dine_in_and_delivery',
+                     'solo reparto': 'delivery_only', 'solo recojo': 'pickup_only'},
+}
+
+
+def build_catalog_workbook_es() -> BytesIO:
+    """Spanish presentation; canonical legacy fields remain unchanged on import."""
+    workbook = load_workbook(build_catalog_workbook())
+    for name, headers in SHEETS.items():
+        sheet = workbook[name]
+        sheet.freeze_panes = 'C2'
+        sheet.row_dimensions[1].height = 48
+        sheet.data_validations.dataValidation = []
+        required = _REQUIRED[name] | ({'price', 'ingredients_confirmed', 'allergens_confirmed'} if name == 'Platos' else set())
+        required |= {'expires', 'cost'} if name == 'Inventario' else set()
+        for col, field in enumerate(headers, 1):
+            cell = sheet.cell(1, col)
+            cell.value = ES_HEADERS[field]
+            cell.fill = PatternFill('solid', fgColor='9B4424' if field in required else '17324D')
+            explanation = 'Obligatorio al completar esta fila.' if field in required else 'Opcional.'
+            if field.endswith('_ref') or field == 'ref':
+                explanation += ' Código de enlace del archivo, no ID de base de datos. Respeta mayúsculas. Consulta README.'
+            if field == 'category_id':
+                explanation += ' Nombre exacto de una categoría registrada; el servidor resuelve su ID. No crea categorías.'
+            if field in {'price', 'cost', 'avg_price'}:
+                explanation += ' Soles, importe no negativo, hasta dos decimales; sin símbolo ni fórmulas.'
+            if field in {'ingredients', 'allergens'}:
+                explanation += ' Lista separada por punto y coma. Vacío en alérgenos significa ninguno declarado solo si confirmado.'
+            if field in {'ingredients_confirmed', 'allergens_confirmed'}:
+                explanation += ' sí/no; publicación requiere sí. Ejemplos ficticios, no certificación sanitaria.'
+            if field in {'menu_date', 'expires'}:
+                explanation += ' AAAA-MM-DD; vencimiento vigente; fecha menú obligatoria para menú variable.'
+            cell.comment = Comment(explanation, 'SmartResto')
+            sheet.column_dimensions[get_column_letter(col)].width = max(22, min(38, len(cell.value) + 5))
+            sheet.column_dimensions[get_column_letter(col)].hidden = False
+            choices = {'product_type': 'plato,bebida,postre', 'availability': 'disponible,agotado,pausado',
+                       'service_mode': 'solo salón,salón y reparto,solo reparto,solo recojo',
+                       'menu_type': 'carta,variable', 'unit': 'g,kg,ml,l,unidad',
+                       'ingredients_confirmed': 'sí,no', 'allergens_confirmed': 'sí,no'}
+            validation = None
+            if field in choices:
+                validation = DataValidation(type='list', formula1='"' + choices[field] + '"', allow_blank=field not in required)
+            elif field in {'price', 'cost', 'avg_price', 'quantity', 'basis'}:
+                validation = DataValidation(type='decimal', operator='greaterThanOrEqual', formula1='0', allow_blank=field not in required)
+            elif field == 'capacity':
+                validation = DataValidation(type='whole', operator='between', formula1='1', formula2='100', allow_blank=False)
+            elif field in required:
+                validation = DataValidation(type='textLength', operator='greaterThan', formula1='0', allow_blank=False)
+            if validation:
+                validation.showErrorMessage = True
+                validation.showInputMessage = True
+                validation.showDropDown = False
+                validation.errorStyle = 'stop'
+                validation.errorTitle = 'Dato no válido'
+                validation.error = 'Consulta el comentario del encabezado y README.'
+                validation.promptTitle = cell.value[:32]
+                validation.prompt = explanation[:255]
+                sheet.add_data_validation(validation)
+                letter = get_column_letter(col)
+                validation.add(f'{letter}2:{letter}1501')
+    instructions = workbook['Instrucciones']
+    instructions.title = 'README'
+    instructions['B3'] = 'Encabezados en castellano. No cambiar nombres ni duplicar columnas. El formato inglés anterior sigue admitido.'
+    instructions['B6'] = 'Usa sí/no en las columnas de confirmación; para publicar se requiere sí.'
+    instructions['B15'] = 'Categoría registrada: nombre exacto existente, no un ID. Distrito: nombre registrado. Modalidad: elige la lista.'
+    instructions.append(['Ficticio', 'Todos los ejemplos son DATOS FICTICIOS para pruebas offline. No confirmar ni insertar en producción.'])
+    instructions.append(['Leyenda', 'Encabezado naranja: obligatorio si completas la fila. Azul: opcional. Todas las columnas son visibles. Comentarios explican formato.'])
+    instructions.append(['Relaciones', 'Negocios.Código → Sucursales.Código negocio; Sucursales.Código → Código sucursal; Categorias.Código → Código categoría/padre; Platos.Código → Código producto; Ingredientes.Código → Código ingrediente.'])
+    instructions.append(['Restaurantes', 'Hoja independiente: su código NO enlaza sucursales. Sucursales crea sus propios locales. actual solo se usa con un restaurante propio seleccionado.'])
+    instructions.append(['Precios', 'Precios reemplaza el precio base por Código producto; si hay varias filas, gana la última (compatibilidad existente). Evita duplicarlas.'])
+    instructions.append(['Validación', 'Dropdowns orientan, no sustituyen al servidor. El preview verifica relaciones, publicación y moderación sin insertar. Los datos rechazados no se confirman.'])
+    for name in SHEETS:
+        for col, field in enumerate(SHEETS[name], 1):
+            instructions.append([name + '.' + ES_HEADERS[field], workbook[name].cell(1, col).comment.text])
+    samples = workbook['Ejemplos']
+    for row in samples.iter_rows(min_row=2):
+        if row[0].value in SHEETS:
+            row[1].value = ' | '.join(ES_HEADERS[f] for f in SHEETS[row[0].value])
+    samples['C2'] = 'R-DEMO,Restaurante ficticio,Marina,Trujillo,solo salón,25'
+    for sheet in workbook:
+        sheet.sheet_state = 'visible'
+        for row in sheet:
+            for cell in row:
+                cell.alignment = Alignment(wrap_text=True, vertical='top')
+                cell.font = Font(name='Arial', size=11, bold=cell.row == 1)
+        if sheet.title in {'README', 'Ejemplos'}:
+            for col in range(1, sheet.max_column + 1):
+                sheet.column_dimensions[get_column_letter(col)].width = 38 if col == 1 else 85
+            for row in range(2, sheet.max_row + 1):
+                sheet.row_dimensions[row].height = 48
+    output = BytesIO()
+    workbook.save(output)
+    workbook.close()
+    output.seek(0)
+    return output
+
+
 def build_catalog_workbook() -> BytesIO:
     """Build a blank, import-safe catalogue template in memory."""
     workbook = Workbook()
@@ -296,10 +407,8 @@ def build_catalog_workbook() -> BytesIO:
             cell = sheet.cell(2, col)
             cell.fill = PatternFill("solid", fgColor="F7FAFB")
             cell.border = border
-        sheet.conditional_formatting.add(
-            f"A2:{get_column_letter(len(headers))}1048576",
-            FormulaRule(formula=["MOD(ROW(),2)=0"], fill=PatternFill("solid", fgColor="F7FAFB")),
-        )
+        for cell in sheet[1]:
+            cell.comment = Comment("Obligatorio" if cell.value in _REQUIRED[sheet_name] else "Opcional", "SmartResto")
 
     instructions = workbook.create_sheet("Instrucciones")
     instructions.sheet_view.showGridLines = False
@@ -364,6 +473,33 @@ def build_catalog_workbook() -> BytesIO:
             sheet.add_data_validation(validation)
             validation.add(f"{col}2:{col}1501")
 
+    instructions.append(["Limites", "5 MB comprimidos, 50 MB internos, 1500 filas totales; solo altas, sin eliminar ni modificar registros existentes."])
+    instructions.append(["Contexto", "Marca comercial se representa por Negocios. No se importan usuarios, pedidos, pagos ni produccion. actual requiere un restaurante propio seleccionado."])
+    instructions.append(["Restaurantes", "category_id debe existir; district debe estar registrado; service_mode: dine_in_only, dine_in_and_delivery, delivery_only, pickup_only. Nuevos locales quedan pendientes de moderacion."])
+    instructions.append(["Confirmacion", "Preview sin escrituras. Confirmacion caduca a los 15 minutos y se invalida si cambia el contexto. Toda la carga usa una transaccion."])
+    for name, required in _REQUIRED.items():
+        instructions.append([name, "Obligatorios: " + ", ".join(sorted(required)) + ". En Platos: precio, ingredientes y alergenos confirmados. Inventario: expires vigente, cost y basis."])
+    examples = workbook.create_sheet("Ejemplos")
+    examples.append(["Hoja (NO IMPORTAR)", "Campos", "Valores ilustrativos; copiar a hoja real y adaptar referencias"])
+    examples.append(["Restaurantes", "ref,name,category_id,district,service_mode,avg_price", "r1,Restaurante La Cocina,1,Trujillo,dine_in_only,25"])
+    examples.append(["Negocios", "ref,name,description,business_type", "marca1,Sabores del Norte,Cocina criolla,restaurante"])
+    examples.append(["Sucursales", "ref,business_ref,name", "local1,marca1,Restaurante Centro"])
+    examples.append(["Platos", "ref,branch_ref,name,product_type,price,ingredients,allergens,ingredients_confirmed,allergens_confirmed", "p1,actual,Arroz con pollo,plato,22,arroz;pollo,,yes,yes"])
+    sample_values = {
+        'Categorias': 'cat1,actual,Fondos,,plato',
+        'Ingredientes': 'i1,actual,Arroz,',
+        'Recetas': 'p1,i1,100,g',
+        'Variantes': 'p1,Grande,Doble,30',
+        'Precios': 'p1,22',
+        'Inventario': 'actual,i1,5,kg,20,1,2027-12-31,lote1',
+        'Mesas': 'm1,actual,1,Salon,Mesa 1,4',
+    }
+    for name, values in sample_values.items():
+        examples.append([name, ','.join(SHEETS[name]), values])
+    for sheet in workbook:
+        for row in sheet:
+            for cell in row:
+                cell.font = Font(name="Arial", size=11, bold=cell.row == 1, color=white if cell.row == 1 else navy)
     output = BytesIO()
     workbook.save(output)
     output.seek(0)
@@ -371,6 +507,7 @@ def build_catalog_workbook() -> BytesIO:
 
 
 _REQUIRED: dict[str, set[str]] = {
+    "Restaurantes": {"ref", "name", "category_id", "district", "service_mode"},
     "Negocios": {"ref", "name"},
     "Sucursales": {"ref", "business_ref", "name"},
     "Categorias": {"ref", "branch_ref", "name"},
@@ -404,7 +541,9 @@ def _normalize_headers(sheet: str, header_values: list[Any], errors: list[dict[s
     for index, value in enumerate(header_values, 1):
         if _blank(value):
             continue
-        normalized = _ALIAS_INDEX.get(_key(value))
+        normalized = next((field for field in allowed if _key(ES_HEADERS[field]) == _key(value)), None)
+        if normalized is None:
+            normalized = _ALIAS_INDEX.get(_key(value))
         if normalized not in allowed:
             errors.append(_message(sheet, 1, str(value), "columna desconocida; no se descartará silenciosamente"))
             continue
@@ -421,7 +560,7 @@ def _canonical_sheet_name(value: str) -> str | None:
     for sheet in SHEETS:
         if _key(sheet) == target:
             return sheet
-    if _key(value) == _key("instrucciones"):
+    if _key(value) in {_key("Instrucciones"), _key("Ejemplos"), _key("README")}:
         return "Instrucciones"
     return None
 
@@ -430,12 +569,29 @@ def _parse_row(sheet: str, row_number: int, raw_data: dict[str, Any], errors: li
     data: dict[str, Any] = {}
     for field in SHEETS[sheet]:
         value = raw_data.get(field)
+        if field in ES_VALUES and isinstance(value, str):
+            value = next((canonical for label, canonical in ES_VALUES[field].items()
+                          if _key(label) == _key(value)), value)
         if field in {"branch_ref", "business_ref"} and _blank(value):
             data[field] = "actual"
         elif field in _LISTS:
             data[field] = _list_text(value)
         elif field in _MONEY:
             parsed, problem = _money(value)
+            data[field] = parsed
+            if problem:
+                errors.append(_message(sheet, row_number, field, problem))
+        elif field in {'lat', 'lng'}:
+            parsed, problem = None, None
+            if not _blank(value):
+                try:
+                    number = Decimal(str(value))
+                    limit = 90 if field == 'lat' else 180
+                    if not number.is_finite() or not -limit <= number <= limit:
+                        raise ValueError()
+                    parsed = str(number)
+                except (InvalidOperation, ValueError):
+                    problem = 'coordenada fuera de rango'
             data[field] = parsed
             if problem:
                 errors.append(_message(sheet, row_number, field, problem))
@@ -588,7 +744,10 @@ def validate_catalog_workbook(raw: bytes, existing_refs: Mapping[str, Iterable[A
                 errors.append(_message(sheet, 1, "sheet", "hoja duplicada tras normalizar el nombre"))
                 continue
             seen_sheet_names.add(sheet)
-            iterator = worksheet.iter_rows(values_only=True)
+            if worksheet.max_column and worksheet.max_column > 40 or worksheet.max_row and worksheet.max_row > 1502:
+                errors.append(_message(sheet, 0, 'dimension', 'maximo 40 columnas y 1501 filas por hoja'))
+                continue
+            iterator = worksheet.iter_rows(max_col=40, max_row=1502, values_only=True)
             try:
                 header_values = list(next(iterator))
             except StopIteration:
@@ -605,6 +764,17 @@ def validate_catalog_workbook(raw: bytes, existing_refs: Mapping[str, Iterable[A
                     errors.append(_message(sheet, row_number, "rows", "el workbook supera el máximo de 1500 filas de datos"))
                     break
                 raw_data = {field: values[index - 1] if index - 1 < len(values) else None for index, field in mapping.items()}
+                if sheet == 'Restaurantes' and not _blank(raw_data.get('category_id')):
+                    category = str(raw_data['category_id']).strip()
+                    if not re.fullmatch(r'[0-9]+', category):
+                        # Lazy read only for Spanish category names; never create records.
+                        from models.category import CategoryModel
+                        candidates = [item for item in CategoryModel.all()
+                                      if _key(item.get('name')) == _key(category)]
+                        if len(candidates) == 1:
+                            raw_data['category_id'] = str(candidates[0]['id'])
+                        else:
+                            errors.append(_message(sheet, row_number, 'category_id', 'Categoría registrada inexistente o ambigua'))
                 parsed = _parse_row(sheet, row_number, raw_data, errors)
                 rows.append({"sheet": sheet, "row": row_number, "data": parsed})
             if total_rows > MAX_TOTAL_ROWS:

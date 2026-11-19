@@ -57,14 +57,23 @@
   </div>
 {% endmacro %}
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<div class="admin-container">
+<div class="admin-container{% if not is_edit %} restaurant-create{% endif %}">
   <div class="admin-header">
     <h1>{% if is_edit %}<i class="fas fa-edit"></i> Editar restaurante{% else %}<i class="fas fa-plus"></i> Nuevo restaurante{% endif %}</h1>
     <p>{% if is_edit %}Actualiza la información de {{ r.name }}.{% else %}Completa la información del nuevo restaurante.{% endif %}</p>
   </div>
 <section class="ai-import" id="aiImport">
-  <h2>✨ Carga inteligente de restaurante</h2>
+  <h2><i class="fas fa-magic" aria-hidden="true"></i> Carga inteligente de restaurante</h2>
   <p>Sube una foto, Word o Excel. Revisa los datos antes de aplicarlos; nada se guarda automáticamente.</p>
+  <a class="btn-secondary" href="{{ url_for('admin.restaurant_excel_template') }}">Descargar plantilla Excel</a>
+  <form method="POST" action="{{ url_for('admin.restaurant_excel_import') }}" enctype="multipart/form-data" style="grid-column:1 / -1">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    {% if is_edit %}<input type="hidden" name="restaurant_id" value="{{ r.id }}">{% endif %}
+    <label for="bulkExcel">Carga masiva Excel (sin IA, máximo 5 MB y 1500 filas)</label>
+    <input type="file" id="bulkExcel" name="file" accept=".xlsx" required>
+    <button type="submit">Preparar vista previa de carga masiva</button>
+    <p>Solo altas. Marca = Negocios. Sin restaurante seleccionado, usa referencias nuevas para sucursales y sus productos; no uses actual. Los ejemplos no se importan.</p>
+  </form>
   <input type="file" id="aiFile" accept=".jpg,.jpeg,.png,.webp,.docx,.xlsx">
   <button type="button" id="aiAnalyze">Analizar con IA</button>
   <p id="aiStatus" role="status" aria-live="polite"></p>
@@ -93,7 +102,7 @@
     <p class="field-hint">Ficha reclamada #{{ discovery_candidate.id }}. Confirma los datos antes de guardar. Precio, calificación y horarios no fueron inferidos. El negocio conservará sus IDs centrales y pasará por moderación.</p>
   {% endif %}
   <section class="form-section">
-    <h2 class="section-title">Información básica</h2>
+    {% if not is_edit %}<div class="create-section-copy"><h2 class="section-title">Información básica</h2><p>Identificación comercial, categoría gastronómica, modalidad de atención y horarios.</p></div><div class="create-section-panel">{% else %}<h2 class="section-title">Información básica</h2>{% endif %}
     <div class="form-row">
       <div class="form-group">
         <label for="nameInput">Nombre del restaurante <span class="req">*</span></label>
@@ -203,9 +212,10 @@
         </div>
       </div>
     </div>
+    {% if not is_edit %}</div>{% endif %}
   </section>
   <section class="form-section">
-    <h2 class="section-title">Ubicación</h2>
+    {% if not is_edit %}<div class="create-section-copy"><h2 class="section-title">Ubicación</h2><p>Dirección del establecimiento, privacidad de ubicación y coordenadas en el mapa.</p></div><div class="create-section-panel">{% else %}<h2 class="section-title">Ubicación</h2>{% endif %}
     <div class="form-group">
       <div class="label-row">
         <label for="addressInput">Dirección pública (opcional)</label>
@@ -237,9 +247,10 @@
       <input type="hidden" name="lat" id="latInput" value="{{ lat_text }}">
       <input type="hidden" name="lng" id="lngInput" value="{{ lng_text }}">
     </div>
+    {% if not is_edit %}</div>{% endif %}
   </section>
   <section class="form-section">
-    <h2 class="section-title">Contacto y presentación</h2>
+    {% if not is_edit %}<div class="create-section-copy"><h2 class="section-title">Contacto y presentación</h2><p>Teléfono de atención, fotografía de portada y descripción del restaurante.</p></div><div class="create-section-panel">{% else %}<h2 class="section-title">Contacto y presentación</h2>{% endif %}
     <div class="form-row">
       <div class="form-group">
         <label for="phoneInput">Teléfono</label>
@@ -260,9 +271,10 @@
       </div>
       <textarea id="descriptionInput" name="description" class="form-input" rows="3">{{ f_description }}</textarea>
     </div>
+    {% if not is_edit %}</div>{% endif %}
   </section>
   <section class="form-section">
-    <h2 class="section-title">Etiquetas y promoción</h2>
+    {% if not is_edit %}<div class="create-section-copy"><h2 class="section-title">Etiquetas y promoción</h2><p>Palabras clave, características del local, opciones dietéticas y ofertas.</p></div><div class="create-section-panel">{% else %}<h2 class="section-title">Etiquetas y promoción</h2>{% endif %}
     <div class="form-row">
       {{ tag_field('tags', 'Tags', f_tags,
                    ['tradicional', 'mariscos', 'familiar', 'parrillas', 'criollo', 'postres'],
@@ -280,8 +292,10 @@
         <input type="text" id="promoInput" name="promo" class="form-input" value="{{ f_promo }}" placeholder="10% de descuento en almuerzos">
       </div>
     </div>
+    {% if not is_edit %}</div>{% endif %}
   </section>
   <div class="form-actions">
+    {% if not is_edit %}<small class="create-required-note">Los campos marcados con <span class="req">*</span> son obligatorios.</small>{% endif %}
     <a href="{{ url_for('admin.restaurants') }}" class="btn-secondary">Cancelar</a>
     <button type="submit" class="btn-primary" id="submitBtn">{% if is_edit %}Guardar cambios{% else %}Guardar restaurante{% endif %}</button>
   </div>
@@ -469,6 +483,83 @@
     .form-actions > * { width: 100%; text-align: center; }
   }
 </style>
+{% if not is_edit %}
+<style>
+  .admin-container.restaurant-create { width: 100%; max-width: 1024px; padding: 8px 16px 32px; margin-inline: auto; color: var(--theme-text); font-family: Inter, var(--font-main), sans-serif; font-size: 13px; font-variant-numeric: tabular-nums; }
+  .restaurant-create, .restaurant-create *, .restaurant-create *::before, .restaurant-create *::after { box-sizing: border-box; box-shadow: none !important; }
+  .restaurant-create .admin-header { margin-bottom: 24px; }
+  .restaurant-create .admin-header h1 { font-size: 22px; font-weight: 600; letter-spacing: -.02em; margin: 0 0 6px; }
+  .restaurant-create .admin-header h1 i { font-size: 14px; padding: 6px; border: 1px solid var(--theme-border); border-radius: 6px; margin-right: 6px; }
+  .restaurant-create .admin-header p, .restaurant-create .create-section-copy p { margin: 0; color: var(--theme-muted); font-size: 13px; line-height: 1.6; }
+  .restaurant-create .admin-form { display: block; padding: 0; border: 0; border-radius: 0; background: transparent; }
+  .restaurant-create .form-section { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); align-items: start; gap: 32px; padding: 0; margin: 0 0 32px; border: 0; }
+  .restaurant-create .section-title { font-size: 14px; font-weight: 600; margin: 0 0 6px; }
+  .restaurant-create .create-section-panel { min-width: 0; border: 1px solid var(--theme-border); border-radius: 8px; background: var(--theme-surface); }
+  .restaurant-create .create-section-panel > :not(:first-child) { border-top: 1px solid var(--theme-border); }
+  .restaurant-create .create-section-panel > .form-row, .restaurant-create .create-section-panel > .form-group, .restaurant-create .service-mode-fieldset { padding: 20px; margin: 0; }
+  .restaurant-create .form-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  .restaurant-create .form-group { margin: 0; min-width: 0; }
+  .restaurant-create .create-section-panel > .form-row:first-child:has(#nameInput), .restaurant-create .create-section-panel:has(#tags-field) > .form-row { grid-template-columns: 1fr; gap: 20px; }
+  .restaurant-create .form-group label, .restaurant-create .service-mode-fieldset legend { display: block; color: var(--theme-text); font-size: 13px; font-weight: 500; }
+  .restaurant-create .form-input, .restaurant-create .ai-value, .restaurant-create .tag-box { background: var(--theme-elevated, var(--theme-surface)); border: 1px solid var(--theme-border); border-radius: 6px; color: var(--theme-text); font: inherit; }
+  .restaurant-create .form-input { min-height: 36px; padding: 8px 12px; }
+  .restaurant-create .form-input::placeholder { color: var(--theme-muted); }
+  .restaurant-create .form-input:focus, .restaurant-create .tag-box:focus-within { border-color: var(--theme-accent); }
+  .restaurant-create :is(button, a, input, select, textarea):focus-visible { outline: 2px solid var(--theme-accent); outline-offset: 2px; }
+  .restaurant-create .field-hint, .restaurant-create .service-mode-status, .restaurant-create .map-status { color: var(--theme-muted); font-size: 12px; line-height: 1.5; }
+  .restaurant-create .category-dynamic { padding: 12px; border-radius: 6px; background: var(--theme-bg); }
+  .restaurant-create .service-mode-fieldset legend { float: left; width: 100%; margin-bottom: 12px; }
+  .restaurant-create .service-mode-options { clear: both; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .restaurant-create .service-mode-card { flex-direction: row; align-items: flex-start; text-align: left; padding: 12px; border-radius: 6px; gap: 8px; }
+  .restaurant-create .service-mode-card img { display: none; }
+  .restaurant-create .service-mode-card::after { content: ''; flex: 0 0 14px; height: 14px; margin-left: auto; border: 1px solid var(--theme-border); border-radius: 50%; }
+  .restaurant-create .service-mode-radio:checked + .service-mode-card { background: var(--theme-accent-bg); border-color: var(--theme-accent); }
+  .restaurant-create .service-mode-radio:checked + .service-mode-card::after { background: var(--theme-accent); border-color: var(--theme-accent); }
+  .restaurant-create .service-mode-copy strong { font-size: 13px; font-weight: 500; }
+  .restaurant-create .service-mode-copy small { color: var(--theme-muted); font-size: 12px; line-height: 1.5; }
+  .restaurant-create :is(.btn-location, .link-btn, .btn-secondary, .btn-primary, .ai-import button) { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 32px; padding: 6px 12px; border: 1px solid var(--theme-border); border-radius: 6px; background: var(--theme-surface); color: var(--theme-text); font: inherit; font-weight: 500; text-decoration: none; transform: none; }
+  .restaurant-create :is(.btn-location, .link-btn, .btn-secondary, .ai-import button):hover { background: var(--theme-bg); border-color: var(--theme-accent); }
+  .restaurant-create .btn-primary { background: var(--theme-accent); color: var(--theme-bg); border-color: var(--theme-accent); }
+  .restaurant-create .btn-primary:hover:not(:disabled) { background: var(--theme-accent); opacity: .9; transform: none; }
+  .restaurant-create button:disabled { opacity: .55; cursor: not-allowed; }
+  .restaurant-create input[type=checkbox] { accent-color: var(--theme-accent); margin-right: 6px; }
+  .restaurant-create .time-group input { width: 0; min-width: 0; }
+  .restaurant-create #location-map { height: 280px; border-radius: 8px 8px 0 0; }
+  .restaurant-create .leaflet-control, .restaurant-create .leaflet-popup-content-wrapper { border: 1px solid var(--theme-border); border-radius: 6px; }
+  .restaurant-create .leaflet-control a { background: var(--theme-surface); color: var(--theme-text); border-color: var(--theme-border); }
+  .restaurant-create .coord-info { padding: 8px 12px; margin: 0; border: 1px solid var(--theme-border); border-radius: 0 0 8px 8px; background: var(--theme-bg); font-size: 11px; overflow-wrap: anywhere; }
+  .restaurant-create .coord-info .hint { display: block; margin: 4px 0 0; color: var(--theme-muted); }
+  .restaurant-create .search-results { border-radius: 6px; }
+  .restaurant-create .tag-box { min-height: 38px; padding: 6px 10px; }
+  .restaurant-create .tag-field { color: var(--theme-text); font-size: 13px; }
+  .restaurant-create .tag-chip, .restaurant-create .tag-suggestions button { border: 1px solid var(--theme-border); font-size: 12px; border-radius: 999px; }
+  .restaurant-create .tag-chip { background: var(--theme-bg); }
+  .restaurant-create .ai-import { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 16px; padding: 16px; margin: 0 0 32px; border-radius: 8px; background: var(--theme-surface); }
+  .restaurant-create .ai-import h2 { grid-column: 1 / -1; font-size: 14px; font-weight: 500; margin: 0; }
+  .restaurant-create .ai-import > p { grid-column: 1 / -1; color: var(--theme-muted); font-size: 13px; margin: 0; }
+  .restaurant-create .ai-import input[type=file] { margin: 0; padding: 6px; min-width: 0; border: 1px solid var(--theme-border); border-radius: 6px; font: inherit; }
+  .restaurant-create .ai-import input::file-selector-button { padding: 4px 8px; margin-right: 8px; border: 1px solid var(--theme-border); border-radius: 4px; background: var(--theme-bg); color: var(--theme-text); font: inherit; }
+  .restaurant-create .ai-import button { margin: 0; }
+  .restaurant-create #aiReview { grid-column: 1 / -1; border-top: 1px solid var(--theme-border); padding-top: 12px; }
+  .restaurant-create #aiReview h3 { font-size: 14px; }
+  .restaurant-create .ai-review-row { font-size: 12px; }
+  .restaurant-create .image-preview { padding: 16px 20px; margin: 0; }
+  .restaurant-create .form-actions { flex-direction: row; align-items: center; padding-top: 24px; gap: 10px; }
+  .restaurant-create .create-required-note { margin-right: auto; color: var(--theme-muted); font-size: 12px; }
+  @media (max-width: 900px) { .restaurant-create .form-section { grid-template-columns: 1fr; gap: 16px; } }
+  @media (max-width: 560px) {
+    .admin-container.restaurant-create { padding: 8px 0 24px; }
+    .restaurant-create .form-row, .restaurant-create .service-mode-options { grid-template-columns: 1fr; }
+    .restaurant-create .create-section-panel > .form-row, .restaurant-create .create-section-panel > .form-group, .restaurant-create .service-mode-fieldset { padding: 16px; }
+    .restaurant-create .label-row { flex-wrap: wrap; }
+    .restaurant-create .ai-import { grid-template-columns: minmax(0, 1fr); }
+    .restaurant-create .ai-import h2, .restaurant-create .ai-import > p { grid-column: 1; }
+    .restaurant-create .form-actions { flex-wrap: wrap; }
+    .restaurant-create .create-required-note { flex-basis: 100%; }
+    .restaurant-create .form-actions > a, .restaurant-create .form-actions > button { width: auto; flex: 1; }
+  }
+</style>
+{% endif %}
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function () {

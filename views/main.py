@@ -71,7 +71,8 @@ def get_user_profile():
     user_profile = {}
     user_data = session.get("user")
     if user_data:
-        profile = getattr(g, "account_record", user_data).get("profile") or {}
+        account = getattr(g, "account_record", None) or UserModel.get_by_id(user_data.get('id')) or {}
+        profile = account.get("profile") or {}
         user_profile = {field: profile.get(field, []) for field in ("restrictions", "preferences")}
         if "id" not in user_profile:
             user_profile["id"] = user_data.get("id", 999)
@@ -221,42 +222,8 @@ def detail(restaurant_id):
             )
             restaurant["distance_km"] = round(distance, 2)
 
-        # Evaluar con el motor lógico
-        explanation = None
-        if recommender:
-            try:
-                explanation = recommender.explain(restaurant, user_profile)
-            except Exception as e:
-                logger.error(f"Error en explain para restaurante {restaurant_id}: {e}")
-                is_compatible, justifications = evaluate_restaurant_safe(
-                    restaurant, user_profile
-                )
-                explanation = {
-                    "compatible": is_compatible,
-                    "reasons": justifications,
-                    "exclusions": [],
-                    "dietary_options": {
-                        "vegan": "vegano" in restaurant.get("dietary_restrictions", []),
-                        "vegetarian": "vegetariano"
-                        in restaurant.get("dietary_restrictions", []),
-                        "gluten_free": "sin gluten"
-                        in restaurant.get("dietary_restrictions", []),
-                    },
-                }
-        else:
-            explanation = {
-                "compatible": True,
-                "reasons": ["Restaurante disponible para tus preferencias"],
-                "exclusions": [],
-                "dietary_options": {
-                    "vegan": "vegano" in restaurant.get("dietary_restrictions", []),
-                    "vegetarian": "vegetariano"
-                    in restaurant.get("dietary_restrictions", []),
-                    "gluten_free": "sin gluten"
-                    in restaurant.get("dietary_restrictions", []),
-                },
-            }
-
+        from logic.hybrid_recommender import explain_detail
+        explanation = explain_detail(restaurant, user_profile, dishes)
         return render_template(
             "detail.html",
             restaurant=restaurant,
@@ -286,7 +253,8 @@ def reserve(restaurant_id):
     detail_url = url_for("main.detail", restaurant_id=restaurant_id)
 
     # La validación real vive en el servidor, no solo en el botón
-    user = session.get("user")
+    from utils.security import fresh_session_user
+    user = fresh_session_user()
     if not user:
         flash("Inicia sesión para reservar.", "warning")
         return redirect(get_login_url(detail_url))
@@ -446,6 +414,20 @@ def search():
         # 5. Filtros existentes
         filtered = filter_restaurants(restaurants, filters)
 
+        # Apply product constraints too; business averages are not dish prices.
+        for restaurant in filtered:
+            dishes = restaurant['matching_dishes']
+            for field, lower in (('min_price', True), ('max_price', False)):
+                if filters.get(field) is not None:
+                    bound = float(filters[field])
+                    dishes = [d for d in dishes if isinstance(d.get('price'), (int, float))
+                              and not isinstance(d['price'], bool)
+                              and (d['price'] >= bound if lower else d['price'] <= bound)]
+            restaurant['matching_dishes'] = [d for d in dishes if all(
+                restriction in (d.get('dietary_info') or []) for restriction in dietary_restrictions)]
+        if dish_query or ingredient_filter or dietary_restrictions:
+            filtered = [r for r in filtered if r['matching_dishes']]
+
         # 6. Enriquecer con metadatos
         user_lat = filters.get("lat", Config.COORDENADAS_CENTRO[0])
         user_lng = filters.get("lng", Config.COORDENADAS_CENTRO[1])
@@ -525,25 +507,31 @@ def api_evaluate_restaurant(restaurant_id):
 
         user_profile = get_user_profile()
 
-        if recommender:
-            try:
-                explanation = recommender.explain(restaurant, user_profile)
-                return jsonify(
-                    {
-                        "restaurant_id": restaurant_id,
-                        "explanation": explanation,
-                        "user_profile": user_profile,
-                    }
-                )
-            except Exception as e:
-                logger.error(f"Error evaluando restaurante {restaurant_id}: {e}")
-                return jsonify({"error": "Error interno del servidor."}), 500
-        else:
-            return jsonify({"error": "Sistema de recomendación no disponible"}), 503
+        from logic.hybrid_recommender import explain_detail
+        explanation = explain_detail(restaurant, user_profile, [])
+        return jsonify(restaurant_id=restaurant_id, explanation=explanation)
 
     except Exception as e:
         logger.error(f"Error en api_evaluate_restaurant: {e}")
         return jsonify({"error": "Error interno del servidor."}), 500
+
+
+@main_bp.post('/api/restaurant/<int:restaurant_id>/analyze')
+def api_analyze_restaurant(restaurant_id):
+    if not session.get('user'):
+        return jsonify(error='Inicia sesion para analizar tu perfil.'), 401
+    restaurant = RestaurantModel.get_by_id(restaurant_id)
+    if not restaurant or not restaurant.get('verified') or restaurant.get('status') in {'suspended', 'archived'}:
+        return jsonify(error='Restaurante no disponible.'), 404
+    from logic.hybrid_recommender import explain_detail
+    profile = get_user_profile()
+    dishes = [d for d in load_dishes(restaurant_id) if published_menu_dish(d, datetime.now(LIMA_TIMEZONE).date())]
+    try:
+        explanation = explain_detail(restaurant, profile, dishes, use_ai=True)
+    except Exception:
+        explanation = explain_detail(restaurant, profile, dishes)
+        return jsonify(explanation=explanation, error='IA no disponible. Se mantiene el analisis de datos registrados.'), 503
+    return jsonify(explanation=explanation)
 
 
 @main_bp.route("/api/categories", methods=["GET"])
@@ -647,16 +635,20 @@ def save_location():
             lat, lng = coordinates
             session["user_lat"] = lat
             session["user_lng"] = lng
+            forecast = None
             if data.get("context_consent") is True:
                 from logic.market import now
                 from datetime import timedelta
                 session["food_context"] = {**(session.get("food_context") or {}), "weather": True,
                                            "until": (now()+timedelta(hours=4)).isoformat()}
+                from utils.weather import conditions
+                forecast = conditions(lat, lng)
             logger.info("Ubicación válida guardada en sesión")
             return jsonify(
                 {
                     "success": True,
                     "message": "Ubicación guardada correctamente",
+                    "weather": forecast,
                     "location": {"lat": lat, "lng": lng},
                 }
             )
@@ -822,7 +814,7 @@ def mark_notification_read(notification_id):
 
     try:
         result = NotificationModel.mark_as_read(user_id, notification_id)
-        return jsonify({"success": result})
+        return jsonify({"success": result}) if result else (jsonify({"error": "No encontrada"}), 404)
     except Exception as e:
         logger.error(f"Error marcando notificación como leída: {e}")
         return jsonify({"error": "Error interno del servidor."}), 500
@@ -837,8 +829,8 @@ def mark_all_notifications_read():
     user_id = session["user"].get("id")
 
     try:
-        result = NotificationModel.mark_all_as_read(user_id)
-        return jsonify({"success": result})
+        NotificationModel.mark_all_as_read(user_id)
+        return jsonify({"success": True})
     except Exception as e:
         logger.error(f"Error marcando todas las notificaciones como leídas: {e}")
         return jsonify({"error": "Error interno del servidor."}), 500

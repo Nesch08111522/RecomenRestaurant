@@ -115,7 +115,21 @@
         logo.replaceChildren();
         if (draft.logo && /^(https:\/\/|\/portal-media\/\d+$|\/static\/)/.test(draft.logo)) {
           const image = document.createElement('img'); image.src = draft.logo; image.alt = ''; logo.append(image);
-        } else logo.textContent = '✦';
+        } else {
+          const ns = 'http://www.w3.org/2000/svg';
+          const glyph = document.createElementNS(ns, 'svg');
+          glyph.setAttribute('viewBox', '0 0 24 24');
+          glyph.setAttribute('width', '1em');
+          glyph.setAttribute('height', '1em');
+          glyph.setAttribute('fill', 'none');
+          glyph.setAttribute('stroke', 'currentColor');
+          glyph.setAttribute('stroke-width', '1.8');
+          glyph.setAttribute('aria-hidden', 'true');
+          const path = document.createElementNS(ns, 'path');
+          path.setAttribute('d', 'm12 3 2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5Z');
+          glyph.appendChild(path);
+          logo.appendChild(glyph);
+        }
       }
       const publish = qs(root, '[data-publish]');
       if (publish) publish.disabled = !draft.rights_confirmed;

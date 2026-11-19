@@ -11,7 +11,7 @@
     <div><h1>Tu turno, sin filas a ciegas</h1><p>Registra tu grupo y sigue tu posición desde el teléfono. La espera estimada se calcula con sesiones cerradas reales; no es una garantía.</p></div>
     <div class="sr-service-stats">
       <div><strong>{{ seats.occupied }}/{{ seats.seats }}</strong>Personas sentadas</div>
-      <div><strong>{{ mine.waiting }}</strong>Grupos esperando</div>
+      <div><strong data-waiting>{{ mine.waiting }}</strong>Grupos esperando</div>
       <div><strong>{{ seats.available_tables }}</strong>Mesas libres</div>
     </div>
   </header>
@@ -24,10 +24,10 @@
   <section class="sr-service-card sr-service-card--wide" aria-labelledby="miturno">
     <h2 id="miturno">Mi turno</h2>
     {% for row in mine.mine %}
-    <div class="sr-service-card">
-      <div class="sr-actions"><strong style="font-size:1.6rem">{{ row.code }}</strong><span class="sr-chip">{{ row.status }}</span><span>{{ row.party_size }} personas</span></div>
+    <div class="sr-service-card" data-turn="{{ row.id }}" aria-live="polite">
+      <div class="sr-actions"><strong style="font-size:1.6rem">{{ row.code }}</strong><span class="sr-chip" data-turn-status>{{ row.status }}</span><span>{{ row.party_size }} personas</span></div>
       {% if row.status == 'Esperando' %}
-        <p>Posición {{ row.position }} de {{ mine.waiting }}. Espera estimada:
+        <p data-turn-estimate>Posición {{ row.position }} de {{ mine.waiting }}. Espera estimada:
           {% if row.estimate.minutes is none %}sin mesa para ese tamaño todavía.
           {% elif row.estimate.minutes == 0 %}mesa disponible ahora.
           {% else %}{{ row.estimate.minutes }} min (rango {{ row.estimate.low }}–{{ row.estimate.high }} min).{% endif %}
@@ -65,4 +65,38 @@
     </table>
   </section>
 </div>
+<script>
+(() => {
+  const root = document.querySelector('[data-queue-status]');
+  let pending = false;
+  async function refresh() {
+    if (pending || document.hidden) return;
+    pending = true;
+    try {
+      const response = await fetch(root.dataset.queueStatus, {cache: 'no-store'});
+      if (!response.ok) return;
+      const data = await response.json();
+      if (!data.success) return;
+      root.querySelector('[data-waiting]').textContent = data.waiting;
+      root.querySelectorAll('[data-turn]').forEach(node => {
+        const row = data.mine.find(item => String(item.id) === node.dataset.turn);
+        node.querySelector('[data-turn-status]').textContent = row ? row.status : 'Turno finalizado';
+        const estimate = node.querySelector('[data-turn-estimate]');
+        if (!estimate) return;
+        if (!row) {
+          estimate.textContent = 'Tu turno ya no esta en espera. Consulta al personal.';
+          return;
+        }
+        const minutes = row.estimate.minutes;
+        estimate.textContent = row.status === 'Llamado' ? 'Acercate a la entrada: te estamos llamando.'
+          : `Posicion ${row.position} de ${data.waiting}. ${minutes === null ? 'Sin mesa para ese grupo todavia.' : minutes === 0 ? 'Mesa disponible ahora.' : 'Espera estimada: ' + minutes + ' min.'}`;
+      });
+    } catch (_) {
+      // Preserve the last confirmed state when connectivity fails.
+    } finally { pending = false; }
+  }
+  setInterval(refresh, 15000);
+  document.addEventListener('visibilitychange', refresh);
+})();
+</script>
 {% endblock %}

@@ -167,6 +167,16 @@ class PostgresDocumentRepository:
         raw_id = item.pop("id", None)
         with document_transaction() as conn, conn.cursor() as cur:
             if raw_id is None:
+                from database.connection import test_schema
+                schema = conn.execute("SELECT is_identity,column_default FROM information_schema.columns WHERE table_schema=%s AND table_name='app_records' AND column_name='id'", (test_schema() or 'public',)).fetchone()
+                if schema and schema['is_identity'] == 'NO' and not schema['column_default']:
+                    # Imported operational schemas may have lost their identity default.
+                    # Serialize allocations without altering live DDL or sequences.
+                    conn.execute('SELECT pg_advisory_xact_lock(731904113)')
+                    raw_id = conn.execute(f'SELECT COALESCE(max(id),0)+1 AS id FROM {cls.table}').fetchone()['id']
+                    if raw_id <= 0:
+                        raise RuntimeError('No se pudo asignar un identificador seguro.')
+            if raw_id is None:
                 cur.execute(
                     f"INSERT INTO {cls.table} (collection, payload) VALUES (%s, %s) RETURNING id",
                     (collection, cls._jsonb(item)),

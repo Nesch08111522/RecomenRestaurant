@@ -26,7 +26,20 @@ body :is(.pager, .pagination, .form-actions, .admin-header, .um-toolbar) { flex-
 body .pager { min-width: 0; max-width: 100%; }
 body .pager .page-btn { min-width: 44px; min-height: 44px; flex: none; }
 body :is(.stat-card, .stat-label, .market-offer, .market-panel) { min-width: 0; overflow-wrap: anywhere; }
-body .sr-map-dialog { overflow: auto; overscroll-behavior: contain; }
+body .sr-map-dialog { position:fixed; inset:0; margin:auto; box-sizing:border-box; width:calc(100% - 24px); max-width:960px; max-height:calc(100vh - 24px); max-height:calc(100dvh - 24px); padding:16px; overflow:auto; overscroll-behavior:contain; border:1px solid var(--sr-border); border-radius:20px; background:var(--sr-surface); color:var(--theme-text); }
+body .sr-map-dialog[open] { display:flex; flex-wrap:wrap; gap:12px; }
+body .sr-map-dialog > button { min-height:44px; max-width:100%; white-space:normal; }
+body .sr-map-dialog .sr-map-help { flex-basis:100%; margin:0; }
+body .sr-map-dialog .sr-map-help:empty { display:none; }
+body.sr-discover #main-content .sr-map-dialog #forest-map-panel { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:12px; height:auto; min-height:0; margin:0; padding:12px; flex-basis:100%; }
+body .sr-map-dialog #main-map { position:relative; grid-column:1/-1; height:clamp(120px,45dvh,440px); }
+body .sr-map-dialog #locationBtn { position:static; transform:none; min-width:0; width:auto; white-space:normal; }
+body .sr-map-dialog .map-controls { position:static; display:flex; flex-wrap:wrap; gap:8px; align-self:start; }
+body.sr-discover .sr-map-dialog #geo-status { position:static; grid-column:1/-1; max-width:100%; }
+@media(max-width:479px) {
+  body.sr-discover #main-content .sr-map-dialog #forest-map-panel { grid-template-columns:minmax(0,1fr); }
+  body .sr-map-dialog .map-controls { justify-content:flex-end; }
+}
 @media (max-width: 479px) {
   body .stats-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   body .stats-row > :last-child:nth-child(odd) { grid-column: 1 / -1; }

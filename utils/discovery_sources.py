@@ -64,12 +64,15 @@ def request_bytes(url,method='GET',body=None,headers=None,limit=600000):
         conn.close()
 
 
-def osm_search(radius_km=3,limit=100):
+def osm_search(radius_km=3,limit=100,*,center=None):
     radius=float(radius_km)
     if not 0.2<=radius<=10:
         raise ValueError('El radio debe estar entre 0.2 y 10 km')
     maximum=max(1,min(int(limit),200))
-    lat,lng=Config.COORDENADAS_CENTRO
+    lat,lng=center if center is not None else Config.COORDENADAS_CENTRO
+    import math
+    if not all(isinstance(v,(int,float)) and not isinstance(v,bool) and math.isfinite(v) for v in (lat,lng)) or not (-90<=lat<=90 and -180<=lng<=180):
+        raise ValueError('Coordenadas invalidas')
     geo=f'(around:{int(radius*1000)},{lat},{lng})'
     query='[out:json][timeout:20];('+f'nwr["amenity"~"^(restaurant|cafe|fast_food|food_court)$"]{geo};'+f'nwr["shop"~"^(bakery|pastry|deli|convenience|food)$"]{geo};'+f'nwr["cuisine"="juice"]{geo};'+');out center tags '+str(maximum)+';'
     status,_,raw=request_bytes(OVERPASS,'POST',query.encode(),{'Content-Type':'text/plain'},limit=1200000)
@@ -85,6 +88,24 @@ def osm_search(radius_km=3,limit=100):
     if not isinstance(elements,list):
         raise SourceUnavailable('Overpass devolvió un formato inesperado')
     return [from_osm(row) for row in elements[:maximum] if isinstance(row,dict) and row.get('tags',{}).get('name')]
+
+
+def nominatim_reference(lat,lng):
+    """Reverse geocode only a validated Trujillo reference, never a user URL."""
+    from models.commercial_radar import coordinates
+    from urllib.parse import urlencode
+    lat,lng=coordinates(lat,lng)
+    url='https://nominatim.openstreetmap.org/reverse?'+urlencode({'lat':lat,'lon':lng,'format':'jsonv2','zoom':14,'addressdetails':1})
+    status,_,raw=request_bytes(url,limit=64000)
+    if status!=200:
+        raise SourceUnavailable(f'Nominatim respondio HTTP {status}')
+    try:
+        data=json.loads(raw)
+        if not isinstance(data,dict) or not isinstance(data.get('display_name'),str):
+            raise ValueError()
+    except (ValueError,TypeError):
+        raise SourceUnavailable('Nominatim no devolvio una referencia valida') from None
+    return {'label':clean(data['display_name'],500),'source_url':url,'retrieved_at':__import__('logic.business_radar',fromlist=['now']).now(),'attribution':'OpenStreetMap / ODbL-1.0','verified':False}
 
 
 def official_fetch(source,use_ai=False):

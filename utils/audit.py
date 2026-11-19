@@ -6,7 +6,7 @@ import hashlib
 import json
 from typing import Any
 
-from flask import has_request_context, request, session
+from flask import g, has_request_context, request, session
 
 from config import Config
 from database.repository import document_transaction
@@ -67,6 +67,9 @@ class AuditEventModel(DataModel):
 
 
 SENSITIVE_ACTIONS = {
+    'HOME_UPDATED', 'HOME_PREPARED',
+    'RESERVATION_CANCELLED', 'LOYALTY_BIRTHDAY_CLAIMED',
+    'BRANCH_MEMBERSHIP_UPDATED', 'BUSINESS_VERIFICATION_SUBMITTED', 'BUSINESS_VERIFICATION_REVIEWED',
     "PASSWORD_CODE_SENT", "PASSWORD_CHANGED_BY_CODE", "SECURITY_CONTACTS_CHANGED",
     "COPILOT_PROMOTION_CONFIRMED", "COPILOT_ACTION_PREPARED", "SITE_CONTENT_REVIEW", "BRAND_MEDIA_REVIEW",
     "ACCOUNT_RATE_LIMIT", "ACCOUNT_RECOVERED", "ACCOUNT_MFA_ENABLED", "PAYMENT_INCIDENT",
@@ -121,7 +124,8 @@ def record_event(action: str, *, resource_type: str | None = None, resource_id: 
         "action": action,
         "resource_type": normalize_text(resource_type, max_length=60) if resource_type else None,
         "resource_id": resource_id,
-        "request_id": normalize_text(request.headers.get("X-Request-ID"), max_length=120) if has_request_context() else None,
+        "business_id": getattr(getattr(g, "platform_context", None), "business_id", None) if has_request_context() else None,
+        "request_id": normalize_text(getattr(request, "request_id", None), max_length=36) if has_request_context() and getattr(request, "request_id", None) else None,
         "ip_hash": hashlib.sha256(
             f"{Config.SECRET_KEY}:{request.remote_addr}".encode("utf-8")
         ).hexdigest() if has_request_context() and request.remote_addr else None,

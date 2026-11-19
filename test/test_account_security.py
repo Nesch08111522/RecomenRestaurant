@@ -29,7 +29,13 @@ def test_account_recovery_and_second_factor(test_database, monkeypatch):
     new = uuid4().hex + "A2"
     assert post(second, "recuperar", username=username, code=recovery, password=new).status_code == 302
     assert first.get("/auth/profile").status_code == 302
-    assert post(second, "recuperar", username=username, code=recovery, password=password).status_code == 200
+    from werkzeug.security import check_password_hash
+    response = post(second, "recuperar", username=username, code=recovery, password=password)
+    assert response.status_code == 302
+    assert response.headers['Location'].endswith('/auth/recuperar')
+    stored = UserModel.get_by_username(username)
+    assert check_password_hash(stored['password'], new)
+    assert not check_password_hash(stored['password'], password)
     assert post(second, "login", username=username, password=new).status_code == 302
 
 

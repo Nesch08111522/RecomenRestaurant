@@ -18,8 +18,8 @@
     <header class="bs-editor-header">
         <div>
             <p class="bs-eyebrow"><span class="bs-eyebrow-dot"></span> Presencia digital</p>
-            <h1>Tu sitio, con <em>tu propio ritmo</em></h1>
-            <p class="bs-editor-lead">Diseña una vitrina cálida para que cada visita encuentre su mesa, su plato y su próximo antojo.</p>
+            <h1>Mi sitio y marca</h1>
+            <p class="bs-editor-lead">Configura identidad, contenido y publicación de tu sitio.</p>
         </div>
         <div class="bs-editor-header-actions">
             <button class="bs-icon-button" type="button" data-theme-toggle aria-label="Cambiar tema del editor" title="Cambiar tema"><span class="material-icons" aria-hidden="true">dark_mode</span></button>
@@ -57,7 +57,7 @@
                 <section class="bs-panel bs-panel-intro">
                     <div class="bs-panel-heading">
                         <div><p class="bs-kicker">01 · Esencia</p><h2>La primera impresión</h2></div>
-                        <span class="bs-panel-mark">✦</span>
+                        <span class="bs-panel-mark"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m12 3 2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5Z"/></svg></span>
                     </div>
                     <div class="bs-form-grid bs-form-grid-two">
                         <label class="bs-field bs-field-wide"><span>Nombre visible</span><input data-field="name" type="text" maxlength="120" value="{{ draft.get('name', selected.name or '') }}" placeholder="Ej. Casa Nómada"></label>
@@ -125,13 +125,13 @@
                 <div class="bs-preview-card" data-preview-card>
                     <div class="bs-preview-top"><span class="bs-kicker">Vista rápida</span><span class="bs-preview-template" data-preview-template>{{ draft.get('template','atelier')|capitalize }}</span></div>
                     <div class="bs-preview-window" data-preview-window style="--preview-primary:  {{ draft.get('primary_color',default_primary) }}; --preview-secondary:  {{ draft.get('secondary_color',default_secondary) }};">
-                        <div class="bs-preview-orb"></div><div class="bs-preview-brand"><span class="bs-preview-logo" data-preview-logo>{% if draft.get('logo') %}<img src="{{ draft.get('logo') }}" alt="">{% else %}✦{% endif %}</span><strong data-preview-name>{{ draft.get('name', selected.name or 'Tu restaurante') }}</strong></div><div class="bs-preview-copy"><span data-preview-tagline>{{ draft.get('tagline','Una mesa para recordar') }}</span><h3 data-preview-heading>{{ draft.get('name', selected.name or 'Tu restaurante') }}</h3><p data-preview-description>{{ draft.get('description', selected.description or 'Tu historia aparece aquí.') }}</p></div><div class="bs-preview-bottom"><span>Tu carta</span><span data-preview-specialties>{% if draft.get('specialties') %}{{ draft.get('specialties')[0] if draft.get('specialties') is sequence and draft.get('specialties') is not string else draft.get('specialties') }}{% else %}Cocina con intención{% endif %}</span></div>
+                        <div class="bs-preview-orb"></div><div class="bs-preview-brand"><span class="bs-preview-logo" data-preview-logo>{% if draft.get('logo') %}<img src="{{ draft.get('logo') }}" alt="">{% else %}<svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m12 3 2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5Z"/></svg>{% endif %}</span><strong data-preview-name>{{ draft.get('name', selected.name or 'Tu restaurante') }}</strong></div><div class="bs-preview-copy"><span data-preview-tagline>{{ draft.get('tagline','Una mesa para recordar') }}</span><h3 data-preview-heading>{{ draft.get('name', selected.name or 'Tu restaurante') }}</h3><p data-preview-description>{{ draft.get('description', selected.description or 'Tu historia aparece aquí.') }}</p></div><div class="bs-preview-bottom"><span>Tu carta</span><span data-preview-specialties>{% if draft.get('specialties') %}{{ draft.get('specialties')[0] if draft.get('specialties') is sequence and draft.get('specialties') is not string else draft.get('specialties') }}{% else %}Cocina con intención{% endif %}</span></div>
                     </div>
                     <p class="bs-preview-caption"><span class="material-icons" aria-hidden="true">auto_awesome</span> El sitio público usará tu identidad, no una plantilla genérica.</p>
                 </div>
 
                 <div class="bs-action-card bs-action-card-ai">
-                    <div class="bs-action-card-title"><span class="bs-ai-orb">✦</span><div><p class="bs-kicker">Asistente creativo</p><h2>Propón una dirección</h2></div></div>
+                    <div class="bs-action-card-title"><span class="bs-ai-orb"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m12 3 2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5Z"/></svg></span><div><p class="bs-kicker">Asistente creativo</p><h2>Propón una dirección</h2></div></div>
                     <p>Describe la sensación que quieres transmitir. La IA prepara una propuesta sin guardarla.</p>
                     <textarea rows="4" data-ai-brief placeholder="Ej. Una barra de vinos íntima, luminosa y con acentos terracota."></textarea>
                     <button class="bs-button bs-button-ai" type="button" data-ai-propose><span class="material-icons" aria-hidden="true">auto_awesome</span> Generar propuesta</button>

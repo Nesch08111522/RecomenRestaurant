@@ -6,6 +6,8 @@ import requests
 class DeliveryUnavailable(RuntimeError): pass
 
 def configured(channel):
+    if channel not in ('email', 'sms'):
+        return False
     if channel=='sms':
         return all(os.getenv(k,'').strip() for k in ('TWILIO_ACCOUNT_SID','TWILIO_AUTH_TOKEN','TWILIO_FROM_NUMBER'))
     provider=os.getenv('SECURITY_EMAIL_PROVIDER','resend').strip()

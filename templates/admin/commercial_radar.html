@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block extra_head %}{{ super() }}<link rel="stylesheet" href="{{ url_for('static',filename='css/discovery.css') }}">{% endblock %}
+{% block content %}
+<div class="radar">
+<header class="radar-heading"><div><h1>Radar comercial</h1><p>Prospectos de Trujillo, separados de las empresas afiliadas.</p></div><a href="{{ url_for('companies.admin_companies') }}">Empresas y suscripciones</a><a href="{{ url_for('discovery.dashboard') }}">Revision de fuentes y titularidad</a></header>
+<section class="radar-panel"><h2>Descubrir negocios con evidencia</h2><form id="commercialSearch">
+<label>Latitud de referencia<input name="lat" type="number" step="any" min="-8.3" max="-7.9" value="{{ center[0] }}" required></label>
+<label>Longitud de referencia<input name="lng" type="number" step="any" min="-79.2" max="-78.8" value="{{ center[1] }}" required></label>
+<label>Radio (km)<input name="radius_km" type="number" step="0.1" min="0.2" max="10" value="3" required></label>
+<button class="radar-primary">Descubrir ahora (consulta real OSM)</button></form>
+<p>Consulta manual, hasta 100 resultados. Sin actualizacion periodica. Cobertura no exhaustiva; la fuente puede estar incompleta o desactualizada. Map data from <a href="https://www.openstreetmap.org/copyright" rel="noopener noreferrer" target="_blank">OpenStreetMap</a>, ODbL 1.0.</p>
+<p>Calificaciones, resenas, popularidad y concurrencia: no disponibles en esta integracion. No se infieren. Contactar abre un enlace, nunca envia mensajes.</p></section>
+<p id="commercialStatus" role="status" aria-live="polite"></p>
+<label>Filtrar estado<select id="commercialFilter"><option value="">Todos</option>{% for state in states %}<option>{{ state }}</option>{% endfor %}</select></label>
+<div class="radar-candidates">
+{% for p in prospects|reverse %}<article class="radar-candidate" data-state="{{ p.state }}"><h2>{{ p.data.name }}</h2><p>{{ p.state }}{% if p.get('company_id') %} | Empresa #{{ p.company_id }}{% endif %}</p>
+<p>{{ p.data.get('business_type','') }} | {{ p.data.get('categories',[])|join(', ') }}</p><p>{{ p.data.get('address','Direccion no disponible') }} | {{ p.data.get('district','Distrito no disponible') }}</p>
+<p>Coordenadas: {{ p.data.get('lat','No disponible') }}, {{ p.data.get('lng','No disponible') }}. Distancia en linea recta: {{ p.distance_km if p.distance_km is not none else 'No disponible' }} km. Referencia: {{ p.reference|join(', ') }}.</p>
+<p>Ultima consulta: {{ p.last_seen_at }}. Ubicacion y contacto no verificados.</p>
+{% if p.get('reference_info') %}<p>Referencia Nominatim: {{ p.reference_info.label }} | {{ p.reference_info.retrieved_at }} | <a href="{{ p.reference_info.source_url }}" target="_blank" rel="noopener noreferrer">Fuente de referencia</a>. No acredita distrito del negocio.</p>{% endif %}
+{% if p.get('reference_warning') %}<p>{{ p.reference_warning }}</p>{% endif %}
+{% if p.map_link %}<a href="{{ p.map_link }}" target="_blank" rel="noopener noreferrer">Ver mapa</a>{% endif %}
+{% if p.phone_link %}<a href="{{ p.phone_link }}">Contactar: {{ p.data.phone }}</a>{% else %}<p>Telefono utilizable no disponible</p>{% endif %}
+{% for name,channel in p.channels.items() %}<a href="{{ channel.url }}" target="_blank" rel="noopener noreferrer">{{ name }} (contacto publico OSM)</a>{% endfor %}
+<details><summary>Informacion y evidencia</summary>{% for field,e in p.evidence.items() %}<p>{{ field }}: {{ p.data.get(field) }} | {{ e.retrieved_at }} | {{ e.license }} | <a href="{{ e.source_url }}" rel="noopener noreferrer" target="_blank">Fuente</a></p>{% endfor %}
+{% for h in p.get('history',[]) %}<p>{{ h.at }} | {{ h.to }} | Admin #{{ h.actor }} | {{ h.notes }}</p>{% endfor %}</details>
+{% if p.analysis %}<p>Hipotesis IA: prioridad {{ p.analysis.priority }}. Evidencia: {{ p.analysis.fields|join(', ') }}. {{ p.analysis.uncertainty }} Modelo: {{ p.analysis.model }}, {{ p.analysis.at }}.</p>{% else %}<p>Sin analisis IA. No se asigna potencial comercial sin evidencia.</p>{% endif %}
+<button data-id="{{ p.id }}" data-action="analyze">Analizar evidencia con IA</button>
+<form class="commercialState" data-id="{{ p.id }}"><label>Estado<select name="state">{% for state in states %}<option {% if state==p.state %}selected{% endif %}>{{ state }}</option>{% endfor %}</select></label>
+<label>Empresa confirmada (solo para afiliado)<select name="company_id"><option value="">Seleccionar</option>{% for c in companies %}<option value="{{ c.id }}">#{{ c.id }} {{ c.name }} ({{ c.status }})</option>{% endfor %}</select></label>
+<label>Motivo y verificacion de identidad<textarea name="notes" minlength="3" maxlength="500" required></textarea></label><button>Guardar estado</button></form>
+{% if not p.get('company_id') %}<button data-action="convert" data-id="{{ p.id }}">Convertir en empresa provisional</button>{% endif %}
+</article>{% else %}<p>No hay prospectos guardados. Usa Descubrir para consultar la fuente real.</p>{% endfor %}</div></div>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static',filename='js/commercial-radar.js') }}"></script>{% endblock %}

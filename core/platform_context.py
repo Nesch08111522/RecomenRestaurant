@@ -8,9 +8,11 @@ from typing import Any, Mapping
 _ROLE_SCOPE = {
     "guest": "public",
     "diner": "user",
+    "user": "user",
     "business_owner": "business",
     "business_admin": "business",
     "manager": "business",
+    "owner": "business",
     "cashier": "business",
     "waiter": "business",
     "kitchen": "business",
