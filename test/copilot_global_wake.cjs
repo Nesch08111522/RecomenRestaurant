@@ -2,7 +2,7 @@ const assert = require('node:assert/strict');
 const vm = require('node:vm');
 const fs = require('node:fs');
 const source = fs.readFileSync(require.resolve('../static/js/copilot-wake.js'), 'utf8');
-function harness(saved = null, supported = true, copilot = false) {
+function harness(saved = null, supported = true, copilot = false, anonymous = false) {
   const timers = new Map(), events = {}, windowEvents = {}, elements = {};
   let serial = 0;
   class Element {
@@ -11,6 +11,7 @@ function harness(saved = null, supported = true, copilot = false) {
     emit(k) { this.handlers[k](); }
   }
   for (const id of ['sr-wake', 'sr-wake-toggle', 'sr-wake-enable', 'sr-wake-status']) elements[id] = new Element();
+  if (anonymous) delete elements['sr-wake'];
   if (copilot) elements['copilot-question'] = new Element();
   let rec;
   class Recognition {
@@ -29,7 +30,11 @@ function harness(saved = null, supported = true, copilot = false) {
   const wake = text => { const r = [{ transcript: text }]; r.isFinal = true; rec.emit('result', { resultIndex: 0, results: [r] }); };
   return { elements, window, document, rec, timers, events, windowEvents, flush, wake, saved: () => saved, context };
 }
-let h = harness();
+let h = harness('true', true, false, true);
+assert.equal(h.rec, undefined, 'anonymous page creates no recognizer');
+assert.equal(h.window.smartrestoVoice, undefined, 'anonymous page installs no voice runtime');
+assert.equal(h.timers.size, 0);
+h = harness();
 assert.equal(h.elements['sr-wake-toggle'].checked, true);
 assert.equal(h.rec.starts, 0, 'preference does not grant permission');
 h.elements['sr-wake-enable'].emit('click'); h.rec.emit('start');
@@ -63,4 +68,24 @@ for (let i = 0; i < 10; i++) { h.rec.emit('end'); h.flush(); }
 assert.equal(h.rec.starts, 6, 'empty restart cycles are bounded');
 h = harness('false'); assert.equal(h.elements['sr-wake-toggle'].checked, false);
 h = harness(null, false); assert.equal(h.elements['sr-wake-enable'].disabled, true);
+const shell = fs.readFileSync(require.resolve('../static/js/shell.js'), 'utf8');
+const accountSource = shell.slice(shell.indexOf("        const account = document.querySelector('[data-account-toggle]');"), shell.indexOf('        // Private navigation owns'));
+const handlers = {}, lifecycle = {};
+let focused;
+const container = {};
+const link = { focus() { focused = link; } };
+const account = { addEventListener(k, f) { handlers['account:' + k] = f; }, setAttribute(k, v) { this[k] = v; }, focus() { focused = account; } };
+const options = { hidden: true, querySelector() { return link; }, addEventListener(k, f) { handlers['options:' + k] = f; } };
+const doc = { activeElement: { closest() { return null; } }, querySelector(s) { return s === '[data-account-toggle]' ? account : null; }, getElementById() { return options; }, addEventListener(k, f) { handlers[k] = f; } };
+vm.runInNewContext(accountSource, { document: doc, window: { addEventListener(k, f) { lifecycle[k] = f; } }, queueMicrotask: f => f() });
+handlers['account:click']();
+assert.equal(options.hidden, false); assert.equal(focused, link); assert.equal(account['aria-expanded'], 'true');
+let prevented = false;
+handlers.keydown({ key: 'Escape', preventDefault() { prevented = true; }, stopImmediatePropagation() {} });
+assert.equal(prevented, true); assert.equal(options.hidden, true); assert.equal(focused, account);
+handlers['account:click'](); handlers.click({ target: { closest() { return container; } } }); assert.equal(options.hidden, false);
+handlers.click({ target: { closest() { return null; } } }); assert.equal(options.hidden, true);
+handlers['account:click'](); handlers['options:focusout'](); assert.equal(options.hidden, true);
+handlers['account:click'](); lifecycle.pagehide(); assert.equal(options.hidden, true);
+console.log('PASS shared account dropdown: first-link focus, Escape restore, inside/outside click, focusout, pagehide');
 console.log('PASS global wake: default, permission gesture, persistence, phrases, navigation/event, exclusive dictation/TTS, denial, visibility, cleanup, duplicate guard, unsupported');

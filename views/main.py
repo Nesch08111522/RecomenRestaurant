@@ -253,7 +253,8 @@ def reserve(restaurant_id):
     detail_url = url_for("main.detail", restaurant_id=restaurant_id)
 
     # La validación real vive en el servidor, no solo en el botón
-    user = session.get("user")
+    from utils.security import fresh_session_user
+    user = fresh_session_user()
     if not user:
         flash("Inicia sesión para reservar.", "warning")
         return redirect(get_login_url(detail_url))
@@ -787,7 +788,7 @@ def mark_notification_read(notification_id):
 
     try:
         result = NotificationModel.mark_as_read(user_id, notification_id)
-        return jsonify({"success": result})
+        return jsonify({"success": result}) if result else (jsonify({"error": "No encontrada"}), 404)
     except Exception as e:
         logger.error(f"Error marcando notificación como leída: {e}")
         return jsonify({"error": "Error interno del servidor."}), 500
@@ -802,8 +803,8 @@ def mark_all_notifications_read():
     user_id = session["user"].get("id")
 
     try:
-        result = NotificationModel.mark_all_as_read(user_id)
-        return jsonify({"success": result})
+        NotificationModel.mark_all_as_read(user_id)
+        return jsonify({"success": True})
     except Exception as e:
         logger.error(f"Error marcando todas las notificaciones como leídas: {e}")
         return jsonify({"error": "Error interno del servidor."}), 500

@@ -67,6 +67,7 @@ def test_refund_reverses_purchase_points(service_db):
     kinds = [row["kind"] for row in data["events"]]
     assert "Compra" in kinds and "Reversión por reembolso" in kinds
     assert data["balance"] == 0
+    assert data["earned"] == 0
 
 
 def test_levels_are_derived_from_lifetime_points():
@@ -125,6 +126,117 @@ def test_loyalty_preferences_are_independent(service_db):
     save_preferences(diner["id"], marketing=True, visits_visible=False, birthday_visible=True)
     profile = UserModel.get_by_id(diner["id"])["profile"]
     assert profile["loyalty"] == {"marketing": True, "visits_visible": False, "birthday_visible": True}
+
+
+def test_concurrent_birthday_claim_is_unique(service_db):
+    from concurrent.futures import ThreadPoolExecutor
+    from threading import Barrier
+
+    diner = make_user("concurrent12", profile={"birthday": now().date().isoformat()})
+    barrier = Barrier(2)
+
+    def claim(index):
+        barrier.wait(timeout=10)
+        try:
+            return birthday_claim(diner["id"])["points"]
+        except ValueError:
+            return "duplicate"
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        results = list(pool.map(claim, range(2)))
+    assert results.count(50) == 1
+    assert results.count("duplicate") == 1
+    assert len(events(diner["id"])) == 1
+
+
+def test_refunded_visit_no_longer_counts_for_badges_or_history(service_db):
+    owner = make_user("refundvisit12", "business_owner")
+    business = make_business(owner["id"], "Visita revertida")
+    diner = make_user("refunddiner12")
+    session = closed_session(diner["id"], business["id"])
+    paid_order = next(o for o in Repo.all("market_orders") if o.get("table_session") == session["id"])
+    Repo.update("market_orders", paid_order["id"], {"refunded": True})
+    data = wallet(diner["id"])
+    assert data["balance"] == 0
+    assert data["visits"] == [] and data["badges"] == []
+    assert visits(diner["id"]) == []
+
+
+def test_hidden_visits_are_not_exposed_in_business_segments(service_db):
+    owner = make_user("privacyowner12", "business_owner")
+    business = make_business(owner["id"], "Privacidad")
+    diner = make_user("privacydiner12")
+    order(diner["id"], business["id"])
+    save_preferences(diner["id"], marketing=False, visits_visible=False, birthday_visible=False)
+    assert owner_customers(business["id"])["customers"] == []
+    assert wallet(diner["id"])["balance"] == 2
+    save_preferences(diner["id"], marketing=False, visits_visible=True, birthday_visible=False)
+    assert owner_customers(business["id"])["customers"][0]["marketing_allowed"] is False
+
+
+def test_birthday_claim_respects_explicit_opt_out(service_db):
+    diner = make_user("optoutbirthday12", profile={"birthday": now().date().isoformat(),
+                                                "loyalty": {"birthday_visible": False}})
+    with pytest.raises(ValueError, match="consentimiento"):
+        birthday_claim(diner["id"])
+    assert events(diner["id"]) == []
+
+
+def test_customer_reservations_cancel_only_own_future_booking(service_db):
+    from models.reservation import ReservationModel
+    from logic.market import MarketError
+    from app import create_app
+
+    owner = make_user("reservationowner12", "business_owner")
+    business = make_business(owner["id"], "Reservas")
+    make_store(business["id"])
+    diner = make_user("reservationdiner12")
+    other = make_user("reservationother12")
+    future = now() + timedelta(days=1)
+    booking = ReservationModel.create(diner["id"], business["id"], future.date().isoformat(), "12:00", 2)
+    with pytest.raises(MarketError):
+        ReservationModel.cancel_for_user(booking["id"], other["id"])
+    assert ReservationModel.get_by_id(booking["id"])["status"] == "pendiente"
+    client = create_app({"TESTING": True, "SECRET_KEY": uuid4().hex, "WTF_CSRF_ENABLED": False}).test_client()
+    with client.session_transaction() as session:
+        session["user_id"] = diner["id"]
+    response = client.post(f"/restaurant/{business['id']}/reserve",
+                           data={"date": future.date().isoformat(), "time": "13:00", "guests": 2})
+    assert response.status_code == 302
+    assert len(ReservationModel.get_by_user(diner["id"])) == 2
+    page = client.get("/mis-reservas")
+    assert page.status_code == 200 and str(booking["id"]).encode() in page.data
+    result = client.post(f"/mis-reservas/{booking['id']}/cancelar")
+    assert result.status_code == 302
+    assert ReservationModel.get_by_id(booking["id"])["status"] == "cancelada"
+    assert ReservationModel.cancel_for_user(booking["id"], diner["id"])["status"] == "cancelada"
+
+
+def test_reservation_validation_and_audit_rollback(service_db, monkeypatch):
+    from models.reservation import ReservationModel
+    from logic.market import MarketError
+    from utils import audit
+
+    owner = make_user("validationowner12", "business_owner")
+    business = make_business(owner["id"], "Validacion reservas")
+    make_store(business["id"])
+    diner = make_user("validationdiner12")
+    future = now() + timedelta(days=1)
+    for guests in (0, 21, True, "2"):
+        with pytest.raises(MarketError):
+            ReservationModel.create(diner["id"], business["id"], future.date().isoformat(), "12:00", guests)
+    with pytest.raises(MarketError):
+        ReservationModel.create(diner["id"], business["id"], "invalid", "12:00", 2)
+    with pytest.raises(MarketError):
+        ReservationModel.create(diner["id"], business["id"], (now() - timedelta(days=1)).date().isoformat(), "12:00", 2)
+    booking = ReservationModel.create(diner["id"], business["id"], future.date().isoformat(), "12:00", 2)
+    monkeypatch.setattr(audit, "record_event", lambda *args, **kwargs: (_ for _ in ()).throw(RuntimeError("audit unavailable")))
+    with pytest.raises(RuntimeError, match="audit unavailable"):
+        ReservationModel.cancel_for_user(booking["id"], diner["id"])
+    assert ReservationModel.get_by_id(booking["id"])["status"] == "pendiente"
+    Repo.update("restaurants", business["id"], {"status": "suspended"})
+    with pytest.raises(MarketError):
+        ReservationModel.create(diner["id"], business["id"], future.date().isoformat(), "13:00", 2)
 
 
 def test_visits_history_contains_dishes_and_total(service_db):

@@ -86,7 +86,7 @@ def normalize_profile_patch(source: Mapping[str, Any] | None) -> dict[str, Any]:
             result[key] = email
         elif key == 'phone':
             phone = str(value or '').strip()
-            if not re.fullmatch(r'\+[1-9][0-9]{7,14}', phone):
+            if phone and not re.fullmatch(r'\+[1-9][0-9]{7,14}', phone):
                 raise ValueError('El celular requiere formato internacional E164.')
             result[key] = phone
         elif key in {"preferences", "restrictions"}:
@@ -99,7 +99,9 @@ def normalize_profile_patch(source: Mapping[str, Any] | None) -> dict[str, Any]:
                 raise ValueError("El presupuesto debe ser un monto válido")
             result[key] = amount
         elif key == "addresses":
-            result[key] = _list(value, 5, 220)
+            if not isinstance(value, list) or len(value) > 5 or any(len(str(item).strip()) > 220 for item in value):
+                raise ValueError('Usa hasta cinco direcciones de 220 caracteres cada una.')
+            result[key] = list(dict.fromkeys(_text(item, 220) for item in value if _text(item, 220)))
         elif key == "birthday":
             birthday = _text(value, 10)
             if birthday:

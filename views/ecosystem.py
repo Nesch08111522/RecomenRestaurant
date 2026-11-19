@@ -230,7 +230,7 @@ def campaign(rid):
             log = records("campaign_deliveries",rid=rid,uid=uid)
             if any(r["created"] > (now()-timedelta(days=7)).isoformat() for r in log):
                 continue
-            NotificationModel.create_notification(uid,restaurant["name"],message,link=f"/mercado/?negocio={rid}")
+            NotificationModel.create_notification(uid,restaurant["name"],message,type_='promotion',link=f"/mercado/?negocio={rid}")
             Repo.create("campaign_deliveries",{"rid":rid,"uid":uid,"created":now().isoformat(),"segment":tag})
             sent += 1
     flash(f"Promoción publicada en {sent} bandejas con consentimiento.","success")

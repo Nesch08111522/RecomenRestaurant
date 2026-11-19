@@ -1,0 +1,248 @@
+{
+  "run": "c340bdf8f9d94347827d8d22f743bd55",
+  "applied": true,
+  "created_companies": [
+    {
+      "id": 1,
+      "name": "Empresa de empresario",
+      "plan": "premium",
+      "demo": false
+    },
+    {
+      "id": 2,
+      "name": "Empresa de empresario",
+      "plan": "premium",
+      "demo": false
+    },
+    {
+      "id": 3,
+      "name": "Empresa de Enrique12",
+      "plan": "premium",
+      "demo": false
+    },
+    {
+      "id": 4,
+      "name": "Empresa de RicaPizza",
+      "plan": "premium",
+      "demo": false
+    },
+    {
+      "id": 5,
+      "name": "Empresa de Mathias",
+      "plan": "premium",
+      "demo": false
+    },
+    {
+      "id": 6,
+      "name": "Empresa de Pollos",
+      "plan": "premium",
+      "demo": false
+    },
+    {
+      "id": 7,
+      "name": "Sakura Nori",
+      "plan": "basic",
+      "demo": true
+    },
+    {
+      "id": 8,
+      "name": "Drag\u00f3n de Jade",
+      "plan": "decente",
+      "demo": true
+    },
+    {
+      "id": 9,
+      "name": "Trattoria Bellavista",
+      "plan": "premium",
+      "demo": true
+    }
+  ],
+  "created_memberships": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "created_users": [
+    {
+      "id": 250,
+      "username": "demo-sakura-nori"
+    },
+    {
+      "id": 252,
+      "username": "demo-dragon-de-jade"
+    },
+    {
+      "id": 254,
+      "username": "demo-trattoria-bellavista"
+    }
+  ],
+  "created_restaurants": [
+    {
+      "id": 251,
+      "company_id": 7,
+      "name": "Sakura Nori",
+      "owner_id": 250
+    },
+    {
+      "id": 253,
+      "company_id": 8,
+      "name": "Drag\u00f3n de Jade",
+      "owner_id": 252
+    },
+    {
+      "id": 255,
+      "company_id": 9,
+      "name": "Trattoria Bellavista",
+      "owner_id": 254
+    }
+  ],
+  "linked_restaurants": [
+    {
+      "id": 1,
+      "business_id": 1,
+      "owner_id": 2
+    },
+    {
+      "id": 2,
+      "business_id": 1,
+      "owner_id": 2
+    },
+    {
+      "id": 3,
+      "business_id": 1,
+      "owner_id": 2
+    },
+    {
+      "id": 4,
+      "business_id": 1,
+      "owner_id": 2
+    },
+    {
+      "id": 5,
+      "business_id": 1,
+      "owner_id": 2
+    },
+    {
+      "id": 6,
+      "business_id": 1,
+      "owner_id": 2
+    },
+    {
+      "id": 7,
+      "business_id": 1,
+      "owner_id": 2
+    },
+    {
+      "id": 8,
+      "business_id": 1,
+      "owner_id": 2
+    },
+    {
+      "id": 9,
+      "business_id": 1,
+      "owner_id": 2
+    },
+    {
+      "id": 10,
+      "business_id": 1,
+      "owner_id": 2
+    },
+    {
+      "id": 11,
+      "business_id": 1,
+      "owner_id": 2
+    },
+    {
+      "id": 12,
+      "business_id": 1,
+      "owner_id": 2
+    },
+    {
+      "id": 13,
+      "business_id": 1,
+      "owner_id": 2
+    },
+    {
+      "id": 14,
+      "business_id": 1,
+      "owner_id": 2
+    },
+    {
+      "id": 15,
+      "business_id": 1,
+      "owner_id": 2
+    },
+    {
+      "id": 16,
+      "business_id": 1,
+      "owner_id": 2
+    },
+    {
+      "id": 17,
+      "business_id": 1,
+      "owner_id": 2
+    },
+    {
+      "id": 18,
+      "business_id": 1,
+      "owner_id": 2
+    },
+    {
+      "id": 19,
+      "business_id": 1,
+      "owner_id": 2
+    },
+    {
+      "id": 20,
+      "business_id": 1,
+      "owner_id": 2
+    },
+    {
+      "id": 23,
+      "business_id": 1,
+      "owner_id": 2
+    },
+    {
+      "id": 25,
+      "business_id": 1,
+      "owner_id": 2
+    },
+    {
+      "id": 26,
+      "business_id": 1,
+      "owner_id": 2
+    },
+    {
+      "id": 27,
+      "business_id": 1,
+      "owner_id": 2
+    },
+    {
+      "id": 28,
+      "business_id": 1,
+      "owner_id": 2
+    },
+    {
+      "id": 29,
+      "business_id": 1,
+      "owner_id": 2
+    }
+  ],
+  "premium_company_ids": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+  ],
+  "activation": "Pending confirmed recipient; no email sent.",
+  "backup": "C:\\Users\\Nancy Sandoval\\Downloads\\SISRESTAURANTE\\RecomenRestaurant\\.work\\companies-before-c340bdf8f9d94347827d8d22f743bd55.fernet",
+  "changed": true
+}

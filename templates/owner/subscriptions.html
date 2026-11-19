@@ -1,0 +1,5 @@
+{% extends 'base.html' %}
+{% block content %}<h1>Suscripciones de mis empresas</h1>
+{% for company in companies %}{% set sub=company.metadata.get('subscription',{}) %}<section class="card"><h2>{{ company.name }}</h2><p>Plan {{ sub.get('plan','Pendiente') }} / {{ sub.get('status','Pendiente') }}</p><p>Contratacion {{ sub.get('starts_on') or 'No registrada' }}. Vencimiento {{ sub.get('expires_on') or 'No registrado' }}.</p></section>{% else %}<p>No hay empresas asignadas.</p>{% endfor %}
+<p>Los permisos se revalidan en el servidor en cada solicitud.</p>
+{% endblock %}

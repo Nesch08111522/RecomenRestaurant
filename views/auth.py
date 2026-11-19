@@ -207,7 +207,8 @@ def logout():
 
 @auth_bp.route('/profile')
 def profile():
-    user = session.get('user')
+    from utils.security import fresh_session_user
+    user = fresh_session_user()
     if not user:
         flash('Debes iniciar sesión para ver tu perfil', 'warning')
         return redirect(url_for('auth.login', next=request.path))
@@ -314,6 +315,28 @@ def update_profile():
         return redirect(url_for('auth.login'))
     
     profile = dict(db_user.get('profile') or {})
+
+    def failed(message, status=400):
+        if request.headers.get('Accept') == 'application/json':
+            return jsonify(success=False, error=message), status
+        submitted = dict(profile)
+        for key in ('name', 'email', 'phone', 'birthday', 'daily_budget', 'weekly_budget'):
+            if key in request.form:
+                submitted[key] = request.form[key]
+        submitted.update(preferences=request.form.getlist('preferences'),
+                         restrictions=request.form.getlist('restrictions'),
+                         addresses=request.form.get('addresses', '').splitlines(),
+                         notification_preferences={
+                             'transactional': request.form.get('transactional_notifications') == 'on',
+                             'marketing': request.form.get('promotions_opt_in') == 'on',
+                             'reviews': request.form.get('review_notifications') == 'on',
+                             'waitlist': request.form.get('waitlist_notifications') == 'on'},
+                         location_consent=request.form.get('location_consent') == 'on',
+                         cookies_consent=request.form.get('cookies_consent') == 'on')
+        template = 'auth/profile_owner.html' if user.get('role') == 'business_owner' else 'auth/profile.html'
+        return render_template(template, user={**user, 'profile': submitted},
+                               profile_error=message, reviews=[], coupons=[]), status
+
     try:
         payload = {
             'name': request.form.get('name', profile.get('name')),
@@ -337,34 +360,42 @@ def update_profile():
             payload['birthday'] = request.form.get('birthday')
         changes = normalize_profile_patch(payload)
     except ValueError as error:
-        flash(str(error), 'error')
-        return redirect(url_for('auth.profile'))
+        return failed(str(error))
     if not protection.allow_attempt('profile', str(user_id), request.remote_addr or ''):
-        return 'Demasiados intentos.', 429
-    if changes.get('email') != profile.get('email') or changes.get('phone') != profile.get('phone', ''):
-        try:
-            result=protection.configure(user_id,request.form.get('current_password',''),'contacts',request.form.get('otp',''),email=changes['email'],phone=changes['phone'])
-            profile = dict((UserModel.get_by_id(user_id) or {}).get('profile') or {})
-            session['auth_epoch']=result['epoch']
-        except ValueError:
-            flash('Para cambiar el correo, confirma la contraseña actual y el código del autenticador si está activo.','warning')
-            return redirect(url_for('auth.profile'))
+        return failed('Demasiados intentos. Vuelve en diez minutos.', 429)
     try:
         from core.profile import save_profile_image
-        for kind in ('avatar', 'background'):
-            upload = request.files.get(kind)
-            if upload and upload.filename:
-                changes[kind] = save_profile_image(upload, user_id, kind)
+        from database.repository import document_transaction, PostgresDocumentRepository
+        epoch = None
+        with document_transaction():
+            db_user = PostgresDocumentRepository.get_by_id('users', user_id, for_update=True)
+            if not UserModel.is_active(db_user) or db_user.get('auth_epoch', 0) != session.get('auth_epoch', 0):
+                raise ValueError('La sesion cambio. Inicia sesion de nuevo.')
+            profile = dict(db_user.get('profile') or {})
+            if changes.get('email') != profile.get('email', '') or changes.get('phone') != profile.get('phone', ''):
+                result = protection.configure(user_id, request.form.get('current_password', ''),
+                                              'contacts', request.form.get('otp', ''),
+                                              email=changes['email'], phone=changes['phone'])
+                epoch = result['epoch']
+                profile = dict(UserModel.get_by_id(user_id).get('profile') or {})
+            for kind in ('avatar', 'background'):
+                upload = request.files.get(kind)
+                if upload and upload.filename:
+                    changes[kind] = save_profile_image(upload, user_id, kind)
+            profile.update(changes)
+            profile['promotions_opt_in'] = profile.get('notification_preferences', {}).get('marketing', False)
+            saved = UserModel.update(user_id, {'profile': profile})
+            if not saved or saved.get('profile') != profile:
+                raise ValueError('No se pudo guardar el perfil. Intenta de nuevo.')
     except ValueError as error:
-        flash(str(error), 'warning')
-        return redirect(url_for('auth.profile'))
-    profile.update(changes)
-    profile['promotions_opt_in'] = profile.get('notification_preferences', {}).get('marketing', False)
-
-    UserModel.update(user_id, {'profile': profile})
-    session['user'] = session_identity({**db_user, 'profile': profile})
+        return failed(str(error))
+    if epoch is not None:
+        session['auth_epoch'] = epoch
+    session['user'] = session_identity(saved)
     
     logger.info(f"✅ Perfil actualizado para: {db_user.get('username')}")
+    if request.headers.get('Accept') == 'application/json':
+        return jsonify(success=True, message='Perfil actualizado correctamente')
     flash('Perfil actualizado correctamente', 'success')
     return redirect(url_for('auth.profile'))
 

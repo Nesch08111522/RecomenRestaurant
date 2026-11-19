@@ -72,6 +72,8 @@ def create_app(test_config=None):
     from views.business_access import bp as business_access_bp
     app.register_blueprint(business_access_bp)
     app.register_blueprint(discovery_bp)
+    from views.commercial_radar import bp as commercial_radar_bp
+    app.register_blueprint(commercial_radar_bp)
     app.register_blueprint(sites_bp)
     app.register_blueprint(catalog_bp)
     app.register_blueprint(recommendation_history_bp)
@@ -91,7 +93,13 @@ def create_app(test_config=None):
     app.register_blueprint(flow_bp)
     from views.loyalty import loyalty_bp
     app.register_blueprint(loyalty_bp)
+    from views.home_kitchen import bp as home_kitchen_bp
+    app.register_blueprint(home_kitchen_bp)
     app.register_blueprint(admin_ai_bp)
+    from views.companies import bp as companies_bp
+    app.register_blueprint(companies_bp)
+    from core.company_access import enforce_subscription
+    app.before_request(enforce_subscription)
 
     from utils.restaurant_review import RestaurantRejected
     @app.errorhandler(RestaurantRejected)

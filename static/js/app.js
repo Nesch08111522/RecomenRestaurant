@@ -1051,7 +1051,8 @@ window.markNotificationRead = async function (id) {
         const response = await fetch(`/api/notifications/${id}/read`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('meta[name="csrf-token"]')?.content || ''
             }
         });
 
@@ -1061,14 +1062,7 @@ window.markNotificationRead = async function (id) {
 
         if (window.app) {
             await window.app.loadNotifications();
-            const badge = document.getElementById('notificationBadge');
-            if (badge) {
-                const current = parseInt(badge.textContent) || 0;
-                badge.textContent = Math.max(0, current - 1);
-                if (parseInt(badge.textContent) === 0) {
-                    badge.style.display = 'none';
-                }
-            }
+            // loadNotifications already applied the authoritative server count.
         }
     } catch (error) {
         console.error('Error marcando notificación como leída:', error);
@@ -1080,7 +1074,8 @@ window.markAllNotificationsRead = async function () {
         const response = await fetch('/api/notifications/read-all', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('meta[name="csrf-token"]')?.content || ''
             }
         });
 

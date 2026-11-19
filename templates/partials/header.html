@@ -26,7 +26,9 @@
 {%- endmacro %}
 
 {% macro navlink(endpoint, label, icon) -%}
+{% if company_nav_allowed is not defined or company_nav_allowed(endpoint) %}
 <a href="{{ url_for(endpoint) }}" title="{{ label }}" {% if request.endpoint == endpoint %}aria-current="page"{% endif %}>{{ glyph(icon) }}<span>{{ label }}</span></a>
+{% endif %}
 {%- endmacro %}
 
 {% macro navsection(label, icon, links) -%}
@@ -45,6 +47,7 @@
 {%- endmacro %}
 
 {% set user = session.get('user') %}
+{% if user is not mapping or not user.get('id') or user.get('role') not in ['user', 'admin', 'business_owner'] %}{% set user = none %}{% endif %}
 <header class="sr-header">
   <div class="sr-top">
     <button class="sr-icon sr-menu-button" type="button" aria-controls="sr-navigation" aria-expanded="false" aria-label="Abrir navegación">{{ glyph('bars') }}</button>
@@ -61,18 +64,18 @@
       {% if user %}
       <a class="sr-icon" href="{{ url_for('comunicacion.notifications') }}" aria-label="Notificaciones" title="Notificaciones">{{ glyph('bell') }}<span class="sr-count" data-count="notificaciones" hidden></span></a>
       <a class="sr-icon sr-message-link" href="{{ url_for('comunicacion.inbox') }}" aria-label="Mensajes" title="Mensajes">{{ glyph('comment') }}<span class="sr-count" data-count="mensajes" hidden></span></a>
-      {% if sr_saas_private %}
       <div class="private-account">
-        <button type="button" class="sr-account" data-account-toggle aria-expanded="false" aria-controls="private-account-menu" aria-label="Abrir opciones de cuenta">{{ (user.profile.name or user.username or 'U')[0]|upper }}</button>
+        <button type="button" class="sr-account" data-account-toggle aria-expanded="false" aria-controls="private-account-menu" aria-label="Abrir opciones de cuenta">{{ (user.get('profile', {}).get('name') or user.get('username') or 'U')[0]|upper }}</button>
         <div id="private-account-menu" class="private-account-menu" hidden>
           <a href="{{ url_for('auth.profile') }}">Mi perfil</a>
           <a href="{{ url_for('auth.account_security') }}">Configuración y seguridad</a>
+          {% if sr_system_page %}
+          <a href="/">Ir al sitio web</a>
+          {% else %}
           <a href="{{ url_for('admin.dashboard' if user.role == 'admin' else 'owner.dashboard' if user.role == 'business_owner' else 'market.orders') }}">Ir al sistema</a>
+          {% endif %}
         </div>
       </div>
-      {% else %}
-      <a class="sr-account user-dropdown" href="{{ url_for('auth.profile') }}" aria-label="Mi perfil" title="Mi perfil">{{ (user.profile.name or user.username or 'U')[0]|upper }}</a>
-      {% endif %}
       {% else %}
       <a class="sr-login" href="{{ url_for('auth.login') }}">Ingresar</a><a class="sr-button sr-signup" href="{{ url_for('auth.register') }}">Crear cuenta</a>
       {% endif %}
@@ -108,6 +111,8 @@
   {% if user and user.role == 'admin' %}
     {{ navlink('admin.dashboard','Resumen','chart-pie') }}{{ navlink('intelligence.dashboard','Inteligencia empresarial','chart-line') }}{{ navlink('trust_center.dashboard','Seguridad y confianza','shield-halved') }}{{ navlink('copilot.page','SmartResto Copilot','comment') }}
     {{ navsection('Restaurantes','store',[
+      ('companies.admin_companies','Empresas y suscripciones','store'),
+      ('commercial_radar.dashboard','Radar comercial','compass'),
       ('admin.restaurants','Todos los restaurantes','store'),
       ('admin.new_restaurant','Registrar restaurante','circle-plus'),
       ('admin.categories','Categorías','tags')]) }}
@@ -153,6 +158,7 @@
         {{ navlink('ecosystem.groups','Comer en grupo','users') }}
         {{ navlink('ecosystem.rewards','Mis recompensas','tags') }}
         {{ navlink('ecosystem.scan','SmartScan','compass') }}
+        {{ navlink('home_kitchen.index','Cocina en casa','store') }}
       {% else %}
         <strong class="sr-group">Mi espacio</strong>{{ navlink('copilot.page','SmartResto Copilot','comment') }}
         {{ navlink('market.orders','Mis pedidos','receipt') }}
@@ -161,6 +167,7 @@
         {{ navlink('ecosystem.groups','Comer en grupo','users') }}
         {{ navlink('ecosystem.rewards','Mis recompensas','tags') }}
         {{ navlink('ecosystem.scan','SmartScan','compass') }}
+        {{ navlink('home_kitchen.index','Cocina en casa','store') }}
       {% endif %}
 
       <strong class="sr-group">Atención y cuenta</strong>

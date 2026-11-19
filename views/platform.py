@@ -61,12 +61,23 @@ def me():
     user = fresh_session_user()
     if not user:
         return jsonify({"authenticated": False, "context": build_platform_context(session).as_public_dict()}), 401
+    from models.company import company_for_restaurant, permitted, CAPABILITIES
+    from models.restaurant import RestaurantModel
+    shops = RestaurantModel.get_by_owner(user['id'])
+    company_context = []
+    for shop in shops:
+        company = company_for_restaurant(shop['id'])
+        if company:
+            company_context.append({'restaurant_id': shop['id'], 'company_id': company['id'],
+                'name': company['name'], 'subscription': company['metadata'].get('subscription', {}),
+                'permissions': [p for p in CAPABILITIES if permitted(user, shop['id'], p)]})
     return jsonify(
         {
             "authenticated": True,
             "user": session_identity(user),
             "context": build_platform_context(session).as_public_dict(),
             "permissions": permissions_for_role(user.get("role")),
+            "companies": company_context,
         }
     )
 

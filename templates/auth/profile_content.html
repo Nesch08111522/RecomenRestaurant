@@ -1,3 +1,4 @@
+<link rel="stylesheet" href="{{ url_for('static', filename='css/profile-responsive.css') }}">
 <div class="profile-container">
     <div class="profile-header">
         <h1>Mi Perfil</h1>
@@ -26,14 +27,15 @@
         </div>
         
         <div class="profile-form-container">
-            <form method="POST" enctype="multipart/form-data" action="{{ url_for('auth.update_profile') }}" class="profile-form"><details><summary>Confirmación para cambiar el correo asociado</summary><p>Completa estos datos solo si cambias tu correo. También puedes gestionar tus contactos desde Seguridad.</p><label>Contraseña actual<input name="current_password" type="password" autocomplete="current-password"></label><label>Código del autenticador, si está activo<input name="otp" maxlength="6" pattern="[0-9]{6}" autocomplete="one-time-code"></label></details>
+            <p class="profile-feedback" role="status" aria-live="polite" tabindex="-1" {% if not profile_error %}hidden{% endif %}>{{ profile_error or '' }}</p>
+            <form method="POST" enctype="multipart/form-data" action="{{ url_for('auth.update_profile') }}" class="profile-form"><details><summary>Confirmación para cambiar correo o celular</summary><p>Completa estos datos solo si cambias tu correo o celular. También puedes gestionar tus contactos desde Seguridad.</p><label>Contraseña actual<input name="current_password" type="password" autocomplete="current-password"></label><label>Código del autenticador, si está activo<input name="otp" maxlength="6" pattern="[0-9]{6}" autocomplete="one-time-code"></label></details>
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <div class="form-group"><label>Mis direcciones de delivery (una por línea, máximo cinco)<textarea name="addresses" rows="3" maxlength="1105">{{ user.profile.get('addresses',[])|join('\n') }}</textarea></label>
                     <label><input type="checkbox" name="promotions_opt_in" {% if user.profile.get('notification_preferences', {}).get('marketing', user.profile.get('promotions_opt_in', false)) %}checked{% endif %}> Quiero recibir promociones en SmartResto</label>
                 </div>
                 <div class="form-group profile-budget-grid">
-                    <label>Presupuesto diario (S/.)<input type="number" name="daily_budget" min="0" max="1000000" step="0.01" value="{{ user.profile.get('daily_budget', '') }}" class="form-input"></label>
-                    <label>Presupuesto semanal (S/.)<input type="number" name="weekly_budget" min="0" max="1000000" step="0.01" value="{{ user.profile.get('weekly_budget', '') }}" class="form-input"></label>
+                    <label>Presupuesto diario (S/.)<input type="number" name="daily_budget" min="0" max="1000000" step="0.01" value="{{ user.profile.get('daily_budget') if user.profile.get('daily_budget') is not none else '' }}" class="form-input"></label>
+                    <label>Presupuesto semanal (S/.)<input type="number" name="weekly_budget" min="0" max="1000000" step="0.01" value="{{ user.profile.get('weekly_budget') if user.profile.get('weekly_budget') is not none else '' }}" class="form-input"></label>
                 </div>
                 <div class="form-group">
                     <label>Fecha de cumpleaños (para el beneficio anual)<input type="date" name="birthday" value="{{ user.profile.get('birthday', '') }}" class="form-input"></label>
@@ -57,7 +59,7 @@
                 <div class="form-group profile-identity-grid">
                     <label>Nombre completo<input type="text" name="name" value="{{ user.profile.name }}" class="form-input" required></label>
                     <label>Email<input type="email" name="email" value="{{ user.profile.email }}" maxlength="254" class="form-input" required></label>
-                    <label>Celular de recuperacion<input type="tel" name="phone" value="{{ user.profile.get('phone', '') }}" maxlength="16" pattern="\+[1-9][0-9]{7,14}" placeholder="+51900000000" class="form-input" required></label>
+                    <label>Celular de recuperacion<input type="tel" name="phone" value="{{ user.profile.get('phone', '') }}" maxlength="16" pattern="\+[1-9][0-9]{7,14}" placeholder="+51900000000" class="form-input"></label>
                     <p>Al cambiar correo o celular confirma tu contrasena y autenticador. Se invalidan sesiones, codigos pendientes y la clave de recuperacion anterior. El contacto no se marca verificado hasta comprobar su posesion.</p>
                     <label>Avatar<input type="file" name="avatar" accept="image/jpeg,image/png,image/webp"></label>
                     <label>Fondo<input type="file" name="background" accept="image/jpeg,image/png,image/webp"></label>
@@ -173,7 +175,8 @@
         background: var(--theme-surface);
         border-radius: var(--radius);
         padding:var(--space-lg);
-        box-shadow: var(--shadow);
+        border: 1px solid var(--theme-border);
+        box-shadow: none;
         text-align: center;
     }
     
@@ -219,7 +222,8 @@
         background: var(--theme-surface);
         border-radius: var(--radius);
         padding:var(--space-lg);
-        box-shadow: var(--shadow);
+        border: 1px solid var(--theme-border);
+        box-shadow: none;
     }
     
     .profile-form .form-group {
@@ -275,3 +279,51 @@
         }
     }
 </style>
+<script>
+(() => {
+    const form = document.querySelector('.profile-form');
+    const feedback = document.querySelector('.profile-feedback');
+    form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const button = form.querySelector('[type="submit"]');
+        if (button.disabled) return;
+        button.disabled = true;
+        feedback.hidden = false;
+        feedback.textContent = 'Guardando cambios...';
+        try {
+            const response = await fetch(form.action, {
+                method: 'POST', body: new FormData(form),
+                headers: {'Accept': 'application/json'}, credentials: 'same-origin'
+            });
+            const result = await response.json();
+            if (!response.ok || !result.success) {
+                feedback.textContent = result.error || 'No se pudo guardar. Revisa tu sesion y vuelve a intentarlo.';
+            } else {
+                feedback.textContent = result.message;
+                for (const kind of ['avatar', 'background']) {
+                    const input = form.elements[kind];
+                    if (input.files.length) {
+                        const avatar = document.querySelector('.profile-avatar');
+                        let image = avatar.querySelector('.profile-' + kind + '-image');
+                        if (!image) {
+                            image = document.createElement('img');
+                            image.className = 'profile-' + kind + '-image';
+                            image.alt = kind === 'avatar' ? 'Mi avatar' : 'Mi fondo';
+                            avatar.prepend(image);
+                        }
+                        image.src = '{{ url_for("auth.profile_photo", kind="avatar") }}'.replace('/avatar', '/' + kind) + '?v=' + Date.now();
+                        input.value = '';
+                    }
+                }
+                form.elements.current_password.value = '';
+                form.elements.otp.value = '';
+            }
+        } catch (error) {
+            feedback.textContent = 'No se pudo confirmar el guardado. Comprueba tu conexion o sesion antes de reintentar.';
+        } finally {
+            button.disabled = false;
+            feedback.focus();
+        }
+    });
+})();
+</script>

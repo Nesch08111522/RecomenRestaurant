@@ -1,4 +1,9 @@
 /* Shared colour, type and interaction tokens. */
+.private-account { position: relative; }
+.private-account-menu { position: absolute; right: 0; top: calc(100% + 8px); width: min(224px, calc(100vw - 32px)); padding: 6px; border: 1px solid var(--theme-border); background: var(--theme-surface); border-radius: 8px; z-index: 110; }
+.private-account-menu[hidden] { display: none; }
+.private-account-menu a { display: block; padding: 10px; color: var(--theme-text); text-decoration: none; border-radius: 6px; }
+.private-account-menu a:hover { background: var(--theme-elevated); }
 :root {
   --sr-bg: var(--theme-bg); --sr-surface: var(--theme-surface); --sr-text: var(--theme-success); --sr-muted: var(--theme-muted); --sr-brand: var(--theme-accent);
   --sr-line: var(--theme-border); --sr-accent: var(--theme-accent); --sr-tint: var(--theme-elevated); --sr-ink: var(--theme-success); --sr-focus: var(--theme-focus);

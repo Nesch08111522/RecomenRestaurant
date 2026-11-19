@@ -187,21 +187,37 @@ def inventory(rid):
         store = kitchen(rid)
         lot = store["pantry"].get(name)
         old = lot["quantity"] if lot else 0
+        from logic.inventory_lots import batches, sync
         if move == "Entrada":
             expiry = day_value(f.get("expires"))
             unit = f.get("unit")
             if expiry < now().date() or unit not in {"g", "ml", "unidad"} or not qty:
                 raise MarketError("Indica unidades y un vencimiento vigente.")
             cost, basis = money(f.get("cost")), integer(f.get("basis"), 1)
-            if lot and old and (lot["expires"] != expiry.isoformat() or lot["unit"] != unit or lot["cost"] != cost or lot["basis"] != basis):
-                raise MarketError("Para un lote con otro vencimiento o costo usa un nombre distinto.")
-            lot = {"quantity": old + qty, "expires": expiry.isoformat(), "unit": unit, "cost": cost,
-                   "substitutes": words(f.get("substitutes", "")[:240]),
-                   "basis": basis, "lot": lot["lot"] if old else uuid4().hex}
+            if lot and lot['unit'] != unit:
+                raise MarketError('Todos los lotes del insumo deben usar la misma unidad.')
+            rotation = f.get('rotation', 'FEFO')
+            if rotation not in {'FEFO', 'FIFO'}:
+                raise MarketError('Selecciona FEFO o FIFO.')
+            previous = [dict(batch) for batch in batches(lot)] if lot else []
+            new_lot = {"quantity": qty, "expires": expiry.isoformat(), "unit": unit, "cost": cost,
+                       "basis": basis, "lot": uuid4().hex, "received_at": now().isoformat()}
+            lot = {**new_lot, 'lots': previous + [new_lot], 'rotation': rotation,
+                   'substitutes': words(f.get('substitutes', '')[:240])}
+            sync(lot)
         else:
             if not lot or move == "Merma" and qty > old:
                 raise MarketError("El movimiento supera el stock registrado.")
-            lot["quantity"] = qty if move == "Conteo" else old - qty
+            if 'lots' in lot:
+                selected = next((batch for batch in lot['lots'] if batch['lot'] == f.get('lot_id')), None)
+                if not selected:
+                    raise MarketError('Selecciona el identificador del lote para merma o conteo.')
+                if move == 'Merma' and qty > selected['quantity']:
+                    raise MarketError('La merma supera el stock del lote.')
+                selected['quantity'] = qty if move == 'Conteo' else selected['quantity'] - qty
+                sync(lot)
+            else:
+                lot["quantity"] = qty if move == "Conteo" else old - qty
         store["pantry"][name] = lot
         save_kitchen(store)
         Repo.create("market_movements", {"rid": rid, "name": name, "move": move, "delta": lot["quantity"] - old,

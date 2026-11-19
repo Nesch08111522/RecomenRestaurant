@@ -174,10 +174,16 @@ def place_order(uid, rid, cart, channel, destination, slot, request_key, method,
                 raise MarketError("Selecciona una hora dentro de la oferta de últimas porciones.")
             unit_cost = recipe_cost(offer["recipe"], store["pantry"])
             usage = {}
+            from decimal import Decimal, ROUND_HALF_UP
+            from logic.inventory_lots import consume
+            batch_cost = Decimal(0)
             for name, amount in offer["recipe"].items():
                 lot = store["pantry"][name]
-                usage[name] = {"amount": amount * qty, "lot": lot["lot"]}
-                lot["quantity"] -= amount * qty
+                allocations, consumed_cost = consume(lot, amount * qty, day)
+                usage[name] = {"amount": amount * qty, "lot": allocations[0]["lot"], "lots": allocations}
+                batch_cost += consumed_cost
+            if offer["recipe"]:
+                unit_cost = int((batch_cost / qty).quantize(Decimal(1), rounding=ROUND_HALF_UP))
             Repo.update("market_offers", oid, {"stock": offer["stock"] - qty})
             remaining = min(offer["stock"] - qty, available(offer, store["pantry"], day))
             if remaining == 0:
@@ -221,9 +227,11 @@ def place_order(uid, rid, cart, channel, destination, slot, request_key, method,
                 NotificationModel.create_notification(
                     staff_id, "Nuevo pedido por mesa",
                     f"Pedido {order['id']} · mesa {table.get('table_label') if table else ''} · {slot:%d/%m %H:%M}.",
-                    link=f"/salon/{rid}")
+                    link=f"/salon/{rid}" if table else f"/mercado/cocina/{rid}",
+                    event_key=f"order:{order['id']}:created:staff")
         NotificationModel.create_notification(uid, "Pedido confirmado", f"Pedido #{order['id']} en {business['name']}.",
-                                              link=f"/mesa/{table['token']}" if table else "/mercado/pedidos")
+                                              link=f"/mesa/{table['token']}" if table else "/mercado/pedidos",
+                                              event_key=f"order:{order['id']}:created:buyer")
         return order
 
 
@@ -250,17 +258,22 @@ def transition(order, action, buyer=False):
                     Repo.update("market_offers", offer["id"], {"stock": offer["stock"] + line["qty"]})
                 for name, used in line["usage"].items():
                     lot = store["pantry"].get(name)
-                    if lot and lot["lot"] == used["lot"]:
-                        lot["quantity"] += used["amount"]
+                    if lot:
+                        from logic.inventory_lots import restore
+                        restore(lot, used.get("lots", [{"lot": used["lot"], "amount": used["amount"]}]))
+                    else:
+                        raise MarketError("Falta el insumo original para restaurar el pedido.")
             save_kitchen(store)
         changes = {"state": action, "history": order["history"] + [{"state": action, "at": now().isoformat()}]}
         if action == "Entregado" and order["method"] == "Contraentrega":
             changes["paid"] = True
         updated = Repo.update("market_orders", order["id"], changes)
         NotificationModel.create_notification(order["uid"], "Seguimiento de pedido", f"Pedido {order['id']}: {action}.",
-                                              link="/mercado/pedidos")
+                                              link="/mercado/pedidos",
+                                              event_key=f"order:{order['id']}:state:{action}:buyer")
         NotificationModel.create_notification(business["owner_id"], "Pedido actualizado", f"Pedido {order['id']}: {action}.",
-                                              link=f"/mercado/cocina/{order['rid']}")
+                                              link=f"/mercado/cocina/{order['rid']}",
+                                              event_key=f"order:{order['id']}:state:{action}:owner")
         return updated
 
 

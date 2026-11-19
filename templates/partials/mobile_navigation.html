@@ -1,9 +1,9 @@
-{% if session.get('user', {}).get('role', 'guest') in ['guest', 'user'] %}
+{% if not sr_authenticated or shell_user.get('role') == 'user' %}
 {% from 'partials/header.html' import glyph with context %}
 <nav class="sr-mobile-nav" aria-label="Accesos rápidos">
   <a href="{{ url_for('main.index') }}" {% if request.endpoint == 'main.index' %}aria-current="page"{% endif %}>{{ glyph('compass') }}<span>Explorar</span></a>
   <a href="{{ url_for('recommendations.index') }}" {% if request.endpoint == 'recommendations.index' %}aria-current="page"{% endif %}>{{ glyph('heart') }}<span>Para ti</span></a>
   <a href="{{ url_for('market.cart') }}" {% if request.endpoint == 'market.cart' %}aria-current="page"{% endif %}>{{ glyph('basket-shopping') }}<span>Carrito{% if session.market_cart %} · {{ session.market_cart.lines.values()|sum }}{% endif %}</span></a>
-  <a href="{{ url_for('market.orders') if session.get('user') else url_for('auth.login') }}" {% if request.endpoint in ['market.orders', 'auth.login'] %}aria-current="page"{% endif %}>{{ glyph('user') }}<span>{{ 'Pedidos' if session.get('user') else 'Ingresar' }}</span></a>
+  <a href="{{ url_for('market.orders') if sr_authenticated else url_for('auth.login') }}" {% if request.endpoint in ['market.orders', 'auth.login'] %}aria-current="page"{% endif %}>{{ glyph('user') }}<span>{{ 'Pedidos' if sr_authenticated else 'Ingresar' }}</span></a>
 </nav>
 {% endif %}

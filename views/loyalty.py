@@ -45,6 +45,29 @@ def preferences():
     return redirect(url_for("loyalty.wallet_page"))
 
 
+@loyalty_bp.get("/mis-reservas")
+def reservations():
+    from models.reservation import ReservationModel
+    actor = require_user()
+    rows = ReservationModel.get_by_user(actor["id"])
+    return render_template("loyalty/wallet.html", reservations_only=True,
+                           reservations=sorted(rows, key=lambda row: (row["date"], row["time"]), reverse=True))
+
+
+@loyalty_bp.post("/mis-reservas/<int:reservation_id>/cancelar")
+def cancel_reservation(reservation_id):
+    from models.reservation import ReservationModel
+    from logic.market import MarketError
+    actor = require_user()
+    try:
+        ReservationModel.cancel_for_user(reservation_id, actor["id"])
+    except MarketError as error:
+        flash(str(error), "warning")
+    else:
+        flash("Reserva cancelada.", "success")
+    return redirect(url_for("loyalty.reservations"))
+
+
 @loyalty_bp.get("/owner/puntos/<int:rid>")
 def customers(rid):
     actor = user()

@@ -1,0 +1,6 @@
+{% extends 'base.html' %}
+{% block content %}<h1>Usuarios conectados</h1><p>Actividad autenticada en los ultimos cinco minutos; no representa una conexion persistente.</p>
+<div style="overflow-x:auto"><table><thead><tr><th>Usuario</th><th>Rol</th><th>Empresa</th><th>Plan</th><th>Estado</th></tr></thead><tbody>
+{% for user in users %}<tr><td>{{ user.username }}</td><td>{{ user.role }}</td><td>{{ user.name or 'Sin empresa' }}</td><td>{{ user.plan or 'No aplica' }}</td><td>Actividad reciente</td></tr>{% else %}<tr><td colspan="5">Sin actividad reciente registrada.</td></tr>{% endfor %}
+</tbody></table></div>
+{% endblock %}

@@ -1,0 +1,68 @@
+{
+  "run": "09b2cba5be6d4a2cbf60c395b8de7cc9",
+  "applied": true,
+  "created_companies": [
+    {
+      "id": 1,
+      "name": "Sakura Nori",
+      "plan": "basic",
+      "demo": true
+    },
+    {
+      "id": 2,
+      "name": "Drag\u00f3n de Jade",
+      "plan": "decente",
+      "demo": true
+    },
+    {
+      "id": 3,
+      "name": "Trattoria Bellavista",
+      "plan": "premium",
+      "demo": true
+    }
+  ],
+  "created_memberships": [
+    1,
+    2,
+    3
+  ],
+  "created_users": [
+    {
+      "id": 1,
+      "username": "demo-sakura-nori"
+    },
+    {
+      "id": 3,
+      "username": "demo-dragon-de-jade"
+    },
+    {
+      "id": 5,
+      "username": "demo-trattoria-bellavista"
+    }
+  ],
+  "created_restaurants": [
+    {
+      "id": 2,
+      "company_id": 1,
+      "name": "Sakura Nori",
+      "owner_id": 1
+    },
+    {
+      "id": 4,
+      "company_id": 2,
+      "name": "Drag\u00f3n de Jade",
+      "owner_id": 3
+    },
+    {
+      "id": 6,
+      "company_id": 3,
+      "name": "Trattoria Bellavista",
+      "owner_id": 5
+    }
+  ],
+  "linked_restaurants": [],
+  "premium_company_ids": [],
+  "activation": "Pending confirmed recipient; no email sent.",
+  "backup": "C:\\Users\\Nancy Sandoval\\Downloads\\SISRESTAURANTE\\RecomenRestaurant\\.work\\companies-before-09b2cba5be6d4a2cbf60c395b8de7cc9.fernet",
+  "changed": true
+}

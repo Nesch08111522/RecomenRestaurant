@@ -4,6 +4,55 @@
 **Fuente de requisitos:** plan maestro de 18 fases adjunto por la usuaria.
 **Alcance:** contraste estático del repositorio, sus rutas, plantillas, pruebas y documentación disponible. Este archivo no reemplaza las especificaciones de cada fase.
 
+## Implementación de esta sesión: fases 7, 9, 11 y 12
+
+Esta sección es la evidencia más reciente. No certifica el cierre de fases 3–18 ni sustituye las brechas históricas.
+
+### Cambios implementados
+
+- Fase 7: el feed `for_you` admite coincidencias con preferencias declaradas en cold-start, identificadas como `personalization_basis=declared_preferences`. No inventa compras ni visitas; mantiene descubrimiento y filtros existentes. La vista menciona preferencias como fuente de selección.
+- Fase 9: nueva pantalla `/mis-reservas` con estilos `sr-service`, `sr-list` y botones existentes, enlace desde puntos y cancelación POST con CSRF. Cancelación exclusiva del titular, lock de fila, estados/futuro validados, retry idempotente y auditoría atómica. La creación valida grupos enteros 1–20, fecha futura hasta 30 días y negocios suspendidos. La ruta de creación revalida la cuenta mediante `fresh_session_user`, no confía solo en el objeto de sesión legado.
+- Fase 11: altas y configuración serializadas por negocio mediante advisory lock transaccional PostgreSQL; aceptación revalidada tras el lock. Lectura de turno con lock de fila para transiciones. Prueba concurrente de dos altas con códigos distintos y dos solicitudes del mismo usuario con un único turno activo. Vista pública consulta estado cada 15 segundos, evita requests solapados y pestañas ocultas, repinta mediante textContent y conserva estado ante errores de red. No demuestra comportamiento visual en navegador.
+- Fase 12: cumpleaños serializado por usuario/año con comprobación de unicidad dentro de la transacción y auditoría sin fecha personal; opt-out explícito bloquea el beneficio. Visitas sin consumo pagado vigente dejan de aportar historial/insignias; reembolsos descuentan puntos históricos usados para nivel. Segmentos del negocio omiten usuarios con visitas privadas y exponen autorización de marketing explícita. No es todavía una política transversal de todos los consumidores de datos.
+- Fases 17–18: regresiones cross-user/cross-business, rollback cuando falla auditoría, controles de grupo/fecha/suspensión y contratos HTTP. Fixture QA de fase 11 ahora configura secreto efímero de prueba sin relajar validación productiva.
+
+### Pruebas recientes exactas
+
+Todos los grupos DB usaron `SMARTRESTO_RUN_ISOLATED_DB=1`, el fixture inspeccionado que crea esquema aleatorio con tablas/secuencias exclusivas y cursor protegido. No se leyó/imprimió `.env`, no se corrieron scripts DB directos, servidores propios, proveedores, pagos o despliegue.
+
+| Selección con `python -m pytest`, sufijo `-q --tb=short` | Resultado | Límite |
+|---|---|---|
+| `test/test_phase11_flow.py test/test_phase12_loyalty.py` inicial | 22 aprobadas, 233,87 s | 300 s |
+| `test/test_phase11_flow.py` con nueva regresión HTTP | 11 aprobadas, 150,16 s | 300 s |
+| `test/test_phase11_qa.py` tras secreto efímero | 5 aprobadas, 19,93 s | 120 s |
+| `test/test_phase12_loyalty.py` última ejecución, incluye reservas y validaciones | 15 aprobadas, 162,53 s | 300 s |
+| `test/test_phase7_personalization.py test/test_phase7_recommender.py test/test_theme_contract.py test/test_copilot_backend.py` | 91 aprobadas, 4,93 s; sin fixture DB | 120 s |
+
+Son selecciones con pruebas repetidas, no un total único ni suite integral. Fallos intermedios: contrato cold-start anterior esperaba feed vacío (actualizado al nuevo requisito); test de reservas sin SECRET_KEY efímero (corregido); cinco tests QA usaban create_app sin secreto (corregidos en fixture local). Se ejecutaron nuevamente las selecciones afectadas con resultados anteriores. `git diff --check` se verificó durante la sesión sin errores de espacios, con avisos CRLF; no acredita cambios posteriores concurrentes.
+
+### Estado por fase al terminar esta implementación
+
+| Fase | Resultado de esta sesión / brecha pendiente |
+|---|---|
+| 3 | Requisitos y reporte leídos; sin implementación nueva atribuible. Fuentes externas y scheduler pendientes. |
+| 4 | Sin implementación nueva; configuración independiente de sucursal y recorrido visual pendientes. |
+| 5 | Sin implementación nueva; categorías/multimedia completas pendientes. |
+| 6 | Sin implementación nueva; promociones por producto y rutas viales pendientes. |
+| 7 | Cold-start implementado y probado; evaluación del ranking y desglose completo por factor pendientes. |
+| 8 | Sin implementación nueva; adicionales cobrables y pagos separados pendientes. |
+| 9 | Espacio cliente de reservas implementado/probado; carrito multivendedor y cobros externos pendientes. |
+| 10 | Sin implementación nueva; lotes múltiples FEFO/FIFO y producción/compras pendientes. |
+| 11 | Concurrencia de altas y transiciones, repintado público implementados; reserva física y carga sostenida pendientes. |
+| 12 | Unicidad, opt-out, segmentos privados y reembolsos corregidos/probados; consentimientos transversales y reseña multidimensional pendientes. |
+| 13 | Sin implementación doméstica nueva; despensa/recetas/planificador/lista pendientes. |
+| 14 | Sin implementación nueva; GLB real y AR físico no probados. |
+| 15 | Sin implementación BI nueva; alcance global y predicción validada pendientes. |
+| 16 | 54 pruebas backend incluidas en selección de 91; sin historial persistente ni acciones nuevas. |
+| 17 | Cuenta fresca en reservas y auditoría de cancelación/cumpleaños; tenancy transversal no certificada. |
+| 18 | Selecciones modulares anteriores; sin suite integral, browser responsive 360/768/1280, dark/light, backup o deploy. |
+
+El catálogo MCP consultado no expuso herramientas de subagentes ni navegador. No se ejecutaron ni tocaron los procesos Flask existentes de :5000. Estado inicial Git limpio; aparecieron cambios concurrentes ajenos en arquitectura, perfiles, empresas, radar, shell y Copilot durante el trabajo: se preservaron, no se ejecutaron sus scripts ni se atribuyen a esta sesión. Sin commits, borrados ni dependencias runtime nuevas. Ninguna fase se declara completa.
+
 ## Verificación modular posterior: fases 4–18
 
 Esta sección sustituye el estado de «no atendidas» de la continuación anterior para los módulos aquí comprobados. Las pruebas verdes no equivalen al cumplimiento completo del plan.

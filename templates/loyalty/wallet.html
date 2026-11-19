@@ -5,9 +5,21 @@
   <nav class="sr-service-nav" aria-label="Mis puntos">
     <a href="{{ url_for('loyalty.wallet_page') }}">Mis puntos</a>
     <a href="{{ url_for('market.orders') }}">Mis pedidos</a>
+    <a href="{{ url_for('loyalty.reservations') }}">Mis reservas</a>
     <a href="{{ url_for('auth.favorites') }}">Favoritos</a>
     <a href="{{ url_for('auth.profile') }}">Mi perfil</a>
   </nav>
+  {% if reservations_only %}
+  <header class="sr-service-hero"><div><h1>Mis reservas</h1><p>Consulta tus horarios y cancela reservas futuras pendientes o confirmadas.</p></div></header>
+  <section class="sr-service-card">
+    <ul class="sr-list">
+    {% for row in reservations %}
+      <li><span><a href="{{ url_for('main.detail', restaurant_id=row.restaurant_id) }}">Reserva #{{ row.id }}</a><br>{{ row.date }} {{ row.time }} · {{ row.guests }} personas · {{ row.status }}</span>
+      {% if row.status in ['pendiente', 'confirmada'] %}<form method="post" action="{{ url_for('loyalty.cancel_reservation', reservation_id=row.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="ghost">Cancelar reserva</button></form>{% endif %}</li>
+    {% else %}<li>No tienes reservas registradas.</li>{% endfor %}
+    </ul>
+  </section>
+  {% else %}
   <header class="sr-service-hero">
     <div><h1>Billetera de fidelización</h1><p>Puntos por compras pagadas y visitas verificadas. Una cancelación o reembolso no genera puntos.</p></div>
     <div class="sr-note"><strong style="font-size:2rem">{{ wallet.balance }}</strong> puntos<br><span class="sr-muted">Nivel {{ wallet.level.name }}</span></div>
@@ -60,11 +72,12 @@
     <form method="post" action="{{ url_for('loyalty.preferences') }}">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <label class="sr-check"><input type="checkbox" name="marketing" {% if preferences.get('marketing') %}checked{% endif %}> Recibir promociones personalizadas</label>
-      <label class="sr-check"><input type="checkbox" name="visits_visible" {% if preferences.get('visits_visible', true) %}checked{% endif %}> Usar mi historial de visitas para recomendaciones</label>
+      <label class="sr-check"><input type="checkbox" name="visits_visible" {% if preferences.get('visits_visible', true) %}checked{% endif %}> Compartir mi actividad en los segmentos del negocio</label>
       <label class="sr-check"><input type="checkbox" name="birthday_visible" {% if preferences.get('birthday_visible', true) %}checked{% endif %}> Usar mi cumpleaños para beneficios</label>
       <button>Guardar preferencias</button>
     </form>
     <p class="sr-muted">Las notificaciones de pedidos, turnos y reseñas se controlan además en tu perfil.</p>
   </section>
+  {% endif %}
 </div>
 {% endblock %}

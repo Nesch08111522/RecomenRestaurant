@@ -1,0 +1,20 @@
+{
+  "run": "5a74f372d3ca42499fd758016dc838e1",
+  "applied": true,
+  "created_companies": [],
+  "created_memberships": [],
+  "created_users": [],
+  "created_restaurants": [],
+  "linked_restaurants": [],
+  "premium_company_ids": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+  ],
+  "activation": "Pending confirmed recipient; no email sent.",
+  "backup": "C:\\Users\\Nancy Sandoval\\Downloads\\SISRESTAURANTE\\RecomenRestaurant\\.work\\companies-before-5a74f372d3ca42499fd758016dc838e1.fernet",
+  "changed": false
+}

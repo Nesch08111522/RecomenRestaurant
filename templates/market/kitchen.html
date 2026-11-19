@@ -20,12 +20,13 @@
 <button>Guardar configuración</button></form></details>{% endif %}
 <details><summary>Inventario, vencimientos y mermas</summary>
 {% if alerts %}<div class="market-note"><strong>Alertas de inventario</strong>{% for alert in alerts %}<p>{{ alert.name }} · {{ alert.state }} · {{ alert.detail }}</p>{% endfor %}</div>{% endif %}
-{% for name,lot in store.pantry.items() %}<p>{{ name }} · {{ lot.quantity }} {{ lot.unit }} · vence {{ lot.expires }}{% if not lot.quantity %} · Agotado{% elif lot.expires <= target.isoformat() %} · Revisar vencimiento{% endif %}</p>{% endfor %}
+{% for name,lot in store.pantry.items() %}<p>{{ name }} · {{ lot.quantity }} {{ lot.unit }} · {{ lot.get('rotation','FEFO') }}</p>{% for batch in lot.get('lots', [lot]) %}<p>Lote {{ batch.lot }} · {{ batch.quantity }} {{ lot.unit }} · vence {{ batch.expires }}{% if batch.expires < today %} · Vencido, no disponible{% endif %}</p>{% endfor %}{% endfor %}
 <form class="market-form" method="post" action="{{ url_for('market.inventory',rid=business.id) }}">{{ token() }}
 <label>Movimiento<select name="move"><option>Entrada</option><option>Merma</option><option>Conteo</option></select></label>
 {{ field('Insumo o lote','name',required=true) }}{{ field('Cantidad del movimiento o conteo físico','quantity','number',required=true) }}
 <label>Unidad<select name="unit"><option>g</option><option>ml</option><option>unidad</option></select></label>
 {{ field('Vencimiento del lote','expires','date') }}{{ field('Costo de compra (S/)','cost','number') }}{{ field('Unidades cubiertas por ese costo','basis','number',1000) }}
+<label>Rotación de lotes<select name="rotation"><option>FEFO</option><option>FIFO</option></select></label><label>Lote para merma/conteo<select name="lot_id"><option value="">Seleccionar lote</option>{% for name,item in store.pantry.items() %}{% for batch in item.get('lots',[item]) %}<option value="{{ batch.lot }}">{{ name }} · {{ batch.lot }} · {{ batch.expires }}</option>{% endfor %}{% endfor %}</select></label>
 {{ field('Sustituciones aprobadas para evaluar, separadas por coma','substitutes') }}
 <button>Registrar movimiento</button></form>{% for m in moves %}<small>{{ m.at[:10] }} · {{ m.move }} · {{ m.name }} · {{ m.delta }}</small><br>{% endfor %}</details>
 <details {% if draft %}open{% endif %}><summary>Preparar oferta por foto o voz</summary><form class="market-form" enctype="multipart/form-data" method="post" action="{{ url_for('market.photo',rid=business.id) }}">{{ token() }}<label>Foto del plato<input type="file" name="photo" accept="image/jpeg,image/png,image/webp" required></label><button>Analizar fotografía</button></form>

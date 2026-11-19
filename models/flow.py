@@ -34,7 +34,9 @@ def save_settings(rid, *, accepting, max_capacity, note=""):
         raise ServiceError("Revisa el aforo máximo.") from None
     if not 0 <= max_capacity <= 5000:
         raise ServiceError("El aforo máximo debe estar entre 0 y 5000.")
-    with document_transaction():
+    with document_transaction() as conn:
+        conn.execute("SELECT pg_advisory_xact_lock(hashtextextended(%s, 0))",
+                     (f"flow-queue:{rid}",))
         current = next(iter(records(SETTINGS, rid=rid)), None)
         payload = {"rid": rid, "accepting": accepting, "max_capacity": max_capacity,
                    "note": " ".join(str(note or "").split())[:200], "updated_at": now().isoformat()}
@@ -62,7 +64,11 @@ def join(rid, name, party_size, uid=None, note=""):
     clean = " ".join(str(name or "").split())[:60]
     if len(clean) < 2:
         raise ServiceError("Escribe un nombre para identificar tu turno.")
-    with document_transaction():
+    with document_transaction() as conn:
+        conn.execute("SELECT pg_advisory_xact_lock(hashtextextended(%s, 0))",
+                     (f"flow-queue:{rid}",))
+        if not settings(rid).get("accepting"):
+            raise ServiceError("El negocio no está recibiendo turnos en este momento.")
         today = _today_queue(rid)
         if uid and any(row.get("uid") == uid and row.get("status") in OPEN_STATUSES for row in today):
             existing = next(row for row in today if row.get("uid") == uid and row.get("status") in OPEN_STATUSES)
@@ -84,7 +90,7 @@ def history(rid, limit=200):
 
 
 def entry(rid, qid):
-    row = Repo.get_by_id(QUEUE, qid)
+    row = Repo.get_by_id(QUEUE, qid, for_update=True)
     return row if row and row.get("rid") == rid else None
 
 

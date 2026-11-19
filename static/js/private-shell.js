@@ -59,10 +59,7 @@
       else toggle();
     }, true));
     menu.addEventListener('click', event => { if (open && event.target.closest('a')) drawer(false, false); });
-    account?.addEventListener('click', () => accountOpen(options.hidden));
-    document.addEventListener('click', event => { if (!event.target.closest('.private-account')) accountOpen(false); });
     document.addEventListener('keydown', event => {
-      if (event.key === 'Escape' && options && !options.hidden) { event.stopImmediatePropagation(); accountOpen(false, true); }
       if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'b') { event.preventDefault(); event.stopImmediatePropagation(); toggle(); }
       if (!open) return;
       if (event.key === 'Escape') { event.stopImmediatePropagation(); drawer(false); }
@@ -72,7 +69,6 @@
       if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
       if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
     }, true);
-    options?.addEventListener('focusout', () => { queueMicrotask(() => { if (!document.activeElement.closest('.private-account')) accountOpen(false); }); });
     wide.addEventListener('change', () => drawer(false, false));
     window.addEventListener('pagehide', () => { drawer(false, false); accountOpen(false); });
     window.addEventListener('pageshow', () => drawer(false, false));

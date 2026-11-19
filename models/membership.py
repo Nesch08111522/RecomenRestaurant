@@ -17,6 +17,9 @@ def authorized(user, rid, permission):
         return False
     if user.get('role') == 'admin':
         return True
+    from models.company import subscription_allows, company_for_restaurant
+    if not subscription_allows(company_for_restaurant(rid), permission):
+        return False
     if restaurant.get('owner_id') == user['id'] and user.get('role') in ('owner', 'business_owner'):
         return can('business_owner', permission)
     assignments = [m for m in Repo.all('branch_memberships') if m.get('rid') == rid and m.get('uid') == user['id']]

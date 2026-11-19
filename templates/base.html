@@ -1,4 +1,6 @@
-{% set sr_system_page = session.get('user') and request.blueprint in ['owner', 'admin', 'comunicacion', 'auth', 'market', 'discovery', 'ecosystem', 'sites', 'catalog', 'intelligence', 'copilot', 'trust_center', 'business_access', 'salon', 'flow', 'loyalty'] and request.endpoint not in ['auth.login', 'auth.register', 'auth.recover', 'market.browse', 'market.offer_detail', 'ecosystem.home', 'sites.public_page', 'sites.branch_page', 'discovery.claim_page'] %}
+{% set shell_user = session.get('user') %}
+{% set sr_authenticated = shell_user is mapping and shell_user.get('id') and shell_user.get('role') in ['user', 'admin', 'business_owner'] %}
+{% set sr_system_page = sr_authenticated and request.blueprint in ['owner', 'admin', 'comunicacion', 'auth', 'market', 'discovery', 'ecosystem', 'sites', 'catalog', 'intelligence', 'copilot', 'trust_center', 'business_access', 'salon', 'flow', 'loyalty', 'home_kitchen'] and request.endpoint not in ['auth.login', 'auth.register', 'auth.recover', 'market.browse', 'market.offer_detail', 'ecosystem.home', 'sites.public_page', 'sites.branch_page', 'discovery.claim_page'] %}
 {% set sr_saas_private = sr_system_page and not (request.blueprint == 'sites' and request.endpoint not in ['sites.editor']) and not (request.blueprint == 'flow' and request.endpoint != 'flow.desk') and not (request.blueprint == 'salon' and request.endpoint not in ['salon.manage_default', 'salon.manage', 'salon.desk_default', 'salon.desk']) %}
 {% set sr_admin_ui = sr_saas_private and session.get('user', {}).get('role') == 'admin' and request.blueprint != 'intelligence' %}
 {% set sr_workspace = sr_system_page and session.get('user', {}).get('role') in ['admin', 'business_owner'] and request.blueprint != 'auth' %}
@@ -42,13 +44,13 @@
 {% if sr_workspace %}<link rel="stylesheet" href="{{ url_for('static', filename='css/internal-workspace.css') }}">{% endif %}
 {% if request.endpoint in ['auth.profile', 'auth.profile_owner'] %}<link rel="stylesheet" href="{{ url_for('static', filename='css/profile-responsive.css') }}">{% endif %}
 <script src="{{ url_for('static',filename='js/layout-system.js') }}" defer></script>
-<link rel="stylesheet" href="{{ url_for('static', filename='css/copilot-wake.css') }}">
+{% if sr_authenticated %}<link rel="stylesheet" href="{{ url_for('static', filename='css/copilot-wake.css') }}">{% endif %}
 {% if sr_saas_private %}<link rel="stylesheet" href="{{ url_for('static', filename='css/saas-private.css') }}">{% endif %}
 {% if sr_admin_ui %}<link rel="stylesheet" href="{{ url_for('static', filename='css/admin-precision.css') }}">{% endif %}
 {% if sr_system_page %}<link rel="stylesheet" href="{{ url_for('static', filename='css/shell.css') }}" />{% endif %}
 {% if sr_system_page %}<script src="{{ url_for('static', filename='js/private-shell.js') }}" defer></script>{% endif %}
 </head>
-  <body data-role="{{ session.get('user', {}).get('role', 'guest') }}"
+  <body data-role="{{ shell_user.get('role') if sr_authenticated else 'guest' }}"
     class="{{ 'sr-admin-precision' if sr_admin_ui else '' }} {{ 'sr-private' if sr_system_page else 'sr-public-site' }} {{ 'sr-workspace' if sr_workspace else '' }} {{ 'sr-saas-private' if sr_saas_private else '' }} {% block body_class %}{% endblock %}">
     <a class="skip-link" href="#main-content">Saltar al contenido principal</a>
 
@@ -101,6 +103,9 @@
     <script src="{{ url_for('static', filename='js/editorial-slides.js') }}" defer></script>
     {% endif %}
     {% if sr_admin_ui %}<script src="{{ url_for('static', filename='js/admin-precision.js') }}" defer></script>{% endif %}
+    {% if sr_authenticated %}
+    <script src="{{ url_for('static', filename='js/notification-feed.js') }}" defer data-user="{{ shell_user.id }}" data-role="{{ shell_user.role }}" data-feed="{{ url_for('comunicacion.notification_feed') }}"></script>
+    {% endif %}
     {% block scripts %}{% endblock %}
     <script src="{{ url_for('static', filename='js/experience.js') }}" defer></script>
   </body>
