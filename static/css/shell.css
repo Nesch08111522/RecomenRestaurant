@@ -90,3 +90,12 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,su
 
 
 @media(max-width:340px){.sr-top{gap:var(--space-xs);padding-inline:var(--space-xs)}.sr-private .sr-logo{font-size:var(--text-lg)}.sr-private .sr-footer{padding-inline:var(--space-sm)}}
+
+/* Center private page content within the space left by the navigation rail. */
+@media (min-width: 768px) {
+  .sr-private #main-content {
+    width: calc(100% - var(--sr-rail));
+    max-width: none;
+  }
+}
+
