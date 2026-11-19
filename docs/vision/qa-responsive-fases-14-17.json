@@ -1,0 +1,1298 @@
+[
+  {
+    "role": "guest",
+    "path": "/auth/recuperar",
+    "width": 320,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "guest",
+    "path": "/auth/recuperar",
+    "width": 320,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "guest",
+    "path": "/auth/recuperar",
+    "width": 375,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "guest",
+    "path": "/auth/recuperar",
+    "width": 375,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "guest",
+    "path": "/auth/recuperar",
+    "width": 480,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "guest",
+    "path": "/auth/recuperar",
+    "width": 480,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "guest",
+    "path": "/auth/recuperar",
+    "width": 640,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "guest",
+    "path": "/auth/recuperar",
+    "width": 640,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "guest",
+    "path": "/auth/recuperar",
+    "width": 768,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "guest",
+    "path": "/auth/recuperar",
+    "width": 768,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "guest",
+    "path": "/auth/recuperar",
+    "width": 1024,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "guest",
+    "path": "/auth/recuperar",
+    "width": 1024,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "guest",
+    "path": "/auth/recuperar",
+    "width": 1280,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "guest",
+    "path": "/auth/recuperar",
+    "width": 1280,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "guest",
+    "path": "/auth/recuperar",
+    "width": 1440,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "guest",
+    "path": "/auth/recuperar",
+    "width": 1440,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "guest",
+    "path": "/auth/recuperar",
+    "width": 1920,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "guest",
+    "path": "/auth/recuperar",
+    "width": 1920,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "guest",
+    "path": "/mercado/oferta/1198",
+    "width": 320,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "guest",
+    "path": "/mercado/oferta/1198",
+    "width": 320,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "guest",
+    "path": "/mercado/oferta/1198",
+    "width": 375,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "guest",
+    "path": "/mercado/oferta/1198",
+    "width": 375,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "guest",
+    "path": "/mercado/oferta/1198",
+    "width": 480,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "guest",
+    "path": "/mercado/oferta/1198",
+    "width": 480,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "guest",
+    "path": "/mercado/oferta/1198",
+    "width": 640,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "guest",
+    "path": "/mercado/oferta/1198",
+    "width": 640,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "guest",
+    "path": "/mercado/oferta/1198",
+    "width": 768,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "guest",
+    "path": "/mercado/oferta/1198",
+    "width": 768,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "guest",
+    "path": "/mercado/oferta/1198",
+    "width": 1024,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "guest",
+    "path": "/mercado/oferta/1198",
+    "width": 1024,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "guest",
+    "path": "/mercado/oferta/1198",
+    "width": 1280,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "guest",
+    "path": "/mercado/oferta/1198",
+    "width": 1280,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "guest",
+    "path": "/mercado/oferta/1198",
+    "width": 1440,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "guest",
+    "path": "/mercado/oferta/1198",
+    "width": 1440,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "guest",
+    "path": "/mercado/oferta/1198",
+    "width": 1920,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "guest",
+    "path": "/mercado/oferta/1198",
+    "width": 1920,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "user",
+    "path": "/copilot",
+    "width": 320,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "user",
+    "path": "/copilot",
+    "width": 320,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "user",
+    "path": "/copilot",
+    "width": 375,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "user",
+    "path": "/copilot",
+    "width": 375,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "user",
+    "path": "/copilot",
+    "width": 480,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "user",
+    "path": "/copilot",
+    "width": 480,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "user",
+    "path": "/copilot",
+    "width": 640,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "user",
+    "path": "/copilot",
+    "width": 640,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "user",
+    "path": "/copilot",
+    "width": 768,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "user",
+    "path": "/copilot",
+    "width": 768,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "user",
+    "path": "/copilot",
+    "width": 1024,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "user",
+    "path": "/copilot",
+    "width": 1024,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "user",
+    "path": "/copilot",
+    "width": 1280,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "user",
+    "path": "/copilot",
+    "width": 1280,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "user",
+    "path": "/copilot",
+    "width": 1440,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "user",
+    "path": "/copilot",
+    "width": 1440,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "user",
+    "path": "/copilot",
+    "width": 1920,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "user",
+    "path": "/copilot",
+    "width": 1920,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "user",
+    "path": "/auth/seguridad",
+    "width": 320,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "user",
+    "path": "/auth/seguridad",
+    "width": 320,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "user",
+    "path": "/auth/seguridad",
+    "width": 375,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "user",
+    "path": "/auth/seguridad",
+    "width": 375,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "user",
+    "path": "/auth/seguridad",
+    "width": 480,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "user",
+    "path": "/auth/seguridad",
+    "width": 480,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "user",
+    "path": "/auth/seguridad",
+    "width": 640,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "user",
+    "path": "/auth/seguridad",
+    "width": 640,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "user",
+    "path": "/auth/seguridad",
+    "width": 768,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "user",
+    "path": "/auth/seguridad",
+    "width": 768,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "user",
+    "path": "/auth/seguridad",
+    "width": 1024,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "user",
+    "path": "/auth/seguridad",
+    "width": 1024,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "user",
+    "path": "/auth/seguridad",
+    "width": 1280,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "user",
+    "path": "/auth/seguridad",
+    "width": 1280,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "user",
+    "path": "/auth/seguridad",
+    "width": 1440,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "user",
+    "path": "/auth/seguridad",
+    "width": 1440,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "user",
+    "path": "/auth/seguridad",
+    "width": 1920,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "user",
+    "path": "/auth/seguridad",
+    "width": 1920,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "business_owner",
+    "path": "/inteligencia",
+    "width": 320,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "business_owner",
+    "path": "/inteligencia",
+    "width": 320,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "business_owner",
+    "path": "/inteligencia",
+    "width": 375,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "business_owner",
+    "path": "/inteligencia",
+    "width": 375,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "business_owner",
+    "path": "/inteligencia",
+    "width": 480,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "business_owner",
+    "path": "/inteligencia",
+    "width": 480,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "business_owner",
+    "path": "/inteligencia",
+    "width": 640,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "business_owner",
+    "path": "/inteligencia",
+    "width": 640,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "business_owner",
+    "path": "/inteligencia",
+    "width": 768,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "business_owner",
+    "path": "/inteligencia",
+    "width": 768,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "business_owner",
+    "path": "/inteligencia",
+    "width": 1024,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "business_owner",
+    "path": "/inteligencia",
+    "width": 1024,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "business_owner",
+    "path": "/inteligencia",
+    "width": 1280,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "business_owner",
+    "path": "/inteligencia",
+    "width": 1280,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "business_owner",
+    "path": "/inteligencia",
+    "width": 1440,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "business_owner",
+    "path": "/inteligencia",
+    "width": 1440,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "business_owner",
+    "path": "/inteligencia",
+    "width": 1920,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "business_owner",
+    "path": "/inteligencia",
+    "width": 1920,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "business_owner",
+    "path": "/copilot",
+    "width": 320,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "business_owner",
+    "path": "/copilot",
+    "width": 320,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "business_owner",
+    "path": "/copilot",
+    "width": 375,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "business_owner",
+    "path": "/copilot",
+    "width": 375,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "business_owner",
+    "path": "/copilot",
+    "width": 480,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "business_owner",
+    "path": "/copilot",
+    "width": 480,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "business_owner",
+    "path": "/copilot",
+    "width": 640,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "business_owner",
+    "path": "/copilot",
+    "width": 640,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "business_owner",
+    "path": "/copilot",
+    "width": 768,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "business_owner",
+    "path": "/copilot",
+    "width": 768,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "business_owner",
+    "path": "/copilot",
+    "width": 1024,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "business_owner",
+    "path": "/copilot",
+    "width": 1024,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "business_owner",
+    "path": "/copilot",
+    "width": 1280,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "business_owner",
+    "path": "/copilot",
+    "width": 1280,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "business_owner",
+    "path": "/copilot",
+    "width": 1440,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "business_owner",
+    "path": "/copilot",
+    "width": 1440,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "business_owner",
+    "path": "/copilot",
+    "width": 1920,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "business_owner",
+    "path": "/copilot",
+    "width": 1920,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "admin",
+    "path": "/admin/confianza",
+    "width": 320,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "admin",
+    "path": "/admin/confianza",
+    "width": 320,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "admin",
+    "path": "/admin/confianza",
+    "width": 375,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "admin",
+    "path": "/admin/confianza",
+    "width": 375,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "admin",
+    "path": "/admin/confianza",
+    "width": 480,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "admin",
+    "path": "/admin/confianza",
+    "width": 480,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "admin",
+    "path": "/admin/confianza",
+    "width": 640,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "admin",
+    "path": "/admin/confianza",
+    "width": 640,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "admin",
+    "path": "/admin/confianza",
+    "width": 768,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "admin",
+    "path": "/admin/confianza",
+    "width": 768,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "admin",
+    "path": "/admin/confianza",
+    "width": 1024,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "admin",
+    "path": "/admin/confianza",
+    "width": 1024,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "admin",
+    "path": "/admin/confianza",
+    "width": 1280,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "admin",
+    "path": "/admin/confianza",
+    "width": 1280,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "admin",
+    "path": "/admin/confianza",
+    "width": 1440,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "admin",
+    "path": "/admin/confianza",
+    "width": 1440,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "admin",
+    "path": "/admin/confianza",
+    "width": 1920,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "admin",
+    "path": "/admin/confianza",
+    "width": 1920,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "admin",
+    "path": "/inteligencia",
+    "width": 320,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "admin",
+    "path": "/inteligencia",
+    "width": 320,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "admin",
+    "path": "/inteligencia",
+    "width": 375,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "admin",
+    "path": "/inteligencia",
+    "width": 375,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "admin",
+    "path": "/inteligencia",
+    "width": 480,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "admin",
+    "path": "/inteligencia",
+    "width": 480,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "admin",
+    "path": "/inteligencia",
+    "width": 640,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "admin",
+    "path": "/inteligencia",
+    "width": 640,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "admin",
+    "path": "/inteligencia",
+    "width": 768,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "admin",
+    "path": "/inteligencia",
+    "width": 768,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "admin",
+    "path": "/inteligencia",
+    "width": 1024,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "admin",
+    "path": "/inteligencia",
+    "width": 1024,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "admin",
+    "path": "/inteligencia",
+    "width": 1280,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "admin",
+    "path": "/inteligencia",
+    "width": 1280,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "admin",
+    "path": "/inteligencia",
+    "width": 1440,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "admin",
+    "path": "/inteligencia",
+    "width": 1440,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "admin",
+    "path": "/inteligencia",
+    "width": 1920,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "admin",
+    "path": "/inteligencia",
+    "width": 1920,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "admin",
+    "path": "/copilot",
+    "width": 320,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "admin",
+    "path": "/copilot",
+    "width": 320,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "admin",
+    "path": "/copilot",
+    "width": 375,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "admin",
+    "path": "/copilot",
+    "width": 375,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "admin",
+    "path": "/copilot",
+    "width": 480,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "admin",
+    "path": "/copilot",
+    "width": 480,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "admin",
+    "path": "/copilot",
+    "width": 640,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "admin",
+    "path": "/copilot",
+    "width": 640,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "admin",
+    "path": "/copilot",
+    "width": 768,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "admin",
+    "path": "/copilot",
+    "width": 768,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "admin",
+    "path": "/copilot",
+    "width": 1024,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "admin",
+    "path": "/copilot",
+    "width": 1024,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "admin",
+    "path": "/copilot",
+    "width": 1280,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "admin",
+    "path": "/copilot",
+    "width": 1280,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "admin",
+    "path": "/copilot",
+    "width": 1440,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "admin",
+    "path": "/copilot",
+    "width": 1440,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "admin",
+    "path": "/copilot",
+    "width": 1920,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0
+  },
+  {
+    "role": "admin",
+    "path": "/copilot",
+    "width": 1920,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0
+  }
+]

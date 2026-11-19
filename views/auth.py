@@ -131,7 +131,8 @@ def account_security():
             return render_template("auth/security.html", result={}, recovery=False), 429
         try:
             result = protection.configure(session["user_id"], request.form.get("password", ""),
-                                          request.form.get("action"), request.form.get("otp", ""))
+                                          request.form.get("action"), request.form.get("otp", ""),
+                                          email=request.form.get('email'), phone=request.form.get('phone'))
             if "epoch" in result:
                 session["auth_epoch"] = result["epoch"]
         except ValueError as error:
@@ -146,10 +147,19 @@ def recover():
         if not protection.allow_attempt("recover", username, request.remote_addr or ""):
             flash("Demasiados intentos. Vuelve en diez minutos.", "warning")
             return render_template("auth/recovery.html", result={}, recovery=True), 429
+        if request.form.get("action") == "send_code":
+            from utils.password_codes import issue
+            from utils.security_delivery import DeliveryUnavailable
+            try:
+                session['password_challenge'] = issue(username, request.form.get('channel','email'),session.get('password_challenge'))
+                flash("Si la cuenta tiene ese contacto asociado, recibirá un código. Revisa también correo no deseado.", "success")
+            except DeliveryUnavailable:
+                flash("El envío de códigos aún no está configurado. Puedes usar tu código de recuperación guardado o contactar con soporte.", "warning")
+            return render_template("auth/recovery.html", result={}, recovery=True)
         password = request.form.get("password", "")
         if not protection.password_valid(password):
             flash("Usa entre 8 y 256 caracteres, con letras y números.", "warning")
-        elif protection.reset_password(username, request.form.get("code", ""), password):
+        elif _reset_with_code(username, request.form.get("code", ""), password):
             session.clear()
             flash("Contraseña actualizada. Inicia sesión y renueva tu protección.", "success")
             return redirect(url_for("auth.login"))
@@ -282,6 +292,13 @@ def update_profile():
     except ValueError as error:
         flash(str(error), 'error')
         return redirect(url_for('auth.profile'))
+    if changes.get('email') != profile.get('email'):
+        try:
+            result=protection.configure(user_id,request.form.get('current_password',''),'contacts',request.form.get('otp',''),email=changes['email'],phone=profile.get('phone',''))
+            session['auth_epoch']=result['epoch']
+        except ValueError:
+            flash('Para cambiar el correo, confirma la contraseña actual y el código del autenticador si está activo.','warning')
+            return redirect(url_for('auth.profile'))
     profile.update(changes)
     profile['promotions_opt_in'] = profile.get('notification_preferences', {}).get('marketing', False)
 
@@ -385,3 +402,10 @@ def get_favorites_api():
             'favorites': [],
             'success': False
         }), 500
+
+
+def _reset_with_code(username, code, password):
+    from utils.password_codes import consume
+    if len(code)==6 and code.isdigit():
+        return consume(username,session.get('password_challenge',''),code,password)
+    return protection.reset_password(username,code,password)

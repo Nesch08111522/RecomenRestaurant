@@ -9,6 +9,7 @@
 .mgr button,.mgr-links a{font:inherit;text-decoration:none;font-weight:650;border-radius: 10px;padding:var(--space-sm) var(--space-md);border: 1px solid var(--mg-stroke);background: var(--mg-card);color: var(--theme-text);cursor:pointer}
 .mgr-filter button,.mgr-settings button{background: var(--theme-success-bg);color: var(--theme-text)}.mgr h2{font-size:clamp(17px,2vw,23px);margin:1.2em 0 .7em;color: inherit}
 .mgr-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(150px,100%),1fr));margin:0 0 20px;gap:var(--space-sm)}.mgr-metric,.mgr-card{background: var(--mg-card);border: 1px solid var(--mg-stroke);border-radius: 16px;padding:clamp(var(--space-md),2vw,var(--space-lg));min-width:0}
+
 .mgr-metric dt,.mgr-metric small{font-size:.82rem}.mgr-metric dd{font-size:clamp(22px,2.2vw,34px);font-weight:730;margin:8px 0;line-height:1.1}
 .mgr-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr));gap:var(--space-md);margin:18px 0}.mgr-card h2{margin-top:0}.mgr-chart,.mgr-ledger{padding:0;list-style:none;margin:0}.mgr-chart li{display:grid;grid-template-columns:minmax(7rem,1fr) minmax(55px,1.6fr) auto;align-items:center;gap:var(--space-sm);margin:9px 0;font-size:.86rem}
 .mgr-chart meter{width:100%;height:16px;accent-color: var(--theme-accent)}.mgr-chart meter::-webkit-meter-optimum-value{background: var(--theme-success-bg)}.mgr-chart meter::-moz-meter-bar{background: var(--theme-success-bg)}

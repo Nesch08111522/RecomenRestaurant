@@ -76,7 +76,7 @@
 .bs-preview-copy { margin-top:auto; padding:var(--space-2xl) 0.1875rem var(--space-xl); max-width:29ch; position:relative; z-index:1; }
 .bs-preview-copy span { color:var(--theme-text); font-size:var(--text-xs); text-transform:uppercase; letter-spacing:.12em; }
 .bs-preview-copy h3 { font:400 40px/.95 var(--bs-display); margin:10px 0; letter-spacing:-.045em; }
-.bs-preview-copy p { margin:0; color: var(--theme-text); font-size:var(--text-xs); line-height:1.5; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+.bs-preview-copy p { margin:0; color: var(--theme-text); font-size:var(--text-xs); line-height:1.5; display:-webkit-box; -webkit-line-clamp:3; line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
 .bs-preview-bottom { display:flex; justify-content:space-between; gap:var(--space-sm); border-top: 1px solid var(--theme-border); padding-top:var(--space-sm); font-size:var(--text-xs); position:relative; z-index:1; color: var(--theme-text); }
 .bs-preview-caption { display:flex; align-items:center; gap:var(--space-sm); color: var(--theme-muted); line-height:1.45; font-size:var(--text-xs); padding:var(--space-sm) var(--space-xs) 0; margin:0; }
 .bs-preview-caption .material-icons { color: var(--theme-accent); font-size:var(--text-base); }
@@ -255,3 +255,13 @@
 
 .bs-hero-immersive .bs-hero-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}.bs-hero-immersive .bs-hero-art>img{position:relative;z-index:1}.bs-hero-immersive .bs-hero-video~.bs-hero-stamp{z-index:2}.bs-hero-immersive .bs-hero-art:after{z-index:1}.bs-hero-immersive .bs-hero-copy,.bs-hero-immersive .bs-hero-scroll{z-index:3}
 .bs-hero-immersive .bs-hero-art:has(.bs-hero-video)>img{display:none}
+.bs-public-site .bs-public-hero,.bs-public-site .bs-hero-description,.bs-public-site .bs-hero-secondary{color:var(--site-on-primary,#fff)}
+.bs-public-site .bs-public-button{background:#fff;color:#18271e;border:1px solid #d5dfd7}
+.bs-inline-notice{padding:14px 18px;border-radius:14px;margin:12px 0 24px;background:var(--bs-card,#fff);border:1px solid var(--bs-line,#ccd9cf);color:var(--bs-ink,#19362b);box-shadow:0 8px 18px #12332610}
+.bs-inline-notice.is-error{background:#fae9e4;color:#793b32;border-color:#eac8bd}
+
+/* Let intrinsic form/preview content shrink inside narrow editor columns. */
+.bs-editor-shell,.bs-editor-grid,.bs-editor-grid>*,.bs-editor-aside,.bs-editor-aside>*{min-width:0;max-width:100%;}
+.bs-preview-window{overflow:clip;}
+/* Keep the editor's decorative 3D orb inside its own canvas on narrow screens. */
+.bs-editor-shell{overflow-x:clip;}

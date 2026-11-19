@@ -178,7 +178,7 @@ def inventory(rid):
         store["pantry"][name] = lot
         save_kitchen(store)
         Repo.create("market_movements", {"rid": rid, "name": name, "move": move, "delta": lot["quantity"] - old,
-                                         "actor": session["user_id"], "at": now().isoformat()})
+                                         "actor": session["user_id"], "at": now().isoformat(), "unit":lot.get('unit'), "unit_cost":lot.get('cost'), "basis":lot.get('basis')})
     return return_desk(rid, "Inventario actualizado.")
 
 

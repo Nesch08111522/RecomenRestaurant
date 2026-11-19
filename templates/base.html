@@ -1,3 +1,4 @@
+{% set sr_system_page = session.get('user') and request.blueprint in ['owner', 'admin', 'comunicacion', 'auth', 'market', 'discovery', 'ecosystem', 'sites', 'catalog', 'intelligence', 'copilot', 'trust_center'] and request.endpoint not in ['auth.login', 'auth.register', 'auth.recover', 'market.browse', 'market.offer_detail', 'ecosystem.home', 'sites.public_page', 'sites.branch_page', 'discovery.claim_page'] %}
 <!DOCTYPE html>
 <html lang="es" class="sr-compact" data-theme="dark">
   <head>
@@ -27,6 +28,7 @@
     {% block page_styles %}{% endblock %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/forest-depth.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/adaptive-experience.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/public-navigation.css') }}" />
     <script src="{{ url_for('static', filename='js/shell.js') }}"></script>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/theme-components.css') }}">
 <link rel="stylesheet" href="{{ url_for('static',filename='css/responsive-layout.css') }}">
@@ -35,7 +37,7 @@
 <script src="{{ url_for('static',filename='js/layout-system.js') }}" defer></script>
 </head>
   <body data-role="{{ session.get('user', {}).get('role', 'guest') }}"
-    class="{% if session.get('user') and request.blueprint in ['owner', 'admin', 'comunicacion', 'auth', 'market', 'discovery', 'ecosystem', 'sites', 'catalog'] %}sr-private{% endif %} {% block body_class %}{% endblock %}">
+    class="{{ 'sr-private' if sr_system_page else 'sr-public-site' }} {% block body_class %}{% endblock %}">
     <a class="skip-link" href="#main-content">Saltar al contenido principal</a>
 
     {# Botón "Volver al inicio" solo en pantallas de autenticación #}
@@ -65,6 +67,7 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="{{ url_for('static', filename='js/theme-charts.js') }}"></script>
+    <script src="{{ url_for('static',filename='vendor/chartjs/chart-4.5.1.umd.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/security.js') }}"></script>
     {% if session.get('user_id') %}
     <script src="{{ url_for('static', filename='js/search-history.js') }}" data-history-url="{{ url_for('recommendation_history.history') }}"></script>

@@ -1,0 +1,2432 @@
+[
+  {
+    "role": "guest",
+    "url": "/",
+    "width": 320,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "guest",
+    "url": "/",
+    "width": 320,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "guest",
+    "url": "/",
+    "width": 375,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "guest",
+    "url": "/",
+    "width": 375,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "guest",
+    "url": "/",
+    "width": 480,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "guest",
+    "url": "/",
+    "width": 480,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "guest",
+    "url": "/",
+    "width": 640,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "guest",
+    "url": "/",
+    "width": 640,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "guest",
+    "url": "/",
+    "width": 768,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "guest",
+    "url": "/",
+    "width": 768,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "guest",
+    "url": "/",
+    "width": 1024,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "guest",
+    "url": "/",
+    "width": 1024,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "guest",
+    "url": "/",
+    "width": 1280,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "guest",
+    "url": "/",
+    "width": 1280,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "guest",
+    "url": "/",
+    "width": 1440,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "guest",
+    "url": "/",
+    "width": 1440,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "guest",
+    "url": "/",
+    "width": 1920,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "guest",
+    "url": "/",
+    "width": 1920,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "guest",
+    "url": "/auth/login",
+    "width": 320,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 0
+  },
+  {
+    "role": "guest",
+    "url": "/auth/login",
+    "width": 320,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 0
+  },
+  {
+    "role": "guest",
+    "url": "/auth/login",
+    "width": 375,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 0
+  },
+  {
+    "role": "guest",
+    "url": "/auth/login",
+    "width": 375,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 0
+  },
+  {
+    "role": "guest",
+    "url": "/auth/login",
+    "width": 480,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 0
+  },
+  {
+    "role": "guest",
+    "url": "/auth/login",
+    "width": 480,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 0
+  },
+  {
+    "role": "guest",
+    "url": "/auth/login",
+    "width": 640,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 0
+  },
+  {
+    "role": "guest",
+    "url": "/auth/login",
+    "width": 640,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 0
+  },
+  {
+    "role": "guest",
+    "url": "/auth/login",
+    "width": 768,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 0
+  },
+  {
+    "role": "guest",
+    "url": "/auth/login",
+    "width": 768,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 0
+  },
+  {
+    "role": "guest",
+    "url": "/auth/login",
+    "width": 1024,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 0
+  },
+  {
+    "role": "guest",
+    "url": "/auth/login",
+    "width": 1024,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 0
+  },
+  {
+    "role": "guest",
+    "url": "/auth/login",
+    "width": 1280,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 0
+  },
+  {
+    "role": "guest",
+    "url": "/auth/login",
+    "width": 1280,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 0
+  },
+  {
+    "role": "guest",
+    "url": "/auth/login",
+    "width": 1440,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 0
+  },
+  {
+    "role": "guest",
+    "url": "/auth/login",
+    "width": 1440,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 0
+  },
+  {
+    "role": "guest",
+    "url": "/auth/login",
+    "width": 1920,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 0
+  },
+  {
+    "role": "guest",
+    "url": "/auth/login",
+    "width": 1920,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 0
+  },
+  {
+    "role": "guest",
+    "url": "/auth/register",
+    "width": 320,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 0
+  },
+  {
+    "role": "guest",
+    "url": "/auth/register",
+    "width": 320,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 0
+  },
+  {
+    "role": "guest",
+    "url": "/auth/register",
+    "width": 375,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 0
+  },
+  {
+    "role": "guest",
+    "url": "/auth/register",
+    "width": 375,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 0
+  },
+  {
+    "role": "guest",
+    "url": "/auth/register",
+    "width": 480,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 0
+  },
+  {
+    "role": "guest",
+    "url": "/auth/register",
+    "width": 480,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 0
+  },
+  {
+    "role": "guest",
+    "url": "/auth/register",
+    "width": 640,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 0
+  },
+  {
+    "role": "guest",
+    "url": "/auth/register",
+    "width": 640,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 0
+  },
+  {
+    "role": "guest",
+    "url": "/auth/register",
+    "width": 768,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 0
+  },
+  {
+    "role": "guest",
+    "url": "/auth/register",
+    "width": 768,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 0
+  },
+  {
+    "role": "guest",
+    "url": "/auth/register",
+    "width": 1024,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 0
+  },
+  {
+    "role": "guest",
+    "url": "/auth/register",
+    "width": 1024,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 0
+  },
+  {
+    "role": "guest",
+    "url": "/auth/register",
+    "width": 1280,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 0
+  },
+  {
+    "role": "guest",
+    "url": "/auth/register",
+    "width": 1280,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 0
+  },
+  {
+    "role": "guest",
+    "url": "/auth/register",
+    "width": 1440,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 0
+  },
+  {
+    "role": "guest",
+    "url": "/auth/register",
+    "width": 1440,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 0
+  },
+  {
+    "role": "guest",
+    "url": "/auth/register",
+    "width": 1920,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 0
+  },
+  {
+    "role": "guest",
+    "url": "/auth/register",
+    "width": 1920,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 0
+  },
+  {
+    "role": "guest",
+    "url": "/auth/recuperar",
+    "width": 375,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 0
+  },
+  {
+    "role": "guest",
+    "url": "/auth/recuperar",
+    "width": 375,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 0
+  },
+  {
+    "role": "guest",
+    "url": "/auth/recuperar",
+    "width": 768,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 0
+  },
+  {
+    "role": "guest",
+    "url": "/auth/recuperar",
+    "width": 768,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 0
+  },
+  {
+    "role": "guest",
+    "url": "/auth/recuperar",
+    "width": 1440,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 0
+  },
+  {
+    "role": "guest",
+    "url": "/auth/recuperar",
+    "width": 1440,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 0
+  },
+  {
+    "role": "guest",
+    "url": "/ofertas",
+    "width": 375,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "guest",
+    "url": "/ofertas",
+    "width": 375,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "guest",
+    "url": "/ofertas",
+    "width": 768,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "guest",
+    "url": "/ofertas",
+    "width": 768,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "guest",
+    "url": "/ofertas",
+    "width": 1440,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "guest",
+    "url": "/ofertas",
+    "width": 1440,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "guest",
+    "url": "/para-negocios",
+    "width": 375,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "guest",
+    "url": "/para-negocios",
+    "width": 375,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "guest",
+    "url": "/para-negocios",
+    "width": 768,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "guest",
+    "url": "/para-negocios",
+    "width": 768,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "guest",
+    "url": "/para-negocios",
+    "width": 1440,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "guest",
+    "url": "/para-negocios",
+    "width": 1440,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "guest",
+    "url": "/recomendaciones",
+    "width": 320,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "guest",
+    "url": "/recomendaciones",
+    "width": 320,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "guest",
+    "url": "/recomendaciones",
+    "width": 375,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "guest",
+    "url": "/recomendaciones",
+    "width": 375,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "guest",
+    "url": "/recomendaciones",
+    "width": 480,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "guest",
+    "url": "/recomendaciones",
+    "width": 480,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "guest",
+    "url": "/recomendaciones",
+    "width": 640,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "guest",
+    "url": "/recomendaciones",
+    "width": 640,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "guest",
+    "url": "/recomendaciones",
+    "width": 768,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "guest",
+    "url": "/recomendaciones",
+    "width": 768,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "guest",
+    "url": "/recomendaciones",
+    "width": 1024,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "guest",
+    "url": "/recomendaciones",
+    "width": 1024,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "guest",
+    "url": "/recomendaciones",
+    "width": 1280,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "guest",
+    "url": "/recomendaciones",
+    "width": 1280,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "guest",
+    "url": "/recomendaciones",
+    "width": 1440,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "guest",
+    "url": "/recomendaciones",
+    "width": 1440,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "guest",
+    "url": "/recomendaciones",
+    "width": 1920,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "guest",
+    "url": "/recomendaciones",
+    "width": 1920,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "guest",
+    "url": "/mercado/",
+    "width": 375,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "guest",
+    "url": "/mercado/",
+    "width": 375,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "guest",
+    "url": "/mercado/",
+    "width": 768,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "guest",
+    "url": "/mercado/",
+    "width": 768,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "guest",
+    "url": "/mercado/",
+    "width": 1440,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "guest",
+    "url": "/mercado/",
+    "width": 1440,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "guest",
+    "url": "/informacion/privacidad",
+    "width": 375,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "guest",
+    "url": "/informacion/privacidad",
+    "width": 375,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "guest",
+    "url": "/informacion/privacidad",
+    "width": 768,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "guest",
+    "url": "/informacion/privacidad",
+    "width": 768,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "guest",
+    "url": "/informacion/privacidad",
+    "width": 1440,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "guest",
+    "url": "/informacion/privacidad",
+    "width": 1440,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "guest",
+    "url": "/explorar",
+    "width": 375,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "guest",
+    "url": "/explorar",
+    "width": 375,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "guest",
+    "url": "/explorar",
+    "width": 768,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "guest",
+    "url": "/explorar",
+    "width": 768,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "guest",
+    "url": "/explorar",
+    "width": 1440,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "guest",
+    "url": "/explorar",
+    "width": 1440,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "user",
+    "url": "/auth/profile",
+    "width": 320,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "user",
+    "url": "/auth/profile",
+    "width": 320,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "user",
+    "url": "/auth/profile",
+    "width": 375,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "user",
+    "url": "/auth/profile",
+    "width": 375,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "user",
+    "url": "/auth/profile",
+    "width": 480,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "user",
+    "url": "/auth/profile",
+    "width": 480,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "user",
+    "url": "/auth/profile",
+    "width": 640,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "user",
+    "url": "/auth/profile",
+    "width": 640,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "user",
+    "url": "/auth/profile",
+    "width": 768,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "user",
+    "url": "/auth/profile",
+    "width": 768,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "user",
+    "url": "/auth/profile",
+    "width": 1024,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "user",
+    "url": "/auth/profile",
+    "width": 1024,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "user",
+    "url": "/auth/profile",
+    "width": 1280,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "user",
+    "url": "/auth/profile",
+    "width": 1280,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "user",
+    "url": "/auth/profile",
+    "width": 1440,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "user",
+    "url": "/auth/profile",
+    "width": 1440,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "user",
+    "url": "/auth/profile",
+    "width": 1920,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "user",
+    "url": "/auth/profile",
+    "width": 1920,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "user",
+    "url": "/auth/seguridad",
+    "width": 375,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "user",
+    "url": "/auth/seguridad",
+    "width": 375,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "user",
+    "url": "/auth/seguridad",
+    "width": 768,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "user",
+    "url": "/auth/seguridad",
+    "width": 768,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "user",
+    "url": "/auth/seguridad",
+    "width": 1440,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "user",
+    "url": "/auth/seguridad",
+    "width": 1440,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "user",
+    "url": "/auth/favorites",
+    "width": 375,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "user",
+    "url": "/auth/favorites",
+    "width": 375,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "user",
+    "url": "/auth/favorites",
+    "width": 768,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "user",
+    "url": "/auth/favorites",
+    "width": 768,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "user",
+    "url": "/auth/favorites",
+    "width": 1440,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "user",
+    "url": "/auth/favorites",
+    "width": 1440,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "user",
+    "url": "/recomendaciones",
+    "width": 320,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "user",
+    "url": "/recomendaciones",
+    "width": 320,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "user",
+    "url": "/recomendaciones",
+    "width": 375,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "user",
+    "url": "/recomendaciones",
+    "width": 375,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "user",
+    "url": "/recomendaciones",
+    "width": 480,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "user",
+    "url": "/recomendaciones",
+    "width": 480,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "user",
+    "url": "/recomendaciones",
+    "width": 640,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "user",
+    "url": "/recomendaciones",
+    "width": 640,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "user",
+    "url": "/recomendaciones",
+    "width": 768,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "user",
+    "url": "/recomendaciones",
+    "width": 768,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "user",
+    "url": "/recomendaciones",
+    "width": 1024,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "user",
+    "url": "/recomendaciones",
+    "width": 1024,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "user",
+    "url": "/recomendaciones",
+    "width": 1280,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "user",
+    "url": "/recomendaciones",
+    "width": 1280,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "user",
+    "url": "/recomendaciones",
+    "width": 1440,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "user",
+    "url": "/recomendaciones",
+    "width": 1440,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "user",
+    "url": "/recomendaciones",
+    "width": 1920,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "user",
+    "url": "/recomendaciones",
+    "width": 1920,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "user",
+    "url": "/experiencias/",
+    "width": 375,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "user",
+    "url": "/experiencias/",
+    "width": 375,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "user",
+    "url": "/experiencias/",
+    "width": 768,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "user",
+    "url": "/experiencias/",
+    "width": 768,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "user",
+    "url": "/experiencias/",
+    "width": 1440,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "user",
+    "url": "/experiencias/",
+    "width": 1440,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "business_owner",
+    "url": "/owner/dashboard",
+    "width": 320,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "business_owner",
+    "url": "/owner/dashboard",
+    "width": 320,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "business_owner",
+    "url": "/owner/dashboard",
+    "width": 375,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "business_owner",
+    "url": "/owner/dashboard",
+    "width": 375,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "business_owner",
+    "url": "/owner/dashboard",
+    "width": 480,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "business_owner",
+    "url": "/owner/dashboard",
+    "width": 480,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "business_owner",
+    "url": "/owner/dashboard",
+    "width": 640,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "business_owner",
+    "url": "/owner/dashboard",
+    "width": 640,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "business_owner",
+    "url": "/owner/dashboard",
+    "width": 768,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "business_owner",
+    "url": "/owner/dashboard",
+    "width": 768,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "business_owner",
+    "url": "/owner/dashboard",
+    "width": 1024,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "business_owner",
+    "url": "/owner/dashboard",
+    "width": 1024,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "business_owner",
+    "url": "/owner/dashboard",
+    "width": 1280,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "business_owner",
+    "url": "/owner/dashboard",
+    "width": 1280,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "business_owner",
+    "url": "/owner/dashboard",
+    "width": 1440,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "business_owner",
+    "url": "/owner/dashboard",
+    "width": 1440,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "business_owner",
+    "url": "/owner/dashboard",
+    "width": 1920,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "business_owner",
+    "url": "/owner/dashboard",
+    "width": 1920,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "business_owner",
+    "url": "/admin/restaurants",
+    "width": 375,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "business_owner",
+    "url": "/admin/restaurants",
+    "width": 375,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "business_owner",
+    "url": "/admin/restaurants",
+    "width": 768,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "business_owner",
+    "url": "/admin/restaurants",
+    "width": 768,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "business_owner",
+    "url": "/admin/restaurants",
+    "width": 1440,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "business_owner",
+    "url": "/admin/restaurants",
+    "width": 1440,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "business_owner",
+    "url": "/admin/restaurant/new",
+    "width": 375,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "business_owner",
+    "url": "/admin/restaurant/new",
+    "width": 375,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "business_owner",
+    "url": "/admin/restaurant/new",
+    "width": 768,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "business_owner",
+    "url": "/admin/restaurant/new",
+    "width": 768,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "business_owner",
+    "url": "/admin/restaurant/new",
+    "width": 1440,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "business_owner",
+    "url": "/admin/restaurant/new",
+    "width": 1440,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "business_owner",
+    "url": "/owner/sites",
+    "width": 375,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "business_owner",
+    "url": "/owner/sites",
+    "width": 375,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "business_owner",
+    "url": "/owner/sites",
+    "width": 768,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "business_owner",
+    "url": "/owner/sites",
+    "width": 768,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "business_owner",
+    "url": "/owner/sites",
+    "width": 1440,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "business_owner",
+    "url": "/owner/sites",
+    "width": 1440,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "business_owner",
+    "url": "/owner/catalog",
+    "width": 375,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "business_owner",
+    "url": "/owner/catalog",
+    "width": 375,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "business_owner",
+    "url": "/owner/catalog",
+    "width": 768,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "business_owner",
+    "url": "/owner/catalog",
+    "width": 768,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "business_owner",
+    "url": "/owner/catalog",
+    "width": 1440,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "business_owner",
+    "url": "/owner/catalog",
+    "width": 1440,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "business_owner",
+    "url": "/owner/menu/46",
+    "width": 375,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "business_owner",
+    "url": "/owner/menu/46",
+    "width": 375,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "business_owner",
+    "url": "/owner/menu/46",
+    "width": 768,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "business_owner",
+    "url": "/owner/menu/46",
+    "width": 768,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "business_owner",
+    "url": "/owner/menu/46",
+    "width": 1440,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "business_owner",
+    "url": "/owner/menu/46",
+    "width": 1440,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "business_owner",
+    "url": "/owner/discovery",
+    "width": 375,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "business_owner",
+    "url": "/owner/discovery",
+    "width": 375,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "business_owner",
+    "url": "/owner/discovery",
+    "width": 768,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "business_owner",
+    "url": "/owner/discovery",
+    "width": 768,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "business_owner",
+    "url": "/owner/discovery",
+    "width": 1440,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "business_owner",
+    "url": "/owner/discovery",
+    "width": 1440,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "admin",
+    "url": "/admin/dashboard",
+    "width": 320,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "admin",
+    "url": "/admin/dashboard",
+    "width": 320,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "admin",
+    "url": "/admin/dashboard",
+    "width": 375,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "admin",
+    "url": "/admin/dashboard",
+    "width": 375,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "admin",
+    "url": "/admin/dashboard",
+    "width": 480,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "admin",
+    "url": "/admin/dashboard",
+    "width": 480,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "admin",
+    "url": "/admin/dashboard",
+    "width": 640,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "admin",
+    "url": "/admin/dashboard",
+    "width": 640,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "admin",
+    "url": "/admin/dashboard",
+    "width": 768,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "admin",
+    "url": "/admin/dashboard",
+    "width": 768,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "admin",
+    "url": "/admin/dashboard",
+    "width": 1024,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "admin",
+    "url": "/admin/dashboard",
+    "width": 1024,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "admin",
+    "url": "/admin/dashboard",
+    "width": 1280,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "admin",
+    "url": "/admin/dashboard",
+    "width": 1280,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "admin",
+    "url": "/admin/dashboard",
+    "width": 1440,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "admin",
+    "url": "/admin/dashboard",
+    "width": 1440,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "admin",
+    "url": "/admin/dashboard",
+    "width": 1920,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "admin",
+    "url": "/admin/dashboard",
+    "width": 1920,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "admin",
+    "url": "/admin/restaurants",
+    "width": 375,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "admin",
+    "url": "/admin/restaurants",
+    "width": 375,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "admin",
+    "url": "/admin/restaurants",
+    "width": 768,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "admin",
+    "url": "/admin/restaurants",
+    "width": 768,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "admin",
+    "url": "/admin/restaurants",
+    "width": 1440,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "admin",
+    "url": "/admin/restaurants",
+    "width": 1440,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "admin",
+    "url": "/admin/users",
+    "width": 375,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "admin",
+    "url": "/admin/users",
+    "width": 375,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "admin",
+    "url": "/admin/users",
+    "width": 768,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "admin",
+    "url": "/admin/users",
+    "width": 768,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "admin",
+    "url": "/admin/users",
+    "width": 1440,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "admin",
+    "url": "/admin/users",
+    "width": 1440,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "admin",
+    "url": "/admin/categories",
+    "width": 375,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "admin",
+    "url": "/admin/categories",
+    "width": 375,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "admin",
+    "url": "/admin/categories",
+    "width": 768,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "admin",
+    "url": "/admin/categories",
+    "width": 768,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "admin",
+    "url": "/admin/categories",
+    "width": 1440,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "admin",
+    "url": "/admin/categories",
+    "width": 1440,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "admin",
+    "url": "/admin/moderation",
+    "width": 375,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "admin",
+    "url": "/admin/moderation",
+    "width": 375,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "admin",
+    "url": "/admin/moderation",
+    "width": 768,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "admin",
+    "url": "/admin/moderation",
+    "width": 768,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "admin",
+    "url": "/admin/moderation",
+    "width": 1440,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "admin",
+    "url": "/admin/moderation",
+    "width": 1440,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "admin",
+    "url": "/admin/configuracion-sitio",
+    "width": 375,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "admin",
+    "url": "/admin/configuracion-sitio",
+    "width": 375,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "admin",
+    "url": "/admin/configuracion-sitio",
+    "width": 768,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "admin",
+    "url": "/admin/configuracion-sitio",
+    "width": 768,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "admin",
+    "url": "/admin/configuracion-sitio",
+    "width": 1440,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "admin",
+    "url": "/admin/configuracion-sitio",
+    "width": 1440,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "admin",
+    "url": "/admin/discovery",
+    "width": 375,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "admin",
+    "url": "/admin/discovery",
+    "width": 375,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "admin",
+    "url": "/admin/discovery",
+    "width": 768,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "admin",
+    "url": "/admin/discovery",
+    "width": 768,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "admin",
+    "url": "/admin/discovery",
+    "width": 1440,
+    "theme": "light",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  },
+  {
+    "role": "admin",
+    "url": "/admin/discovery",
+    "width": 1440,
+    "theme": "dark",
+    "status": 200,
+    "overflow": 0,
+    "headers": 1
+  }
+]

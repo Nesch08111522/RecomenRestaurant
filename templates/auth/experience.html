@@ -79,7 +79,7 @@
           </form>
 
           <p class="ax-switch">¿No tienes cuenta?
-            <a href="{{ url_for('auth.register') }}" data-ax-switch="register">Crear cuenta</a>
+            <a href="{{ url_for('auth.register',next=request.args.get('next')) }}" data-ax-switch="register">Crear cuenta</a>
           </p>
         </div>
       </div>
@@ -186,7 +186,7 @@
           </form>
 
           <p class="ax-switch">¿Ya tienes cuenta?
-            <a href="{{ url_for('auth.login') }}" data-ax-switch="login">Iniciar sesión</a>
+            <a href="{{ url_for('auth.login',next=request.args.get('next')) }}" data-ax-switch="login">Iniciar sesión</a>
           </p>
         </div>
       </div>

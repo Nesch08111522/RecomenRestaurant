@@ -154,6 +154,7 @@ def publish(restaurant,actor,enabled=True):
         conn.execute('SELECT pg_advisory_xact_lock(731041)')
         row=find_site(restaurant['id'])
         if not row:raise ValueError('Guarda el borrador antes de publicar')
+        if enabled and row.get('content_review_state')=='rejected':raise ValueError('El sitio fue retirado; solicita revisión administrativa antes de volver a publicar')
         if enabled:
             if not restaurant.get('verified') or restaurant.get('status') in {'suspended','archived','rejected'}:
                 raise ValueError('El negocio requiere aprobación para publicar su sitio')

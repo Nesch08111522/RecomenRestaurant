@@ -66,6 +66,23 @@
 
 <button class="sr-backdrop" hidden aria-label="Cerrar navegación"></button>
 
+{% if not sr_system_page %}
+<nav class="sr-public-menu" id="sr-navigation" aria-label="Navegación del sitio web">
+  <div class="sr-public-menu-top"><strong>Explora SmartResto</strong><button type="button" class="sr-icon sr-collapse" aria-label="Cerrar navegación">×</button></div>
+  {{ navlink('main.index','Descubrir','compass') }}
+  {{ navlink('main.explore_catalog','Restaurantes','store') }}
+  {{ navlink('recommendations.index','Para ti','heart') }}
+  {{ navlink('main.offers','Ofertas','tags') }}
+  {{ navlink('market.browse','Mercado gastronómico','basket-shopping') }}
+  {{ navlink('main.business_plans','Para negocios','store') }}
+  {% if user %}
+    {{ navlink('admin.dashboard' if user.role == 'admin' else 'owner.dashboard' if user.role == 'business_owner' else 'auth.profile','Mi espacio','user') }}
+  {% else %}
+    {{ navlink('auth.login','Ingresar','user') }}
+    {{ navlink('auth.register','Crear cuenta','user-plus') }}
+  {% endif %}
+</nav>
+{% else %}
 <nav class="sr-sidebar" id="sr-navigation" aria-label="Menú principal">
   <div class="sr-side-top">
     <strong class="sr-group">Navegación</strong>
@@ -73,7 +90,7 @@
   </div>
 
   {% if user and user.role == 'admin' %}
-    {{ navlink('admin.dashboard','Resumen','chart-pie') }}
+    {{ navlink('admin.dashboard','Resumen','chart-pie') }}{{ navlink('intelligence.dashboard','Inteligencia empresarial','chart-line') }}{{ navlink('trust_center.dashboard','Seguridad y confianza','shield-halved') }}{{ navlink('copilot.page','SmartResto Copilot','comment') }}
     {{ navsection('Restaurantes','store',[
       ('admin.restaurants','Todos los restaurantes','store'),
       ('admin.new_restaurant','Registrar restaurante','circle-plus'),
@@ -108,7 +125,7 @@
     {% if user %}
       {% if user.role == 'business_owner' %}
         <strong class="sr-group">Mi empresa</strong>
-        {{ navlink('owner.dashboard','Resumen de mi empresa','chart-pie') }}
+        {{ navlink('owner.dashboard','Resumen de mi empresa','chart-pie') }}{{ navlink('intelligence.dashboard','Inteligencia empresarial','chart-line') }}{{ navlink('copilot.page','SmartResto Copilot','comment') }}
         {{ navlink('admin.restaurants','Mis restaurantes','store') }}
         {{ navlink('admin.new_restaurant','Crear restaurante','circle-plus') }}
         {{ navlink('catalog.dashboard','Catálogo e inventario','basket-shopping') }}
@@ -120,7 +137,7 @@
         {{ navlink('ecosystem.rewards','Mis recompensas','tags') }}
         {{ navlink('ecosystem.scan','SmartScan','compass') }}
       {% else %}
-        <strong class="sr-group">Mi espacio</strong>
+        <strong class="sr-group">Mi espacio</strong>{{ navlink('copilot.page','SmartResto Copilot','comment') }}
         {{ navlink('market.orders','Mis pedidos','receipt') }}
         {{ navlink('auth.favorites','Favoritos','heart') }}
         {{ navlink('ecosystem.groups','Comer en grupo','users') }}
@@ -144,8 +161,6 @@
     {{ navlink('ecosystem.home','Mi momento','compass') }}
     {{ navlink('main.business_plans','Planes para negocios','store') }}
   {% endif %}
-  <strong class="sr-group">Sitio web</strong>
-  {{ navlink('main.index','Ver sitio web','compass') }}{{ navlink('main.explore_catalog','Explorar restaurantes','compass') }}{{ navlink('recommendations.index','Para ti','heart') }}{{ navlink('main.offers','Ofertas','tags') }}{{ navlink('market.browse','Mercado','basket-shopping') }}{{ navlink('ecosystem.home','Mi momento','compass') }}{{ navlink('main.business_plans','Planes para negocios','store') }}
 
   {% if user %}
     <form method="post" action="{{ url_for('auth.logout') }}">
@@ -157,3 +172,4 @@
     {{ navlink('auth.register','Crear cuenta','user-plus') }}
   {% endif %}
 </nav>
+{% endif %}

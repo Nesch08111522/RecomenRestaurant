@@ -102,8 +102,8 @@
             return;
         }
 
-        const wide = matchMedia('(min-width: 768px)');
-        const isDesktopPanel = () => wide.matches;
+        const wide = matchMedia('(min-width: 1100px)');
+        const isDesktopPanel = () => wide.matches && menu.classList.contains('sr-sidebar');
 
         function updateCollapse() {
             if (!collapse) return;

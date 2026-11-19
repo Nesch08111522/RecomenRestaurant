@@ -1,0 +1,501 @@
+
+<!DOCTYPE html>
+<html lang="es" class="sr-compact">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="csrf-token" content="ImZhMjFiODU4MjljN2ZiNDc2NjQzMzRkNGZjMmRhYTE4YjdhYmI3Yjci.av4whQ.SY7UicR2cmk6zPbsIWYnjvsYsZs" />
+    <title>SmartResto - Recomendación Inteligente de Restaurantes</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <link rel="stylesheet" href="/static/css/main.css" />
+    <link rel="stylesheet" href="/static/css/components.css" />
+
+    
+    <link rel="stylesheet" href="/static/css/shell.css" />
+    
+      <link rel="stylesheet" href="/static/css/interface.css" />
+    
+    <link rel="stylesheet" href="/static/css/premium-system.css" />
+    
+    <link rel="stylesheet" href="/static/css/forest-depth.css">
+    <link rel="stylesheet" href="/static/css/adaptive-experience.css" />
+    <link rel="stylesheet" href="/static/css/public-navigation.css" />
+    <script src="/static/js/shell.js"></script>
+  </head>
+  <body data-role="admin"
+    class="sr-private ">
+    <a class="skip-link" href="#main-content">Saltar al contenido principal</a>
+
+    
+    
+
+    
+    
+      
+
+
+
+
+
+
+
+
+<header class="sr-header">
+  <div class="sr-top">
+    <button class="sr-icon sr-menu-button" type="button" aria-controls="sr-navigation" aria-expanded="false" aria-label="Abrir navegación"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+    <a class="sr-logo" href="/" aria-label="SmartResto, inicio"><span class="sr-mark" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3v5m3-5v5m3-5v5M5 7q0 5 3 5t3-5M8 12v9M18 3c-4 4-4 9 0 9V3zm0 9v9"/></svg></span>SmartResto</a>
+    <nav class="sr-public-links" aria-label="Descubrir"><a href="/" >Descubrir</a><a href="/#explorar">Restaurantes</a><a href="/recomendaciones" >Para ti</a><a href="/ofertas" >Ofertas</a><a href="/para-negocios" >Para negocios</a></nav>
+    <div class="sr-actions" data-counts-url="/bandeja/pendientes">
+      <a class="sr-icon sr-favorites-link" href="/auth/favorites" aria-label="Mis favoritos" title="Mis favoritos"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20S3 15 3 8a5 5 0 0 1 9-2 5 5 0 0 1 9 2c0 7-9 12-9 12z"/></svg></a>
+      <button id="themeToggle" class="sr-icon" type="button" aria-label="Cambiar tema" title="Cambiar tema">◐</button>
+      
+      <a class="sr-icon" href="/bandeja/notificaciones" aria-label="Notificaciones" title="Notificaciones"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17h16l-2-3v-4a6 6 0 0 0-12 0v4z M10 20q2 2 4 0"/></svg><span class="sr-count" data-count="notificaciones" hidden></span></a>
+      <a class="sr-icon sr-message-link" href="/bandeja/" aria-label="Mensajes" title="Mensajes"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11a9 8 0 0 1-9 8H9l-5 2 1-5a9 8 0 1 1 16-5z"/></svg><span class="sr-count" data-count="mensajes" hidden></span></a>
+      <a class="sr-account user-dropdown" href="/auth/profile" aria-label="Mi perfil" title="Mi perfil">M</a>
+      
+    </div>
+  </div>
+</header>
+
+<button class="sr-backdrop" hidden aria-label="Cerrar navegación"></button>
+
+
+<nav class="sr-sidebar" id="sr-navigation" aria-label="Menú principal">
+  <div class="sr-side-top">
+    <strong class="sr-group">Navegación</strong>
+    <button type="button" class="sr-icon sr-collapse" aria-label="Contraer menú" title="Contraer menú">⇤</button>
+  </div>
+
+  
+    <a href="/admin/dashboard" title="Resumen" aria-current="page"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3a9 9 0 1 0 11 11H10z M13 2v9h9a10 10 0 0 0-9-9z"/></svg><span>Resumen</span></a><a href="/inteligencia" title="Inteligencia empresarial" ><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18 M6 15l4-6 4 3 6-8"/></svg><span>Inteligencia empresarial</span></a><a href="/admin/confianza" title="Seguridad y confianza" ><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 4v6q0 6-8 10-8-4-8-10V6z M12 5v13"/></svg><span>Seguridad y confianza</span></a><a href="/copilot" title="SmartResto Copilot" ><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11a9 8 0 0 1-9 8H9l-5 2 1-5a9 8 0 1 1 16-5z"/></svg><span>SmartResto Copilot</span></a>
+    
+  
+    
+  
+    
+  
+    
+  
+  <details class="sr-nav-section" name="admin-navigation">
+    <summary title="Restaurantes">
+      <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10l2-6h14l2 6q-2 3-5 0-4 3-8 0-3 3-5 0 M5 12v8h14v-8 M10 20v-6h4v6"/></svg><span class="sr-section-label">Restaurantes</span><span class="sr-section-chevron" aria-hidden="true">⌄</span>
+    </summary>
+    <div class="sr-section-links">
+      <a href="/admin/restaurants" title="Todos los restaurantes" ><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10l2-6h14l2 6q-2 3-5 0-4 3-8 0-3 3-5 0 M5 12v8h14v-8 M10 20v-6h4v6"/></svg><span>Todos los restaurantes</span></a><a href="/admin/restaurant/new" title="Registrar restaurante" ><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0 M7 12h10m-5-5v10"/></svg><span>Registrar restaurante</span></a><a href="/admin/categories" title="Categorías" ><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h8l10 10-8 8L3 11z M7 7h1"/></svg><span>Categorías</span></a>
+    </div>
+  </details>
+    
+  
+    
+  
+    
+  
+    
+  
+  <details class="sr-nav-section" name="admin-navigation">
+    <summary title="Moderación">
+      <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 4v6q0 6-8 10-8-4-8-10V6z M12 5v13"/></svg><span class="sr-section-label">Moderación</span><span class="sr-section-chevron" aria-hidden="true">⌄</span>
+    </summary>
+    <div class="sr-section-links">
+      <a href="/admin/moderation" title="Moderación" ><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 4v6q0 6-8 10-8-4-8-10V6z M12 5v13"/></svg><span>Moderación</span></a><a href="/experiencias/publicaciones" title="Publicaciones" ><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 4v6q0 6-8 10-8-4-8-10V6z M12 5v13"/></svg><span>Publicaciones</span></a><a href="/admin/discovery" title="Radar gastronómico" ><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0 M15.5 8.5l-2 5-5 2 2-5z"/></svg><span>Radar gastronómico</span></a>
+    </div>
+  </details>
+    <a href="/admin/users" title="Usuarios y roles" ><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0 M2 20a8 6 0 0 1 16 0 M17 4a4 4 0 0 1 0 7m1 3q4 1 4 6"/></svg><span>Usuarios y roles</span></a>
+    <a href="/admin/operaciones" title="Pedidos y pagos" ><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h14v18l-3-2-4 2-4-2-3 2z M8 8h8m-8 4h6"/></svg><span>Pedidos y pagos</span></a>
+    
+  
+    
+  
+    
+  
+  <details class="sr-nav-section" name="admin-navigation">
+    <summary title="Reportes">
+      <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18 M6 15l4-6 4 3 6-8"/></svg><span class="sr-section-label">Reportes</span><span class="sr-section-chevron" aria-hidden="true">⌄</span>
+    </summary>
+    <div class="sr-section-links">
+      <a href="/admin/analytics" title="Analítica" ><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18 M6 15l4-6 4 3 6-8"/></svg><span>Analítica</span></a><a href="/experiencias/ciudad" title="Inteligencia de ciudad" ><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18 M6 15l4-6 4 3 6-8"/></svg><span>Inteligencia de ciudad</span></a>
+    </div>
+  </details>
+    
+  
+    
+  
+    
+  
+  <details class="sr-nav-section" name="admin-navigation">
+    <summary title="Configuración">
+      <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h8m4 0h6M3 17h4m4 0h10 M11 3v6m-4 5v6"/></svg><span class="sr-section-label">Configuración</span><span class="sr-section-chevron" aria-hidden="true">⌄</span>
+    </summary>
+    <div class="sr-section-links">
+      <a href="/admin/controles" title="Configuración y auditoría" ><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h8m4 0h6M3 17h4m4 0h10 M11 3v6m-4 5v6"/></svg><span>Configuración y auditoría</span></a><a href="/admin/configuracion-sitio" title="Configuración del sitio web" ><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h8m4 0h6M3 17h4m4 0h10 M11 3v6m-4 5v6"/></svg><span>Configuración del sitio web</span></a>
+    </div>
+  </details>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+  <details class="sr-nav-section" name="admin-navigation">
+    <summary title="Atención y cuenta">
+      <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0 M4 21v-2a8 6 0 0 1 16 0v2"/></svg><span class="sr-section-label">Atención y cuenta</span><span class="sr-section-chevron" aria-hidden="true">⌄</span>
+    </summary>
+    <div class="sr-section-links">
+      <a href="/bandeja/" title="Mensajes" ><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11a9 8 0 0 1-9 8H9l-5 2 1-5a9 8 0 1 1 16-5z"/></svg><span>Mensajes</span></a><a href="/bandeja/notificaciones" title="Notificaciones" ><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17h16l-2-3v-4a6 6 0 0 0-12 0v4z M10 20q2 2 4 0"/></svg><span>Notificaciones</span></a><a href="/bandeja/reclamos" title="Reclamos" ><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0 M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0 M5.5 5.5l3.5 3.5m6 6 3.5 3.5m-13 0L9 15m6-6 3.5-3.5"/></svg><span>Reclamos</span></a><a href="/auth/profile" title="Mi perfil" ><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0 M4 21v-2a8 6 0 0 1 16 0v2"/></svg><span>Mi perfil</span></a><a href="/auth/seguridad" title="Seguridad" ><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 10h14v11H5z M8 10V7a4 4 0 0 1 8 0v3"/></svg><span>Seguridad</span></a>
+    </div>
+  </details>
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+    
+  
+  <details class="sr-nav-section" name="admin-navigation">
+    <summary title="Sitio web">
+      <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0 M15.5 8.5l-2 5-5 2 2-5z"/></svg><span class="sr-section-label">Sitio web</span><span class="sr-section-chevron" aria-hidden="true">⌄</span>
+    </summary>
+    <div class="sr-section-links">
+      <a href="/" title="Ver sitio web" ><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0 M15.5 8.5l-2 5-5 2 2-5z"/></svg><span>Ver sitio web</span></a><a href="/explorar" title="Explorar restaurantes" ><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0 M15.5 8.5l-2 5-5 2 2-5z"/></svg><span>Explorar restaurantes</span></a><a href="/ofertas" title="Ofertas" ><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h8l10 10-8 8L3 11z M7 7h1"/></svg><span>Ofertas</span></a><a href="/mercado/" title="Mercado" ><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10h18l-2 10H5z M7 10l4-7m6 7-4-7"/></svg><span>Mercado</span></a><a href="/experiencias/" title="Mi momento" ><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0 M15.5 8.5l-2 5-5 2 2-5z"/></svg><span>Mi momento</span></a><a href="/para-negocios" title="Planes para negocios" ><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10l2-6h14l2 6q-2 3-5 0-4 3-8 0-3 3-5 0 M5 12v8h14v-8 M10 20v-6h4v6"/></svg><span>Planes para negocios</span></a>
+    </div>
+  </details>
+
+  
+
+  
+    <form method="post" action="/auth/logout">
+      <input type="hidden" name="csrf_token" value="ImZhMjFiODU4MjljN2ZiNDc2NjQzMzRkNGZjMmRhYTE4YjdhYmI3Yjci.av4whQ.SY7UicR2cmk6zPbsIWYnjvsYsZs">
+      <button type="submit" title="Cerrar sesión"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3H4v18h6 M9 12h12m-5-5 5 5-5 5"/></svg><span>Cerrar sesión</span></button>
+    </form>
+  
+</nav>
+
+    
+
+    <main id="main-content" class="main-content" tabindex="-1">
+      
+<div class="cat-admin">
+    <div class="cat-head">
+        <h1><i class="fas fa-tags"></i> Categorías</h1>
+        <span class="cat-count">20 categorías</span>
+    </div>
+
+    
+        
+    
+
+    <form class="cat-form" method="post" action="/admin/category">
+        <input type="hidden" name="csrf_token" value="ImZhMjFiODU4MjljN2ZiNDc2NjQzMzRkNGZjMmRhYTE4YjdhYmI3Yjci.av4whQ.SY7UicR2cmk6zPbsIWYnjvsYsZs">
+        <h2>Nueva categoría</h2>
+        <div class="cat-grid">
+            <label>Nombre *
+                <input type="text" name="name" required maxlength="60" placeholder="Ej: Cevichería">
+            </label>
+            <label>Slug *
+                <input type="text" name="slug" required maxlength="60" placeholder="Ej: cheviceria" pattern="[a-z0-9\-]+">
+            </label>
+            <label>Icono (Font Awesome)
+                <input type="text" name="icon" value="utensils" maxlength="40" placeholder="Ej: fish, pizza-slice, utensils">
+            </label>
+            <label>URL de imagen (opcional)
+                <input type="url" name="image_url" maxlength="500" placeholder="https://...">
+            </label>
+        </div>
+        <button type="submit" class="cat-btn"><i class="fas fa-plus"></i> Crear categoría</button>
+    </form>
+
+    <div class="cat-table-wrap">
+        <table class="cat-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Icono</th>
+                    <th>Nombre</th>
+                    <th>Slug</th>
+                    <th>Imagen</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                
+                <tr data-id="1">
+                    <td>1</td>
+                    <td><i class="fas fa-utensils"></i></td>
+                    <td>Categoría 1</td>
+                    <td></td>
+                    <td>—</td>
+                    <td><button type="button" class="cat-del" data-id="1" data-name="Categoría 1"><i class="fas fa-trash"></i></button></td>
+                </tr>
+                
+                <tr data-id="2">
+                    <td>2</td>
+                    <td><i class="fas fa-utensils"></i></td>
+                    <td>Categoría 2</td>
+                    <td></td>
+                    <td>—</td>
+                    <td><button type="button" class="cat-del" data-id="2" data-name="Categoría 2"><i class="fas fa-trash"></i></button></td>
+                </tr>
+                
+                <tr data-id="3">
+                    <td>3</td>
+                    <td><i class="fas fa-utensils"></i></td>
+                    <td>Categoría 3</td>
+                    <td></td>
+                    <td>—</td>
+                    <td><button type="button" class="cat-del" data-id="3" data-name="Categoría 3"><i class="fas fa-trash"></i></button></td>
+                </tr>
+                
+                <tr data-id="4">
+                    <td>4</td>
+                    <td><i class="fas fa-utensils"></i></td>
+                    <td>Categoría 4</td>
+                    <td></td>
+                    <td>—</td>
+                    <td><button type="button" class="cat-del" data-id="4" data-name="Categoría 4"><i class="fas fa-trash"></i></button></td>
+                </tr>
+                
+                <tr data-id="5">
+                    <td>5</td>
+                    <td><i class="fas fa-utensils"></i></td>
+                    <td>Categoría 5</td>
+                    <td></td>
+                    <td>—</td>
+                    <td><button type="button" class="cat-del" data-id="5" data-name="Categoría 5"><i class="fas fa-trash"></i></button></td>
+                </tr>
+                
+                <tr data-id="6">
+                    <td>6</td>
+                    <td><i class="fas fa-utensils"></i></td>
+                    <td>Categoría 6</td>
+                    <td></td>
+                    <td>—</td>
+                    <td><button type="button" class="cat-del" data-id="6" data-name="Categoría 6"><i class="fas fa-trash"></i></button></td>
+                </tr>
+                
+                <tr data-id="7">
+                    <td>7</td>
+                    <td><i class="fas fa-utensils"></i></td>
+                    <td>Categoría 7</td>
+                    <td></td>
+                    <td>—</td>
+                    <td><button type="button" class="cat-del" data-id="7" data-name="Categoría 7"><i class="fas fa-trash"></i></button></td>
+                </tr>
+                
+                <tr data-id="8">
+                    <td>8</td>
+                    <td><i class="fas fa-utensils"></i></td>
+                    <td>Categoría 8</td>
+                    <td></td>
+                    <td>—</td>
+                    <td><button type="button" class="cat-del" data-id="8" data-name="Categoría 8"><i class="fas fa-trash"></i></button></td>
+                </tr>
+                
+                <tr data-id="9">
+                    <td>9</td>
+                    <td><i class="fas fa-utensils"></i></td>
+                    <td>Categoría 9</td>
+                    <td></td>
+                    <td>—</td>
+                    <td><button type="button" class="cat-del" data-id="9" data-name="Categoría 9"><i class="fas fa-trash"></i></button></td>
+                </tr>
+                
+                <tr data-id="10">
+                    <td>10</td>
+                    <td><i class="fas fa-utensils"></i></td>
+                    <td>Categoría 10</td>
+                    <td></td>
+                    <td>—</td>
+                    <td><button type="button" class="cat-del" data-id="10" data-name="Categoría 10"><i class="fas fa-trash"></i></button></td>
+                </tr>
+                
+                <tr data-id="11">
+                    <td>11</td>
+                    <td><i class="fas fa-utensils"></i></td>
+                    <td>Categoría 11</td>
+                    <td></td>
+                    <td>—</td>
+                    <td><button type="button" class="cat-del" data-id="11" data-name="Categoría 11"><i class="fas fa-trash"></i></button></td>
+                </tr>
+                
+                <tr data-id="12">
+                    <td>12</td>
+                    <td><i class="fas fa-utensils"></i></td>
+                    <td>Categoría 12</td>
+                    <td></td>
+                    <td>—</td>
+                    <td><button type="button" class="cat-del" data-id="12" data-name="Categoría 12"><i class="fas fa-trash"></i></button></td>
+                </tr>
+                
+                <tr data-id="13">
+                    <td>13</td>
+                    <td><i class="fas fa-utensils"></i></td>
+                    <td>Categoría 13</td>
+                    <td></td>
+                    <td>—</td>
+                    <td><button type="button" class="cat-del" data-id="13" data-name="Categoría 13"><i class="fas fa-trash"></i></button></td>
+                </tr>
+                
+                <tr data-id="14">
+                    <td>14</td>
+                    <td><i class="fas fa-utensils"></i></td>
+                    <td>Categoría 14</td>
+                    <td></td>
+                    <td>—</td>
+                    <td><button type="button" class="cat-del" data-id="14" data-name="Categoría 14"><i class="fas fa-trash"></i></button></td>
+                </tr>
+                
+                <tr data-id="15">
+                    <td>15</td>
+                    <td><i class="fas fa-utensils"></i></td>
+                    <td>Categoría 15</td>
+                    <td></td>
+                    <td>—</td>
+                    <td><button type="button" class="cat-del" data-id="15" data-name="Categoría 15"><i class="fas fa-trash"></i></button></td>
+                </tr>
+                
+                <tr data-id="16">
+                    <td>16</td>
+                    <td><i class="fas fa-utensils"></i></td>
+                    <td>Categoría 16</td>
+                    <td></td>
+                    <td>—</td>
+                    <td><button type="button" class="cat-del" data-id="16" data-name="Categoría 16"><i class="fas fa-trash"></i></button></td>
+                </tr>
+                
+                <tr data-id="17">
+                    <td>17</td>
+                    <td><i class="fas fa-utensils"></i></td>
+                    <td>Categoría 17</td>
+                    <td></td>
+                    <td>—</td>
+                    <td><button type="button" class="cat-del" data-id="17" data-name="Categoría 17"><i class="fas fa-trash"></i></button></td>
+                </tr>
+                
+                <tr data-id="18">
+                    <td>18</td>
+                    <td><i class="fas fa-utensils"></i></td>
+                    <td>Categoría 18</td>
+                    <td></td>
+                    <td>—</td>
+                    <td><button type="button" class="cat-del" data-id="18" data-name="Categoría 18"><i class="fas fa-trash"></i></button></td>
+                </tr>
+                
+                <tr data-id="19">
+                    <td>19</td>
+                    <td><i class="fas fa-utensils"></i></td>
+                    <td>Categoría 19</td>
+                    <td></td>
+                    <td>—</td>
+                    <td><button type="button" class="cat-del" data-id="19" data-name="Categoría 19"><i class="fas fa-trash"></i></button></td>
+                </tr>
+                
+                <tr data-id="20">
+                    <td>20</td>
+                    <td><i class="fas fa-utensils"></i></td>
+                    <td>Categoría 20</td>
+                    <td></td>
+                    <td>—</td>
+                    <td><button type="button" class="cat-del" data-id="20" data-name="Categoría 20"><i class="fas fa-trash"></i></button></td>
+                </tr>
+                
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+    .cat-admin { max-width: 960px; margin: 32px auto; padding: 0 20px; }
+    .cat-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 16px; }
+    .cat-head h1 { font-size: 24px; margin: 0; }
+    .cat-count { color: #6b7280; font-size: 14px; }
+    .cat-flash { padding: 10px 14px; border-radius: 10px; margin-bottom: 12px; background: #f3f4f6; font-size: 14px; }
+    .cat-flash.success { background: #ecfdf5; color: #047857; }
+    .cat-flash.error { background: #fef2f2; color: #b91c1c; }
+    .cat-flash.warning { background: #fffbeb; color: #b45309; }
+    .cat-form { background: #fff; border: 1px solid #eceff3; border-radius: 14px; padding: 18px; margin-bottom: 20px; }
+    .cat-form h2 { font-size: 16px; margin: 0 0 12px; }
+    .cat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin-bottom: 14px; }
+    .cat-grid label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #374151; }
+    .cat-grid input { padding: 9px 12px; border: 1px solid #e5e7eb; border-radius: 10px; font-size: 14px; }
+    .cat-btn { border: none; cursor: pointer; color: #fff; padding: 10px 18px; border-radius: 999px; font-weight: 600; background: var(--primary, #ff385c); }
+    .cat-table-wrap { background: #fff; border: 1px solid #eceff3; border-radius: 14px; overflow-x: auto; }
+    .cat-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    .cat-table th, .cat-table td { padding: 12px 14px; text-align: left; border-bottom: 1px solid #f1f3f5; }
+    .cat-table th { background: #f9fafb; font-size: 12px; text-transform: uppercase; color: #6b7280; }
+    .cat-table tr:last-child td { border-bottom: none; }
+    .cat-table i.fas { color: var(--primary, #ff385c); }
+    .cat-empty { text-align: center; color: #6b7280; padding: 24px; }
+    .cat-del { border: none; background: none; cursor: pointer; color: #b91c1c; font-size: 15px; }
+</style>
+
+    </main>
+
+    
+    
+    <aside class="sr-location-consent" id="location-consent" aria-label="Preferencias de ubicación" hidden>
+  <div><strong>Descubre lo que tienes cerca</strong><p>¿Permites usar tu ubicación para encontrar restaurantes cercanos y adaptar las recomendaciones al clima? Tu navegador solicitará permiso. Puedes cambiar esta decisión en cualquier momento.</p></div>
+  <button type="button" data-location-accept>Aceptar y activar</button><button type="button" class="secondary" data-location-decline>Ahora no</button>
+  <output role="status" data-location-status></output>
+  <form class="sr-location-manual"><p>También puedes indicar coordenadas aproximadas desde tu aplicación de mapas.</p><label>Latitud<input name="lat" type="number" step="any" min="-90" max="90" required></label><label>Longitud<input name="lng" type="number" step="any" min="-180" max="180" required></label><button>Usar esta ubicación</button></form>
+</aside>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="/static/vendor/chartjs/chart-4.5.1.umd.min.js"></script>
+    <script src="/static/js/security.js"></script>
+    
+
+    <!-- Custom JS -->
+    <script src="/static/js/app.js"></script>
+    <script src="/static/js/map.js"></script>
+    <script src="/static/js/search.js"></script>
+    <script src="/static/js/admin.js"></script>
+    <script src="/static/js/ai-assistant.js"></script>
+    <script src="/static/js/editorial-slides.js" defer></script>
+    
+<script>
+(function () {
+    const base = "/admin/category";   // /admin/category
+    const token = "ImZhMjFiODU4MjljN2ZiNDc2NjQzMzRkNGZjMmRhYTE4YjdhYmI3Yjci.av4whQ.SY7UicR2cmk6zPbsIWYnjvsYsZs";
+
+    document.querySelectorAll('.cat-del').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const id = btn.dataset.id;
+            if (!confirm('¿Eliminar la categoría "' + btn.dataset.name + '"?')) return;
+            try {
+                const res = await fetch(base + '/' + encodeURIComponent(id), {
+                    method: 'DELETE',
+                    headers: { 'X-CSRFToken': token }
+                });
+                if (!res.ok) throw new Error();
+                btn.closest('tr').remove();
+            } catch (e) {
+                alert('No se pudo eliminar la categoría. Intenta de nuevo.');
+            }
+        });
+    });
+})();
+</script>
+
+    <script src="/static/js/experience.js" defer></script>
+  </body>
+</html>
