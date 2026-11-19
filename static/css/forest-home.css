@@ -255,6 +255,7 @@ body.sr-discover .forest-drawer-theme::after { content:'Cambiar tema'; font-size
   .sr-drawer-open body.sr-discover .sr-sidebar :is(a span,form span,.sr-group) { position:static; clip-path:none; width:auto; height:auto; overflow:visible; white-space:normal; }
 }
 
+/* Compatibilidad del mapa: mantener visibles las teselas y sus controles. */
 /* Keep Leaflet raster tiles visible despite global image resets. */
 body .sr-map-dialog #main-map.leaflet-container { position:relative!important; overflow:hidden!important; background:#e7eef1; }
 body .sr-map-dialog #main-map .leaflet-pane { position:absolute!important; left:0!important; top:0!important; }

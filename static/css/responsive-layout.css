@@ -26,6 +26,7 @@ body :is(.pager, .pagination, .form-actions, .admin-header, .um-toolbar) { flex-
 body .pager { min-width: 0; max-width: 100%; }
 body .pager .page-btn { min-width: 44px; min-height: 44px; flex: none; }
 body :is(.stat-card, .stat-label, .market-offer, .market-panel) { min-width: 0; overflow-wrap: anywhere; }
+/* Panel responsive del mapa y controles flotantes para ambos temas. */
 body .sr-map-dialog { position:fixed; inset:0; margin:auto; box-sizing:border-box; width:calc(100% - 24px); max-width:960px; max-height:calc(100vh - 24px); max-height:calc(100dvh - 24px); padding:16px; overflow:auto; overscroll-behavior:contain; border:1px solid var(--sr-border); border-radius:20px; background:var(--sr-surface); color:var(--theme-text); }
 body .sr-map-dialog[open] { display:flex; flex-wrap:wrap; gap:12px; }
 body .sr-map-dialog > button { min-height:44px; max-width:100%; padding:0 16px; border:1px solid #d6e0e5; border-radius:12px; background:#fff; color:#344650; font-family:inherit; font-size:14px; font-weight:600; line-height:1.2; white-space:normal; box-shadow:0 2px 7px rgba(29,48,58,.08); cursor:pointer; transition:background .18s ease,transform .18s ease,box-shadow .18s ease; }

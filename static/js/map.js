@@ -7,6 +7,7 @@ let map = null;
 let markers = {};
 window.getLeafletMap = () => map;
 
+// Inicializa el mapa solo cuando su contenedor está visible y tiene dimensiones.
 function initMap() {
     if (document.body.classList.contains('sr-discover') && document.getElementById('forest-map-panel')?.hidden) return;
     // Verificar que el contenedor existe

@@ -87,6 +87,7 @@
         return null;
       }
     };
+    // Espera a que el diálogo sea visible antes de inicializar/redimensionar el mapa.
     let mapOpenSequence = 0;
     const setMap = visible => {
       panel.hidden = !visible;
