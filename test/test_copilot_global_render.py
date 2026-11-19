@@ -40,6 +40,10 @@ def test_global_shell_render(parent, endpoint, role):
         if role:
             assert 'data-copilot-url="/copilot"' in html
             assert 'id="sr-wake-toggle" type="checkbox" checked' in html
+            if endpoint == 'copilot.page':
+                session['user']['username'] = 'Nancy "<real>&'
+                page_html = render_template('copilot.html', shops=[])
+                assert 'data-username="Nancy &#34;&lt;real&gt;&amp;"' in page_html
 
 
 @pytest.mark.parametrize('identity', [None, {}, {'role': 'admin'}, {'id': 1, 'role': 'unknown'},
@@ -108,3 +112,71 @@ def test_invalid_session_shell(identity, endpoint):
     assert 'id="sr-wake"' not in html and 'js/copilot-wake.js' not in html
     assert 'css/copilot-wake.css' not in html
     assert 'Administración' not in html
+
+
+@pytest.mark.parametrize('hour,salutation', [(0, 'Buenas noches'), (4, 'Buenas noches'),
+    (5, 'Buenos días'), (11, 'Buenos días'), (12, 'Buenas tardes'),
+    (18, 'Buenas tardes'), (19, 'Buenas noches'), (23, 'Buenas noches')])
+def test_browser_wake_greeting(hour, salutation):
+    from playwright.sync_api import sync_playwright
+    from flask import session
+    app = Flask(__name__, template_folder=str(ROOT / 'templates'))
+    app.secret_key = 'offline-browser'
+    app.jinja_env.globals.update(csrf_token=lambda: 'test', APP_NAME='SmartResto',
+        website={'brand': 'Test', 'social': {}}, url_for=lambda name, **kw: '/copilot' if name == 'copilot.page' else '/test/' + name)
+    app.jinja_env.filters['soles'] = str
+    with app.test_request_context('/copilot'):
+        session['user'] = {'id': 1, 'role': 'user', 'username': 'Nancy "<real>&'}
+        html = render_template('copilot.html', shops=[])
+    with sync_playwright() as p:
+        browser = p.chromium.launch(channel='msedge', headless=True)
+        try:
+            page = browser.new_page()
+            errors = []
+            page.on('pageerror', lambda error: errors.append(str(error)))
+            page.route('**/*', lambda route: route.fulfill(body=html, content_type='text/html')
+                       if route.request.resource_type == 'document' else route.abort())
+            page.goto('http://offline.test/copilot?voice=1&voice_intent=abre+pedidos', wait_until='domcontentloaded')
+            page.evaluate('''hour => {
+                const RealDate = Date;
+                window.Date = class extends RealDate { getHours() { return hour; } };
+                window.SpeechSynthesisUtterance = class { constructor(text) { this.text = text; } };
+                window.recognizers = [];
+                window.SpeechRecognition = class extends EventTarget {
+                    constructor() { super(); this.starts = 0; recognizers.push(this); }
+                    start() { this.starts++; }
+                    abort() { this.dispatchEvent(new Event('end')); }
+                };
+                Object.defineProperty(window, 'speechSynthesis', {value: {
+                    cancel() {}, getVoices() { return [{lang: 'es-PE'}]; },
+                    speak(u) { window.spoken = u; window.speakCount = (window.speakCount || 0) + 1; }
+                }});
+                Object.defineProperty(navigator, 'mediaDevices', {value: undefined});
+            }''', hour)
+            page.add_script_tag(content=(ROOT / 'static/js/copilot-wake.js').read_text(encoding='utf8'))
+            page.add_script_tag(content=(ROOT / 'static/js/copilot.js').read_text(encoding='utf8'))
+            assert not errors, errors
+            assert page.evaluate('spoken.text') == f'{salutation}, Nancy "<real>&. ¿Qué desea hacer hoy?'
+            assert page.evaluate('spoken.lang') == 'es-PE'
+            assert page.evaluate('recognizers[1].starts') == 0
+            assert page.locator('#copilot-message').input_value() == 'abre pedidos'
+            assert page.url == 'http://offline.test/copilot'
+            page.evaluate("document.dispatchEvent(new CustomEvent('smartresto:copilot-wake', {detail: {}}))")
+            assert page.evaluate('speakCount') == 1
+            page.evaluate('spoken.onend()')
+            assert page.evaluate('recognizers[1].starts') == 1
+            page.evaluate("document.dispatchEvent(new CustomEvent('smartresto:copilot-wake', {detail: {}})); spoken.onerror({error: 'not-allowed'})")
+            assert 'Audio no disponible' in page.locator('#copilot-status').inner_text()
+            page.wait_for_timeout(350)
+            assert page.evaluate('recognizers[1].starts') == 1
+            page.reload(wait_until='domcontentloaded')
+            page.evaluate('''() => {
+                window.speakCount = 0;
+                Object.defineProperty(window, 'speechSynthesis', {value: {
+                    cancel() {}, getVoices() { return []; }, speak() { speakCount++; }
+                }});
+            }''')
+            page.add_script_tag(content=(ROOT / 'static/js/copilot.js').read_text(encoding='utf8'))
+            assert page.evaluate('speakCount') == 0, 'consumed URL does not greet on reload'
+        finally:
+            browser.close()

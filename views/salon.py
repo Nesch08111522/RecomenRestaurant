@@ -203,6 +203,14 @@ def add_to_cart(token):
     line = cart["lines"].get(str(offer["id"]), 0) + qty
     if line > min(offer["available"], 100) or len(cart["lines"]) >= MAX_CART_LINES:
         raise ServiceError("La cantidad supera las porciones disponibles.")
+    from logic.order_addons import resolve
+    selected = request.form.getlist('addon')
+    dish = DishModel.get_by_id(offer['dish_id']) or {}
+    resolve(dish, selected, line, bool(prefs.get('avoid') or prefs.get('diets')))
+    previous_addons = (cart.get('addons') or {}).get(str(offer['id']), [])
+    if cart['lines'].get(str(offer['id'])) and previous_addons != selected:
+        raise ServiceError('Retira la linea para cambiar sus adicionales.')
+    cart.setdefault('addons', {})[str(offer['id'])] = selected
     cart["lines"][str(offer["id"])] = line
     cart["key"] = cart.get("key") or __import__("uuid").uuid4().hex
     _save_cart(token, cart)
@@ -218,6 +226,13 @@ def table_cart(token):
     cart = _cart(token)
     items = {str(row["id"]): row for row in catalog() if row["rid"] == table["rid"]}
     lines = [(items[oid], qty) for oid, qty in cart["lines"].items() if oid in items]
+    from logic.order_addons import resolve
+    priced = []
+    for row, qty in lines:
+        selected = resolve(DishModel.get_by_id(row['dish_id']) or {}, (cart.get('addons') or {}).get(str(row['id']), []), qty)
+        priced.append(({**row, 'price': row['price'] + sum(a['price_cents'] for a in selected),
+                        'name': row['name'] + (' + ' + ', '.join(a['name'] for a in selected) if selected else '')}, qty))
+    lines = priced
     total = sum(row["price"] * qty for row, qty in lines)
     return render_template("salon/cart.html", table=table, restaurant=_restaurant(table["rid"]),
                            visit=current, lines=lines, total=total,
@@ -228,6 +243,7 @@ def table_cart(token):
 def remove_line(token):
     cart = _cart(token)
     cart["lines"].pop(request.form.get("offer", ""), None)
+    cart.get('addons', {}).pop(request.form.get('offer', ''), None)
     cart["key"] = cart.get("key") or __import__("uuid").uuid4().hex
     _save_cart(token, cart)
     return redirect(url_for("salon.table_cart", token=token))
@@ -245,7 +261,8 @@ def place_table_order(token):
         raise ServiceError("Agrega al menos una porción antes de enviar el pedido.")
     order = place_order(actor["id"], table["rid"], cart["lines"], "Local", [], now(),
                         cart.get("key"), "Cuenta", request.form.get("total", type=int),
-                        (None, None), "", False, table_session=current)
+                        (None, None), "", False, table_session=current,
+                         addons=cart.get('addons', {}))
     _save_cart(token, {"lines": {}, "key": None})
     flash(f"Pedido {order['id']} enviado a la cocina.", "success")
     return redirect(url_for("salon.session_page", token=token))

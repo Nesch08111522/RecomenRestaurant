@@ -8,6 +8,6 @@
   {% include 'auth/experience.html' %}
 {% endblock %}
 {% block scripts %}
-  <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+  <script defer src="{{ url_for('static', filename='js/auth.js') }}"></script>
   <script defer src="{{ url_for('static', filename='js/auth/food-scene-loader.js') }}" data-scene-module="{{ url_for('static', filename='js/auth/food-scene.js') }}"></script>
 {% endblock %}

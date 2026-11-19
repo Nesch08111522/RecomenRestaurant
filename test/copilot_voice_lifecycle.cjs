@@ -1,17 +1,21 @@
 const assert = require('node:assert/strict');
 const elements = {};
 class Element {
-  constructor() { this.handlers = {}; this.value = ''; this.checked = true; }
+  constructor() { this.handlers = {}; this.value = ''; this.checked = true; this.dataset = { username: 'Nancy real' }; this.classList = { add() {}, remove() {}, toggle() {} }; }
+  append(...children) { this.lastElementChild = children.at(-1); }
+  replaceChildren() {}
   addEventListener(k, f) { (this.handlers[k] ??= []).push(f); }
   emit(k, e = {}) { for (const f of this.handlers[k] || []) f(e); }
   setAttribute() {}
+  click() { this.emit('click'); }
   querySelectorAll() { return []; }
   querySelector() { return new Element(); }
   insertAdjacentText() {}
   requestSubmit() { this.submitted = (this.submitted || 0) + 1; }
 }
 for (const id of ['question', 'status', 'conversation', 'message', 'preview', 'new', 'voice', 'voice-stop', 'read', 'audio-stop', 'cancel', 'confirm', 'mode-help']) elements['copilot-' + id] = new Element();
-global.document = { getElementById: id => elements[id] || null, querySelectorAll: () => [{ checked: true, value: 'basic', addEventListener() {} }] };
+const documentEvents = {};
+global.document = { createElement: () => new Element(), addEventListener: (k, f) => { documentEvents[k] = f; }, getElementById: id => elements[id] || null, querySelectorAll: () => [{ checked: true, value: 'basic', addEventListener() {} }] };
 const listeners = {}, timers = new Map();
 let serial = 0;
 global.setTimeout = f => { timers.set(++serial, f); return serial; };
@@ -107,6 +111,20 @@ assert.equal(owners.has('copilot-dictation'), true);
   synth.utterance = null;
   voiceTest.readReply('solo texto', () => {});
   assert.equal(synth.utterance, null, 'explicit false suppresses automatic TTS');
+  el('read').emit('click');
+  el('message').value = '';
+  documentEvents['smartresto:copilot-wake']({ detail: { transcript: 'abre pedidos' } });
+  assert.match(synth.utterance.text, /^(Buenos días|Buenas tardes|Buenas noches), Nancy real\. ¿Qué desea hacer hoy\?$/);
+  const greetingUtterance = synth.utterance;
+  const startsBeforeGreeting = rec.starts;
+  rec.handlers.result({ resultIndex: 0, results: [result('eco saludo', true)] });
+  assert.equal(el('message').value, 'abre pedidos');
+  assert.equal(rec.starts, startsBeforeGreeting, 'micro waits for greeting end');
+  documentEvents['smartresto:copilot-wake']({ detail: {} });
+  assert.equal(synth.utterance, greetingUtterance, 'in-flight greeting not duplicated');
+  rec.handlers.end(); greetingUtterance.onend();
+  assert.equal(rec.starts, startsBeforeGreeting + 1);
+  assert.equal(el('message').value, 'abre pedidos', 'wake intent survives greeting');
   listeners.pagehide(); flush();
   assert.ok(rec.aborts > 0);
   assert.ok(tracksStopped > 0);

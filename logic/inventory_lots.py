@@ -58,8 +58,8 @@ def cost(recipe, pantry):
             return None
         # Quote the actual FEFO/FIFO mix without modifying live inventory.
         remaining = amount
-        for lot in sorted(batches(ingredient), key=lambda lot: (lot['expires'], lot.get('received_at', ''), lot['lot'])
-                          if ingredient.get('rotation', 'FEFO') == 'FEFO' else (lot.get('received_at', ''), lot['lot'])):
+        from logic.market import now
+        for lot in ordered(ingredient, now().date().isoformat()):
             used = min(remaining, lot['quantity'])
             total += Decimal(used * lot['cost']) / lot['basis']
             remaining -= used

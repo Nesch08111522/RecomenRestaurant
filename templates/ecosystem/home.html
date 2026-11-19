@@ -10,4 +10,4 @@
 {% if context.mood=='recovery' %}<p>Recovery Food muestra opciones declaradas sin alcohol. El agua y el descanso pueden ayudarte. Estas sugerencias no tratan ni curan la resaca.</p>{% endif %}
 <form class="market-form" method="get"><label>Presupuesto por comida (S/)<input name="budget" type="number" min="0" step=".01" value="{{ filters.budget }}"></label><label>Distrito<input name="zone" value="{{ filters.zone }}"></label><button>Filtrar opciones</button></form>
 {% include "ecosystem/options.html" %}
-{% endblock %}{% block scripts %}<script src="{{ url_for('static',filename='js/context-location.js') }}"></script>{% endblock %}
+{% endblock %}{% block scripts %}<script defer src="{{ url_for('static',filename='js/context-location.js') }}"></script>{% endblock %}

@@ -1,11 +1,52 @@
 {% set wake_user = session.get('user') %}
 {% if wake_user is mapping and wake_user.get('id') and wake_user.get('role') in ['user', 'admin', 'business_owner'] %}
-<details id="sr-wake" data-copilot-url="{{ url_for('copilot.page') }}">
-  <summary>Configuración de voz Copilot</summary>
+<button id="sr-controls-open" type="button" aria-controls="sr-controls-drawer" aria-expanded="false" aria-haspopup="dialog" aria-label="Sonidos y voz" title="Sonidos y voz">
+  <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 8v8m5-12v16m5-14v12m5-10v8"/></svg>
+</button>
+<dialog id="sr-controls-drawer" aria-labelledby="sr-controls-title">
+  <div class="sr-controls-heading"><h2 id="sr-controls-title">Sonidos y voz</h2><button id="sr-controls-close" type="button" aria-label="Cerrar sonidos y voz">×</button></div>
+  <section aria-labelledby="sr-sounds-title"><h3 id="sr-sounds-title">Notificaciones</h3><div id="sr-audio-controls"></div></section>
+  <section id="sr-wake" data-copilot-url="{{ url_for('copilot.page') }}">
+  <h3>Configuración de voz Copilot</h3>
   <label><input id="sr-wake-toggle" type="checkbox" checked> Activación global por voz</label>
   <button id="sr-wake-enable" type="button">Habilitar micro</button>
   <p id="sr-wake-status" role="status" aria-live="polite">Preferencia activa; micrófono pendiente.</p>
   <small>Di «hola smart copilot» o «hola SmartResto Copilot». Requiere permiso y una pestaña visible. El navegador puede procesar audio mediante su proveedor.</small>
-</details>
-<script src="{{ url_for('static', filename='js/copilot-wake.js') }}"></script>
+  </section>
+</dialog>
+<script>
+(() => {
+  const trigger = document.getElementById('sr-controls-open');
+  const drawer = document.getElementById('sr-controls-drawer');
+  const close = document.getElementById('sr-controls-close');
+  if (!trigger || !drawer || !close) return;
+  const hide = () => {
+    if (typeof drawer.close === 'function') drawer.close();
+    else drawer.removeAttribute('open');
+    trigger.setAttribute('aria-expanded', 'false');
+    trigger.focus();
+  };
+  trigger.addEventListener('click', () => {
+    if (typeof drawer.showModal === 'function') drawer.showModal();
+    else drawer.setAttribute('open', '');
+    trigger.setAttribute('aria-expanded', 'true');
+    close.focus();
+  });
+  close.addEventListener('click', hide);
+  drawer.addEventListener('cancel', event => { event.preventDefault(); hide(); });
+  drawer.addEventListener('close', () => { trigger.setAttribute('aria-expanded', 'false'); });
+  let outside = false;
+  drawer.addEventListener('pointerdown', event => { outside = event.target === drawer; });
+  drawer.addEventListener('click', event => { if (outside && event.target === drawer) hide(); outside = false; });
+  drawer.addEventListener('keydown', event => {
+    if (event.key === 'Escape') { event.preventDefault(); hide(); }
+    if (event.key !== 'Tab') return;
+    const items = [...drawer.querySelectorAll('button:not(:disabled),input:not(:disabled),a[href]')];
+    const first = items[0], last = items.at(-1);
+    if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+    else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+  });
+})();
+</script>
+<script defer src="{{ url_for('static', filename='js/copilot-wake.js') }}"></script>
 {% endif %}

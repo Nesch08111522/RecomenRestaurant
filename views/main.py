@@ -33,6 +33,7 @@ from models.review import ReviewModel
 from config import Config
 from database.repository import document_transaction, PostgresDocumentRepository
 from database.connection import DatabaseConfigurationError, DatabaseConnectionError
+from psycopg import OperationalError
 from utils.security import csrf, valid_coordinate
 from utils.geo import calculate_distance, normalize_coordinates
 import logging
@@ -487,8 +488,8 @@ def search():
 
     except (ValueError, TypeError, AttributeError) as e:
         return jsonify(error='Filtros invalidos', results=[]), 400
-    except (DatabaseConfigurationError, DatabaseConnectionError):
-        return jsonify(error='Catalogo temporalmente no disponible'), 503
+    except (DatabaseConfigurationError, DatabaseConnectionError, OperationalError):
+        raise
     except Exception as e:
         logger.exception("Error en search")
         return (

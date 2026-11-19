@@ -15,7 +15,7 @@
   <div id="copilot-conversation" role="log" aria-live="polite" aria-label="Conversación con SmartResto Copilot" hidden></div>
   </div>
   <div class="copilot-dock">
-  <form id="copilot-question">
+  <form id="copilot-question" data-username="{{ session.get('user', {}).get('username') or '' }}">
     <label for="copilot-message">¿Qué necesitas?</label>
     <div class="copilot-composer" id="copilot-drop">
       <textarea id="copilot-message" maxlength="2000" name="message" rows="3" placeholder="Escribe, dicta o pega una imagen…" aria-describedby="copilot-status copilot-input-help"></textarea>

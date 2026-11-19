@@ -45,4 +45,4 @@
 {% else %}<p class="market-empty">Aún no hay ofertas disponibles con estos filtros. Prueba otra fecha o distrito.</p>{% endfor %}</div>
 {% if pages>1 %}<nav aria-label="Páginas de resultados">{% if number>1 %}<a href="{{ url_for('market.browse',page=number-1,**page_args) }}">Anterior</a>{% endif %} Página {{ number }} de {{ pages }} {% if number<pages %}<a href="{{ url_for('market.browse',page=number+1,**page_args) }}">Siguiente</a>{% endif %}</nav>{% endif %}
 {% endblock %}
-{% block scripts %}<script src="{{ url_for('static',filename='js/market-map.js') }}"></script>{% endblock %}
+{% block scripts %}<script defer src="{{ url_for('static',filename='js/market-map.js') }}"></script>{% endblock %}

@@ -3,7 +3,7 @@
 {% block content %}
 <div class="radar">
 <header class="radar-heading"><div><h1>Radar comercial</h1><p>Prospectos de Trujillo, separados de las empresas afiliadas.</p></div><a href="{{ url_for('companies.admin_companies') }}">Empresas y suscripciones</a><a href="{{ url_for('discovery.dashboard') }}">Revision de fuentes y titularidad</a></header>
-<section class="radar-panel"><h2>Descubrir negocios con evidencia</h2><form id="commercialSearch">
+<section class="radar-panel"><h2>Descubrir negocios con evidencia</h2><form id="commercialSearch" class="market-form">
 <label>Latitud de referencia<input name="lat" type="number" step="any" min="-8.3" max="-7.9" value="{{ center[0] }}" required></label>
 <label>Longitud de referencia<input name="lng" type="number" step="any" min="-79.2" max="-78.8" value="{{ center[1] }}" required></label>
 <label>Radio (km)<input name="radius_km" type="number" step="0.1" min="0.2" max="10" value="3" required></label>
@@ -26,10 +26,10 @@
 {% for h in p.get('history',[]) %}<p>{{ h.at }} | {{ h.to }} | Admin #{{ h.actor }} | {{ h.notes }}</p>{% endfor %}</details>
 {% if p.analysis %}<p>Hipotesis IA: prioridad {{ p.analysis.priority }}. Evidencia: {{ p.analysis.fields|join(', ') }}. {{ p.analysis.uncertainty }} Modelo: {{ p.analysis.model }}, {{ p.analysis.at }}.</p>{% else %}<p>Sin analisis IA. No se asigna potencial comercial sin evidencia.</p>{% endif %}
 <button data-id="{{ p.id }}" data-action="analyze">Analizar evidencia con IA</button>
-<form class="commercialState" data-id="{{ p.id }}"><label>Estado<select name="state">{% for state in states %}<option {% if state==p.state %}selected{% endif %}>{{ state }}</option>{% endfor %}</select></label>
+<form class="commercialState workspace-settings" data-id="{{ p.id }}"><label>Estado<select name="state">{% for state in states %}<option {% if state==p.state %}selected{% endif %}>{{ state }}</option>{% endfor %}</select></label>
 <label>Empresa confirmada (solo para afiliado)<select name="company_id"><option value="">Seleccionar</option>{% for c in companies %}<option value="{{ c.id }}">#{{ c.id }} {{ c.name }} ({{ c.status }})</option>{% endfor %}</select></label>
 <label>Motivo y verificacion de identidad<textarea name="notes" minlength="3" maxlength="500" required></textarea></label><button>Guardar estado</button></form>
 {% if not p.get('company_id') %}<button data-action="convert" data-id="{{ p.id }}">Convertir en empresa provisional</button>{% endif %}
 </article>{% else %}<p>No hay prospectos guardados. Usa Descubrir para consultar la fuente real.</p>{% endfor %}</div></div>
 {% endblock %}
-{% block scripts %}<script src="{{ url_for('static',filename='js/commercial-radar.js') }}"></script>{% endblock %}
+{% block scripts %}<script defer src="{{ url_for('static',filename='js/commercial-radar.js') }}"></script>{% endblock %}

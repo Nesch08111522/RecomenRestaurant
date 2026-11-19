@@ -2,7 +2,7 @@
 {% block owner_content %}
 <h1>Personal y verificación: {{ business.name }}</h1>
 <p>Los permisos se asignan exclusivamente a este establecimiento. No cambian el rol global de la cuenta.</p>
-<form method="post">
+<form method="post" class="workspace-settings">
 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 <label>Usuario <input name="username" required maxlength="80"></label>
 <label>Función <select name="role">{% for role in roles %}<option value="{{ role }}">{{ {'manager':'Responsable','cashier':'Caja','waiter':'Atención','kitchen':'Cocina'}[role] }}</option>{% endfor %}</select></label>
@@ -13,7 +13,7 @@
 <h2>Verificación empresarial</h2>
 <p>Revisión documental manual. No consultamos ni certificamos automáticamente registros oficiales.</p>
 {% if verification %}<p>Estado: {{ verification.status }}. {{ verification.note or '' }}</p>{% endif %}
-<form method="post" action="{{ url_for('business_access.submit_verification',rid=business.id) }}">
+<form method="post" class="workspace-settings" action="{{ url_for('business_access.submit_verification',rid=business.id) }}">
 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 <label>Razón social <input name="legal_name" required maxlength="160"></label>
 <label>RUC <input name="tax_id" inputmode="numeric" pattern="[0-9]{11}" required maxlength="11"></label>

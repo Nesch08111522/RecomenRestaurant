@@ -1,5 +1,10 @@
 /* Shared colour, type and interaction tokens. */
-.private-account { position: relative; }
+.private-account { position: relative; flex: none; }
+body.sr-private .sr-header { z-index: 1550; }
+body .sr-header, body .sr-top, body .sr-actions { overflow: visible; }
+body .private-account-menu { max-width: calc(100vw - 32px); box-sizing: border-box; }
+.private-account-menu a { min-height: 44px; box-sizing: border-box; touch-action: manipulation; }
+@media (max-width: 360px) { body .sr-top [data-theme-label] { display: none; } }
 .private-account-menu { position: absolute; right: 0; top: calc(100% + 8px); width: min(224px, calc(100vw - 32px)); padding: 6px; border: 1px solid var(--theme-border); background: var(--theme-surface); border-radius: 8px; z-index: 110; }
 .private-account-menu[hidden] { display: none; }
 .private-account-menu a { display: block; padding: 10px; color: var(--theme-text); text-decoration: none; border-radius: 6px; }

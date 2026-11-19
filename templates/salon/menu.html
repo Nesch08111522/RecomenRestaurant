@@ -69,6 +69,7 @@
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <input type="hidden" name="offer" value="{{ offer.id }}">
             <input type="number" name="qty" min="1" max="{{ [offer.available,100]|min }}" value="1" aria-label="Cantidad de {{ dish.name }}">
+            {% for addon in dish.addons or [] %}{% if addon.get('stock',0) > 0 %}<label class="sr-check"><input type="checkbox" name="addon" value="{{ addon.name }}">{{ addon.name }} + {{ addon.price_cents|soles }} por porción</label>{% endif %}{% endfor %}
             <button {% if not offer.available %}disabled{% endif %}>Agregar</button>
           </form>
           {% endif %}

@@ -31,7 +31,11 @@ def save_kitchen(data):
 
 
 def lock_business(rid):
-    restaurant = Repo.get_by_id("restaurants", rid, for_update=True)
+    from psycopg.errors import LockNotAvailable
+    try:
+        restaurant = Repo.get_by_id("restaurants", rid, for_update=True)
+    except LockNotAvailable:
+        raise MarketError('El negocio esta procesando otra operacion. Intentalo nuevamente.') from None
     if not restaurant:
         raise MarketError("El negocio ya no está disponible.")
     return restaurant
@@ -112,7 +116,7 @@ def reward_balance(uid, rid):
     return earned-used
 
 
-def place_order(uid, rid, cart, channel, destination, slot, request_key, method, expected=None, coordinates=(None, None), coupon_code="", use_reward=False, table_session=None):
+def place_order(uid, rid, cart, channel, destination, slot, request_key, method, expected=None, coordinates=(None, None), coupon_code="", use_reward=False, table_session=None, addons=None):
     try:
         request_key = str(UUID(request_key))
     except (ValueError, TypeError, AttributeError):
@@ -166,12 +170,23 @@ def place_order(uid, rid, cart, channel, destination, slot, request_key, method,
             if not compatible(offer, prefs["avoid"]) or not set(prefs["diets"]).issubset(offer.get("diets", [])):
                 raise MarketError("Un producto del carrito no cumple tus restricciones actuales.")
             dish = DishModel.get_by_id(offer["dish_id"])
+            from logic.order_addons import resolve
+            if addons is not None and (not isinstance(addons, dict) or set(addons) - set(cart)):
+                raise MarketError('Adicionales fuera del carrito.')
+            selected_addons = resolve(dish or {}, (addons or {}).get(oid, []), qty,
+                                      bool(prefs['avoid'] or prefs['diets']))
             day = slot.date().isoformat()
             if not dish or not dish.get("is_available", True) or slot.isoformat() > offer["ends"] or qty > available(offer, store["pantry"], day):
                 raise MarketError("Ya no hay suficientes porciones para ese día y hora.")
             price = effective_price(offer, at)
             if price < offer["price"] and slot.isoformat() > offer["rescue_until"]:
                 raise MarketError("Selecciona una hora dentro de la oferta de últimas porciones.")
+            if selected_addons:
+                price += sum(a['price_cents'] for a in selected_addons)
+                for option in dish['addons']:
+                    if option['name'] in {a['name'] for a in selected_addons}:
+                        option['stock'] -= qty
+                Repo.update('dishes', dish['id'], {'addons': dish['addons']})
             unit_cost = recipe_cost(offer["recipe"], store["pantry"])
             usage = {}
             from decimal import Decimal, ROUND_HALF_UP
@@ -193,7 +208,8 @@ def place_order(uid, rid, cart, channel, destination, slot, request_key, method,
                 NotificationModel.create_notification(business["owner_id"], "Inventario bajo",
                                                        f"{dish['name']}: quedan {remaining} porciones.", link=f"/mercado/cocina/{rid}")
             lines.append({"offer": oid, "dish_id": dish["id"], "name": dish["name"], "qty": qty,
-                          "unit": price, "cost": unit_cost, "saving": offer["price"] - price, "usage": usage})
+                          "unit": price, "cost": None if selected_addons else unit_cost,
+                          "addons": selected_addons, "saving": offer["price"] - effective_price(offer, at), "usage": usage})
             total += qty * price
         discount = max(loyalty_discount(uid, rid, total, store), coupon_discount(store, coupon_code, total))
         reward_points = 0
@@ -253,6 +269,16 @@ def transition(order, action, buyer=False):
                 raise MarketError("Primero confirma el reembolso del pago.")
             store = kitchen(order["rid"])
             for line in order["lines"]:
+                if line.get('addons'):
+                    dish = Repo.get_by_id('dishes', line['dish_id'], for_update=True)
+                    if not dish:
+                        raise MarketError('Falta el producto original para restaurar adicionales.')
+                    for allocation in line['addons']:
+                        option = next((a for a in dish.get('addons', []) if a['name'] == allocation['name']), None)
+                        if option is None or type(option.get('stock')) is not int:
+                            raise MarketError('Falta el adicional original para restaurar stock.')
+                        option['stock'] += allocation['quantity']
+                    Repo.update('dishes', dish['id'], {'addons': dish['addons']})
                 offer = Repo.get_by_id("market_offers", line["offer"])
                 if offer:
                     Repo.update("market_offers", offer["id"], {"stock": offer["stock"] + line["qty"]})

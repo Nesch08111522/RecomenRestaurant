@@ -7,6 +7,8 @@ from utils.security import fresh_session_user
 
 def enforce_subscription():
     endpoint = request.endpoint or ''
+    if endpoint == 'static':
+        return
     user = fresh_session_user()
     if not user or user.get('role') == 'admin':
         return

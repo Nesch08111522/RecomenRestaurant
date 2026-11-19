@@ -4,6 +4,125 @@
 **Fuente de requisitos:** plan maestro de 18 fases adjunto por la usuaria.
 **Alcance:** contraste estático del repositorio, sus rutas, plantillas, pruebas y documentación disponible. Este archivo no reemplaza las especificaciones de cada fase.
 
+## Estilo interno: Minimalismo SaaS de Alta Precisión
+
+Evidencia del 19 de noviembre de 2026. Especificación adjunta leída completa (79 líneas). Cambios de presentación, no cierre funcional de fases ni certificación visual exhaustiva.
+
+### Implementación y alcance
+
+- `templates/base.html`: frontera explícita para endpoints internos de blueprints mixtos; incorpora empresas, radar comercial y Google administrativo. `sr-workspace` incluye usuario, administrador y empresario; reutiliza header/sidebar y `internal_workspace_header.html`. CSS interno cargado al final, exclusivamente en sistema autenticado.
+- `static/css/internal-workspace.css`: superficies planas, bordes 1px, radios 8px/controles 6px, títulos 22px, números tabulares, header 54px, sidebar expandida 232px y contenido máximo 1280px. Corrección dentro de la capa existente `visualContract`: sus declaraciones importantes prevalecían sobre CSS sin capa. Formularios de personal, verificación y suscripciones agrupados con divisores; rejillas responsivas y tablas desplazables por teclado.
+- `saas-private.css` y `admin-precision.css`: sustituidos resets universales de background-image por listas de superficies concretas. No se borran fondos de fotografías, canvas, mapas o visores 3D. No nuevos colores ni fuentes/dependencias runtime. Se conservan las fuentes y tokens existentes.
+- `private-shell.js`: envolturas de presentación para tablas que aún no tienen contenedor desplazable; no intercepta formularios/endpoints. `notification-feed.js`: controles de sonido y estado pasan al footer de sidebar solo en workspace, evitando overflow del header móvil. IDs, payloads, permisos y lógica de negocio no cambiados por esta intervención.
+- Se añadieron únicamente clases de formulario en `owner/business_access.html`, `admin/business_verifications.html`, `admin/companies.html` y `admin/commercial_radar.html`. Se preservaron cambios concurrentes incluso cuando otro proceso dejó archivos en staging; esta intervención no ejecutó git add, commit ni borrados.
+
+### Inventario de plantillas
+
+| Grupo interno | Plantillas alcanzadas por shell/átomos compartidos | Evidencia visual nueva |
+|---|---|---|
+| Administración | `admin/dashboard`, `analytics`, `users`, `restaurants`, `restaurant_form`, `restaurant_import_preview`, `categories`, `moderation`, `operations`, `operation_detail`, `controls`, `website_settings`, `trust_center`, `business_verifications`, `companies`, `company_presence`, `company_activation` | users y companies; otras heredan CSS, no todas recorridas |
+| Empresario | `owner/dashboard`, `restaurants`, `menu_management`, `menu_import_preview`, `business_access`, `subscriptions` | business_access y subscriptions |
+| Operación | `market/kitchen`, `salon/manage`, `salon/desk`, `flow/desk`, `loyalty/customers`, `ecosystem/business` | salon/desk y flow/desk |
+| Catálogo y marca | `catalog/dashboard`, `sites/editor` | ambos; catálogo sin restaurante seleccionado |
+| Inteligencia y radar | `intelligence`, `discovery/dashboard`, `discovery/google`, `discovery/owner`, `admin/commercial_radar` | inteligencia, discovery/dashboard y radar comercial |
+| Usuario | `auth/profile`, `auth/profile_owner`, `auth/security`, `favorites`, `home_kitchen`, `market/orders`, `market/cart`, `market/trust`, `loyalty/wallet`, `ecosystem/groups`, `group`, `scan`, `rewards`, `city`, `publications`, `copilot` | seguridad, favoritos, Home, pedidos, reservas y Copilot |
+| Comunicación | `communication/inbox`, `thread`, `cases`, `case`, `notifications`; parciales conversation_list/message_fields | inbox |
+
+Son nombres relativos a templates, con extensión .html. Parciales/base no son rutas independientes. Inventario de alcance por herencia no prueba conformidad de cada selector propio ni de todos los estados pendientes.
+
+Excluidas: index/landing, detail/negocio público, offers, recommendations, information, business_plans, catalog/explore, market/browse y dish, ecosystem/home, sites/public (incluye previews públicos), flow/public, salon/menu/cart/session y mensajes QR públicos, login/register/recovery, company_activate y discovery/claim. Ninguna de sus plantillas fue editada por este rediseño. Contrato comprueba ausencia de CSS interno incluso con sesión admin en endpoints públicos seleccionados.
+
+### Matriz Edge reproducible
+
+`test/test_internal_style.py`: harness Flask independiente con Jinja/assets reales y datos simulados, sin ejecutar hooks/rutas backend productivos. Servidor propio 127.0.0.1 con puerto 0 asignado por SO, cerrado en finally; ninguna petición a :5000. Salida externa bloqueada (fuentes, mapas/proveedores incluidos). No conexiones ni escrituras DB en esta selección; no se modificó .env.
+
+Cada fila siguiente pasó seis combinaciones: 360/768/1280 por dark/light. scrollWidth exacto 360/768/1280; header 54px, sidebar escritorio 232px, h1 22px. Drawer abierto/cerrado con Escape en 360 y 768 para cada fila. Rutas son las del harness, no evidencia HTTP de permisos productivos.
+
+| Endpoint | Ruta harness | Template |
+|---|---|---|
+| admin.users | /admin/users | admin/users.html (una cuenta QA) |
+| commercial_radar.dashboard | /admin/radar-comercial | admin/commercial_radar.html |
+| companies.admin_companies | /admin/empresas | admin/companies.html (una empresa QA) |
+| salon.desk | /salon/1 | salon/desk.html (sin mesas) |
+| intelligence.dashboard | /inteligencia | intelligence.html (sin historial) |
+| companies.owner_subscriptions | /owner/suscripciones | owner/subscriptions.html |
+| business_access.access | /owner/acceso/1 | owner/business_access.html |
+| flow.desk | /salon/1/cola | flow/desk.html (fila de aforo QA) |
+| sites.editor | /owner/sites | sites/editor.html (borrador QA seleccionado) |
+| catalog.dashboard | /owner/catalog | catalog/dashboard.html (sin selección) |
+| copilot.page | /copilot | copilot.html |
+| auth.account_security | /auth/seguridad | auth/security.html |
+| auth.favorites | /auth/favorites | favorites.html (vacío) |
+| home_kitchen.index | /home/ | home_kitchen.html (vacío) |
+| comunicacion.inbox | /mensajes | communication/inbox.html (vacío) |
+| loyalty.reservations | /mis-reservas | loyalty/wallet.html (reservas vacías) |
+| market.orders | /mercado/pedidos | market/orders.html (vacío) |
+| discovery.dashboard | /admin/discovery | discovery/dashboard.html (vacío) |
+
+108 mediciones, no 108 pruebas independientes. Modal de edición users abierto con botón real y cerrado con Cancelar; dialog de discovery abierto por showModal y cerrado con Escape, ambos al final en 1280 light. Tablas de Flow comprobaron contenedor role=region/tabindex=0 y overflow-x auto. No screenshots ni inspección visual humana; mediciones DOM/browser no demuestran contraste completo ni todas las interacciones. No se probaron modals en seis combinaciones, catálogo poblado, plano con mesas, todos los gráficos con datos, ni todas las vistas de inventario.
+
+### Pruebas y límites
+
+| Comando | Resultado | Timeout |
+|---|---|---|
+| `.venv/Scripts/python.exe -m pytest test/test_internal_style.py -q -s --tb=short` | 2 aprobadas, 119,52 s; matriz anterior | 300 s |
+| `.venv/Scripts/python.exe -m pytest test/test_theme_contract.py test/test_phase4_public_site_contracts.py test/test_request_outage.py -q --tb=short` | 17 aprobadas, 8,05 s | 120 s |
+| `node --check static/js/private-shell.js` y `node --check static/js/notification-feed.js` | sin errores | 120 s |
+
+Selección anterior de theme/admin_user_editor/runtime/public_site: 10 aprobadas y 3 fallos, 7,51 s. Fallaron update administrativo, login con outage y API favoritos por respuesta 503; hooks de presencia/contexto ahora requieren datos adicionales respecto a mocks antiguos. Cambios concurrentes en app/context/company_access observados; no se alteraron pruebas existentes ni backend para ocultarlos. La selección posterior outage pasó, pero no reemplaza estos tres contratos fallidos: permanecen como límite de verificación de esta intervención.
+
+Fallos responsive iniciales corregidos: status de notificaciones fuera del header 360; capa visualContract imponía 36,096px al h1 en 768; especificidad del shell mantenía rail 64px. Todos los assertions de ancho/altura/título/rail se mantuvieron. El wrapper existente responsive-layout crea table-responsive antes que private-shell; la prueba exige comportamiento accesible/overflow, no un nombre de clase artificial.
+
+`git diff --check` comprobado sin errores de espacios, con avisos CRLF antes de actualizar esta sección; revalidación final al terminar. MCP discovery no expuso browser/subagentes; Edge local con Playwright ya instalado. Ningún commit, proveedor real, despliegue o certificación 100%. La base compartida cubre los grupos anteriores, pero la verificación exhaustiva de todas las vistas/estados solicitada queda pendiente; no se declara terminado ese alcance.
+
+## Continuación funcional: Home, lotes y adicionales
+
+Evidencia nueva del 19 de noviembre de 2026. Se implementaron tres áreas, sin certificar el 100% del plan maestro.
+
+### Fase 13: Home integrado
+
+- Nuevos `models/home_kitchen.py`, `views/home_kitchen.py`, `templates/home_kitchen.html`; registro en `app.py`, reconocimiento del blueprint privado en `templates/base.html` y enlace de navegación en `templates/partials/header.html`.
+- `/home/`: despensa personal CRUD de lotes, cantidad entera, unidad base y vencimiento; consultas SQL filtradas por titular. Ediciones/eliminaciones comprueban propietario en servidor; no hay acceso administrador implícito a despensas ajenas.
+- Recetas privadas con ingredientes/cantidades/unidades, porciones, minutos declarados y pasos editables. Fuente `user_declared`; borrador hasta confirmación explícita. No se generaron recetas con proveedor IA ni se atribuye verificación nutricional. Receta en plan pendiente no cambia silenciosamente: debe retirarse del plan antes de editar.
+- Plan semanal con días/comidas y multiplicador de receta; lista de compras calculada desde ingredientes reales, asignando cada lote una sola vez y respetando vencimiento del día planificado. Enlaces al buscador existente del mercado, sin garantizar que comercialice ese ingrediente.
+- Preparación confirmada descuenta lotes domésticos FEFO con lock por titular y transacción única; stock insuficiente y fallo de auditoría revierten todo. UUID idempotente, plan preparado una sola vez, historial con snapshot de receta y trazabilidad por lote. No permite preparar borradores.
+- UI hereda `market/base.html` y shell privado con sidebar/nav; reutiliza clases de mercado. Ajuste de flex-wrap limitado a `.sr-home-kitchen` en tablet, sin colores ni cambios globales.
+- Alcance pendiente Home: cámara/OCR y borradores IA de proveedor, sustituciones verificadas, sugerencias automáticas por restricciones y optimización de presupuesto. El registro de pasos del usuario es funcional, no un motor nutricional validado.
+
+### Fases 8–10: lotes y adicionales
+
+- `logic/inventory_lots.py`: múltiples lotes bajo el mismo ingrediente, rotación FEFO o FIFO y exclusión de vencidos; soporte necesario de registros de un lote ya persistidos. Entradas independientes con costo, vencimiento, fecha de recepción y UUID. Merma/conteo requieren lote específico; unidades incompatibles y merma excesiva rechazadas.
+- Integración en `logic/market.py`, `models/market.py`, `views/market_kitchen.py`, `templates/market/kitchen.html`: disponibilidad suma lotes vigentes, venta reparte consumo entre lotes y registra asignaciones/costo real; cancelación restaura cada lote original, no un sustituto. Cotización, alertas y simulación consideran cantidad vigente; alerta individual de cada lote y compras/producción avanzadas siguen pendientes.
+- `logic/order_addons.py`: nombres seleccionados se resuelven desde el catálogo servidor; precios en céntimos y stock entero obligatorio. Nombres inventados, duplicados, objetos con precios cliente y stock insuficiente rechazados. Sin declaraciones verificadas, los adicionales se bloquean para perfiles con restricciones, no se asumen seguros.
+- Gestión de precio/stock por propietario en `/mercado/cocina/<rid>/adicional`, con validación de producto del negocio y auditoría. `logic/product_catalog.py` conserva stock declarado de adicionales.
+- Carta QR permite seleccionar adicionales por porción; carrito muestra suma y nombres; `place_order` recalcula precios/stock, persiste desglose y revierte stock al cancelar. Precio esperado obsoleto revierte todos los descuentos. Costo de adicionales desconocido se representa como `None`, evitando margen ficticio. UI en `templates/salon/menu.html`, backend en `views/salon.py`.
+- El mismo lock de negocio serializa ventas/configuración. Contención que alcanza lock_timeout se convierte en `MarketError` seguro y reintentable, sin ampliar timeout ni quitar exclusión concurrente.
+- Pendiente: selección de adicionales fuera del carrito QR, declaraciones alimentarias detalladas/costos de complementos, pagos externos, gestión avanzada de compras y producción. No se hicieron cobros reales.
+
+### Fases 17–18: evidencia exacta
+
+Todas las selecciones DB usaron `SMARTRESTO_RUN_ISOLATED_DB=1` y fixtures actuales inspeccionadas: esquema QA UUID nuevo, tablas y secuencias exclusivas, comprobación FK interna y cursor protegido; `.env` solo cargado en memoria por fixture, nunca impreso/editado. No se ejecutaron scripts DB independientes.
+
+| Comando `python -m pytest`, sufijo `-q --tb=short` salvo browser `-q -s --tb=short` | Resultado | Límite |
+|---|---|---|
+| `test/test_home_kitchen.py` última ejecución | 13 aprobadas, 85,66 s | 300 s |
+| `test/test_home_kitchen.py test/test_order_addons.py` antes del último guard/snapshot Home | 20 aprobadas, 226,00 s | 300 s |
+| `test/test_home_kitchen.py test/test_inventory_lots.py test/test_order_addons.py` previo a dos regresiones nuevas | 22 aprobadas, 156,70 s | 300 s |
+| `test/test_market_transactions.py test/test_phase10_kitchen.py` tras corregir contención | 5 aprobadas, 75,73 s | 300 s |
+| `test/test_inventory_lots.py test/test_phase10_kitchen.py` inicial | 7 aprobadas, 91,18 s | 300 s |
+| `test/test_phase5_catalog.py test/test_phase7_personalization.py test/test_theme_contract.py` sin DB | 46 aprobadas, 7,19 s | 120 s |
+| `test/test_home_browser.py` | 1 aprobada, 54,92 s | 120 s |
+
+Los grupos repiten pruebas y no son un total único ni suite integral. Fallos intermedios corregidos: claves str/int del carrito de adicionales; contención de lock de la última plaza; overflow de cabecera Home en 768px (788px antes, 768px después). No se relajaron expectativas de stock, permisos, CSRF ni overflow.
+
+Navegador real: MCP browser no disponible; Playwright Python instalado, Chromium administrado ausente, Edge local disponible sin instalar dependencias. `test/test_home_browser.py` inició servidor propio 127.0.0.1 en puerto libre asignado por SO, únicamente con fixture QA y cookie firmada de test; bloqueó toda salida HTTP externa. Verificó Home 360/768/1280, dark/light, sidebar, ancho sin overflow (360/768/1280 respectivos) y alta de avena con formulario CSRF real. Servidor propio cerrado en finally; no se tocó :5000. Sin screenshots, ni validación visual de todas las otras vistas ni contraste/accesibilidad integral. La verificación Home fue anterior al guard/snapshot backend final, que pasó pruebas DB posteriores.
+
+### Estado de las demás fases
+
+Fases 3, 4, 6, 7, 11, 12, 14 y 15: sin implementación nueva atribuible a esta continuación; estados históricos no equivalen a cierre. Fase 5 recibe stock de adicionales; no se completó multimedia/categorías. Fase 9 recibe consumo/restauración y precios del QR; multivendedor/pagos siguen pendientes. Fase 16: no se añadió historial persistente Copilot en esta continuación. Fase 17: permisos titular Home y propietario/producto en adicionales, auditoría transaccional; no certifica tenancy transversal. Fase 18: pruebas anteriores, no release, deploy, backup, AR ni suite integral.
+
+Se preservaron modificaciones previas/concurrentes. No commits, cambios `.env`, escrituras public, proveedores ni pagos reales. `git diff --check` sin errores de espacios en la comprobación realizada, únicamente avisos CRLF. Archivos nuevos son módulos/tests solicitados, sin dependencias runtime nuevas.
+
 ## Implementación de esta sesión: fases 7, 9, 11 y 12
 
 Esta sección es la evidencia más reciente. No certifica el cierre de fases 3–18 ni sustituye las brechas históricas.

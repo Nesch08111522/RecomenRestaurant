@@ -7,7 +7,9 @@
   const button = document.createElement('button');
   button.type = 'button';
   button.title = 'Actualizacion periodica, no tiempo real estricto';
-  document.querySelector('.sr-actions')?.append(button);
+  const controls = document.getElementById('sr-audio-controls');
+  if (!controls) { window.srNotificationFeed = false; return; }
+  controls.append(button);
   const status = document.createElement('span');
   status.setAttribute('role', 'status');
   button.after(status);

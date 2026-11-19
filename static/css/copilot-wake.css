@@ -1,7 +1,16 @@
-#sr-wake { position: relative; margin: .5rem auto; padding: .5rem .8rem; width: min(94%, 34rem); box-sizing: border-box; border: 1px solid var(--theme-border); border-radius: .6rem; background: var(--theme-surface); color: var(--theme-text); font: inherit; }
-#sr-wake summary { cursor: pointer; font-size: .85rem; }
-#sr-wake label { display: inline-flex; align-items: center; gap: .4rem; margin: .7rem .5rem .4rem 0; }
-#sr-wake button { padding: .4rem .7rem; color: inherit; background: transparent; border: 1px solid currentColor; border-radius: .4rem; cursor: pointer; }
-#sr-wake p { margin: .4rem 0; }
-#sr-wake small { display: block; line-height: 1.5; }
-#sr-wake :focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+/* Authenticated utility dock; no document flow or header space. */
+#sr-controls-open { position: fixed; right: env(safe-area-inset-right, 0px); top: 45%; z-index: 1560; width: 32px; min-height: 48px; display: grid; place-items: center; padding: 4px; border: 1px solid var(--theme-border); border-right: 0; border-radius: 12px 0 0 12px; color: var(--theme-text); background: color-mix(in srgb, var(--theme-surface) 65%, transparent); cursor: pointer; touch-action: manipulation; }
+.sr-drawer-open #sr-controls-open { visibility: hidden; }
+#sr-controls-drawer { position: fixed; inset: calc(var(--sr-header, 70px) + env(safe-area-inset-top, 0px) + 12px) max(8px, env(safe-area-inset-right, 0px)) calc(80px + env(safe-area-inset-bottom, 0px)) auto; margin: 0; width: min(350px, calc(100vw - 16px)); max-width: calc(100vw - 16px); max-height: calc(100dvh - var(--sr-header, 70px) - 110px); height: fit-content; overflow: auto; overscroll-behavior: contain; box-sizing: border-box; padding: 20px; border: 1px solid var(--theme-border); border-radius: 16px; color: var(--theme-text); background: var(--theme-surface); font: inherit; z-index: 2000; }
+#sr-controls-drawer:not([open]) { display: none; }
+#sr-controls-drawer::backdrop { background: color-mix(in srgb, var(--theme-bg) 45%, transparent); }
+#sr-controls-drawer .sr-controls-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+#sr-controls-drawer h2 { font-size: 18px; margin: 0; }
+#sr-controls-drawer h3 { font-size: 14px; margin: 0 0 12px; }
+#sr-controls-drawer section { margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--theme-border); }
+#sr-controls-drawer button { min-height: 44px; padding: 8px 12px; color: inherit; background: var(--theme-elevated); border: 1px solid var(--theme-border); border-radius: 8px; cursor: pointer; touch-action: manipulation; }
+#sr-wake label { display: flex; align-items: center; gap: 8px; min-height: 44px; margin-bottom: 8px; }
+#sr-wake input { width: 20px; height: 20px; }
+#sr-wake p, #sr-audio-controls [role=status] { display: block; margin: 12px 0; font-size: 13px; }
+#sr-wake small { display: block; font-size: 12px; line-height: 1.5; }
+#sr-controls-drawer :focus-visible, #sr-controls-open:focus-visible { outline: 2px solid var(--theme-accent); outline-offset: 3px; }

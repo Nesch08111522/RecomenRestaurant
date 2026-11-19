@@ -47,9 +47,13 @@ body.sr-saas-private {
   background: var(--theme-bg); color: var(--theme-text);
   font-size: 13px; font-variant-numeric: tabular-nums;
 }
-.sr-saas-private *, .sr-saas-private *::before, .sr-saas-private *::after {
+/* Flatten named UI surfaces, not media, charts or immersive descendants. */
+.sr-saas-private :is(.sr-header,.sr-sidebar,.sr-mark,.sr-icon,.sr-account,.theme-toggle,.private-account-menu,.sr-workspace-header,.mgr-hero,.mgr-card,.mgr-metric,.stat-card,.market-panel,.catalog-panel,.catalog-metric-card,.bs-panel,.bs-preview-card,.bs-action-card,.sr-service-card,.sr-table-card,.radar-panel,.radar-candidate,.radar-empty,.profile-sidebar,.profile-form-container,.saas-panel,.card,.chart-card,.recent-activity,.admin-filters,.admin-form,.um-modal,.owner-dialog,.owner-toast,.restaurant-card,.dish-item,.review-dish-card,.m-card,.m-section,.m-stat,.m-toolbar,.m-row,.m-status-note,button,input,select,textarea) {
   box-shadow: none !important; text-shadow: none !important;
-  background-image: none !important; backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+.sr-saas-private :is(.mgr-hero,.mgr-card,.mgr-metric,.stat-card,.market-panel,.catalog-panel,.catalog-metric-card,.bs-panel,.bs-action-card,.sr-service-card,.sr-table-card,.radar-panel,.radar-candidate,.profile-sidebar,.profile-form-container,.saas-panel,.card,.chart-card,.recent-activity,.admin-filters,.m-card,.m-section,.m-stat,.m-toolbar,.m-row,.m-status-note) {
+  background-image: none !important;
 }
 .sr-saas-private [hidden] { display: none !important; }
 .sr-saas-private :is(h1,h2,h3) { font-family: var(--font-main); color: var(--theme-text); }

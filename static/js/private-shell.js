@@ -1,6 +1,19 @@
 (() => {
   document.addEventListener('DOMContentLoaded', () => {
     if (!document.body.classList.contains('sr-private')) return;
+    // Presentation-only wrappers keep wide internal tables keyboard-scrollable.
+    document.querySelectorAll('#main-content table').forEach(table => {
+      let container = table.closest('.table-container,.cat-table-wrap,.mgr-table,.table-responsive,.catalog-table-wrap,.admin-scroll,.workspace-scroll');
+      if (!container) {
+        container = document.createElement('div');
+        container.className = 'workspace-scroll';
+        table.before(container);
+        container.append(table);
+      }
+      container.tabIndex = 0;
+      container.setAttribute('role', 'region');
+      container.setAttribute('aria-label', table.caption?.textContent.trim() || 'Tabla de datos, desplazamiento horizontal');
+    });
     const root = document.documentElement;
     const menu = document.getElementById('sr-navigation');
     const trigger = document.querySelector('.sr-menu-button');

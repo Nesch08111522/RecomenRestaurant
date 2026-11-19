@@ -11,7 +11,10 @@ MEALS = ('Desayuno', 'Almuerzo', 'Cena')
 
 
 def rows(collection, uid):
-    return [r for r in Repo.all(collection) if r.get('uid') == uid]
+    with document_transaction() as conn:
+        result = conn.execute('SELECT payload FROM public.app_records WHERE collection=%s AND payload @> %s ORDER BY id',
+                              (collection, Repo._jsonb({'uid': uid})))
+        return [r['payload'] for r in result]
 
 
 def owned(collection, item_id, uid):
@@ -84,6 +87,8 @@ def save_recipe(uid, data, item_id=None):
         lock(conn, uid)
         if item_id:
             owned('home_recipes', item_id, uid)
+            if any(r['recipe_id'] == item_id and not r.get('prepared') for r in rows('home_plan', uid)):
+                raise MarketError('Retira la receta del plan pendiente antes de modificar sus cantidades.')
         result = Repo.update('home_recipes', item_id, payload) if item_id else Repo.create('home_recipes', payload)
         record_event('HOME_UPDATED', resource_type='home_recipe', resource_id=result['id'], actor_user_id=uid)
         return result
@@ -169,7 +174,8 @@ def prepare(uid, recipe_id, batches, request_key, plan_id=None):
                     usage.append(dict(pantry_id=lot['id'], name=lot['name'], quantity=used, unit=lot['unit']))
             if need:
                 raise MarketError(f"Stock vigente insuficiente: {ingredient['name']}.")
-        result = Repo.create('home_preparations', dict(uid=uid, recipe_id=recipe_id, name=recipe['name'], batches=batches,
+        result = Repo.create('home_preparations', dict(uid=uid, recipe_id=recipe_id, name=recipe['name'],
+                            recipe_snapshot={field: recipe[field] for field in ('ingredients', 'steps', 'servings', 'minutes', 'source')}, batches=batches,
                             servings=recipe['servings'] * batches, request_key=request_key, plan_id=plan_id, usage=usage, at=now().isoformat()))
         if planned:
             Repo.update('home_plan', plan_id, {'prepared': True, 'preparation_id': result['id']})

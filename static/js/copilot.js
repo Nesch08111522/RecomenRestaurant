@@ -19,6 +19,11 @@
     reset.disabled = value;
     const draft = document.getElementById('copilot-proposal');
     if (draft) draft.querySelector('button').disabled = value;
+    if (value) window.smartrestoVoice?.acquire('copilot-request');
+    else {
+      window.smartrestoVoice?.release('copilot-request');
+      if (pendingWake !== null) { const text = pendingWake; pendingWake = null; wakeConversation(text); }
+    }
   }
   async function post(url, data) {
     const response = await fetch(url, { method: 'POST', headers: {
@@ -193,7 +198,8 @@
   try { reading = localStorage.getItem(readingKey) !== 'false'; } catch (_) {}
   let base = '', segments = [], timer = null, speaking = false, audioDone = null;
   let silenceTimer = null, lastActivity = 0, hasSpeech = false, conversational = false;
-  let blocked = false, voiceGeneration = 0, restartFailures = 0;
+  let blocked = false, voiceGeneration = 0, restartFailures = 0, pendingWake = null;
+  let greeting = false, greetingTimer = null;
   function clearSilence() { clearTimeout(silenceTimer); silenceTimer = null; }
   function activity() {
     if (!listening || speaking || busy || disposed) return;
@@ -296,6 +302,8 @@
   }
   function stopAudio() {
     const done = audioDone; audioDone = null;
+    clearTimeout(greetingTimer); greetingTimer = null;
+    if (greeting) { greeting = false; conversational = false; }
     speaking = false;
     window.smartrestoVoice?.release('copilot-audio');
     activeAvatar?.classList.remove('speaking'); activeAvatar = null;
@@ -322,7 +330,11 @@
     audioDone = done; audioStop.disabled = false;
     utterance.onend = () => { if (audioDone === done) { stopAudio(); if (!disposed) done(); } };
     utterance.onerror = () => { if (audioDone === done) { stopAudio(); show('Audio no disponible. La respuesta sigue visible.'); } };
-    const speak = () => { if (speaking && !disposed && generation === voiceGeneration) synth.speak(utterance); };
+    const speak = () => {
+      if (!speaking || disposed || generation !== voiceGeneration) return;
+      try { synth.speak(utterance); }
+      catch (_) { utterance.onerror(); }
+    };
     if (window.smartrestoVoice) window.smartrestoVoice.acquire('copilot-audio', speak);
     else speak();
   }
@@ -389,16 +401,44 @@
       if (base) activity();
     });
   }
-  document.addEventListener?.('smartresto:copilot-wake', e => {
-    if (disposed || busy || !recognition || listening) return;
-    const text = e.detail?.transcript;
+  function wakeConversation(text = '') {
+    if (disposed || greeting) return;
+    if (busy) { pendingWake = text; return; }
+    stopListening(false); stopAudio();
     if (typeof text === 'string' && text.trim()) input.value = text.trim().slice(0, 2000);
-    voice.click();
-  });
-  if (new URLSearchParams(window.location?.search || '').get('voice') === '1' && recognition) voice.click();
+    const username = form.dataset?.username?.trim();
+    if (!username) { show('No se pudo obtener el nombre autenticado. Recarga tu sesión.'); return; }
+    const hour = new Date().getHours();
+    const salutation = hour >= 5 && hour < 12 ? 'Buenos días' : hour >= 12 && hour < 19 ? 'Buenas tardes' : 'Buenas noches';
+    const message = `${salutation}, ${username}. ¿Qué desea hacer hoy?`;
+    turn('assistant', message); show(message);
+    if (!reading) { if (recognition) voice.click(); return; }
+    if (!synth) { show('Audio no disponible en este navegador. El saludo sigue visible.'); return; }
+    const done = () => { if (recognition && !disposed) voice.click(); };
+    readReply(message, done);
+    greeting = speaking;
+    const utteranceDone = audioDone;
+    // A browser may reject speech without delivering an error event.
+    if (greeting) greetingTimer = setTimeout(() => {
+      if (greeting && audioDone === utteranceDone) {
+        stopAudio(); show('El navegador no completó el saludo. Pulsa Escuchar para reintentar; el micrófono permanece detenido.');
+      }
+    }, 15000);
+  }
+  document.addEventListener?.('smartresto:copilot-wake', e => wakeConversation(e.detail?.transcript || ''));
+  const wakeParams = new URLSearchParams(window.location?.search || '');
+  if (wakeParams.get('voice') === '1') {
+    const text = wakeParams.get('voice_intent') || '';
+    const consumed = new URL(window.location.href);
+    consumed.searchParams.delete('voice'); consumed.searchParams.delete('voice_intent');
+    window.history.replaceState(window.history.state, '', consumed.pathname + consumed.search + consumed.hash);
+    wakeConversation(text);
+  }
   reset.addEventListener('click', () => { attachments = []; renderImages(); if (partial) partial.textContent = ''; });
   window.addEventListener('pagehide', () => {
-    disposed = true; stopListening(false); audioDone = null; stopAudio();
+    disposed = true; pendingWake = null;
+    window.smartrestoVoice?.release('copilot-request');
+    stopListening(false); audioDone = null; stopAudio();
     if (recognition) recognition.abort();
   });
 })();

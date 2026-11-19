@@ -17,6 +17,12 @@ def actor():
     return user['id']
 
 
+@bp.before_request
+def validate_body():
+    if request.is_json and not isinstance(request.get_json(silent=True), dict):
+        return jsonify(success=False, error='Se requiere un objeto JSON.'), 400
+
+
 @bp.errorhandler(MarketError)
 def invalid(error):
     if request.is_json:

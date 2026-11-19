@@ -73,8 +73,10 @@ def desk_page(rid, **extra):
             needs[name] = needs.get(name, 0) + int(amount) * int(offer.get("stock") or 0)
     alerts = []
     for name, lot in store.get("pantry", {}).items():
-        quantity = int(lot.get("quantity") or 0)
-        expires = lot.get("expires") or ""
+        from logic.inventory_lots import ordered, quantity as lot_quantity
+        quantity = lot_quantity(lot, at.date().isoformat())
+        valid_lots = ordered(lot, at.date().isoformat())
+        expires = min((batch['expires'] for batch in valid_lots), default=lot.get('expires') or '')
         try:
             days = (date.fromisoformat(expires) - at.date()).days
         except ValueError:
@@ -146,6 +148,31 @@ def configure(rid):
         save_kitchen(store)
         RestaurantModel.update(rid, {"market_channels": channels, "market_kind": form['kind']})
     return return_desk(rid, "Configuración comercial guardada.")
+
+
+@market_bp.post('/cocina/<int:rid>/adicional')
+def configure_addon(rid):
+    with document_transaction():
+        lock_business(rid)
+        authorize(rid, owner_only=True)
+        dish = Repo.get_by_id('dishes', request.form.get('dish', type=int), for_update=True)
+        if not dish or dish.get('restaurant_id') != rid:
+            abort(404)
+        name = request.form.get('name', '').strip()
+        if not 1 <= len(name) <= 100:
+            raise MarketError('Indica el nombre del adicional.')
+        options = list(dish.get('addons') or [])
+        option = next((a for a in options if a['name'] == name), None)
+        if not option:
+            if len(options) >= 20:
+                raise MarketError('Hasta veinte adicionales por plato.')
+            option = {'name': name}
+            options.append(option)
+        option.update(price_cents=money(request.form.get('price')), stock=integer(request.form.get('stock'), 0, 1000000))
+        Repo.update('dishes', dish['id'], {'addons': options})
+        from utils.audit import record_event
+        record_event('ADDON_UPDATED', resource_type='dish', resource_id=dish['id'], actor_user_id=session['user_id'])
+    return return_desk(rid, 'Adicional guardado con precio y stock.')
 
 
 @market_bp.post("/cocina/<int:rid>/cupon")
@@ -367,7 +394,8 @@ def simulate(rid):
     possible = []
     for name, per_portion in recipe.items():
         lot = store["pantry"][name]
-        stocked = lot["quantity"] if lot["expires"] >= now().date().isoformat() else 0
+        from logic.inventory_lots import quantity as lot_quantity
+        stocked = lot_quantity(lot, now().date().isoformat())
         possible.append(stocked // per_portion)
         if stocked < per_portion * portions:
             needs[name] = {"missing": per_portion * portions - stocked, "unit": lot["unit"],

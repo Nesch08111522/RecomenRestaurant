@@ -30,7 +30,7 @@
         document.addEventListener('pointerdown', event => {
             suppressClick = false;
             if (!(event.target instanceof Element) || event.pointerType !== 'mouse' || event.button !== 0 || event.shiftKey ||
-                event.target.closest('input,textarea,select,button,summary,[contenteditable=true],.map-container,.leaflet-container,.maplibregl-map')) return;
+                event.target.closest('a[href],input,textarea,select,button,summary,[role=button],[role=link],[contenteditable=true],.private-account,.map-container,.leaflet-container,.maplibregl-map')) return;
             const candidates = [];
             for (let el = event.target; el && el !== document.documentElement; el = el.parentElement) {
                 const css = getComputedStyle(el);
@@ -66,7 +66,10 @@
         document.addEventListener('pointercancel', endDrag);
         window.addEventListener('blur', endDrag);
         document.addEventListener('click', event => {
-            if (suppressClick && event.detail) { event.preventDefault(); event.stopImmediatePropagation(); }
+            if (suppressClick && event.detail && event.target instanceof Element &&
+                !event.target.closest('a[href],button,input,select,textarea,summary,[role=button],[role=link]')) {
+                event.preventDefault(); event.stopImmediatePropagation();
+            }
             suppressClick = false;
         }, true);
 
@@ -110,9 +113,10 @@
                 event.preventDefault(); event.stopImmediatePropagation(); accountOpen(false, true);
             }
         }, true);
-        options?.addEventListener('focusout', () => queueMicrotask(() => {
-            if (!document.activeElement?.closest('.private-account')) accountOpen(false);
-        }));
+        options?.addEventListener('focusout', event => {
+            // A null target occurs on touch/blur before the anchor's native click.
+            if (event.relatedTarget instanceof Element && !event.relatedTarget.closest('.private-account')) accountOpen(false);
+        });
         document.querySelector('.sr-menu-button')?.addEventListener('click', () => accountOpen(false), true);
         window.addEventListener('pagehide', () => accountOpen(false));
 

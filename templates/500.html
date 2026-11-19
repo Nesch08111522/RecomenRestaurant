@@ -1,43 +1,31 @@
-{% extends 'base.html' %}
-
-{% block content %}
-<div class="error-container">
-    <div class="error-content">
-        <h1>500</h1>
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ status|default(500) }} | SmartResto</title>
+</head>
+<body>
+    <main>
+        <h1>{{ status|default(500) }}</h1>
+        {% if status == 503 %}
+        <h2>Servicio temporalmente no disponible</h2>
+        <p>No podemos acceder al servicio en este momento. Intenta de nuevo m&aacute;s tarde.</p>
+        {% elif status == 404 %}
+        <h2>P&aacute;gina no encontrada</h2>
+        <p>El recurso solicitado no existe.</p>
+        {% elif status == 400 %}
+        <h2>Solicitud no v&aacute;lida</h2>
+        <p>Verifica los datos y vuelve a intentarlo.</p>
+        {% elif status == 405 %}
+        <h2>M&eacute;todo no permitido</h2>
+        {% elif status == 413 %}
+        <h2>Contenido demasiado grande</h2>
+        {% else %}
         <h2>Error interno del servidor</h2>
-        <p>Lo sentimos, algo salió mal. Por favor intenta de nuevo más tarde.</p>
-        <a href="{{ url_for('main.index') }}" class="btn-primary">Volver al inicio</a>
-    </div>
-</div>
-
-<style>
-    .error-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: 60vh;
-        padding:var(--space-xl) var(--space-md);
-    }
-    
-    .error-content {
-        text-align: center;
-    }
-    
-    .error-content h1 {
-        font-size:var(--text-display);
-        font-weight: 700;
-        color: var(--theme-accent);
-        margin-bottom: 16px;
-    }
-    
-    .error-content h2 {
-        font-size:var(--text-2xl);
-        margin-bottom: 16px;
-    }
-    
-    .error-content p {
-        color: var(--theme-text);
-        margin-bottom: 24px;
-    }
-</style>
-{% endblock %}
+        <p>Algo sali&oacute; mal. Intenta de nuevo m&aacute;s tarde.</p>
+        {% endif %}
+        <a href="/">Volver al inicio</a>
+    </main>
+</body>
+</html>

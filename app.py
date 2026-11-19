@@ -56,6 +56,11 @@ def create_app(test_config=None):
 
         check_application_schema()
 
+    @app.before_request
+    def assign_request_id():
+        request.performance_start = perf_counter()
+        request.request_id = str(uuid.uuid4())
+
     csrf.init_app(app)
 
     app.register_blueprint(main_bp)
@@ -114,10 +119,10 @@ def create_app(test_config=None):
         return inject_globals()
 
     @app.before_request
-    def assign_request_id():
-        request.performance_start = perf_counter()
-        request.request_id = str(uuid.uuid4())
-        if request.endpoint != "static" and "user_id" in session:
+    def prepare_platform_context():
+        if request.endpoint == "static":
+            return
+        if "user_id" in session:
             fresh_session_user()
         g.platform_context = build_platform_context(session)
 
@@ -142,6 +147,10 @@ def create_app(test_config=None):
 
         return response
 
+    def render_error(status):
+        # Error responses must not run application context processors or base navigation.
+        return app.jinja_env.get_template("500.html").render(status=status), status
+
     def is_api_request():
         return (
             request.is_json
@@ -163,7 +172,7 @@ def create_app(test_config=None):
                 400,
             )
 
-        return render_template("400.html"), 400
+        return render_error(400)
 
     @app.errorhandler(400)
     def bad_request(error):
@@ -179,7 +188,7 @@ def create_app(test_config=None):
                 400,
             )
 
-        return render_template("400.html"), 400
+        return render_error(400)
 
     @app.errorhandler(404)
     def not_found(error):
@@ -195,7 +204,7 @@ def create_app(test_config=None):
                 404,
             )
 
-        return render_template("404.html"), 404
+        return render_error(404)
 
     @app.errorhandler(405)
     def method_not_allowed(error):
@@ -211,7 +220,7 @@ def create_app(test_config=None):
             response.headers["Allow"] = ", ".join(error.valid_methods or [])
             return response
 
-        return render_template("500.html"), 405
+        return render_error(405)
 
     @app.errorhandler(413)
     def payload_too_large(error):
@@ -227,7 +236,7 @@ def create_app(test_config=None):
                 413,
             )
 
-        return render_template("500.html"), 413
+        return render_error(413)
 
     @app.errorhandler(500)
     def internal_error(error):
@@ -254,7 +263,7 @@ def create_app(test_config=None):
                 500,
             )
 
-        return render_template("500.html"), 500
+        return render_error(500)
 
     from database.connection import DatabaseConfigurationError, DatabaseConnectionError
     from psycopg import OperationalError
@@ -266,7 +275,7 @@ def create_app(test_config=None):
         g.database_unavailable = True
         if is_api_request():
             return jsonify(success=False, error='Catalogo temporalmente no disponible', code='database_unavailable'), 503
-        return render_template('500.html'), 503
+        return render_error(503)
 
     return app
 
