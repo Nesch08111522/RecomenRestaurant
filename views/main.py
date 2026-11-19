@@ -413,6 +413,20 @@ def search():
         # 5. Filtros existentes
         filtered = filter_restaurants(restaurants, filters)
 
+        # Apply product constraints too; business averages are not dish prices.
+        for restaurant in filtered:
+            dishes = restaurant['matching_dishes']
+            for field, lower in (('min_price', True), ('max_price', False)):
+                if filters.get(field) is not None:
+                    bound = float(filters[field])
+                    dishes = [d for d in dishes if isinstance(d.get('price'), (int, float))
+                              and not isinstance(d['price'], bool)
+                              and (d['price'] >= bound if lower else d['price'] <= bound)]
+            restaurant['matching_dishes'] = [d for d in dishes if all(
+                restriction in (d.get('dietary_info') or []) for restriction in dietary_restrictions)]
+        if dish_query or ingredient_filter or dietary_restrictions:
+            filtered = [r for r in filtered if r['matching_dishes']]
+
         # 6. Enriquecer con metadatos
         user_lat = filters.get("lat", Config.COORDENADAS_CENTRO[0])
         user_lng = filters.get("lng", Config.COORDENADAS_CENTRO[1])

@@ -4,6 +4,65 @@
 **Fuente de requisitos:** plan maestro de 18 fases adjunto por la usuaria.
 **Alcance:** contraste estático del repositorio, sus rutas, plantillas, pruebas y documentación disponible. Este archivo no reemplaza las especificaciones de cada fase.
 
+## Verificación modular posterior: fases 4–18
+
+Esta sección sustituye el estado de «no atendidas» de la continuación anterior para los módulos aquí comprobados. Las pruebas verdes no equivalen al cumplimiento completo del plan.
+
+### Seguridad y procesos
+
+- Inspección inicial mediante `Get-CimInstance Win32_Process`: solo dos procesos Python de Flask en :5000, ningún pytest previo visible. No se terminó ningún proceso. Inspección posterior a la última prueba: solo Flask, ningún pytest visible. No acredita procesos no Python ni una finalización retrospectiva del intento anterior.
+- Se releyeron `test/conftest.py`, `database/connection.py` y `database/metrics.py`. Se mantuvo la política existente: `.env` cargado por fixture en memoria; esquema QA aleatorio nuevo por sesión de pytest, seis secuencias propias y FK internas verificadas. No se reutilizó un identificador de esquema anterior porque la fixture lo genera por sesión; no se cambió la política para conectarse a public.
+- Sin escrituras en public, DROP, scripts DB independientes, proveedores reales, pagos, invitaciones, scheduler o acceso a :5000. Los clientes HTTP utilizados son clientes Flask en proceso. No hubo validación visual con navegador ni dependencias runtime nuevas.
+
+### Comandos y resultados
+
+Todos los comandos usan `SMARTRESTO_RUN_ISOLATED_DB=1`, `python -m pytest`, prefijo `test/` para cada archivo y sufijo `-q --tb=short`. Los grupos son selecciones dirigidas, no suite completa; algunos repiten pruebas.
+
+| Grupo | Archivos exactos | Límite | Resultado |
+|---|---|---:|---|
+| A: 4–5 | `test_phase4_sites.py test_phase4_publication.py test_phase4_public_site_contracts.py test_phase4_ai_quota.py test_phase5_catalog.py test_phase5_ai_nullable.py test_phase5_workbook.py test_phase5_flow.py` | 300 s | 51 aprobadas, 6,63 s |
+| B: 6–8 | `test_phase6_catalog.py test_phase6_rbac.py test_phase7_recommender.py test_phase7_personalization.py test_phase8_salon_rules.py test_phase8_salon_db.py test_phase8_geo.py` | 300 s | 77 aprobadas, 100,42 s |
+| C: 9–11 | `test_market_transactions.py test_commerce_extensions.py test_phase10_kitchen.py test_phase11_flow.py test_phase11_qa.py` | 300 s | 20 aprobadas, 237,97 s |
+| D: 12, 14–17 | `test_phase12_loyalty.py test_advanced_phases.py test_intelligence_unit.py` | 300 s | 31 aprobadas, 231,15 s |
+| E: regresiones y 16–18 | `test_phase4_public_site_contracts.py test_phase6_catalog.py test_copilot_backend.py test_content_filter.py test_moderation_explain.py test_theme_contract.py test_connection_pool.py` | 120 s | 135 aprobadas, 9,44 s |
+| F: 3, 17–18 | `test_phase3_discovery.py test_phase3_worker.py test_phase3_sources_claims.py test_phase3_review_update.py test_account_security.py test_profile_recovery_unit.py test_runtime_contracts.py test_platform_health.py` | 300 s | 49 aprobadas, 1 fallo, 108,68 s |
+| G: confirmación posterior y 9/15 | `test_account_security.py test_phase4_public_site_contracts.py test_phase6_catalog.py test_phase9_bi.py test_market.py` | 300 s | 38 aprobadas, 103,17 s |
+
+El fallo F fue `test_account_recovery_and_second_factor`: esperaba 200 en el replay del código guardado. `views/auth.py::recover` usa POST/Redirect/GET y devuelve 302 tanto al rechazar como al aceptar, pero con destinos distintos. Se actualizó `test/test_account_security.py` para exigir redirección a recuperación en el rechazo y comprobar criptográficamente que la contraseña nueva permanece y la anterior no se restaura. No se relajó el control de código de un solo uso. Grupo G confirma la prueba reparada. El fallo histórico de colores no se reprodujo: `test_theme_contract.py` pasó en E; no se atribuyen cambios de estilos concurrentes a esta ejecución.
+
+### Matriz actual por fase
+
+| Fase | Evidencia nueva | Corrección / cobertura | Pendiente frente al plan |
+|---|---|---|---|
+| 3 Discovery | F; 18 pruebas dirigidas de la ejecución anterior | Recuperación de cambios en referencias/procedencia; worker con fuentes vencidas y fallos simulados, invitaciones y revisión simuladas | Consulta externa y entrega real no probadas; tarea periódica no activada |
+| 4 Sites | A, E, G; lectura `views/business_sites.py` | Se corrigió exposición pública de `/portal-media/<id>` de negocios suspendidos: ahora usa `visible_restaurant`. Nueva regresión HTTP de suspensión y reactivación. Borradores, publicación simulada, slugs, logos y cuotas | Configuración independiente completa de sucursal, horarios semanales, despliegue y recorrido visual |
+| 5 Catalog | A; lectura `test_phase5_flow.py` | Normalización, alérgenos, disponibilidad, confirmación idempotente e importación Excel con repositorio simulado | CRUD categorías completo, vídeo, audio servidor y proveedor multimodal real; persistencia real de importación no acreditada por A |
+| 6 Search | B, E, G; lectura `views/main.py` y `utils/functional.py` | Corrección de `matching_dishes`: aplica presupuesto por producto y restricciones al mismo plato. Antes platos distintos podían satisfacer condiciones separadas. Nueva regresión HTTP comprueba presupuesto y combinación de restricciones | Precio promedio del negocio sigue filtrándose además del producto; promociones individuales y rutas viales completas |
+| 7 Recommender | B; lectura `logic/phase7_recommender.py` | Preferencias, ranking, restricciones y personalización existentes comprobadas por pruebas | Feed cold-start, explicación exhaustiva reproducible, clima/proveedor real y evaluación de calidad |
+| 8 Salon | B | Reglas, geolocalización y persistencia de mesas/sesiones sobre QA | Adicionales cobrables, pagos separados y recorrido QR responsive real |
+| 9 Orders | C, G; lectura `test_market_transactions.py` | Último turno concurrente, retry idempotente, cancelación/restauración de stock, webhook con proveedor simulado y recompensa | Carrito multivendedor, espacio completo de reservas y cobro/reembolso externo real |
+| 10 Inventory | C; lectura `models/market.py` y `test_phase10_kitchen.py` | Insumos por venta, alertas/lotes existentes y métricas de producción; aislamiento PostgreSQL | Múltiples lotes por ingrediente, FEFO/FIFO y órdenes de producción/compras proveedor |
+| 11 Flow | C; lectura `models/flow.py` | Cola, espera y asignación existentes; aforo y contratos de seguridad | `join` consulta cola antes de crear sin lock específico: riesgo concurrente de códigos/turnos duplicados no corregido ni probado aquí. Repintado público automático y reservas físicas pendientes |
+| 12 Loyalty | D; lectura `models/loyalty.py` | Puntos por pagos/visitas, reembolso, cumpleaños, reseñas y segmentación PostgreSQL | Preferencias de privacidad no aplicadas transversalmente; criterios de badges/visitas tras reembolsos requieren unificación; cumpleaños consulta unicidad antes de transacción, riesgo concurrente pendiente |
+| 13 Home | Búsqueda en `views/`, glob `**/*home*.py`, manifiesto | No se encontró backend de despensa doméstica; `home_kitchen` es declaración del manifiesto y `ecosystem/home.html` no es despensa | Sin pruebas de fase 13 ni implementación nueva: despensa, recetas domésticas, planificación y lista de compras no integradas |
+| 14 Immersive | D; lectura `logic/immersive.py` | Dimensiones finitas, propietario no auto-verifica escala, moderación y visibilidad por estado | La prueba usa bytes sintéticos, no valida GLB real ni AR físico; generación IA, variantes y versiones pendientes |
+| 15 Analytics | D, G | Datos privados por negocio, ingresos/margen, reembolsos, pronóstico condicionado a historial; métricas de servicio | BI global completo, predicción validada, visitantes únicos y causalidad de campañas |
+| 16 Copilot | D, E; lectura pruebas backend | Historial validado en request, contexto servidor, confirmación, replay y promoción obsoleta | Operaciones completas por rol e historial persistente; IA externa no probada |
+| 17 Security | D, E, F, G | OTP, revocación, permisos, CSRF, moderación y recuperación single-use; prueba de recuperación reforzada | Tenancy transversal, cuotas/proveedores completos, auditoría histórica y revisión documental oficial |
+| 18 QA | C, E, F, G | Todos los comandos terminaron dentro de 120/300 s; prueba de concurrencia acotada, seguridad y tokens de tema. `git diff --check` sin errores | No suite completa nueva, carga sostenida, pruebas visuales/responsive reales, backup/restore, pentest ni deploy |
+
+Cambios propios: `views/business_sites.py`, `views/main.py`, `test/test_phase4_public_site_contracts.py`, `test/test_phase6_catalog.py`, `test/test_account_security.py` y este reporte. Se preservaron cambios concurrentes observados durante la ejecución. Ninguna fase se certifica completa. No hay fallos pendientes en los últimos grupos ejecutados; eso no borra las brechas ni acredita pruebas no seleccionadas.
+
+## Continuación solicitada desde Fase 3 (ejecución acotada)
+
+- Fuente nueva leída completa: `pasted_1795096047303_dl2pe69.txt` (919 líneas). Se inspeccionaron estado Git, fixture y protección SQL antes de ejecutar pruebas; se preservaron modificaciones previas y concurrentes. No se leyó ni imprimió el contenido de `.env`.
+- Fase 3: corrección funcional en `models/discovery.py::ingest`. Antes solo se comparaba `data`: una carta nueva, medios, canales o procedencia modificados podían perderse silenciosamente. Ahora se comparan esos campos y las evidencias sin su timestamp de recuperación; los cambios quedan en `proposed_update` sin publicación automática. La regresión nueva `test/test_phase3_discovery.py::test_refresh_tracks_menu_changes_without_publishing` comprueba persistencia PostgreSQL, recuperación idéntica, carta modificada y aceptación administrativa como borrador.
+- Evidencia ejecutada: `SMARTRESTO_RUN_ISOLATED_DB=1`, `python -m pytest test/test_phase3_discovery.py -q --tb=short`: **18 aprobadas en 16,01 s**. La fixture crea esquema QA aleatorio con secuencias propias y verifica ausencia de FK externas. No se ejecutaron scripts independientes de DB ni limpieza de public.
+- Fase 3 pendiente: no se ejecutó consulta externa, envío de invitaciones ni scheduler real. Se inspeccionaron generación de invitaciones, deduplicación y worker; inspección no equivale a prueba funcional de todos esos flujos.
+- Fase 4: inspección de `models/business_site.py`; sin implementación ni verificación nueva. Fases 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 y 17: **no atendidas funcionalmente en esta continuación**. Sus estados históricos permanecen como evidencia anterior, no certificación actual.
+- Fase 18: intento de suite completa `python -m pytest test -q --tb=short` con aislamiento autorizado. El proceso excedió 1800 s después del indicador 54%, con dos marcadores de fallo; no produjo resumen ni diagnósticos finales. La herramienta indicó además que la limpieza del proceso no terminó antes de su límite de seguridad: no se acredita que todo proceso hijo haya finalizado. No se certifica suite verde, ni se relajan tests.
+- Limitaciones: catálogo MCP sin herramientas de creación/delegación de subagentes (búsquedas task/agent vacías); no fue posible cumplir auditorías delegadas. No hubo validación visual, AR, cobros, despliegue ni pruebas externas. No se hicieron commits ni borrados. Las fases 3–18 **no están completadas**.
+
 ## Continuación: implementación y pruebas reales
 
 - Fase 1: se bloqueó autocommit en `database.connection.connection` durante aislamiento. La fixture `test_database` también bloquea nuevas llamadas directas a `psycopg.connect` que no utilicen el cursor protegido y el search_path exclusivo. No cubre conexiones previamente abiertas, alias importados previamente, `Connection.connect`, cursores alternativos ni SQL arbitrario; no constituye aislamiento global de privilegios.

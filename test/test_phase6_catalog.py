@@ -64,6 +64,19 @@ def test_search_http(client):
     assert client.post('/api/search',json={'max_price':'nan'}).status_code==400
 
 
+def test_search_product_constraints_cannot_match_different_dishes(client,monkeypatch):
+    from models.dish import DishModel
+    monkeypatch.setattr(DishModel,'all',lambda:[
+        dict(id=11,restaurant_id=1,name='Cafe',price=8,is_available=True,dietary_info=['vegano']),
+        dict(id=13,restaurant_id=1,name='Cafe especial',price=40,is_available=True,dietary_info=[])])
+    response=client.post('/api/search',json={'max_price':25})
+    assert [d['id'] for d in response.json[0]['matching_dishes']]==[11]
+    response=client.post('/api/search',json={'dish_query':'especial','dietary_restrictions':['vegano']})
+    assert response.json==[]
+    response=client.post('/api/search',json={'dish_query':'especial','max_price':25})
+    assert response.json==[]
+
+
 def test_comparison_http(client):
     response=client.get('/api/catalog/compare?ids=1,2')
     assert response.status_code==200 and len(response.json['results'])==2

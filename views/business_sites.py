@@ -119,7 +119,7 @@ def media(media_id):
     if not permitted:
         row=service.find_site(item['restaurant_id']);restaurant=RestaurantModel.get_by_id(item['restaurant_id'])
         published=(row or {}).get('published') or {}
-        permitted=bool(restaurant and restaurant.get('verified') and path in [published.get('logo'),published.get('cover'),*published.get('gallery',[])])
+        permitted=bool(visible_restaurant(restaurant) and path in [published.get('logo'),published.get('cover'),*published.get('gallery',[])])
     if not permitted:abort(404)
     return Response(base64.b64decode(item['content']),mimetype='image/png',headers={'Cache-Control':'private, no-store','X-Content-Type-Options':'nosniff'})
 

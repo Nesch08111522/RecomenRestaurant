@@ -376,9 +376,9 @@ def restaurants():
 @admin_or_owner_required
 def restaurant_excel_template():
     from flask import send_file
-    from utils.catalog_workbook import build_catalog_workbook
-    return send_file(build_catalog_workbook(), as_attachment=True,
-                     download_name='Plantilla_carga_SmartResto.xlsx',
+    from utils.catalog_workbook import build_catalog_workbook_es
+    return send_file(build_catalog_workbook_es(), as_attachment=True,
+                     download_name='Plantilla_carga_SmartResto_ES.xlsx',
                      mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 
 

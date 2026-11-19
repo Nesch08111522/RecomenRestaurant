@@ -92,7 +92,7 @@
         }
 
         // Private navigation owns its drawer lifecycle and compact rail.
-        if (document.body.classList.contains('sr-saas-private')) return;
+        if (document.body.classList.contains('sr-private')) return;
 
         // ===== MENÚ / DRAWER =====
         const menu = document.getElementById('sr-navigation');

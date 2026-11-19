@@ -9,11 +9,11 @@
             <span>{{ dish.name }}</span>
 
             {% if dish.is_recommended %}
-                <span class="recommended-badge">⭐ Recomendado</span>
+                <span class="recommended-badge"><i class="fas fa-star" aria-hidden="true"></i> Recomendado</span>
             {% endif %}
 
             {% if not dish.is_available %}
-                <span class="unavailable-badge">❌ No disponible</span>
+                <span class="unavailable-badge"><i class="fas fa-times-circle" aria-hidden="true"></i> No disponible</span>
             {% endif %}
         </div>
 
@@ -60,17 +60,17 @@
             {% endif %}
 
             {% if dish.spiciness and dish.spiciness > 0 %}
-                <span>🌶️ {{ dish.spiciness }}/5</span>
+                <span aria-label="Picante: {{ dish.spiciness }} de 5"><i class="fas fa-pepper-hot" aria-hidden="true"></i> {{ dish.spiciness }}/5</span>
             {% endif %}
 
             {% if dish.preparation_time %}
-                <span>⏱️ {{ dish.preparation_time }} min</span>
+                <span><i class="fas fa-stopwatch" aria-hidden="true"></i> {{ dish.preparation_time }} min</span>
             {% endif %}
         </div>
 
         {% if dish.ingredients %}
             <div class="dish-ingredients">
-                <small>🧑‍🍳 {{ dish.ingredients|join(', ') }}</small>
+                <small><i class="fas fa-utensils" role="img" aria-label="Ingredientes"></i> {{ dish.ingredients|join(', ') }}</small>
             </div>
         {% endif %}
     </div>

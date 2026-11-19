@@ -63,7 +63,7 @@
     <p>{% if is_edit %}Actualiza la información de {{ r.name }}.{% else %}Completa la información del nuevo restaurante.{% endif %}</p>
   </div>
 <section class="ai-import" id="aiImport">
-  <h2>✨ Carga inteligente de restaurante</h2>
+  <h2><i class="fas fa-magic" aria-hidden="true"></i> Carga inteligente de restaurante</h2>
   <p>Sube una foto, Word o Excel. Revisa los datos antes de aplicarlos; nada se guarda automáticamente.</p>
   <a class="btn-secondary" href="{{ url_for('admin.restaurant_excel_template') }}">Descargar plantilla Excel</a>
   <form method="POST" action="{{ url_for('admin.restaurant_excel_import') }}" enctype="multipart/form-data" style="grid-column:1 / -1">

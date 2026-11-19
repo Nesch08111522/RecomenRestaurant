@@ -136,10 +136,10 @@ def media(media_id):
 @bp.get('/owner/catalog/<int:rid>/template.xlsx')
 @owner
 def template(rid):
-    from utils.catalog_workbook import build_catalog_workbook
-    owned(rid);stream=build_catalog_workbook()
+    from utils.catalog_workbook import build_catalog_workbook_es
+    owned(rid);stream=build_catalog_workbook_es()
     return Response(stream.getvalue(),mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        headers={'Content-Disposition':'attachment; filename="Plantilla_SmartResto_Catalogo.xlsx"'})
+        headers={'Content-Disposition':'attachment; filename="Plantilla_SmartResto_Catalogo_ES.xlsx"'})
 
 
 @bp.post('/owner/api/catalog/<int:rid>/import-preview')

@@ -1,9 +1,10 @@
 (() => {
   document.addEventListener('DOMContentLoaded', () => {
-    if (!document.body.classList.contains('sr-saas-private')) return;
+    if (!document.body.classList.contains('sr-private')) return;
     const root = document.documentElement;
     const menu = document.getElementById('sr-navigation');
     const trigger = document.querySelector('.sr-menu-button');
+    if (!menu || !trigger) return;
     const close = menu.querySelector('.sr-collapse');
     const backdrop = document.querySelector('.sr-backdrop');
     const wide = matchMedia('(min-width:1100px)');
@@ -13,6 +14,7 @@
     const areas = [...document.querySelectorAll('#main-content,.sr-header,.sr-footer,.sr-mobile-nav')];
     const previous = new Map();
     function accountOpen(value, restore = false) {
+      if (!options || !account) return;
       options.hidden = !value;
       account.setAttribute('aria-expanded', String(value));
       if (value) options.querySelector('a').focus();
@@ -25,8 +27,12 @@
       backdrop.hidden = !open;
       menu.inert = !wide.matches && !open;
       trigger.setAttribute('aria-expanded', String(wide.matches ? !root.classList.contains('sr-compact') : open));
-      close.setAttribute('aria-label', wide.matches ? 'Alternar barra lateral' : 'Cerrar navegación');
-      close.textContent = wide.matches ? (root.classList.contains('sr-compact') ? '>' : '<') : '×';
+      const expanded = wide.matches && !root.classList.contains('sr-compact');
+      const label = wide.matches ? (expanded ? 'Contraer menu' : 'Expandir menu') : 'Cerrar navegacion';
+      close.setAttribute('aria-label', label);
+      close.setAttribute('aria-expanded', String(wide.matches ? expanded : open));
+      close.title = label;
+      trigger.setAttribute('aria-label', open ? 'Cerrar navegacion' : 'Abrir navegacion');
       if (open) {
         accountOpen(false);
         menu.setAttribute('role', 'dialog');
@@ -53,10 +59,10 @@
       else toggle();
     }, true));
     menu.addEventListener('click', event => { if (open && event.target.closest('a')) drawer(false, false); });
-    account.addEventListener('click', () => accountOpen(options.hidden));
+    account?.addEventListener('click', () => accountOpen(options.hidden));
     document.addEventListener('click', event => { if (!event.target.closest('.private-account')) accountOpen(false); });
     document.addEventListener('keydown', event => {
-      if (event.key === 'Escape' && !options.hidden) { event.stopImmediatePropagation(); accountOpen(false, true); }
+      if (event.key === 'Escape' && options && !options.hidden) { event.stopImmediatePropagation(); accountOpen(false, true); }
       if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'b') { event.preventDefault(); event.stopImmediatePropagation(); toggle(); }
       if (!open) return;
       if (event.key === 'Escape') { event.stopImmediatePropagation(); drawer(false); }
@@ -66,7 +72,7 @@
       if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
       if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
     }, true);
-    options.addEventListener('focusout', () => { queueMicrotask(() => { if (!document.activeElement.closest('.private-account')) accountOpen(false); }); });
+    options?.addEventListener('focusout', () => { queueMicrotask(() => { if (!document.activeElement.closest('.private-account')) accountOpen(false); }); });
     wide.addEventListener('change', () => drawer(false, false));
     window.addEventListener('pagehide', () => { drawer(false, false); accountOpen(false); });
     window.addEventListener('pageshow', () => drawer(false, false));

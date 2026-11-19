@@ -43,8 +43,10 @@
 {% if request.endpoint in ['auth.profile', 'auth.profile_owner'] %}<link rel="stylesheet" href="{{ url_for('static', filename='css/profile-responsive.css') }}">{% endif %}
 <script src="{{ url_for('static',filename='js/layout-system.js') }}" defer></script>
 <link rel="stylesheet" href="{{ url_for('static', filename='css/copilot-wake.css') }}">
-{% if sr_saas_private %}<link rel="stylesheet" href="{{ url_for('static', filename='css/saas-private.css') }}"><script src="{{ url_for('static', filename='js/private-shell.js') }}" defer></script>{% endif %}
+{% if sr_saas_private %}<link rel="stylesheet" href="{{ url_for('static', filename='css/saas-private.css') }}">{% endif %}
 {% if sr_admin_ui %}<link rel="stylesheet" href="{{ url_for('static', filename='css/admin-precision.css') }}">{% endif %}
+{% if sr_system_page %}<link rel="stylesheet" href="{{ url_for('static', filename='css/shell.css') }}" />{% endif %}
+{% if sr_system_page %}<script src="{{ url_for('static', filename='js/private-shell.js') }}" defer></script>{% endif %}
 </head>
   <body data-role="{{ session.get('user', {}).get('role', 'guest') }}"
     class="{{ 'sr-admin-precision' if sr_admin_ui else '' }} {{ 'sr-private' if sr_system_page else 'sr-public-site' }} {{ 'sr-workspace' if sr_workspace else '' }} {{ 'sr-saas-private' if sr_saas_private else '' }} {% block body_class %}{% endblock %}">

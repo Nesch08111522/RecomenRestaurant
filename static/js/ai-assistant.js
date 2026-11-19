@@ -4,14 +4,14 @@
     const API_INTERPRET = '/api/ai/interpret';
     const API_CHAT = ['admin','business_owner'].includes(document.body.dataset.role) ? '/api/copilot/chat' : '/api/ai/chat';
 
-    // Botones rápidos del chat: [texto del botón, mensaje que se envía]
+    // Labels, outgoing messages and decorative icons are kept separate.
     const QUICK_REPLIES = [
-        ['📍 Cerca de mí', '¿Qué restaurantes me quedan cerca?'],
-        ['💰 Económico', 'Algo económico'],
-        ['❤️ Romántico', 'Un lugar romántico para una cena'],
-        ['👨‍👩‍👧 En familia', 'Algo para ir en familia'],
-        ['🏷️ Promociones', '¿Qué restaurantes tienen promoción?'],
-        ['⭐ Mejor valorados', '¿Cuáles son los mejor valorados?']
+        ['Cerca de mí', '¿Qué restaurantes me quedan cerca?', 'map-marker-alt'],
+        ['Económico', 'Algo económico', 'wallet'],
+        ['Romántico', 'Un lugar romántico para una cena', 'heart'],
+        ['En familia', 'Algo para ir en familia', 'users'],
+        ['Promociones', '¿Qué restaurantes tienen promoción?', 'tag'],
+        ['Mejor valorados', '¿Cuáles son los mejor valorados?', 'star']
     ];
 
     const getApp = () => window.app;
@@ -36,6 +36,13 @@
         if (className) n.className = className;
         if (text != null) n.textContent = text;
         return n;
+    }
+
+    function iconLabel(node, icon, text) {
+        const glyph = el('i', 'fas fa-' + icon);
+        glyph.setAttribute('aria-hidden', 'true');
+        node.replaceChildren(glyph, document.createTextNode(' ' + text));
+        return node;
     }
 
     function clearActiveChips() {
@@ -275,7 +282,7 @@
         function setStatus(message, isError, withReset) {
             status.textContent = '';
             status.className = 'ai-smart-status' + (isError ? ' error' : '');
-            status.appendChild(el('span', null, message));
+            status.appendChild(iconLabel(el('span'), isError ? 'exclamation-triangle' : 'robot', message));
             if (withReset) {
                 const reset = el('button', 'ai-smart-reset', 'Quitar filtro');
                 reset.type = 'button';
@@ -310,7 +317,7 @@
                 });
                 const count = await applyFilters(data.filters);
                 if (count > 0) {
-                    setStatus(`🤖 ${data.summary || 'Listo'} · ${count} resultado${count === 1 ? '' : 's'}`, false, true);
+                    setStatus(`${data.summary || 'Listo'} · ${count} resultado${count === 1 ? '' : 's'}`, false, true);
                 } else {
                     setStatus('No encontré restaurantes con eso. Prueba con otras palabras o pregúntale al chat.', true, false);
                 }
@@ -357,8 +364,9 @@
         let userLoc = null;
         let locBtn = null;
 
-        function addBubble(role, text) {
+        function addBubble(role, text, icon) {
             const b = el('div', 'ai-bubble ' + role, text);
+            if (icon) iconLabel(b, icon, text);
             body.appendChild(b);
             body.scrollTop = body.scrollHeight;
             return b;
@@ -373,7 +381,7 @@
         function markLocationOn() {
             if (!locBtn) return;
             locBtn.classList.add('on');
-            locBtn.textContent = '✓ Ubicación activa';
+            iconLabel(locBtn, 'check-circle', 'Ubicación activa');
         }
 
         async function requestLocation() {
@@ -400,10 +408,11 @@
             found.forEach(r => {
                 const link = el('a', 'ai-rec');
                 link.href = '/restaurant/' + encodeURIComponent(r.id);
-                link.append(
-                    el('strong', null, r.name),
-                    el('span', null, `${money()}${r.avg_price} · ★ ${r.rating}${r.district ? ' · ' + r.district : ''}`)
-                );
+                const meta = el('span', null, `${money()}${r.avg_price} · `);
+                const rating = iconLabel(el('span'), 'star', String(r.rating));
+                rating.setAttribute('aria-label', 'Calificación: ' + r.rating + ' de 5');
+                meta.append(rating, document.createTextNode(r.district ? ' · ' + r.district : ''));
+                link.append(el('strong', null, r.name), meta);
                 box.appendChild(link);
             });
             const show = el('button', 'ai-rec-show', 'Ver en la lista y el mapa');
@@ -451,7 +460,7 @@
 
             // Si pregunta por cercanía y aún no hay ubicación, se pide aquí mismo
             if (/cerca|cercan|mi casa|mi ubicaci|donde estoy|dónde estoy/i.test(text) && !currentLoc()) {
-                addBubble('bot', 'Para decirte qué te queda cerca necesito tu ubicación. Acepta el permiso del navegador 👇');
+                addBubble('bot', 'Para decirte qué te queda cerca necesito tu ubicación. Acepta el permiso del navegador.', 'map-marker-alt');
                 await requestLocation();
             }
 
@@ -478,17 +487,17 @@
         }
 
         // ---- botones rápidos dentro del chat
-        locBtn = el('button', 'ai-quick-btn loc', '📍 Usar mi ubicación');
+        locBtn = iconLabel(el('button', 'ai-quick-btn loc'), 'map-marker-alt', 'Usar mi ubicación');
         locBtn.type = 'button';
         locBtn.addEventListener('click', async () => {
             if (busy) return;
             const loc = await requestLocation();
-            if (loc) addBubble('bot', '📍 Listo, ya tengo tu ubicación. Ahora pregúntame lo que quieras, por ejemplo: "¿qué me queda cerca?".');
+            if (loc) addBubble('bot', 'Listo, ya tengo tu ubicación. Ahora pregúntame lo que quieras, por ejemplo: "¿qué me queda cerca?".', 'map-marker-alt');
         });
         quick.appendChild(locBtn);
 
-        QUICK_REPLIES.forEach(([label, message]) => {
-            const b = el('button', 'ai-quick-btn', label);
+        QUICK_REPLIES.forEach(([label, message, icon]) => {
+            const b = iconLabel(el('button', 'ai-quick-btn'), icon, label);
             b.type = 'button';
             b.addEventListener('click', () => send(message));
             quick.appendChild(b);

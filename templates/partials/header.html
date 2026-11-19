@@ -36,7 +36,7 @@
   {% endfor %}
   <details class="sr-nav-section" name="admin-navigation"{% if ns.active %} open{% endif %}>
     <summary title="{{ label }}"{% if ns.active %} class="sr-section-active"{% endif %}>
-      {{ glyph(icon) }}<span class="sr-section-label">{{ label }}</span><span class="sr-section-chevron" aria-hidden="true">⌄</span>
+      {{ glyph(icon) }}<span class="sr-section-label">{{ label }}</span><svg class="sr-section-chevron" aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="m8 10 4 4 4-4"/></svg>
     </summary>
     <div class="sr-section-links">
       {% for endpoint, text, symbol in links %}{{ navlink(endpoint, text, symbol) }}{% endfor %}
@@ -102,7 +102,7 @@
 <nav class="sr-sidebar" id="sr-navigation" aria-label="Menú principal">
   <div class="sr-side-top">
     <strong class="sr-group">Navegación</strong>
-    <button type="button" class="sr-icon sr-collapse" aria-label="Contraer menú" title="Contraer menú">⇤</button>
+    <button type="button" class="sr-icon sr-collapse" aria-controls="sr-navigation" aria-expanded="false" aria-label="Expandir menú" title="Expandir menú"><svg class="sr-collapse-arrow" aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="m9 6 6 6-6 6"/></svg><svg class="sr-collapse-close" aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
   </div>
 
   {% if user and user.role == 'admin' %}
