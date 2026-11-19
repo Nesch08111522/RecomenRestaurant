@@ -20,12 +20,7 @@
     }
   };
 
-  function setTheme(theme) {
-    const value = theme === 'dark' ? 'dark' : 'light';
-    document.documentElement.dataset.theme = value;
-    window.localStorage.setItem('bs-editor-theme', value);
-    qsa(document, '[data-theme-toggle] .material-icons').forEach(icon => { icon.textContent = value === 'dark' ? 'light_mode' : 'dark_mode'; });
-  }
+
 
   function initPublic() {
     const toggle = qs(document, '[data-public-menu]');
@@ -57,6 +52,7 @@
       const draft = {};
       qsa(form, '[data-field]').forEach(field => {
         const key = field.dataset.field;
+        if (field.type === 'radio') { if (field.checked) draft[key] = field.value; return; }
         if (field.type === 'checkbox') draft[key] = field.checked;
         else if (field.dataset.list === 'lines') draft[key] = lines(field.value);
         else if (field.dataset.list === 'ids') draft[key] = text(field.value).split(',').map(item => item.trim()).filter(Boolean).map(Number).filter(item => Number.isInteger(item) && item > 0);
@@ -71,7 +67,8 @@
     const setField = (key, value) => {
       const field = getField(key);
       if (!field || value === undefined || value === null) return;
-      if (field.type === 'checkbox') field.checked = Boolean(value);
+      if (field.type === 'radio') qsa(form, `[data-field="${key}"]`).forEach(option => { option.checked = option.value === text(value); });
+      else if (field.type === 'checkbox') field.checked = Boolean(value);
       else if (field.dataset.list === 'lines' && Array.isArray(value)) field.value = value.join('\n');
       else if (field.dataset.list === 'ids' && Array.isArray(value)) field.value = value.join(', ');
       else field.value = text(value);
@@ -102,8 +99,9 @@
       const draft = collectDraft();
       const card = qs(root, '[data-preview-window]');
       if (card) {
-        card.style.setProperty('--preview-primary', draft.primary_color || '#245447');
-        card.style.setProperty('--preview-secondary', draft.secondary_color || '#D8A65D');
+        card.dataset.heroStyle = draft.hero_style || 'commercial';
+        card.style.setProperty('--preview-primary', draft.primary_color || window.SRTheme.color('brand-primary'));
+        card.style.setProperty('--preview-secondary', draft.secondary_color || window.SRTheme.color('brand-secondary'));
       }
       const setText = (selector, value, fallback) => { const node = qs(root, selector); if (node) node.textContent = value || fallback; };
       setText('[data-preview-name]', draft.name, 'Tu restaurante');
@@ -148,8 +146,9 @@
     };
 
     qsa(form, 'input,textarea,select').forEach(field => field.addEventListener('input', syncPreview));
+    qsa(form, '[data-hero-selector] input[type="radio"]').forEach(field => field.addEventListener('change', syncPreview));
     qsa(root, '[data-color-picker]').forEach(picker => picker.addEventListener('input', () => { setField(picker.dataset.colorPicker, picker.value); syncPreview(); }));
-    qsa(root, '[data-theme-toggle]').forEach(button => button.addEventListener('click', () => setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark')));
+
     const picker = qs(root, '[data-restaurant-picker]');
     if (picker) picker.addEventListener('change', () => { if (picker.value) window.location.assign(`/owner/sites?restaurant_id=${encodeURIComponent(picker.value)}`); });
     form.addEventListener('submit', event => { event.preventDefault(); save(); });
@@ -209,7 +208,7 @@
       finally { aiButton.disabled = false; }
     });
     if (aiApply) aiApply.addEventListener('click', () => { if (!proposal) return; applyProposal(proposal); notify('Propuesta aplicada al formulario. Guarda para conservarla.', 'info'); });
-    setTheme(window.localStorage.getItem('bs-editor-theme') || 'light');
+
     syncPreview();
   }
 

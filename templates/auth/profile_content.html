@@ -8,7 +8,7 @@
     <div class="profile-content">
         <div class="profile-sidebar">
             <div class="profile-avatar">
-                <i class="fas fa-user-circle" style="font-size: 80px; color: var(--primary);"></i>
+                <i class="fas fa-user-circle" style="font-size:var(--text-display); color: var(--theme-accent);"></i>
                 <h3>{{ user.profile.name }}</h3>
                 <p>@{{ user.username }}</p>
             </div>
@@ -139,7 +139,7 @@
     .profile-container {
         max-width: 1000px;
         margin: 0 auto;
-        padding: 0 20px;
+        padding:0 var(--space-md);
     }
     
     .profile-header {
@@ -147,25 +147,25 @@
     }
     
     .profile-header h1 {
-        font-size: 28px;
+        font-size:var(--text-2xl);
         font-weight: 700;
         margin-bottom: 8px;
     }
     
     .profile-header p {
-        color: var(--gray);
+        color: var(--theme-text);
     }
     
     .profile-content {
         display: grid;
         grid-template-columns: 280px 1fr;
-        gap: 40px;
+        gap:var(--space-xl);
     }
     
     .profile-sidebar {
-        background: var(--white);
+        background: var(--theme-surface);
         border-radius: var(--radius);
-        padding: 32px;
+        padding:var(--space-lg);
         box-shadow: var(--shadow);
         text-align: center;
     }
@@ -176,20 +176,20 @@
     
     .profile-avatar h3 {
         margin-top: 12px;
-        font-size: 18px;
+        font-size:var(--text-lg);
     }
     
     .profile-avatar p {
-        color: var(--gray);
-        font-size: 14px;
+        color: var(--theme-text);
+        font-size:var(--text-sm);
     }
     
     .profile-stats {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 16px;
-        border-top: 1px solid var(--light-gray);
-        padding-top: 24px;
+        gap:var(--space-md);
+        border-top: 1px solid var(--theme-border);
+        padding-top:var(--space-lg);
     }
     
     .stat-item {
@@ -198,20 +198,20 @@
     
     .stat-value {
         display: block;
-        font-size: 24px;
+        font-size:var(--text-xl);
         font-weight: 700;
-        color: var(--primary);
+        color: var(--theme-accent);
     }
     
     .stat-label {
-        font-size: 12px;
-        color: var(--gray);
+        font-size:var(--text-xs);
+        color: var(--theme-text);
     }
     
     .profile-form-container {
-        background: var(--white);
+        background: var(--theme-surface);
         border-radius: var(--radius);
-        padding: 32px;
+        padding:var(--space-lg);
         box-shadow: var(--shadow);
     }
     
@@ -222,7 +222,7 @@
     .profile-budget-grid {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 16px;
+        gap:var(--space-md);
     }
     
     .profile-form .form-group label {
@@ -234,16 +234,16 @@
     .profile-form .checkbox-group {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 8px;
+        gap:var(--space-sm);
     }
     
     .profile-form .checkbox-label {
         display: flex;
         align-items: center;
-        gap: 8px;
-        font-size: 14px;
-        padding: 6px 10px;
-        border: 1px solid var(--light-gray);
+        gap:var(--space-sm);
+        font-size:var(--text-sm);
+        padding:var(--space-xs) var(--space-sm);
+        border: 1px solid var(--theme-border);
         border-radius: var(--radius-sm);
         cursor: pointer;
         transition: var(--transition);
@@ -251,7 +251,7 @@
     
     .profile-form .checkbox-label:hover {
         border-color: var(--primary);
-        background: var(--primary-light);
+        background: var(--theme-accent-bg);
     }
     
     @media (max-width: 768px) {

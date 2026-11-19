@@ -1,0 +1,49 @@
+/* Fluid scale shared by application surfaces. */
+:root {
+  --text-xs: clamp(.6875rem, .66rem + .08vw, .75rem);
+  --text-sm: clamp(.75rem, .7rem + .16vw, .875rem);
+  --text-base: clamp(.8125rem, .75rem + .3vw, 1rem);
+  --text-lg: clamp(1rem, .9rem + .5vw, 1.25rem);
+  --text-xl: clamp(1.125rem, 1rem + .7vw, 1.5rem);
+  --text-2xl: clamp(1.375rem, 1.1rem + 1.2vw, 2rem);
+  --text-display: clamp(1.75rem, 1.2rem + 2.2vw, 3rem);
+  --space-xs: clamp(.25rem, .2rem + .15vw, .375rem);
+  --space-sm: clamp(.375rem, .3rem + .25vw, .625rem);
+  --space-md: clamp(.625rem, .5rem + .4vw, 1rem);
+  --space-lg: clamp(.875rem, .65rem + .7vw, 1.375rem);
+  --space-xl: clamp(1rem, .7rem + 1vw, 1.75rem);
+  --space-2xl: clamp(1.25rem, .8rem + 1.5vw, 2.5rem);
+  --control-height: clamp(2.5rem, 2.3rem + .55vw, 2.875rem);
+  --content-max: 90rem;
+  --page-gutter: clamp(.75rem, 3vw, 2rem);
+  font-size: 100%;
+}
+html { font-size: 100%; }
+body { font-size: var(--text-base); overflow-x: clip; }
+*, *::before, *::after { box-sizing: border-box; }
+img, video, canvas, svg { max-width: 100%; }
+img { height: auto; object-fit: cover; }
+img:is([class*="logo"], [alt*="logo" i], .avatar, .icon) { object-fit: contain; }
+:where(.material-icons, .material-symbols-outlined, .fa, .fas, .far, .fab, [class^="icon-"]) { font-size: clamp(1rem, .92rem + .25vw, 1.25rem); line-height: 1; }
+.main-content, main, .container, .page-container { min-width: 0; }
+.main-content { width: min(100% - 2 * var(--page-gutter), var(--content-max)); margin-inline: auto; }
+:where(button, input, select, textarea) { font: inherit; }
+:where(button, .btn, input, select, textarea) { min-height: var(--control-height); }
+:where(button, .btn, [role="button"], a.button) { padding: var(--space-sm) var(--space-md); font-size: var(--text-sm); }
+:where(input, select, textarea) { padding: var(--space-sm) var(--space-md); font-size: var(--text-base); max-width: 100%; }
+:where(.card, .panel, .modal-content, .sr-card) { padding: var(--space-md); }
+:where(.modal, [role="dialog"], .modal-dialog) { max-width: min(90vw, 60rem); max-height: 90vh; overflow: auto; overscroll-behavior: contain; }
+:where(table) { font-size: var(--text-sm); }
+:where(th, td) { padding: var(--space-sm) var(--space-md); }
+:where(th, td) { line-height: 1.35; }
+:where(.table-responsive, .table-container, .table-wrapper) { max-width: 100%; overflow-x: auto; overscroll-behavior-inline: contain; }
+@media (max-width: 639px) {
+  :root { --page-gutter: .75rem; }
+  :where(.table-responsive, .table-container, .table-wrapper) > table { min-width: 38rem; }
+  :where(button, .btn, [role="button"], a.button) { min-height: 2.75rem; }
+  :where(.modal, [role="dialog"], .modal-dialog) { width: 90vw; max-width: 90vw; max-height: 90vh; }
+}
+@media (min-width: 640px) and (max-width: 1023px) { :root { --page-gutter: 1.25rem; } }
+@media (min-width: 1024px) and (max-width: 1439px) { :root { --page-gutter: 1.5rem; } }
+@media (min-width: 1440px) { :root { --page-gutter: 2rem; } }
+@media (min-width: 1920px) { :root { --content-max: 90rem; } }

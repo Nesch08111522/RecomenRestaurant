@@ -1,0 +1,12 @@
+/* Break long content and keep app surfaces inside the viewport. */
+html, body { max-width: 100%; }
+body { overflow-x: clip; }
+:where(.row, .grid, .toolbar, .form-row, .stats-grid) { min-width: 0; }
+:where(.row, .toolbar, .form-row) { flex-wrap: wrap; }
+:where(.grid, .stats-grid) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); }
+:where(pre, code, .text-break) { overflow-wrap: anywhere; }
+:where(.table-responsive, .table-container, .table-wrapper) { display: block; overflow-x: auto; }
+@media (max-width: 639px) {
+  :where(.dashboard-grid, .content-grid, .two-column, .split-layout) { grid-template-columns: minmax(0, 1fr) !important; }
+  :where(.card, .panel) { min-width: 0; }
+}

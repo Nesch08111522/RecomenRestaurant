@@ -25,7 +25,7 @@
       L.marker(pin.point).addTo(map).bindPopup(text);
       bounds.extend(pin.point);
       if (pin.radius) {
-        const circle = L.circle(pin.point, {radius:pin.radius*1000, color:'#00685e', fillOpacity:.07}).addTo(map);
+        const circle = L.circle(pin.point, {radius:pin.radius*1000, color:window.SRTheme.color('info'), fillOpacity:.07}).addTo(map);
         bounds.extend(circle.getBounds());
       }
     }

@@ -1,10 +1,11 @@
 (() => {
     const root = document.documentElement;
-    root.classList.add('sr-compact');
     try {
-        const saved = localStorage.getItem('theme');
-        root.dataset.theme = ['dark', 'light'].includes(saved) ? saved : 'dark';
-    } catch { root.dataset.theme = 'dark'; }
+        if (localStorage.getItem('sr-sidebar-state') === 'expanded') root.classList.remove('sr-compact');
+        else root.classList.add('sr-compact');
+    } catch {
+        root.classList.add('sr-compact');
+    }
 
     document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.filter-chip').forEach(chip => {
@@ -148,9 +149,19 @@
             collapse.addEventListener('click', () => {
                 if (!isDesktopPanel()) return drawer(false);
                 root.classList.toggle('sr-compact');
+                try { localStorage.setItem('sr-sidebar-state', root.classList.contains('sr-compact') ? 'collapsed' : 'expanded'); } catch { /* The current view still works without storage. */ }
                 updateCollapse();
             });
         }
+
+        document.addEventListener('keydown', event => {
+            if (!(event.ctrlKey || event.metaKey) || event.altKey || event.key.toLowerCase() !== 'b') return;
+            event.preventDefault();
+            if (!isDesktopPanel()) return drawer(!root.classList.contains('sr-drawer-open'));
+            root.classList.toggle('sr-compact');
+            try { localStorage.setItem('sr-sidebar-state', root.classList.contains('sr-compact') ? 'collapsed' : 'expanded'); } catch { /* The current view still works without storage. */ }
+            updatePreview();
+        });
 
         // Preview overlays the compact rail without shifting the page layout.
         let pointerInside = false;
