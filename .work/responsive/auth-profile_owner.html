@@ -1,10 +1,22 @@
 
 <!DOCTYPE html>
-<html lang="es" class="sr-compact">
+<html lang="es" class="sr-compact" data-theme="dark">
   <head>
     <meta charset="UTF-8" />
+    
+<script>
+(function () {
+  var theme = 'dark';
+  try { if (localStorage.getItem('theme') === 'light') theme = 'light'; } catch (_) {}
+  document.documentElement.dataset.theme = theme;
+  document.documentElement.style.colorScheme = theme;
+})();
+</script>
+<link rel="stylesheet" href="/static/css/theme-tokens.css">
+<script src="/static/js/theme.js"></script>
+    <link rel="stylesheet" href="/static/css/responsive-tokens.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="csrf-token" content="IjJiMjFhMmNhY2NjNjgwN2EwNTcyM2ExODBhNTExZWJkN2FkYWFkMGYi.av4whQ.uShk0bDv0C5X1KGCLqwlN1DaZVw" />
+    <meta name="csrf-token" content="Ijk5ZGE2NGVlZWQ1ZDJhNWQ4NWQ2ZTgwNDE4ZWMzYWUxNjI1ZDRlZWQi.av5s-A.pe87S2zVZqbs5R_4YN-V5JuhowI" />
     <title>SmartResto - Recomendación Inteligente de Restaurantes</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -28,7 +40,12 @@
     <link rel="stylesheet" href="/static/css/adaptive-experience.css" />
     <link rel="stylesheet" href="/static/css/public-navigation.css" />
     <script src="/static/js/shell.js"></script>
-  </head>
+  <link rel="stylesheet" href="/static/css/theme-components.css">
+<link rel="stylesheet" href="/static/css/responsive-layout.css">
+<script src="/static/js/responsive-layout.js" defer></script>
+<link rel="stylesheet" href="/static/css/layout-system.css">
+<script src="/static/js/layout-system.js" defer></script>
+</head>
   <body data-role="user"
     class="sr-private ">
     <a class="skip-link" href="#main-content">Saltar al contenido principal</a>
@@ -54,7 +71,7 @@
     <nav class="sr-public-links" aria-label="Descubrir"><a href="/" >Descubrir</a><a href="/#explorar">Restaurantes</a><a href="/recomendaciones" >Para ti</a><a href="/ofertas" >Ofertas</a><a href="/para-negocios" >Para negocios</a></nav>
     <div class="sr-actions" data-counts-url="/bandeja/pendientes">
       <a class="sr-icon sr-favorites-link" href="/auth/favorites" aria-label="Mis favoritos" title="Mis favoritos"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20S3 15 3 8a5 5 0 0 1 9-2 5 5 0 0 1 9 2c0 7-9 12-9 12z"/></svg></a>
-      <button id="themeToggle" class="sr-icon" type="button" aria-label="Cambiar tema" title="Cambiar tema">◐</button>
+      <button id="themeToggle" type="button" class="theme-toggle" data-theme-toggle aria-label="Tema oscuro" aria-pressed="true"><span aria-hidden="true" data-theme-icon>☀</span><span data-theme-label>Usar tema claro</span></button>
       
       <a class="sr-icon" href="/bandeja/notificaciones" aria-label="Notificaciones" title="Notificaciones"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17h16l-2-3v-4a6 6 0 0 0-12 0v4z M10 20q2 2 4 0"/></svg><span class="sr-count" data-count="notificaciones" hidden></span></a>
       <a class="sr-icon sr-message-link" href="/bandeja/" aria-label="Mensajes" title="Mensajes"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11a9 8 0 0 1-9 8H9l-5 2 1-5a9 8 0 1 1 16-5z"/></svg><span class="sr-count" data-count="mensajes" hidden></span></a>
@@ -103,7 +120,7 @@
 
   
     <form method="post" action="/auth/logout">
-      <input type="hidden" name="csrf_token" value="IjJiMjFhMmNhY2NjNjgwN2EwNTcyM2ExODBhNTExZWJkN2FkYWFkMGYi.av4whQ.uShk0bDv0C5X1KGCLqwlN1DaZVw">
+      <input type="hidden" name="csrf_token" value="Ijk5ZGE2NGVlZWQ1ZDJhNWQ4NWQ2ZTgwNDE4ZWMzYWUxNjI1ZDRlZWQi.av5s-A.pe87S2zVZqbs5R_4YN-V5JuhowI">
       <button type="submit" title="Cerrar sesión"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3H4v18h6 M9 12h12m-5-5 5 5-5 5"/></svg><span>Cerrar sesión</span></button>
     </form>
   
@@ -149,13 +166,13 @@
                     <div class="owner-nav-item submenu-toggle" onclick="toggleSubmenu('menuSubmenu')">
                         <i class="fas fa-utensils"></i>
                         <span>Gestionar Menú</span>
-                        <i class="fas fa-chevron-down" style="margin-left: auto; font-size: 12px;"></i>
+                        <i class="fas fa-chevron-down" style="margin-left: auto; font-size:var(--text-xs);"></i>
                     </div>
                     <div class="submenu-items" id="menuSubmenu">
                         
                             <a href="/mercado/cocina/1" class="owner-nav-item submenu-item">Ventas e inventario · Cocina de prueba</a>
                             <a href="/owner/menu/1" class="owner-nav-item submenu-item ">
-                                <i class="fas fa-utensils" style="margin-left: 20px; font-size: 12px;"></i>
+                                <i class="fas fa-utensils" style="margin-left: 20px; font-size:var(--text-xs);"></i>
                                 <span>Cocina de prueba</span>
                             </a>
                         
@@ -175,7 +192,7 @@
         
         <div class="owner-sidebar-footer">
             <form method="post" action="/auth/logout">
-                <input type="hidden" name="csrf_token" value="IjJiMjFhMmNhY2NjNjgwN2EwNTcyM2ExODBhNTExZWJkN2FkYWFkMGYi.av4whQ.uShk0bDv0C5X1KGCLqwlN1DaZVw">
+                <input type="hidden" name="csrf_token" value="Ijk5ZGE2NGVlZWQ1ZDJhNWQ4NWQ2ZTgwNDE4ZWMzYWUxNjI1ZDRlZWQi.av5s-A.pe87S2zVZqbs5R_4YN-V5JuhowI">
                 <button type="submit" class="owner-nav-item">
                 <i class="fas fa-sign-out-alt"></i>
                 <span>Cerrar Sesión</span>
@@ -197,7 +214,7 @@
     <div class="profile-content">
         <div class="profile-sidebar">
             <div class="profile-avatar">
-                <i class="fas fa-user-circle" style="font-size: 80px; color: var(--primary);"></i>
+                <i class="fas fa-user-circle" style="font-size:var(--text-display); color: var(--theme-accent);"></i>
                 <h3>Maria</h3>
                 <p>@Maria</p>
             </div>
@@ -215,7 +232,7 @@
         
         <div class="profile-form-container">
             <form method="POST" action="/auth/profile/update" class="profile-form"><details><summary>Confirmación para cambiar el correo asociado</summary><p>Completa estos datos solo si cambias tu correo. También puedes gestionar tus contactos desde Seguridad.</p><label>Contraseña actual<input name="current_password" type="password" autocomplete="current-password"></label><label>Código del autenticador, si está activo<input name="otp" maxlength="6" pattern="[0-9]{6}" autocomplete="one-time-code"></label></details>
-                <input type="hidden" name="csrf_token" value="IjJiMjFhMmNhY2NjNjgwN2EwNTcyM2ExODBhNTExZWJkN2FkYWFkMGYi.av4whQ.uShk0bDv0C5X1KGCLqwlN1DaZVw">
+                <input type="hidden" name="csrf_token" value="Ijk5ZGE2NGVlZWQ1ZDJhNWQ4NWQ2ZTgwNDE4ZWMzYWUxNjI1ZDRlZWQi.av5s-A.pe87S2zVZqbs5R_4YN-V5JuhowI">
                 <div class="form-group"><label>Mis direcciones de delivery (una por línea, máximo cinco)<textarea name="addresses" rows="3" maxlength="1105"></textarea></label>
                     <label><input type="checkbox" name="promotions_opt_in" > Quiero recibir promociones en SmartResto</label>
                 </div>
@@ -328,7 +345,7 @@
     .profile-container {
         max-width: 1000px;
         margin: 0 auto;
-        padding: 0 20px;
+        padding:0 var(--space-md);
     }
     
     .profile-header {
@@ -336,25 +353,25 @@
     }
     
     .profile-header h1 {
-        font-size: 28px;
+        font-size:var(--text-2xl);
         font-weight: 700;
         margin-bottom: 8px;
     }
     
     .profile-header p {
-        color: var(--gray);
+        color: var(--theme-text);
     }
     
     .profile-content {
         display: grid;
         grid-template-columns: 280px 1fr;
-        gap: 40px;
+        gap:var(--space-xl);
     }
     
     .profile-sidebar {
-        background: var(--white);
+        background: var(--theme-surface);
         border-radius: var(--radius);
-        padding: 32px;
+        padding:var(--space-lg);
         box-shadow: var(--shadow);
         text-align: center;
     }
@@ -365,20 +382,20 @@
     
     .profile-avatar h3 {
         margin-top: 12px;
-        font-size: 18px;
+        font-size:var(--text-lg);
     }
     
     .profile-avatar p {
-        color: var(--gray);
-        font-size: 14px;
+        color: var(--theme-text);
+        font-size:var(--text-sm);
     }
     
     .profile-stats {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 16px;
-        border-top: 1px solid var(--light-gray);
-        padding-top: 24px;
+        gap:var(--space-md);
+        border-top: 1px solid var(--theme-border);
+        padding-top:var(--space-lg);
     }
     
     .stat-item {
@@ -387,20 +404,20 @@
     
     .stat-value {
         display: block;
-        font-size: 24px;
+        font-size:var(--text-xl);
         font-weight: 700;
-        color: var(--primary);
+        color: var(--theme-accent);
     }
     
     .stat-label {
-        font-size: 12px;
-        color: var(--gray);
+        font-size:var(--text-xs);
+        color: var(--theme-text);
     }
     
     .profile-form-container {
-        background: var(--white);
+        background: var(--theme-surface);
         border-radius: var(--radius);
-        padding: 32px;
+        padding:var(--space-lg);
         box-shadow: var(--shadow);
     }
     
@@ -411,7 +428,7 @@
     .profile-budget-grid {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 16px;
+        gap:var(--space-md);
     }
     
     .profile-form .form-group label {
@@ -423,16 +440,16 @@
     .profile-form .checkbox-group {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 8px;
+        gap:var(--space-sm);
     }
     
     .profile-form .checkbox-label {
         display: flex;
         align-items: center;
-        gap: 8px;
-        font-size: 14px;
-        padding: 6px 10px;
-        border: 1px solid var(--light-gray);
+        gap:var(--space-sm);
+        font-size:var(--text-sm);
+        padding:var(--space-xs) var(--space-sm);
+        border: 1px solid var(--theme-border);
         border-radius: var(--radius-sm);
         cursor: pointer;
         transition: var(--transition);
@@ -440,7 +457,7 @@
     
     .profile-form .checkbox-label:hover {
         border-color: var(--primary);
-        background: var(--primary-light);
+        background: var(--theme-accent-bg);
     }
     
     @media (max-width: 768px) {
@@ -664,6 +681,8 @@
 </aside>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/static/js/theme-charts.js"></script>
     <script src="/static/vendor/chartjs/chart-4.5.1.umd.min.js"></script>
     <script src="/static/js/security.js"></script>
     

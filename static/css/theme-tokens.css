@@ -63,3 +63,6 @@
   --theme-brand-secondary: #d8a65d;
   color-scheme: light;
 }
+
+/* Stable contrast over food photography, independent of the selected theme. */
+:root { --theme-photo-bg:#111; --theme-photo-text:#fff; --theme-photo-rgb:0 0 0; --theme-promo-bg:#a34813; }

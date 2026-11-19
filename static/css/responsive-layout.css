@@ -6,6 +6,45 @@ body { overflow-x: clip; }
 :where(.grid, .stats-grid) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); }
 :where(pre, code, .text-break) { overflow-wrap: anywhere; }
 :where(.table-responsive, .table-container, .table-wrapper) { display: block; overflow-x: auto; }
+body :is(.table-responsive, .table-container, .table-wrapper, .mgr-table) { min-width: 0; max-width: 100%; overscroll-behavior-inline: contain; }
+/* Size the content within its available space, rather than adding a rail to 100%. */
+body.sr-private > #main-content {
+  width: auto;
+  max-width: none;
+  min-width: 0;
+  align-self: stretch;
+  margin-inline: 0;
+}
+@media (min-width: 1100px) {
+  body.sr-private > #main-content { margin-left: var(--sr-rail); }
+}
+body :is(form, fieldset, .sr-filter-fields, .market-form, .profile-form) { min-inline-size: 0; }
+body form > *, body .sr-filter-fields > * { min-width: 0; }
+body :is(input, select, textarea) { min-width: 0; max-width: 100%; box-sizing: border-box; }
+body :is(.mgr, .market-shell, .admin-container, .owner-content, .catalog-workspace) { min-width: 0; max-width: 100%; }
+body :is(.pager, .pagination, .form-actions, .admin-header, .um-toolbar) { flex-wrap: wrap; }
+body .pager { min-width: 0; max-width: 100%; }
+body .pager .page-btn { min-width: 44px; min-height: 44px; flex: none; }
+body :is(.stat-card, .stat-label, .market-offer, .market-panel) { min-width: 0; overflow-wrap: anywhere; }
+body .sr-map-dialog { overflow: auto; overscroll-behavior: contain; }
+@media (max-width: 479px) {
+  body .stats-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  body .stats-row > :last-child:nth-child(odd) { grid-column: 1 / -1; }
+  body .pager .page-size { max-width: 100%; }
+  body .market-offer-top { flex-wrap: wrap; }
+  body .sr-map-dialog #forest-map-panel { min-height: min(260px, 45dvh); }
+}
+@media (max-height: 540px) {
+  body .ai-chat {
+    top: max(8px, env(safe-area-inset-top));
+    bottom: max(8px, env(safe-area-inset-bottom));
+    height: auto;
+    max-height: none;
+  }
+}
+@media (max-width: 767px) {
+  body :is(input, select, textarea) { font-size: 16px !important; }
+}
 @media (max-width: 639px) {
   :where(.dashboard-grid, .content-grid, .two-column, .split-layout) { grid-template-columns: minmax(0, 1fr) !important; }
   :where(.card, .panel) { min-width: 0; }

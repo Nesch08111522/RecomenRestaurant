@@ -1,0 +1,23 @@
+{
+  "scenarios": 1500,
+  "template_variants": 75,
+  "widths": [
+    320,
+    375,
+    480,
+    640,
+    768,
+    1024,
+    1100,
+    1280,
+    1440,
+    1920
+  ],
+  "themes": [
+    "dark",
+    "light"
+  ],
+  "overflow_failures": 0,
+  "out_of_bounds_cases": 0,
+  "scope": "Rendered templates with isolated demonstration data; external services stubbed"
+}

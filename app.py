@@ -1,8 +1,9 @@
 import logging
 import os
 import uuid
+from time import perf_counter
 
-from flask import Flask, jsonify, render_template, request, session
+from flask import Flask, jsonify, render_template, request, session, g
 from flask_wtf.csrf import CSRFError
 
 try:
@@ -94,12 +95,17 @@ def create_app(test_config=None):
 
     @app.before_request
     def assign_request_id():
+        request.performance_start = perf_counter()
         request.request_id = str(uuid.uuid4())
         if request.endpoint != "static" and "user_id" in session:
             fresh_session_user()
 
     @app.after_request
     def add_security_headers(response):
+        from database.metrics import observe
+        observe('http:' + (request.endpoint or 'unmatched'),
+                perf_counter() - getattr(request, 'performance_start', perf_counter()),
+                failed=response.status_code >= 400)
         response.headers.setdefault("X-Content-Type-Options", "nosniff")
         response.headers.setdefault("X-Frame-Options", "SAMEORIGIN")
         response.headers.setdefault(
@@ -230,10 +236,13 @@ def create_app(test_config=None):
         return render_template("500.html"), 500
 
     from database.connection import DatabaseConfigurationError, DatabaseConnectionError
+    from psycopg import OperationalError
 
     @app.errorhandler(DatabaseConfigurationError)
     @app.errorhandler(DatabaseConnectionError)
+    @app.errorhandler(OperationalError)
     def database_unavailable(error):
+        g.database_unavailable = True
         if is_api_request():
             return jsonify(success=False, error='Catalogo temporalmente no disponible', code='database_unavailable'), 503
         return render_template('500.html'), 503

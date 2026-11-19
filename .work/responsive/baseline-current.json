@@ -1,0 +1,74 @@
+[
+  {
+    "view": "admin-restaurants",
+    "width": 320,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "admin-restaurants",
+    "width": 768,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "admin-restaurants",
+    "width": 1280,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "market-browse",
+    "width": 320,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "market-browse",
+    "width": 768,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "market-browse",
+    "width": 1280,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "public",
+    "width": 320,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "public",
+    "width": 768,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "public",
+    "width": 1280,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "market",
+    "width": 320,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "market",
+    "width": 768,
+    "overflow": false,
+    "bad": []
+  },
+  {
+    "view": "market",
+    "width": 1280,
+    "overflow": false,
+    "bad": []
+  }
+]

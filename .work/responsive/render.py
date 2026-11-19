@@ -9,6 +9,11 @@ from analytics.intelligence import report
 args.update(users=[dict(id=1,username='empresario_nombre_de_prueba',role='business_owner',profile={'name':'María de los Ángeles Sandoval','email':'contacto.restaurante.extenso@example.com'},favorites=[],preferences={})],business=r,selected_id=1,selected_name=r['name'],user={'id':1,'username':'Maria','profile':{'name':'Maria','email':'maria@example.com'},'preferences':{},'favorites':[]},restaurants=[r],pending=lambda *a:False,settings={'threshold':3,'diets':['Vegetariano']},result={},site={},sources=[],candidates=[],runs=[],claims=[],threads=[],notifications=[],cases=[],reviews=[],coupons=[],messages=[],thread={'id':1,'subject':'Consulta sobre mi pedido','business':'Cocina de prueba','last_id':1},uid=1,orders=[],lines=[],cart={'day':'2026-11-18','coupon':''},store={'channels':['Local','Recojo','Delivery'],'reward':0,'zones':['Trujillo'],'radius':3},diners=2,extra=0,share=2500,discount=0,points=5,digital=True,addresses=[],metrics={'income':123000,'sales':42,'rescued':12,'repeat':7,'customers':20},kinds=['Restaurante'],inventory=[],offers=[],recipes=[],movements=[],team=[],business_types=[],restaurant_id=1,offer={'id':1,'name':'Ceviche','price':2500,'description':'Pescado fresco','rid':1,'qty':4,'recipe':{},'status':'published'}, data=report([],[],args['start'],args['end']))
 args['data'].update(website_views=15,published_offers=4,waste=[],recommendation_funnel={'views':15,'clicks':7,'orders':3},critical_ingredients=[],missing_metrics=[])
 args.update(page=1,page_args={},districts=['Trujillo','Moche'],offer_diets=[],sort='')
+args.update(moods={'happy':'Con ánimo'},moments={'lunch':'Almuerzo'},context={},for_you=[],recurring=[],discovery_items=[],history=[],history_topics=[],visible_topics=[],filters={},filtered_url=lambda **kw:'/',last_day='2026-11-18',total_restaurants=26,total_favorites=7,avg_rating=4.5,recent_activities=[],pending=[],income=25000,rescued=3,segments={},suggestions=[],purchases=3,shops=2,dishes=[],spent=7500,summary={'savings':500},variants=[],allowed=True,preview={'items':[]},menu_data={},menu_items=[],menu_categories=[],dish={**args['offer'],'rid':1,'business':'Cocina de prueba','available':4,'cross':'unknown','channels':['Local'],'allergens':[]},group={'id':1,'name':'Almuerzo con amigos','members':[],'status':'open'},case={'id':1,'subject':'Consulta de atención','state':'Abierto','created':'2026-11-18T12:00:00'},item={'id':1,'state':'Recibido','total':2500,'lines':[],'slot':'2026-11-18T13:00:00','created':'2026-11-18T12:00:00','rid':1})
+args['store'].update(pantry={},offers=[],coupons=[])
+args.update(draft={'dishes':[],'introduction':''},selected_date_iso='2026-11-18',today_date_iso='2026-11-18',selected_date_label='Hoy',meal_times=[],history_topics={},target=args['start'])
+args['group'].update(until='2026-11-18',title='Almuerzo con amigos')
+args['metrics'].update(margin=10000,costed=4,savings=300)
 views=[]
 for p in Path('templates').rglob('*.html'):
  name=p.as_posix().removeprefix('templates/')
@@ -20,7 +25,25 @@ for p in Path('templates').rglob('*.html'):
   with app.test_request_context(url):
    session['user']={'id':1,'role':role,'username':'Maria','profile':{'name':'María Sandoval','email':'maria@example.com'}};session['role']=role
    with patch('database.repository.PostgresDocumentRepository.all',return_value=[]),patch('database.repository.PostgresDocumentRepository.get_by_id',return_value=None):
-    html=render_template(name,**args)
+    local=dict(args)
+    local.update(discovery_items={'items':[]},for_you={'items':[]},filtered_url=lambda *a,**kw:'/',moments={'lunch':'Almuerzo'},mine={},funnel={'views':12,'clicks':5,'orders':2})
+    local['group']={**local['group'],'until':'2026-11-19','title':'Almuerzo en grupo'}
+    if name!='ecosystem/rewards.html':local['shops']=[]
+    if name=='communication/thread.html':local['pending']=lambda *a:False
+    if name=='admin/trust_center.html':local['data']={'integrations':{'ai':{'configured':False},'email':False,'sms':False},'duplicates':[],'media':[],'sites':[],'payments':[],'events':[],'counts':{},'audit':[],'models':[],'duplicate_names':[],'shared_images':[],'payment_incidents':[]}
+    html=render_template(name,**local)
   slug=name.replace('/','-').removesuffix('.html');(out/(slug+'.html')).write_text(html,encoding='utf-8');views.append(slug)
- except Exception as e:print(name,type(e).__name__,str(e)[:160])
+ except Exception as e:
+  print(name,type(e).__name__,str(e)[:160])
+  if name=='recommendations.html':
+   import traceback
+   traceback.print_exc()
+for style in ['atelier','commercial','minimal','promotional','fit','immersive','studio','bistro']:
+ try:
+  with app.test_request_context('/'):
+   with patch('database.repository.PostgresDocumentRepository.all',return_value=[]),patch('database.repository.PostgresDocumentRepository.get_by_id',return_value=None):
+    local={**args,'restaurant':r,'site':{'name':'Cocina peruana de autor','template':style,'hero_style':style,'tagline':'Sabores que se disfrutan en buena compañía','description':'Ingredientes frescos y una experiencia para compartir.','cover':'/static/images/auth/lomo.webp'},'gallery':[],'branches':[],'menu_groups':{},'menu_sections':{},'featured_dishes':[],'canonical':'','schema':None,'preview':False}
+    html=render_template('sites/public.html',**local)
+  slug='site-'+style;(out/(slug+'.html')).write_text(html,encoding='utf-8');views.append(slug)
+ except Exception as e:print('site',style,type(e).__name__,str(e)[:120])
 (out/'views.json').write_text(json.dumps(views));print('Rendered',len(views))

@@ -1,0 +1,151 @@
+{
+  "read_only": true,
+  "connection_mode_hint": "transaction_pooler",
+  "port": 6543,
+  "sslmode": "require",
+  "connection_and_authentication": {
+    "ok": true,
+    "ms": 891.98
+  },
+  "select1_0": {
+    "ok": true,
+    "ms": 141.99,
+    "result": 1
+  },
+  "select1_1": {
+    "ok": true,
+    "ms": 142.36,
+    "result": 1
+  },
+  "select1_2": {
+    "ok": true,
+    "ms": 143.07,
+    "result": 1
+  },
+  "schema": {
+    "ok": true,
+    "ms": 144.65,
+    "result": {
+      "rls": false,
+      "primary_keys": 0,
+      "valid_indexes": 1
+    }
+  },
+  "explain_read": {
+    "ok": true,
+    "ms": 145.33,
+    "result": [
+      {
+        "Plan": {
+          "Node Type": "Limit",
+          "Parallel Aware": false,
+          "Async Capable": false,
+          "Startup Cost": 41.31,
+          "Total Cost": 41.36,
+          "Plan Rows": 20,
+          "Plan Width": 650,
+          "Actual Startup Time": 0.067,
+          "Actual Total Time": 0.069,
+          "Actual Rows": 20,
+          "Actual Loops": 1,
+          "Shared Hit Blocks": 36,
+          "Shared Read Blocks": 0,
+          "Shared Dirtied Blocks": 0,
+          "Shared Written Blocks": 0,
+          "Local Hit Blocks": 0,
+          "Local Read Blocks": 0,
+          "Local Dirtied Blocks": 0,
+          "Local Written Blocks": 0,
+          "Temp Read Blocks": 0,
+          "Temp Written Blocks": 0,
+          "Plans": [
+            {
+              "Node Type": "Sort",
+              "Parent Relationship": "Outer",
+              "Parallel Aware": false,
+              "Async Capable": false,
+              "Startup Cost": 41.31,
+              "Total Cost": 41.38,
+              "Plan Rows": 26,
+              "Plan Width": 650,
+              "Actual Startup Time": 0.066,
+              "Actual Total Time": 0.067,
+              "Actual Rows": 20,
+              "Actual Loops": 1,
+              "Sort Key": [
+                "id"
+              ],
+              "Sort Method": "quicksort",
+              "Sort Space Used": 58,
+              "Sort Space Type": "Memory",
+              "Shared Hit Blocks": 36,
+              "Shared Read Blocks": 0,
+              "Shared Dirtied Blocks": 0,
+              "Shared Written Blocks": 0,
+              "Local Hit Blocks": 0,
+              "Local Read Blocks": 0,
+              "Local Dirtied Blocks": 0,
+              "Local Written Blocks": 0,
+              "Temp Read Blocks": 0,
+              "Temp Written Blocks": 0,
+              "Plans": [
+                {
+                  "Node Type": "Seq Scan",
+                  "Parent Relationship": "Outer",
+                  "Parallel Aware": false,
+                  "Async Capable": false,
+                  "Relation Name": "app_records",
+                  "Alias": "app_records",
+                  "Startup Cost": 0.0,
+                  "Total Cost": 40.7,
+                  "Plan Rows": 26,
+                  "Plan Width": 650,
+                  "Actual Startup Time": 0.008,
+                  "Actual Total Time": 0.052,
+                  "Actual Rows": 26,
+                  "Actual Loops": 1,
+                  "Filter": "(collection = 'restaurants'::text)",
+                  "Rows Removed by Filter": 352,
+                  "Shared Hit Blocks": 36,
+                  "Shared Read Blocks": 0,
+                  "Shared Dirtied Blocks": 0,
+                  "Shared Written Blocks": 0,
+                  "Local Hit Blocks": 0,
+                  "Local Read Blocks": 0,
+                  "Local Dirtied Blocks": 0,
+                  "Local Written Blocks": 0,
+                  "Temp Read Blocks": 0,
+                  "Temp Written Blocks": 0
+                }
+              ]
+            }
+          ]
+        },
+        "Planning": {
+          "Shared Hit Blocks": 1,
+          "Shared Read Blocks": 0,
+          "Shared Dirtied Blocks": 0,
+          "Shared Written Blocks": 0,
+          "Local Hit Blocks": 0,
+          "Local Read Blocks": 0,
+          "Local Dirtied Blocks": 0,
+          "Local Written Blocks": 0,
+          "Temp Read Blocks": 0,
+          "Temp Written Blocks": 0
+        },
+        "Planning Time": 0.056,
+        "Triggers": [],
+        "Execution Time": 0.084
+      }
+    ]
+  },
+  "pool": {
+    "maximum": 4,
+    "total": 1,
+    "available": 1,
+    "in_use": 0,
+    "created": 1,
+    "wait_timeouts": 0,
+    "cooldown": false
+  }
+}

@@ -1,10 +1,22 @@
 
 <!DOCTYPE html>
-<html lang="es" class="sr-compact">
+<html lang="es" class="sr-compact" data-theme="dark">
   <head>
     <meta charset="UTF-8" />
+    
+<script>
+(function () {
+  var theme = 'dark';
+  try { if (localStorage.getItem('theme') === 'light') theme = 'light'; } catch (_) {}
+  document.documentElement.dataset.theme = theme;
+  document.documentElement.style.colorScheme = theme;
+})();
+</script>
+<link rel="stylesheet" href="/static/css/theme-tokens.css">
+<script src="/static/js/theme.js"></script>
+    <link rel="stylesheet" href="/static/css/responsive-tokens.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="csrf-token" content="ImQ5N2Q0YzJjNGY2MWJiZDQzOWViYmQ4MGIyZjAyMmE1YTgxZjE0NDYi.av4whQ.r1HcWQCO96so376V5_rzglwURHw" />
+    <meta name="csrf-token" content="IjI0ZTY4ZjY2OWIwNDZlN2I5MzY2NGM0MTAyMzk2ODQyZDg5MGU1NDEi.av5s-A.nwDWvqICkT9jG7bjJsnWanUptdQ" />
     <title>SmartResto - Recomendación Inteligente de Restaurantes</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -31,7 +43,12 @@
     <link rel="stylesheet" href="/static/css/adaptive-experience.css" />
     <link rel="stylesheet" href="/static/css/public-navigation.css" />
     <script src="/static/js/shell.js"></script>
-  </head>
+  <link rel="stylesheet" href="/static/css/theme-components.css">
+<link rel="stylesheet" href="/static/css/responsive-layout.css">
+<script src="/static/js/responsive-layout.js" defer></script>
+<link rel="stylesheet" href="/static/css/layout-system.css">
+<script src="/static/js/layout-system.js" defer></script>
+</head>
   <body data-role="business_owner"
     class="sr-private ">
     <a class="skip-link" href="#main-content">Saltar al contenido principal</a>
@@ -57,7 +74,7 @@
     <nav class="sr-public-links" aria-label="Descubrir"><a href="/" >Descubrir</a><a href="/#explorar">Restaurantes</a><a href="/recomendaciones" >Para ti</a><a href="/ofertas" >Ofertas</a><a href="/para-negocios" >Para negocios</a></nav>
     <div class="sr-actions" data-counts-url="/bandeja/pendientes">
       <a class="sr-icon sr-favorites-link" href="/auth/favorites" aria-label="Mis favoritos" title="Mis favoritos"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20S3 15 3 8a5 5 0 0 1 9-2 5 5 0 0 1 9 2c0 7-9 12-9 12z"/></svg></a>
-      <button id="themeToggle" class="sr-icon" type="button" aria-label="Cambiar tema" title="Cambiar tema">◐</button>
+      <button id="themeToggle" type="button" class="theme-toggle" data-theme-toggle aria-label="Tema oscuro" aria-pressed="true"><span aria-hidden="true" data-theme-icon>☀</span><span data-theme-label>Usar tema claro</span></button>
       
       <a class="sr-icon" href="/bandeja/notificaciones" aria-label="Notificaciones" title="Notificaciones"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17h16l-2-3v-4a6 6 0 0 0-12 0v4z M10 20q2 2 4 0"/></svg><span class="sr-count" data-count="notificaciones" hidden></span></a>
       <a class="sr-icon sr-message-link" href="/bandeja/" aria-label="Mensajes" title="Mensajes"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11a9 8 0 0 1-9 8H9l-5 2 1-5a9 8 0 1 1 16-5z"/></svg><span class="sr-count" data-count="mensajes" hidden></span></a>
@@ -112,7 +129,7 @@
 
   
     <form method="post" action="/auth/logout">
-      <input type="hidden" name="csrf_token" value="ImQ5N2Q0YzJjNGY2MWJiZDQzOWViYmQ4MGIyZjAyMmE1YTgxZjE0NDYi.av4whQ.r1HcWQCO96so376V5_rzglwURHw">
+      <input type="hidden" name="csrf_token" value="IjI0ZTY4ZjY2OWIwNDZlN2I5MzY2NGM0MTAyMzk2ODQyZDg5MGU1NDEi.av5s-A.nwDWvqICkT9jG7bjJsnWanUptdQ">
       <button type="submit" title="Cerrar sesión"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3H4v18h6 M9 12h12m-5-5 5 5-5 5"/></svg><span>Cerrar sesión</span></button>
     </form>
   
@@ -158,13 +175,13 @@
                     <div class="owner-nav-item submenu-toggle" onclick="toggleSubmenu('menuSubmenu')">
                         <i class="fas fa-utensils"></i>
                         <span>Gestionar Menú</span>
-                        <i class="fas fa-chevron-down" style="margin-left: auto; font-size: 12px;"></i>
+                        <i class="fas fa-chevron-down" style="margin-left: auto; font-size:var(--text-xs);"></i>
                     </div>
                     <div class="submenu-items" id="menuSubmenu">
                         
                             <a href="/mercado/cocina/1" class="owner-nav-item submenu-item">Ventas e inventario · Cocina de prueba</a>
                             <a href="/owner/menu/1" class="owner-nav-item submenu-item ">
-                                <i class="fas fa-utensils" style="margin-left: 20px; font-size: 12px;"></i>
+                                <i class="fas fa-utensils" style="margin-left: 20px; font-size:var(--text-xs);"></i>
                                 <span>Cocina de prueba</span>
                             </a>
                         
@@ -184,7 +201,7 @@
         
         <div class="owner-sidebar-footer">
             <form method="post" action="/auth/logout">
-                <input type="hidden" name="csrf_token" value="ImQ5N2Q0YzJjNGY2MWJiZDQzOWViYmQ4MGIyZjAyMmE1YTgxZjE0NDYi.av4whQ.r1HcWQCO96so376V5_rzglwURHw">
+                <input type="hidden" name="csrf_token" value="IjI0ZTY4ZjY2OWIwNDZlN2I5MzY2NGM0MTAyMzk2ODQyZDg5MGU1NDEi.av5s-A.nwDWvqICkT9jG7bjJsnWanUptdQ">
                 <button type="submit" class="owner-nav-item">
                 <i class="fas fa-sign-out-alt"></i>
                 <span>Cerrar Sesión</span>
@@ -255,7 +272,7 @@
 
     
 
-    <section class="catalog-metrics" aria-label="Resumen del catálogo">
+    <div class="layout-bento layout-gap-md catalog-metrics" data-layout="bento" data-layout-reveal style="--layout-columns:4" role="group" aria-label="Resumen del catálogo">
         <article class="catalog-metric-card catalog-metric-card--accent">
             <div class="catalog-metric-icon"><i class="fas fa-layer-group" aria-hidden="true"></i></div>
             <div><span>Productos publicados</span><strong id="metricPublished">0</strong><small id="metricPublishedHint">Sin cargar</small></div>
@@ -272,7 +289,7 @@
             <div class="catalog-metric-icon"><i class="fas fa-sparkles" aria-hidden="true"></i></div>
             <div><span>Calidad del dato</span><strong id="metricQuality">—</strong><small>Basada en confirmaciones</small></div>
         </article>
-    </section>
+    </div>
 
     <div class="catalog-layout">
         <main class="catalog-main-column">
@@ -300,7 +317,7 @@
                         </label>
                     </div>
                 </div>
-                <div id="productsList" class="catalog-product-grid" aria-live="polite"></div>
+                <div id="productsList" class="catalog-product-grid layout-masonry" data-layout="masonry" style="--layout-columns:3" role="list" aria-live="polite"></div>
                 <div id="productsEmpty" class="catalog-inline-empty" hidden>
                     <i class="fas fa-bowl-food" aria-hidden="true"></i>
                     <strong>No hay productos que coincidan</strong>
@@ -612,6 +629,8 @@
 </aside>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/static/js/theme-charts.js"></script>
     <script src="/static/vendor/chartjs/chart-4.5.1.umd.min.js"></script>
     <script src="/static/js/security.js"></script>
     

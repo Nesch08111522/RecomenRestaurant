@@ -10,6 +10,9 @@ from typing import Iterator
 from urllib.parse import parse_qs, parse_qsl, urlencode, urlsplit, urlunsplit
 
 from config import Config
+from time import perf_counter
+from database.pool import get_pool, PoolBusy, PoolCoolingDown
+from database.metrics import TimedCursor, observe
 
 try:
     import psycopg
@@ -79,7 +82,7 @@ def require_postgres(*, require_enabled: bool = True) -> None:
 
 @contextmanager
 def connection(*, autocommit: bool = False, require_enabled: bool = True) -> Iterator[object]:
-    """Abrir una conexión con row factories seguras y cierre garantizado."""
+    """Lease a bounded connection; always rollback unfinished work before reuse."""
     require_postgres(require_enabled=require_enabled)
     # Supabase requiere SSL. Psycopg prepara consultas automáticamente después
     # de varias ejecuciones; se desactiva para que también funcione con el
@@ -87,14 +90,30 @@ def connection(*, autocommit: bool = False, require_enabled: bool = True) -> Ite
     options = {
         "row_factory": dict_row,
         "prepare_threshold": None,
-        "connect_timeout": 10,
+        "connect_timeout": max(2, min(Config.DATABASE_CONNECT_TIMEOUT, 30)),
+        "cursor_factory": TimedCursor,
     }
     requested_sslmode = parse_qs(urlsplit(Config.DATABASE_URL).query).get("sslmode", [None])[-1]
     options["sslmode"] = requested_sslmode or getattr(Config, "DATABASE_SSLMODE", "require")
+    dsn = _libpq_dsn(Config.DATABASE_URL)
+    def connect():
+        start = perf_counter()
+        try:
+            return psycopg.connect(dsn, **options)
+        finally:
+            observe('connection_establishment', perf_counter() - start)
+    pool = get_pool((Config.DATABASE_URL, tuple(options.items()), Config.DATABASE_POOL_MAX, Config.DATABASE_POOL_TIMEOUT), connect,
+                    maximum=max(1, min(Config.DATABASE_POOL_MAX, 16)),
+                    timeout=max(.1, min(Config.DATABASE_POOL_TIMEOUT, 30)))
+    start = perf_counter()
     try:
-        conn = psycopg.connect(_libpq_dsn(Config.DATABASE_URL), **options)
+        conn, born = pool.acquire()
+    except (PoolBusy, PoolCoolingDown):
+        observe('pool_acquire', perf_counter() - start, failed=True)
+        raise DatabaseConnectionError('La base de datos está ocupada o en pausa tras un fallo. Inténtalo más tarde.') from None
     except psycopg.OperationalError as error:
         detail = str(error).lower()
+        observe('pool_acquire', perf_counter() - start, failed=True)
         if any(term in detail for term in ("getaddrinfo", "11001", "11004", "name or service not known", "could not translate host")):
             message = (
                 "No se pudo resolver el host PostgreSQL. La conexión directa de Supabase "
@@ -102,25 +121,39 @@ def connection(*, autocommit: bool = False, require_enabled: bool = True) -> Ite
                 "reales de Connect → Session pooler. Esto no indica que falten tablas."
             )
         elif any(term in detail for term in ("password authentication", "authentication failed", "tenant or user not found")):
+            observe('authentication_failure', 0, failed=True)
             message = "PostgreSQL rechazó la autenticación. Comprueba usuario y credenciales de la conexión seleccionada."
         else:
             message = "No se pudo conectar a PostgreSQL. Comprueba acceso de red, puerto y TLS; no se modificaron datos."
         raise DatabaseConnectionError(message) from None
-    conn.autocommit = autocommit
+    observe('pool_acquire', perf_counter() - start)
+    discard = False
     try:
+        conn.autocommit = autocommit
         yield conn
+    except psycopg.OperationalError:
+        discard = True
+        raise
     except Exception:
         if not autocommit:
             conn.rollback()
         raise
     finally:
-        conn.close()
+        pool.release(conn, born, discard=discard)
+
+
+def transaction_limits(conn):
+    """LOCAL settings survive only this transaction, including on Supavisor."""
+    conn.execute("SELECT set_config('statement_timeout', %s, true), set_config('lock_timeout', %s, true)",
+                 (str(max(100, min(Config.DATABASE_STATEMENT_TIMEOUT_MS, 60000))),
+                  str(max(100, min(Config.DATABASE_LOCK_TIMEOUT_MS, 10000)))))
 
 
 def check_connection() -> bool:
     """Comprueba el acceso a PostgreSQL sin imprimir ni devolver credenciales."""
     # Verifica conectividad sin cambiar el esquema ni tocar datos.
     with connection(require_enabled=False) as conn, conn.cursor() as cur:
+        transaction_limits(conn)
         cur.execute("SELECT 1 AS connected")
         row = cur.fetchone()
         return bool(row and row["connected"] == 1)
@@ -129,6 +162,7 @@ def check_connection() -> bool:
 def check_application_schema() -> None:
     """Fail fast with setup instructions when the document table is missing."""
     with connection() as conn, conn.cursor() as cur:
+        transaction_limits(conn)
         cur.execute("SELECT to_regclass('public.app_records') AS table_name")
         row = cur.fetchone()
         if not row or not row["table_name"]:

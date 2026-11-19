@@ -1,10 +1,22 @@
 
 <!DOCTYPE html>
-<html lang="es" class="sr-compact">
+<html lang="es" class="sr-compact" data-theme="dark">
   <head>
     <meta charset="UTF-8" />
+    
+<script>
+(function () {
+  var theme = 'dark';
+  try { if (localStorage.getItem('theme') === 'light') theme = 'light'; } catch (_) {}
+  document.documentElement.dataset.theme = theme;
+  document.documentElement.style.colorScheme = theme;
+})();
+</script>
+<link rel="stylesheet" href="/static/css/theme-tokens.css">
+<script src="/static/js/theme.js"></script>
+    <link rel="stylesheet" href="/static/css/responsive-tokens.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="csrf-token" content="IjMwODA4YTAwYzgwYzZmZmI3NjYyYTVmYjc3YWE1NDdlYzNlZWUyMmYi.av4whQ.xR9OtLLcQ8J_gLSvW4TBMmlsHlk" />
+    <meta name="csrf-token" content="ImM4MDBmNGFmNWFmNDdiNTUxOTk0ZDUxNGYwOTk1ZGJhOGIxYzcyYTYi.av5s-A.i-CQqCg5UKy_1UGwLxMnYN2-_Ko" />
     <title>SmartResto - Recomendación Inteligente de Restaurantes</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -28,7 +40,12 @@
     <link rel="stylesheet" href="/static/css/adaptive-experience.css" />
     <link rel="stylesheet" href="/static/css/public-navigation.css" />
     <script src="/static/js/shell.js"></script>
-  </head>
+  <link rel="stylesheet" href="/static/css/theme-components.css">
+<link rel="stylesheet" href="/static/css/responsive-layout.css">
+<script src="/static/js/responsive-layout.js" defer></script>
+<link rel="stylesheet" href="/static/css/layout-system.css">
+<script src="/static/js/layout-system.js" defer></script>
+</head>
   <body data-role="user"
     class="sr-private ">
     <a class="skip-link" href="#main-content">Saltar al contenido principal</a>
@@ -54,7 +71,7 @@
     <nav class="sr-public-links" aria-label="Descubrir"><a href="/" >Descubrir</a><a href="/#explorar">Restaurantes</a><a href="/recomendaciones" >Para ti</a><a href="/ofertas" >Ofertas</a><a href="/para-negocios" >Para negocios</a></nav>
     <div class="sr-actions" data-counts-url="/bandeja/pendientes">
       <a class="sr-icon sr-favorites-link" href="/auth/favorites" aria-label="Mis favoritos" title="Mis favoritos"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20S3 15 3 8a5 5 0 0 1 9-2 5 5 0 0 1 9 2c0 7-9 12-9 12z"/></svg></a>
-      <button id="themeToggle" class="sr-icon" type="button" aria-label="Cambiar tema" title="Cambiar tema">◐</button>
+      <button id="themeToggle" type="button" class="theme-toggle" data-theme-toggle aria-label="Tema oscuro" aria-pressed="true"><span aria-hidden="true" data-theme-icon>☀</span><span data-theme-label>Usar tema claro</span></button>
       
       <a class="sr-icon" href="/bandeja/notificaciones" aria-label="Notificaciones" title="Notificaciones"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17h16l-2-3v-4a6 6 0 0 0-12 0v4z M10 20q2 2 4 0"/></svg><span class="sr-count" data-count="notificaciones" hidden></span></a>
       <a class="sr-icon sr-message-link" href="/bandeja/" aria-label="Mensajes" title="Mensajes"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11a9 8 0 0 1-9 8H9l-5 2 1-5a9 8 0 1 1 16-5z"/></svg><span class="sr-count" data-count="mensajes" hidden></span></a>
@@ -103,7 +120,7 @@
 
   
     <form method="post" action="/auth/logout">
-      <input type="hidden" name="csrf_token" value="IjMwODA4YTAwYzgwYzZmZmI3NjYyYTVmYjc3YWE1NDdlYzNlZWUyMmYi.av4whQ.xR9OtLLcQ8J_gLSvW4TBMmlsHlk">
+      <input type="hidden" name="csrf_token" value="ImM4MDBmNGFmNWFmNDdiNTUxOTk0ZDUxNGYwOTk1ZGJhOGIxYzcyYTYi.av5s-A.i-CQqCg5UKy_1UGwLxMnYN2-_Ko">
       <button type="submit" title="Cerrar sesión"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3H4v18h6 M9 12h12m-5-5 5 5-5 5"/></svg><span>Cerrar sesión</span></button>
     </form>
   
@@ -124,14 +141,14 @@
 <h1>Seguridad de mi cuenta</h1>
 
 
-<form class="market-form" method="post"><input type="hidden" name="csrf_token" value="IjMwODA4YTAwYzgwYzZmZmI3NjYyYTVmYjc3YWE1NDdlYzNlZWUyMmYi.av4whQ.xR9OtLLcQ8J_gLSvW4TBMmlsHlk">
+<form class="market-form" method="post"><input type="hidden" name="csrf_token" value="ImM4MDBmNGFmNWFmNDdiNTUxOTk0ZDUxNGYwOTk1ZGJhOGIxYzcyYTYi.av5s-A.i-CQqCg5UKy_1UGwLxMnYN2-_Ko">
 
 <label>Contraseña actual<input required name="password" type="password" autocomplete="current-password"></label>
 <label>Código del autenticador, si ya lo configuraste<input name="otp" pattern="[0-9]{6}" maxlength="6" inputmode="numeric" autocomplete="one-time-code"></label>
 
 <button name="action" value="recovery">Generar clave de recuperación</button>
 <button name="action" value="start">Vincular aplicación de autenticación</button>
-</form><section class="market-panel"><h2>Contacto para códigos de seguridad</h2><p>Confirma tu contraseña actual y, si corresponde, un código nuevo del autenticador para actualizar tus contactos.</p><form class="market-form" method="post"><input type="hidden" name="csrf_token" value="IjMwODA4YTAwYzgwYzZmZmI3NjYyYTVmYjc3YWE1NDdlYzNlZWUyMmYi.av4whQ.xR9OtLLcQ8J_gLSvW4TBMmlsHlk"><input type="hidden" name="action" value="contacts"><label>Correo asociado<input name="email" type="email" required maxlength="254" autocomplete="email"></label><label>Teléfono asociado (opcional)<input name="phone" type="tel" pattern="\+[1-9][0-9]{7,14}" maxlength="16" placeholder="+51976399537"></label><label>Contraseña actual<input required name="password" type="password" autocomplete="current-password"></label><label>Código del autenticador, si está activo<input name="otp" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code"></label><button>Actualizar contactos de seguridad</button></form><a href="/auth/recuperar">Cambiar contraseña con un código enviado</a></section>
+</form><section class="market-panel"><h2>Contacto para códigos de seguridad</h2><p>Confirma tu contraseña actual y, si corresponde, un código nuevo del autenticador para actualizar tus contactos.</p><form class="market-form" method="post"><input type="hidden" name="csrf_token" value="ImM4MDBmNGFmNWFmNDdiNTUxOTk0ZDUxNGYwOTk1ZGJhOGIxYzcyYTYi.av5s-A.i-CQqCg5UKy_1UGwLxMnYN2-_Ko"><input type="hidden" name="action" value="contacts"><label>Correo asociado<input name="email" type="email" required maxlength="254" autocomplete="email"></label><label>Teléfono asociado (opcional)<input name="phone" type="tel" pattern="\+[1-9][0-9]{7,14}" maxlength="16" placeholder="+51976399537"></label><label>Contraseña actual<input required name="password" type="password" autocomplete="current-password"></label><label>Código del autenticador, si está activo<input name="otp" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code"></label><button>Actualizar contactos de seguridad</button></form><a href="/auth/recuperar">Cambiar contraseña con un código enviado</a></section>
 </div>
     </main>
 
@@ -160,6 +177,8 @@
 </aside>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/static/js/theme-charts.js"></script>
     <script src="/static/vendor/chartjs/chart-4.5.1.umd.min.js"></script>
     <script src="/static/js/security.js"></script>
     
