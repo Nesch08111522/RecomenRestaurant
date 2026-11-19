@@ -1,0 +1,63 @@
+
+===== PAGINA 1 =====
+
+AVANCE DE PROYECTO FINAL 3 (APF3) 
+ 
+Curso: Innovación y Transformación Digital 
+Objetivo general: Desarrollar el proceso de Gestión de la innovación y 
+transformación digital de un producto, servicio o proceso 
+Objetivo del Avance 
+El estudiante aplica tecnologías clave de transformación digital (Cloud, IA, 
+Machine Learning, IoT,Blockchain, otros similares.) a la propuesta innovadora y 
+desarrolla un plan de trabajo para el desarrollo e implementación de la solución. 
+ Indicación General 
+El grupo deberá presentar la propuesta de solución innovadora, de acuerdo con un 
+plan de trabajo y el desarrollo de la solución de forma preliminar. 
+Indicaciones Específicas 
+A) Informe escrito 
+1. Modificación del contenido del avance 2. 
+2. Selección de tecnologías clave relacionada con la solución propuesta 
+(lenguaje de programación, APIS, tecnologías emergentes, GUIs, etc) 
+3. Justificación técnica de la elección 
+4. Desarrollo de un plan de trabajo para el desarrollo e implementación de 
+la solución 
+a. Gantt de proyecto 
+b. Recursos 
+c. Tiempos / Hitos 
+d. Responsables 
+5. Desarrollo preliminar (demo/simulación/arquitectura). Evidencia del 
+Cumplimiento de 20% del plan aproximadamente. (Puede presentar un 
+módulo) 
+6. Impacto esperado 
+7. Conclusiones parciales (del 3er avance) 
+8. Referencias 
+B) Sustentación Oral 
+- Tiempo: 20 min exposición, 10 min de preguntas por equipo 
+- Uso de diapositivas 
+- Explicar el plan de trabajo, que componente mostrará en la demo, que 
+tecnologías usará, el impacto esperado, conclusiones preliminares, 
+próximos pasos a seguir. 
+
+===== PAGINA 2 =====
+
+Recomendaciones: 
+- Usar APA en el contenido y referencias 
+- Usar entornos cloud gratuitos o librerías de IA/ML, u otros, si los usara. 
+Asegurar coherencia entre propuesta y tecnología aplicada 
+Evaluación: 
+- 70% exposición y 30% documentación 
+- Se evaluará en conjunto: 
+• Plan de trabajo 
+• Claridad en la propuesta de solución. 
+• Presentación del demo preliminar. 
+ 
+Entregables. 
+- Informe en pdf 
+- Archivo presentación 
+- Archivos relacionados con su plan de trabajo y demo preliminar. 
+ 
+ 
+ 
+ 
+ 
+  

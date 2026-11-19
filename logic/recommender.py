@@ -80,13 +80,13 @@ class RecommenderEngine:
             # ============================================
             
             # Usuario vegano y restaurante no tiene opciones veganas
-            excluido(X, Y) <= (usuario(Y, 'vegano') & ~tiene_opcion_vegana(X))
+            excluido(X, Y) <= (usuario(Y, 'vegano') & ~tiene_opcion_vegana(X, 'si'))
             
             # Usuario vegetariano y restaurante no tiene opciones vegetarianas
-            excluido(X, Y) <= (usuario(Y, 'vegetariano') & ~tiene_opcion_vegetariana(X))
+            excluido(X, Y) <= (usuario(Y, 'vegetariano') & ~tiene_opcion_vegetariana(X, 'si'))
             
             # Usuario celiaco y restaurante no tiene opciones sin gluten
-            excluido(X, Y) <= (usuario(Y, 'celiaco') & ~tiene_opcion_sin_gluten(X))
+            excluido(X, Y) <= (usuario(Y, 'celiaco') & ~tiene_opcion_sin_gluten(X, 'si'))
 
             # ============================================
             # REGLAS DE RECOMENDACIÓN POSITIVA
@@ -155,6 +155,11 @@ class RecommenderEngine:
             tuple: (is_compatible, list_of_justifications)
         """
         with datalog_lock:
+            # pyDatalog stores its database in thread-local state. Flask requests
+            # can run on a different thread from singleton initialization.
+            # Fresh request logic also prevents facts leaking between profiles.
+            pyDatalog.Logic()
+            self._define_rules()
             r_id = restaurant_data.get('id', 0)
             u_id = user_profile.get('id', 999)
             
@@ -235,6 +240,11 @@ class RecommenderEngine:
             dict: Explicación de la recomendación
         """
         with datalog_lock:
+            # pyDatalog stores its database in thread-local state. Flask requests
+            # can run on a different thread from singleton initialization.
+            # Fresh request logic also prevents facts leaking between profiles.
+            pyDatalog.Logic()
+            self._define_rules()
             r_id = restaurant_data.get('id', 0)
             u_id = user_profile.get('id', 999)
             

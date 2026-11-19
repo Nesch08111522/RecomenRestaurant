@@ -1,10 +1,10 @@
 {# Experiencia de autenticación compartida: login + registro en un solo escenario.
    auth_mode: 'login' | 'register' (definido por la plantilla que incluye). #}
+{% from 'partials/layouts.html' import SplitScreen with context %}
 {% set is_login = auth_mode == 'login' %}
-<section class="ax-stage" id="ax-stage" data-mode="{{ auth_mode }}"
-         data-login-url="{{ url_for('auth.login') }}" data-register-url="{{ url_for('auth.register') }}">
+{% call SplitScreen(ratio='40-60', visual_side='left', stack='visual-first', class_name='ax-stage layout-split-screen', label='Acceso a SmartResto', tag='section', id='ax-stage', mode=auth_mode, login_url=url_for('auth.login'), register_url=url_for('auth.register')) %}
 
-  <div class="ax-forms">
+  <div class="ax-forms" data-layout-side="content">
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
         <div class="ax-flashes" role="status" aria-live="polite">
@@ -79,7 +79,7 @@
           </form>
 
           <p class="ax-switch">¿No tienes cuenta?
-            <a href="{{ url_for('auth.register') }}" data-ax-switch="register">Crear cuenta</a>
+            <a href="{{ url_for('auth.register',next=request.args.get('next')) }}" data-ax-switch="register">Crear cuenta</a>
           </p>
         </div>
       </div>
@@ -186,7 +186,7 @@
           </form>
 
           <p class="ax-switch">¿Ya tienes cuenta?
-            <a href="{{ url_for('auth.login') }}" data-ax-switch="login">Iniciar sesión</a>
+            <a href="{{ url_for('auth.login',next=request.args.get('next')) }}" data-ax-switch="login">Iniciar sesión</a>
           </p>
         </div>
       </div>
@@ -196,4 +196,4 @@
   <!-- PANEL VISUAL 3D · soft realism con la paleta del sitio -->
   {% set scene_view = auth_mode %}
   {% include 'auth/food_panel.html' %}
-</section>
+{% endcall %}

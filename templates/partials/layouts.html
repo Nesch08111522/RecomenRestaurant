@@ -1,0 +1,20 @@
+{# Shared layout primitives. Keep content in the caller block; layout only controls composition. #}
+{% macro BentoGrid(columns=4, gap='md', class_name='', label='') -%}
+<div class="layout-bento layout-gap-{{ gap }} {{ class_name }}" data-layout="bento" data-layout-reveal style="--layout-columns:{{ columns }}"{% if label %} role="group" aria-label="{{ label }}"{% endif %}>{{ caller() }}</div>
+{%- endmacro %}
+
+{% macro SplitScreen(ratio='50-50', visual_side='right', stack='visual-first', class_name='', label='', tag='div', id='', mode='', login_url='', register_url='') -%}
+<{{ tag }} class="layout-split layout-split-{{ ratio }} layout-visual-{{ visual_side }} layout-stack-{{ stack }} {{ class_name }}" data-layout="split-screen" data-layout-reveal{% if id %} id="{{ id }}"{% endif %}{% if mode %} data-mode="{{ mode }}"{% endif %}{% if login_url %} data-login-url="{{ login_url }}"{% endif %}{% if register_url %} data-register-url="{{ register_url }}"{% endif %}{% if label %} role="group" aria-label="{{ label }}"{% endif %}>{{ caller() }}</{{ tag }}>
+{%- endmacro %}
+
+{% macro MasonryGrid(columns=3, gap='md', class_name='', label='') -%}
+<div class="layout-masonry layout-gap-{{ gap }} {{ class_name }}" data-layout="masonry" data-layout-reveal style="--layout-columns:{{ columns }}"{% if label %} role="region" aria-label="{{ label }}"{% endif %}>{{ caller() }}</div>
+{%- endmacro %}
+
+{% macro FullBleedSection(class_name='', label='', id='') -%}
+<section class="layout-full-bleed {{ class_name }}" data-layout="full-bleed" data-layout-reveal{% if label %} aria-label="{{ label }}"{% endif %}{% if id %} id="{{ id }}"{% endif %}>{{ caller() }}</section>
+{%- endmacro %}
+
+{% macro EditorialLayout(class_name='', label='') -%}
+<div class="layout-editorial {{ class_name }}" data-layout="editorial" data-layout-reveal{% if label %} role="group" aria-label="{{ label }}"{% endif %}>{{ caller() }}</div>
+{%- endmacro %}

@@ -39,6 +39,11 @@ class Config:
     DATA_BACKEND = os.environ.get("DATA_BACKEND", "postgresql").lower()
     DATABASE_URL = os.environ.get("DATABASE_URL")
     DATABASE_SSLMODE = os.environ.get("DATABASE_SSLMODE", "require").lower()
+    DATABASE_POOL_MAX = int(os.environ.get("DATABASE_POOL_MAX", "4"))
+    DATABASE_POOL_TIMEOUT = float(os.environ.get("DATABASE_POOL_TIMEOUT", "5"))
+    DATABASE_CONNECT_TIMEOUT = int(os.environ.get("DATABASE_CONNECT_TIMEOUT", "5"))
+    DATABASE_STATEMENT_TIMEOUT_MS = int(os.environ.get("DATABASE_STATEMENT_TIMEOUT_MS", "8000"))
+    DATABASE_LOCK_TIMEOUT_MS = int(os.environ.get("DATABASE_LOCK_TIMEOUT_MS", "2000"))
 
     @classmethod
     def validate(cls):

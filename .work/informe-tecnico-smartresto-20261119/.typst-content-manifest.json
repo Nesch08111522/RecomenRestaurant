@@ -1,0 +1,17 @@
+{
+  "task_kind": "new-document",
+  "output": "pdf",
+  "signals": ["academic technical report", "APA 7", "Spanish"],
+  "hard_constraints": [
+    "PDF deliverable for APF3",
+    "more than 60 pages",
+    "document SmartResto using repository and supplied reports",
+    "map technology to actual module, code location, and visible behavior",
+    "distinguish implemented, partial, planned, tested, and unverified"
+  ],
+  "content_features": {
+    "code_blocks": 6,
+    "defined_terms": 36,
+    "portrait_images": 0
+  }
+}

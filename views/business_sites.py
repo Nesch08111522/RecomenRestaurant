@@ -114,7 +114,8 @@ def media(media_id):
     if not item:abort(404)
     path=f'/portal-media/{media_id}'
     user=fresh_session_user()
-    permitted=user and user['id']==item['owner_id']
+    permitted=user and (user['id']==item['owner_id'] or user.get('role')=='admin')
+    if item.get('review_state')=='rejected' and not permitted:abort(404)
     if not permitted:
         row=service.find_site(item['restaurant_id']);restaurant=RestaurantModel.get_by_id(item['restaurant_id'])
         published=(row or {}).get('published') or {}
@@ -198,6 +199,9 @@ def public_page(slug):
     restaurant=RestaurantModel.get_by_id(row['restaurant_id']) if row else None
     if not visible_restaurant(restaurant):abort(404)
     if row.get('owner_id')!=restaurant.get('owner_id'):abort(404)
+    from models.site_telemetry import view
+    try:view(restaurant['id'])
+    except Exception:current_app.logger.warning('Site telemetry unavailable')
     return render_site(row['published'],restaurant)
 
 

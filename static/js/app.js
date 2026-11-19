@@ -6,7 +6,7 @@ class AppController {
             currentView: 'grid',
             favorites: [],
             user: null,
-            theme: document.documentElement.dataset.theme || 'light'
+            theme: document.documentElement.dataset.theme || 'dark'
         };
 
         this.elements = {};
@@ -40,14 +40,9 @@ class AppController {
 
         this.loadRestaurants();
 
-        this.applyTheme();
     }
 
     loadState() {
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme) {
-            this.state.theme = savedTheme;
-        }
 
         const savedFavorites = localStorage.getItem('favorites');
         if (savedFavorites) {
@@ -65,14 +60,11 @@ class AppController {
     }
 
     saveState() {
-        localStorage.setItem('theme', this.state.theme);
         localStorage.setItem('favorites', JSON.stringify(this.state.favorites));
     }
 
     bindEvents() {
-        this.elements.themeToggle?.addEventListener('click', () => {
-            this.toggleTheme();
-        });
+
 
         this.elements.locationBtn?.addEventListener('click', () => {
             console.log('🟢 Botón de ubicación clickeado');
@@ -205,16 +197,16 @@ class AppController {
         style.id = 'rc-card-styles';
         style.textContent = `
             .restaurant-card.rc {
-                background: var(--white, #fff);
-                border: 1px solid rgba(17, 24, 39, 0.06);
+                background: var(--theme-surface);
+                border: 1px solid var(--theme-border);
                 border-radius: 18px;
                 overflow: hidden;
-                box-shadow: 0 2px 10px rgba(17, 24, 39, 0.06);
+                box-shadow: 0 2px 10px var(--theme-shadow);
                 transition: transform .25s ease, box-shadow .25s ease;
             }
             .restaurant-card.rc:hover {
                 transform: translateY(-5px);
-                box-shadow: 0 14px 30px rgba(17, 24, 39, 0.14);
+                box-shadow: 0 14px 30px var(--theme-shadow);
             }
 
             .restaurant-card.rc .card-image img { transition: transform .5s ease; }
@@ -224,7 +216,7 @@ class AppController {
                 content: '';
                 position: absolute;
                 inset: 0;
-                background: linear-gradient(180deg, rgba(0,0,0,.30) 0%, rgba(0,0,0,0) 38%);
+                background: linear-gradient(180deg, var(--theme-surface) 0%, var(--theme-surface) 38%);
                 pointer-events: none;
                 z-index: 1;
             }
@@ -236,31 +228,31 @@ class AppController {
                 z-index: 3;
                 display: flex;
                 flex-wrap: wrap;
-                gap: 6px;
+                gap:var(--space-xs);
                 max-width: calc(100% - 66px);
                 background: none !important;
-                padding: 0 !important;
+                padding:0 !important;
             }
             .restaurant-card.rc .rc-badge {
                 position: static !important;
                 display: inline-flex !important;
                 align-items: center;
-                gap: 5px;
-                padding: 5px 11px !important;
+                gap:var(--space-xs);
+                padding:var(--space-xs) var(--space-sm) !important;
                 border-radius: 999px !important;
-                font-size: 12px;
+                font-size:var(--text-xs);
                 font-weight: 700;
                 line-height: 1.2;
                 white-space: nowrap;
-                box-shadow: 0 2px 8px rgba(0,0,0,.18);
+                box-shadow: 0 2px 8px var(--theme-shadow);
             }
             .restaurant-card.rc .rc-badge-promo {
-                background: linear-gradient(135deg, var(--primary, #ff385c), #ff6b81) !important;
-                color: #fff !important;
+                background: linear-gradient(135deg, var(--theme-accent-bg), var(--theme-danger-bg)) !important;
+                color: var(--theme-text) !important;
             }
             .restaurant-card.rc .rc-badge-top {
-                background: linear-gradient(135deg, #ffc107, #ff9800) !important;
-                color: #3b2a00 !important;
+                background: linear-gradient(135deg, var(--theme-warning-bg), var(--theme-warning-bg)) !important;
+                color: var(--theme-warning) !important;
             }
 
             .restaurant-card.rc .fav-btn {
@@ -273,38 +265,38 @@ class AppController {
                 display: flex !important;
                 align-items: center;
                 justify-content: center;
-                padding: 0;
+                padding:0;
                 border: none;
                 border-radius: 50% !important;
-                background: rgba(255,255,255,.95) !important;
-                box-shadow: 0 3px 10px rgba(0,0,0,.22);
+                background: var(--theme-surface) !important;
+                box-shadow: 0 3px 10px var(--theme-shadow);
                 cursor: pointer;
                 transition: transform .2s ease, box-shadow .2s ease;
             }
             .restaurant-card.rc .fav-btn i {
-                color: #e11d48 !important;
-                font-size: 17px;
+                color: var(--theme-danger) !important;
+                font-size:var(--text-base);
             }
             .restaurant-card.rc .fav-btn:hover {
                 transform: scale(1.12);
-                box-shadow: 0 5px 14px rgba(225, 29, 72, .35);
+                box-shadow: 0 5px 14px var(--theme-shadow);
             }
 
-            .restaurant-card.rc .card-content { padding: 18px 18px 16px; }
+            .restaurant-card.rc .card-content { padding:var(--space-md) var(--space-md) var(--space-md); }
 
             .restaurant-card.rc .card-header {
                 display: flex;
                 justify-content: space-between;
                 align-items: flex-start;
-                gap: 10px;
+                gap:var(--space-sm);
                 margin-bottom: 8px;
             }
             .restaurant-card.rc .card-header h3 {
                 margin: 0;
-                font-size: 17px;
+                font-size:var(--text-base);
                 font-weight: 700;
                 line-height: 1.3;
-                color: var(--dark, #111827);
+                color: var(--dark, var(--theme-info));
                 display: -webkit-box;
                 -webkit-line-clamp: 2;
                 -webkit-box-orient: vertical;
@@ -313,77 +305,77 @@ class AppController {
             .restaurant-card.rc .rating {
                 display: inline-flex;
                 align-items: center;
-                gap: 4px;
+                gap:var(--space-xs);
                 flex-shrink: 0;
-                padding: 3px 9px;
+                padding:0.1875rem var(--space-sm);
                 border-radius: 999px;
-                background: #fff7e0;
-                font-size: 13px;
+                background: var(--theme-surface);
+                font-size:var(--text-sm);
                 font-weight: 700;
-                color: #7a5800;
+                color: var(--theme-warning);
             }
-            .restaurant-card.rc .rating i { color: #ffb800; font-size: 12px; }
+            .restaurant-card.rc .rating i { color: var(--theme-warning); font-size:var(--text-xs); }
 
             .restaurant-card.rc .card-location {
                 display: flex;
                 align-items: center;
                 flex-wrap: wrap;
-                gap: 6px;
+                gap:var(--space-xs);
                 margin-bottom: 12px;
-                font-size: 13.5px;
-                color: var(--gray, #6b7280);
+                font-size:var(--text-sm);
+                color: var(--theme-text);
             }
-            .restaurant-card.rc .card-location i { color: var(--primary, #ff385c); }
+            .restaurant-card.rc .card-location i { color: var(--primary, var(--theme-danger)); }
             .restaurant-card.rc .card-location .distance { font-weight: 600; }
 
             .restaurant-card.rc .card-price {
                 display: flex;
                 align-items: baseline;
-                gap: 6px;
+                gap:var(--space-xs);
                 margin-bottom: 14px;
             }
             .restaurant-card.rc .card-price .price {
-                font-size: 20px;
+                font-size:var(--text-lg);
                 font-weight: 800;
-                color: var(--dark, #111827);
+                color: var(--dark, var(--theme-info));
             }
             .restaurant-card.rc .card-price .price-label {
-                font-size: 13px;
-                color: var(--gray, #6b7280);
+                font-size:var(--text-sm);
+                color: var(--theme-text);
             }
 
             .restaurant-card.rc .card-tags {
                 display: flex;
                 flex-wrap: wrap;
-                gap: 8px;
+                gap:var(--space-sm);
                 margin-bottom: 14px;
             }
             .restaurant-card.rc .card-tags .tag {
-                padding: 5px 12px;
+                padding:var(--space-xs) var(--space-sm);
                 border-radius: 999px;
-                background: #f3f4f6;
-                font-size: 12px;
+                background: var(--theme-surface);
+                font-size:var(--text-xs);
                 font-weight: 500;
-                color: #4b5563;
+                color: var(--theme-text);
                 text-transform: capitalize;
             }
 
             .restaurant-card.rc .ia-justification {
                 display: flex;
                 align-items: flex-start;
-                gap: 8px;
+                gap:var(--space-sm);
                 margin-bottom: 14px;
-                padding: 10px 12px;
+                padding:var(--space-sm) var(--space-sm);
                 border-radius: 12px;
-                background: #fff1f3;
-                border-left: 3px solid var(--primary, #ff385c);
-                font-size: 12.5px;
+                background: var(--theme-surface);
+                border-left: 3px solid var(--primary, var(--theme-border));
+                font-size:var(--text-sm);
                 line-height: 1.45;
-                color: #4b5563;
+                color: var(--theme-text);
             }
             .restaurant-card.rc .ia-justification i {
                 margin-top: 2px;
-                color: var(--primary, #ff385c);
+                color: var(--primary, var(--theme-danger));
             }
 
             .restaurant-card.rc .card-link {
@@ -391,11 +383,11 @@ class AppController {
                 align-items: center;
                 justify-content: space-between;
                 margin-top: 4px;
-                padding-top: 14px;
-                border-top: 1px solid #f0f0f0;
-                font-size: 14px;
+                padding-top:var(--space-md);
+                border-top: 1px solid var(--theme-border);
+                font-size:var(--text-sm);
                 font-weight: 600;
-                color: var(--primary, #ff385c);
+                color: var(--primary, var(--theme-danger));
                 text-decoration: none;
             }
             .restaurant-card.rc .card-link i { transition: transform .2s ease; }
@@ -681,22 +673,6 @@ class AppController {
         }
     }
 
-    toggleTheme() {
-        this.state.theme = this.state.theme === 'light' ? 'dark' : 'light';
-        this.applyTheme();
-        this.saveState();
-    }
-
-    applyTheme() {
-        const isDark = this.state.theme === 'dark';
-        document.documentElement.dataset.theme = this.state.theme;
-        if (this.elements.themeToggle) {
-            this.elements.themeToggle.textContent = isDark ? '☀' : '◐';
-            this.elements.themeToggle.setAttribute('aria-label', isDark ? 'Activar tema claro' : 'Activar tema oscuro');
-            this.elements.themeToggle.setAttribute('aria-pressed', String(isDark));
-        }
-    }
-
     openRecommendationModal() {
         const modal = this.elements.recommendationModal;
         if (modal) {
@@ -977,7 +953,7 @@ class AppController {
             const list = document.getElementById('notificationList');
             if (list) {
                 list.innerHTML = `
-                    <div class="notification-empty" style="color: #dc2626;">
+                    <div class="notification-empty" style="color: var(--theme-danger);">
                         <i class="fas fa-exclamation-circle"></i>
                         Error al cargar notificaciones
                     </div>

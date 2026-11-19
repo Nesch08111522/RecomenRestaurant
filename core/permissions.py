@@ -15,31 +15,35 @@ _PERMISSIONS: dict[str, FrozenSet[str]] = {
     "diner": frozenset({
         "profile.read", "profile.update", "preferences.update", "favorites.manage",
         "orders.read.own", "reviews.create.own", "notifications.manage.own",
-        "location.consent.manage", "rewards.read.own",
+        "location.consent.manage", "rewards.read.own", "table.session.own",
     }),
     "business_owner": frozenset({
         "profile.read", "profile.update", "preferences.update", "business.manage",
         "branch.manage", "catalog.manage", "orders.read.business", "staff.invite",
         "staff.manage", "analytics.read.business", "audit.read.business",
         "notifications.manage.business", "rewards.manage.business",
+        "tables.manage", "tables.service", "flow.manage", "loyalty.manage.business",
     }),
     "business_admin": frozenset({
         "profile.read", "profile.update", "business.read", "branch.manage",
         "catalog.manage", "orders.read.business", "staff.invite", "staff.manage",
         "analytics.read.business", "notifications.manage.business",
+        "tables.manage", "tables.service", "flow.manage",
     }),
     "manager": frozenset({
         "profile.read", "profile.update", "branch.read", "catalog.manage",
         "orders.read.business", "staff.invite", "analytics.read.business",
+        "tables.service", "flow.manage",
     }),
-    "cashier": frozenset({"profile.read", "profile.update", "branch.read", "orders.read.business"}),
-    "waiter": frozenset({"profile.read", "profile.update", "branch.read", "orders.read.business"}),
+    "cashier": frozenset({"profile.read", "profile.update", "branch.read", "orders.read.business", "tables.service"}),
+    "waiter": frozenset({"profile.read", "profile.update", "branch.read", "orders.read.business", "tables.service"}),
     "kitchen": frozenset({"profile.read", "profile.update", "branch.read", "orders.read.business"}),
     "admin": frozenset({
         "profile.read", "profile.update", "business.manage", "branch.manage",
         "catalog.manage", "platform.users.manage", "platform.roles.manage",
         "platform.verification.manage", "platform.moderation.manage",
         "platform.audit.read", "platform.settings.manage", "analytics.read.platform",
+        "tables.manage", "tables.service", "flow.manage", "loyalty.manage.business",
     }),
 }
 

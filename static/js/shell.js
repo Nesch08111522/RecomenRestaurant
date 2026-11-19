@@ -1,10 +1,11 @@
 (() => {
     const root = document.documentElement;
-    root.classList.add('sr-compact');
     try {
-        const saved = localStorage.getItem('theme');
-        root.dataset.theme = ['dark', 'light'].includes(saved) ? saved : 'dark';
-    } catch { root.dataset.theme = 'dark'; }
+        if (localStorage.getItem('sr-sidebar-state') === 'expanded') root.classList.remove('sr-compact');
+        else root.classList.add('sr-compact');
+    } catch {
+        root.classList.add('sr-compact');
+    }
 
     document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.filter-chip').forEach(chip => {
@@ -22,13 +23,14 @@
             form.addEventListener('change', updateFilterCount);
             updateFilterCount();
         });
+
         // Touch, wheel and keyboard keep their native scrolling behaviour.
         let drag;
         let suppressClick = false;
         document.addEventListener('pointerdown', event => {
             suppressClick = false;
             if (!(event.target instanceof Element) || event.pointerType !== 'mouse' || event.button !== 0 || event.shiftKey ||
-                event.target.closest('input,textarea,select,button,[contenteditable=true],.map-container,.leaflet-container,.maplibregl-map')) return;
+                event.target.closest('input,textarea,select,button,summary,[contenteditable=true],.map-container,.leaflet-container,.maplibregl-map')) return;
             const candidates = [];
             for (let el = event.target; el && el !== document.documentElement; el = el.parentElement) {
                 const css = getComputedStyle(el);
@@ -67,6 +69,7 @@
             if (suppressClick && event.detail) { event.preventDefault(); event.stopImmediatePropagation(); }
             suppressClick = false;
         }, true);
+
         const counters = document.querySelector('[data-counts-url]');
         if (counters) {
             async function refresh() {
@@ -87,56 +90,117 @@
             document.addEventListener('visibilitychange', refresh);
             window.addEventListener('pagehide', () => clearInterval(timer), {once:true});
         }
+
+        // ===== MENÚ / DRAWER =====
         const menu = document.getElementById('sr-navigation');
         const trigger = document.querySelector('.sr-menu-button');
         const backdrop = document.querySelector('.sr-backdrop');
         const collapse = document.querySelector('.sr-collapse');
-        const wide = matchMedia('(min-width: 1100px)');
-        const isDesktopPanel = () => wide.matches;
-        function drawer(open, restoreFocus = true) {
-            root.classList.toggle('sr-drawer-open', open);
-            backdrop.hidden = !open;
-            updateCollapse();
-            trigger.setAttribute('aria-expanded', String(open));
-            trigger.setAttribute('aria-label', open ? 'Cerrar navegación' : 'Abrir navegación');
-            const areas = document.querySelectorAll('.sr-header, #main-content, .sr-footer, .sr-mobile-nav');
-            areas.forEach(area => { area.inert = open; });
-            if (open) {
-                menu.setAttribute('role', 'dialog');
-                menu.setAttribute('aria-modal', 'true');
-                collapse.focus();
-            } else {
-                menu.removeAttribute('role');
-                menu.removeAttribute('aria-modal');
-                if (restoreFocus) trigger.focus();
-            }
+
+        // Si la página no tiene menú (login sin header, etc.) no seguimos.
+        if (!menu || !trigger || !backdrop) {
+            return;
         }
+
+        const wide = matchMedia('(min-width: 1100px)');
+        const isDesktopPanel = () => wide.matches && menu.classList.contains('sr-sidebar');
+
         function updateCollapse() {
-            const compact = root.classList.contains('sr-compact');
-            const label = isDesktopPanel() ? (compact ? 'Expandir menú' : 'Contraer menú') : 'Cerrar menú';
+            if (!collapse) return;
+            const compact = root.classList.contains('sr-compact') && !root.classList.contains('sr-nav-preview');
+            const label = isDesktopPanel() ? (root.classList.contains('sr-compact') ? (compact ? 'Expandir menú' : 'Fijar menú abierto') : 'Contraer menú') : 'Cerrar menú';
             collapse.setAttribute('aria-controls', 'sr-navigation');
             collapse.setAttribute('aria-expanded', String(isDesktopPanel() ? !compact : root.classList.contains('sr-drawer-open')));
             collapse.title = label;
             collapse.setAttribute('aria-label', label);
             collapse.textContent = isDesktopPanel() ? (compact ? '⇥' : '⇤') : '×';
         }
-        trigger.addEventListener('click', () => drawer(true));
-        backdrop.addEventListener('click', () => drawer(false));
-        collapse.addEventListener('click', () => {
-            if (!isDesktopPanel()) return drawer(false);
-            root.classList.toggle('sr-compact');
+
+        function drawer(open, restoreFocus = true) {
+            root.classList.toggle('sr-drawer-open', open);
+            backdrop.hidden = !open;
             updateCollapse();
+            trigger.setAttribute('aria-expanded', String(open));
+            trigger.setAttribute('aria-label', open ? 'Cerrar navegación' : 'Abrir navegación');
+
+            // NO inertizar .sr-header: contiene el propio botón hamburguesa.
+            const areas = document.querySelectorAll('#main-content, .sr-footer, .sr-mobile-nav');
+            areas.forEach(area => { area.inert = open; });
+
+            if (open) {
+                menu.setAttribute('role', 'dialog');
+                menu.setAttribute('aria-modal', 'true');
+                (collapse || menu).focus();
+            } else {
+                menu.removeAttribute('role');
+                menu.removeAttribute('aria-modal');
+                if (restoreFocus) trigger.focus();
+            }
+        }
+
+        // ── FIX CLAVE: toggle real en lugar de abrir siempre ──
+        trigger.addEventListener('click', () => {
+            const isOpen = root.classList.contains('sr-drawer-open');
+            drawer(!isOpen);
         });
-        wide.addEventListener('change', () => { drawer(false, false); updateCollapse(); });
+        backdrop.addEventListener('click', () => drawer(false));
+
+        if (collapse) {
+            collapse.addEventListener('click', () => {
+                if (!isDesktopPanel()) return drawer(false);
+                root.classList.toggle('sr-compact');
+                try { localStorage.setItem('sr-sidebar-state', root.classList.contains('sr-compact') ? 'collapsed' : 'expanded'); } catch { /* The current view still works without storage. */ }
+                updateCollapse();
+            });
+        }
+
+        document.addEventListener('keydown', event => {
+            if (!(event.ctrlKey || event.metaKey) || event.altKey || event.key.toLowerCase() !== 'b') return;
+            event.preventDefault();
+            if (!isDesktopPanel()) return drawer(!root.classList.contains('sr-drawer-open'));
+            root.classList.toggle('sr-compact');
+            try { localStorage.setItem('sr-sidebar-state', root.classList.contains('sr-compact') ? 'collapsed' : 'expanded'); } catch { /* The current view still works without storage. */ }
+            updatePreview();
+        });
+
+        // Preview overlays the compact rail without shifting the page layout.
+        let pointerInside = false;
+        function updatePreview() {
+            const keyboardInside = Boolean(menu.querySelector(':focus-visible'));
+            root.classList.toggle('sr-nav-preview', isDesktopPanel() && (pointerInside || keyboardInside));
+            updateCollapse();
+        }
+        menu.addEventListener('pointerenter', event => {
+            if (event.pointerType !== 'mouse') return;
+            pointerInside = true;
+            updatePreview();
+        });
+        menu.addEventListener('pointerleave', () => {
+            pointerInside = false;
+            updatePreview();
+        });
+        menu.addEventListener('focusin', updatePreview);
+        menu.addEventListener('focusout', () => requestAnimationFrame(updatePreview));
+        wide.addEventListener('change', () => {
+            pointerInside = false;
+            drawer(false, false);
+            updatePreview();
+        });
+
+        // ── FIX CLAVE: el drawer SIEMPRE arranca cerrado ──
+        drawer(false, false);
         updateCollapse();
+
         document.addEventListener('keydown', event => {
             if (!root.classList.contains('sr-drawer-open')) return;
             if (event.key === 'Escape') return drawer(false);
             if (event.key !== 'Tab') return;
-            const items = [...menu.querySelectorAll('button, a[href]')];
+            const items = [...menu.querySelectorAll('button, a[href], summary')].filter(item => item.getClientRects().length);
+            if (!items.length) return;
             if (event.shiftKey && document.activeElement === items[0]) { event.preventDefault(); items.at(-1).focus(); }
             if (!event.shiftKey && document.activeElement === items.at(-1)) { event.preventDefault(); items[0].focus(); }
         });
+
         const toggle = document.querySelector('#recommendationBtn');
         const modal = document.querySelector('#recommendationModal');
         if (toggle && modal && !document.body.classList.contains('sr-discover')) {

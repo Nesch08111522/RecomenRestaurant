@@ -90,7 +90,8 @@
                                 data-id="{{ user.id }}"
                                 data-name="{{ user.profile.name or '' }}"
                                 data-email="{{ user.profile.email or '' }}"
-                                data-role="{{ user.role }}">
+                                data-role="{{ user.role }}"
+                                data-status="{{ user.status or 'ACTIVE' }}">
                             <i class="fas fa-edit"></i>
                         </button>
                         {% if user.role != 'admin' %}
@@ -135,18 +136,12 @@
             </select>
         </div>
         <div class="um-field">
-            <label for="edit-password">Nueva contraseña <span class="um-muted um-small">(opcional)</span></label>
-            <div class="um-pass-wrap">
-                <input type="password" id="edit-password" minlength="8" autocomplete="new-password"
-                       placeholder="Déjalo vacío para no cambiarla">
-                <button type="button" class="um-pass-toggle" id="pass-toggle" aria-label="Mostrar contraseña">
-                    <i class="fas fa-eye"></i>
-                </button>
-            </div>
-        </div>
-        <div class="um-field">
-            <label for="edit-password2">Confirmar contraseña</label>
-            <input type="password" id="edit-password2" autocomplete="new-password">
+            <label for="edit-status">Estado</label>
+            <select id="edit-status">
+                <option value="ACTIVE">Activo</option>
+                <option value="SUSPENDED">Suspendido</option>
+                <option value="PENDING">Pendiente</option>
+            </select>
         </div>
         <div class="um-modal-actions">
             <button class="um-btn um-btn-ghost" id="edit-cancel">Cancelar</button>
@@ -161,140 +156,140 @@
 {# Estilos #}
 <style>
     :root {
-        --a-gray: var(--gray, #6b7280);
-        --a-white: var(--white, #fff);
-        --a-border: var(--light-gray, #e5e7eb);
+        --a-gray: var(--theme-muted);
+        --a-white: var(--theme-surface);
+        --a-border: var(--theme-border);
         --a-radius: var(--radius, 12px);
         --a-radius-sm: var(--radius-sm, 8px);
-        --a-shadow: var(--shadow, 0 1px 3px rgba(0,0,0,.1));
+        --a-shadow: var(--shadow, 0 1px 3px var(--theme-shadow));
         --a-transition: var(--transition, all .2s ease);
     }
 
-    .admin-container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
+    .admin-container { max-width: 1200px; margin: 40px auto; padding:0 var(--space-md); }
 
     .admin-header {
         display: flex; justify-content: space-between; align-items: flex-end;
-        flex-wrap: wrap; gap: 16px; margin-bottom: 24px;
+        flex-wrap: wrap; gap:var(--space-md); margin-bottom: 24px;
     }
-    .admin-header h1 { font-size: 28px; font-weight: 700; }
-    .admin-header p { color: var(--a-gray); }
+    .admin-header h1 { font-size:var(--text-2xl); font-weight: 700; }
+    .admin-header p { color: var(--theme-text); }
 
-    .um-stats { display: flex; gap: 12px; }
+    .um-stats { display: flex; gap:var(--space-sm); }
     .um-stat {
-        background: var(--a-white); border-radius: var(--a-radius); box-shadow: var(--a-shadow);
-        padding: 10px 18px; text-align: center; min-width: 90px;
+        background: var(--theme-surface); border-radius: var(--a-radius); box-shadow: var(--a-shadow);
+        padding:var(--space-sm) var(--space-md); text-align: center; min-width: 90px;
     }
-    .um-stat-num { display: block; font-size: 22px; font-weight: 700; }
-    .um-stat-label { font-size: 12px; color: var(--a-gray); }
+    .um-stat-num { display: block; font-size:var(--text-xl); font-weight: 700; }
+    .um-stat-label { font-size:var(--text-xs); color: var(--theme-text); }
 
-    .um-toolbar { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+    .um-toolbar { display: flex; gap:var(--space-sm); margin-bottom: 16px; flex-wrap: wrap; }
     .um-search-box { position: relative; flex: 1; min-width: 220px; }
     .um-search-box i {
         position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
-        color: var(--a-gray); pointer-events: none;
+        color: var(--theme-text); pointer-events: none;
     }
     .um-toolbar input, .um-toolbar select, .um-modal input, .um-modal select {
-        width: 100%; padding: 10px 14px; border: 1px solid var(--a-border);
-        border-radius: var(--a-radius-sm); font-size: 14px; background: var(--a-white);
+        width: 100%; padding:var(--space-sm) var(--space-md); border: 1px solid var(--a-border);
+        border-radius: var(--a-radius-sm); font-size:var(--text-sm); background: var(--theme-surface);
         font-family: inherit;
     }
-    .um-search-box input { padding-left: 38px; }
+    .um-search-box input { padding-left:var(--space-xl); }
     .um-toolbar select { width: auto; }
     .um-toolbar input:focus, .um-toolbar select:focus, .um-modal input:focus, .um-modal select:focus {
-        outline: 2px solid #93c5fd; outline-offset: 0;
+        outline: 2px solid var(--theme-info); outline-offset: 0;
     }
 
     .table-container {
-        background: var(--a-white); border-radius: var(--a-radius);
+        background: var(--theme-surface); border-radius: var(--a-radius);
         box-shadow: var(--a-shadow); overflow-x: auto;
     }
-    .admin-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    .admin-table { width: 100%; border-collapse: collapse; font-size:var(--text-sm); }
     .admin-table th {
-        background: #f8f9fa; padding: 12px 16px; text-align: left; font-weight: 600;
+        background: var(--theme-surface); padding:var(--space-sm) var(--space-md); text-align: left; font-weight: 600;
         border-bottom: 2px solid var(--a-border); white-space: nowrap;
     }
-    .admin-table td { padding: 12px 16px; border-bottom: 1px solid var(--a-border); vertical-align: middle; }
+    .admin-table td { padding:var(--space-sm) var(--space-md); border-bottom: 1px solid var(--a-border); vertical-align: middle; }
     .admin-table tbody tr { transition: var(--a-transition); }
-    .admin-table tbody tr:hover { background: #f8f9fa; }
+    .admin-table tbody tr:hover { background: var(--theme-surface); }
     .admin-table tbody tr:last-child td { border-bottom: none; }
     .col-actions { text-align: right; white-space: nowrap; }
 
-    .um-muted { color: var(--a-gray); }
-    .um-small { font-size: 12px; }
+    .um-muted { color: var(--theme-text); }
+    .um-small { font-size:var(--text-xs); }
 
-    .um-user-cell { display: flex; align-items: center; gap: 10px; }
+    .um-user-cell { display: flex; align-items: center; gap:var(--space-sm); }
     .um-avatar {
-        width: 36px; height: 36px; border-radius: 50%; background: #dbeafe; color: #1e40af;
+        width: 36px; height: 36px; border-radius: 50%; background: var(--theme-info-bg); color: var(--theme-info);
         display: inline-flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0;
     }
 
     .role-badge {
-        display: inline-block; padding: 4px 12px; border-radius: 12px;
-        font-size: 12px; font-weight: 600; text-transform: uppercase;
+        display: inline-block; padding:var(--space-xs) var(--space-sm); border-radius: 12px;
+        font-size:var(--text-xs); font-weight: 600; text-transform: uppercase;
     }
-    .role-admin { background: #fef3c7; color: #92400e; }
-    .role-user { background: #dbeafe; color: #1e40af; }
-    .role-owner { background: #dcfce7; color: #166534; }
+    .role-admin { background: var(--theme-warning-bg); color: var(--theme-warning); }
+    .role-user { background: var(--theme-info-bg); color: var(--theme-info); }
+    .role-owner { background: var(--theme-success-bg); color: var(--theme-success); }
 
-    .um-chips { display: flex; flex-wrap: wrap; gap: 4px; }
-    .um-chip { background: #f3f4f6; color: #374151; padding: 2px 10px; border-radius: 10px; font-size: 12px; }
-    .um-chip-more { background: #e5e7eb; cursor: help; }
-    .no-data { color: var(--a-gray); font-size: 13px; }
+    .um-chips { display: flex; flex-wrap: wrap; gap:var(--space-xs); }
+    .um-chip { background: var(--theme-surface); color: var(--theme-text); padding:0.125rem var(--space-sm); border-radius: 10px; font-size:var(--text-xs); }
+    .um-chip-more { background: var(--theme-surface); cursor: help; }
+    .no-data { color: var(--theme-text); font-size:var(--text-sm); }
 
     .action-btn {
         width: 32px; height: 32px; border: none; border-radius: var(--a-radius-sm);
         cursor: pointer; transition: var(--a-transition);
         display: inline-flex; align-items: center; justify-content: center; margin: 0 2px;
     }
-    .action-btn:focus-visible { outline: 2px solid #93c5fd; outline-offset: 2px; }
-    .edit-btn { background: #dbeafe; color: #1e40af; }
-    .edit-btn:hover { background: #bfdbfe; }
-    .delete-btn { background: #fee2e2; color: #991b1b; }
-    .delete-btn:hover { background: #fca5a5; }
+    .action-btn:focus-visible { outline: 2px solid var(--theme-info); outline-offset: 2px; }
+    .edit-btn { background: var(--theme-info-bg); color: var(--theme-info); }
+    .edit-btn:hover { background: var(--theme-info-bg); }
+    .delete-btn { background: var(--theme-surface); color: var(--theme-danger); }
+    .delete-btn:hover { background: var(--theme-danger-bg); }
 
-    .um-empty-state { text-align: center; padding: 48px 16px; color: var(--a-gray); }
-    .um-empty-state i { font-size: 32px; margin-bottom: 8px; }
+    .um-empty-state { text-align: center; padding:var(--space-xl) var(--space-md); color: var(--theme-text); }
+    .um-empty-state i { font-size:var(--text-2xl); margin-bottom: 8px; }
 
     /* Modal */
     .um-modal-backdrop {
-        position: fixed; inset: 0; background: rgba(0,0,0,.45);
-        display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 16px;
+        position: fixed; inset: 0; background: var(--theme-surface);
+        display: flex; align-items: center; justify-content: center; z-index: 1000; padding:var(--space-md);
     }
     .um-modal-backdrop[hidden] { display: none; }
     .um-modal {
-        background: var(--a-white); border-radius: var(--a-radius); padding: 24px;
-        width: 100%; max-width: 420px; box-shadow: 0 10px 30px rgba(0,0,0,.2);
+        background: var(--theme-surface); border-radius: var(--a-radius); padding:var(--space-lg);
+        width: 100%; max-width: 420px; box-shadow: 0 10px 30px var(--theme-shadow);
     }
-    .um-modal h2 { font-size: 20px; margin-bottom: 16px; }
+    .um-modal h2 { font-size:var(--text-lg); margin-bottom: 16px; }
     .um-field { margin-bottom: 14px; }
-    .um-field label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+    .um-field label { display: block; font-size:var(--text-sm); font-weight: 600; margin-bottom: 4px; }
     .um-pass-wrap { position: relative; }
-    .um-pass-wrap input { padding-right: 40px; }
+    .um-pass-wrap input { padding-right:var(--space-xl); }
     .um-pass-toggle {
         position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
-        border: none; background: none; color: var(--a-gray); cursor: pointer; padding: 6px;
+        border: none; background: none; color: var(--theme-text); cursor: pointer; padding:var(--space-xs);
     }
-    .um-modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
-    .um-btn { padding: 10px 18px; border: none; border-radius: var(--a-radius-sm); cursor: pointer; font-weight: 600; font-size: 14px; }
-    .um-btn-primary { background: #2563eb; color: #fff; }
-    .um-btn-primary:hover { background: #1d4ed8; }
+    .um-modal-actions { display: flex; justify-content: flex-end; gap:var(--space-sm); margin-top: 20px; }
+    .um-btn { padding:var(--space-sm) var(--space-md); border: none; border-radius: var(--a-radius-sm); cursor: pointer; font-weight: 600; font-size:var(--text-sm); }
+    .um-btn-primary { background: var(--theme-info-bg); color: var(--theme-text); }
+    .um-btn-primary:hover { background: var(--theme-info-bg); }
     .um-btn-primary:disabled { opacity: .6; cursor: wait; }
-    .um-btn-ghost { background: #f3f4f6; color: #374151; }
-    .um-btn-ghost:hover { background: #e5e7eb; }
+    .um-btn-ghost { background: var(--theme-surface); color: var(--theme-text); }
+    .um-btn-ghost:hover { background: var(--theme-surface); }
 
     /* Toast */
     .um-toast {
-        position: fixed; bottom: 24px; right: 24px; background: #111827; color: #fff;
-        padding: 12px 18px; border-radius: var(--a-radius-sm); font-size: 14px;
+        position: fixed; bottom: 24px; right: 24px; background: var(--theme-info-bg); color: var(--theme-text);
+        padding:var(--space-sm) var(--space-md); border-radius: var(--a-radius-sm); font-size:var(--text-sm);
         opacity: 0; transform: translateY(10px); pointer-events: none;
         transition: var(--a-transition); z-index: 1100;
     }
     .um-toast.show { opacity: 1; transform: translateY(0); }
-    .um-toast.error { background: #991b1b; }
+    .um-toast.error { background: var(--theme-danger-bg); }
 
     @media (max-width: 768px) {
-        .admin-table { font-size: 12px; }
-        .admin-table th, .admin-table td { padding: 8px 10px; }
+        .admin-table { font-size:var(--text-xs); }
+        .admin-table th, .admin-table td { padding:var(--space-sm) var(--space-sm); }
         .um-avatar { display: none; }
     }
 </style>
@@ -382,8 +377,7 @@
     const fName = document.getElementById('edit-name');
     const fEmail = document.getElementById('edit-email');
     const fRole = document.getElementById('edit-role');
-    const fPass = document.getElementById('edit-password');
-    const fPass2 = document.getElementById('edit-password2');
+    const fStatus = document.getElementById('edit-status');
     const saveBtn = document.getElementById('edit-save');
     let editingRow = null;
 
@@ -392,9 +386,7 @@
         fName.value = btn.dataset.name;
         fEmail.value = btn.dataset.email;
         fRole.value = btn.dataset.role;
-        fPass.value = '';
-        fPass2.value = '';
-        fPass.type = 'password';
+        fStatus.value = (btn.dataset.status || 'ACTIVE').toUpperCase();
         modal.hidden = false;
         fName.focus();
     }
@@ -404,24 +396,15 @@
     modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
     document.addEventListener('keydown', e => { if (e.key === 'Escape' && !modal.hidden) closeModal(); });
 
-    document.getElementById('pass-toggle').addEventListener('click', () => {
-        fPass.type = fPass.type === 'password' ? 'text' : 'password';
-    });
-
     saveBtn.addEventListener('click', async () => {
         if (!editingRow) return;
         const id = editingRow.dataset.id;
-        const payload = { name: fName.value.trim(), email: fEmail.value.trim(), role: fRole.value };
-        if (!payload.email || !fEmail.checkValidity()) { toast('Ingresa un email válido', true); return; }
-        if (fPass.value) {
-            if (fPass.value.length < 8) { toast('La contraseña debe tener al menos 8 caracteres', true); return; }
-            if (fPass.value !== fPass2.value) { toast('Las contraseñas no coinciden', true); return; }
-            payload.password = fPass.value;   // solo se envía si se escribió una nueva
-        }
+        const payload = { profile: { name: fName.value.trim(), email: fEmail.value.trim() }, role: fRole.value, status: fStatus.value };
+        if (!payload.profile.email || !fEmail.checkValidity()) { toast('Ingresa un email válido', true); return; }
 
         saveBtn.disabled = true;
         try {
-            // Requiere un endpoint PUT /admin/user/<id> en el backend
+            // El endpoint valida el perfil, el rol y el estado en el servidor.
             await request(`/admin/user/${id}`, 'PUT', payload);
             toast('Usuario actualizado');
             setTimeout(() => location.reload(), 600);

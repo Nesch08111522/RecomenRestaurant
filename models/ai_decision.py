@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 import json
-from database.connection import connection
+from database.connection import connection, transaction_limits
 
 
 class AIDecisionModel:
@@ -23,6 +23,7 @@ class AIDecisionModel:
         error_codigo=None,
     ):
         with connection() as conn:
+            transaction_limits(conn)
             with conn.cursor() as cur:
                 cur.execute(
                     """INSERT INTO public.ai_decisions
@@ -55,6 +56,7 @@ class AIDecisionModel:
     @staticmethod
     def find_recent(*, actor_user_id, tipo, entrada_hash, model, seconds=600):
         with connection() as conn, conn.cursor() as cur:
+            transaction_limits(conn)
             cur.execute(
                 """SELECT id,salida_ia,modelo,confianza FROM public.ai_decisions
                 WHERE actor_user_id=%s AND tipo=%s AND entrada_hash=%s AND modelo=%s
@@ -68,6 +70,7 @@ class AIDecisionModel:
     def reserve(*, actor_user_id, tipo, entrada_hash, limit=10):
         """Reserva una solicitud de manera atómica por administrador y minuto."""
         with connection() as conn:
+            transaction_limits(conn)
             with conn.cursor() as cur:
                 cur.execute(
                     "SELECT pg_advisory_xact_lock(%s,%s)", (74931, actor_user_id)
@@ -103,6 +106,7 @@ class AIDecisionModel:
         error_codigo=None,
     ):
         with connection() as conn:
+            transaction_limits(conn)
             with conn.cursor() as cur:
                 cur.execute(
                     """UPDATE public.ai_decisions SET estado=%s,entrada_resumida=%s::jsonb,

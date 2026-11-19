@@ -1,0 +1,17 @@
+{
+  "indexes": [
+    {
+      "index_name": "trust_anchors_review_kind",
+      "indisvalid": true,
+      "indisready": true,
+      "indisunique": true,
+      "definition": "CREATE UNIQUE INDEX trust_anchors_review_kind ON public.app_records USING btree (((payload ->> 'review_id'::text)), ((payload ->> 'kind'::text))) WHERE (collection = 'trust_anchors'::text)"
+    }
+  ],
+  "api_permissions": {
+    "anon_read": false,
+    "authenticated_read": false,
+    "anon_write": false,
+    "authenticated_write": false
+  }
+}

@@ -259,6 +259,13 @@ def publications():
             if not initial:
                 abort(404)
             lock_business(initial["rid"])
+            if initial.get('model_id'):
+                model=Repo.get_by_id('dish_models',initial['model_id'],for_update=True)
+                if model and model.get('rid')==initial['rid']:
+                    verified=state=='approved' and request.form.get('scale_verified')=='on'
+                    if verified and not all(model.get(k) for k in ('width_cm','height_cm','depth_cm')):
+                        raise MarketError('El modelo necesita sus tres dimensiones antes de verificar la escala.')
+                    Repo.update('dish_models',model['id'],{'scale_verified':verified,'review_note':note,'reviewed_by':session['user_id']})
             Repo.update("market_offers",oid,{"review_state":state,"review_note":note})
             record_event("OFFER_REVIEW",resource_type="oferta",resource_id=oid,metadata={"state":state})
         return redirect(url_for("ecosystem.publications"))
@@ -276,6 +283,8 @@ def upload_model(rid):
     if not file:
         raise MarketError("Selecciona el modelo de tu plato.")
     raw = validate_glb(file.read(1500001))
+    from logic.immersive import model_metadata
+    metadata = model_metadata(request.form)
     label = normalize_text(request.form.get("description"),max_length=200)
     if not label or request.form.get("confirmed") != "on":
         raise MarketError("Describe el modelo y confirma que representa tu plato.")
@@ -285,28 +294,28 @@ def upload_model(rid):
         offer = Repo.get_by_id("market_offers",oid,for_update=True)
         if not offer or offer["rid"] != rid:
             abort(404)
-        model = Repo.create("dish_models",{"rid":rid,"data":base64.b64encode(raw).decode(),"description":label})
+        model = Repo.create("dish_models",{"rid":rid,"data":base64.b64encode(raw).decode(),"description":label, **metadata})
         Repo.update("market_offers",oid,{"model_id":model["id"],"review_state":"pending"})
     flash("Modelo guardado. La oferta requiere revisión administrativa.","success")
     return redirect(url_for("ecosystem.business",rid=rid))
 
 
+def _visible_model(oid):
+    offer=Repo.get_by_id('market_offers',oid)
+    restaurant=RestaurantModel.get_by_id(offer['rid']) if offer else None
+    reviewing=(session.get('user') or {}).get('role')=='admin'
+    if not offer or not restaurant:abort(404)
+    if not reviewing and (not restaurant.get('verified') or restaurant.get('status') in ('suspended','archived') or offer.get('review_state','approved')!='approved'):abort(404)
+    model=Repo.get_by_id('dish_models',offer['model_id']) if offer.get('model_id') else None
+    if not model or model['rid']!=offer['rid']:abort(404)
+    return model
+
 @bp.get("/modelos/<int:oid>")
 def dish_model(oid):
     import base64
     from flask import Response
-    offer = Repo.get_by_id("market_offers",oid)
-    restaurant = RestaurantModel.get_by_id(offer["rid"]) if offer else None
-    reviewing = (session.get("user") or {}).get("role") == "admin"
-    if not offer or not restaurant:
-        abort(404)
-    if not reviewing and (not restaurant.get("verified") or offer.get("review_state","approved") != "approved"):
-        abort(404)
-    model = Repo.get_by_id("dish_models",offer["model_id"]) if offer.get("model_id") else None
-    if not model or model["rid"] != offer["rid"]:
-        abort(404)
-    return Response(base64.b64decode(model["data"]),mimetype="model/gltf-binary",
-                    headers={"Cache-Control":"private,max-age=60","X-Content-Type-Options":"nosniff"})
+    model=_visible_model(oid)
+    return Response(base64.b64decode(model['data']),mimetype='model/gltf-binary',headers={'Cache-Control':'private,max-age=60','X-Content-Type-Options':'nosniff'})
 
 
 @bp.post("/interaccion/<int:oid>")
@@ -338,3 +347,12 @@ def rewards():
     return render_template("ecosystem/rewards.html", purchases=len(orders), shops=len(shops), dishes=len(dishes),
         balances=[{"name":(RestaurantModel.get_by_id(rid) or {}).get("name","Negocio"),"rid":rid,
                    "points":reward_balance(uid,rid),"benefit":kitchen(rid).get("reward",0)} for rid in shops])
+
+
+@bp.get('/modelos/<int:oid>/metadata')
+def dish_model_metadata(oid):
+    from flask import jsonify
+    model=_visible_model(oid)
+    response=jsonify({k:model.get(k) for k in ('description','width_cm','height_cm','depth_cm','portion_g','scale_verified')})
+    response.headers['Cache-Control']='private, no-store'
+    return response

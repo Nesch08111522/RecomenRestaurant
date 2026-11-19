@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+{% block extra_head %}<link rel="stylesheet" href="{{ url_for('static', filename='css/service.css') }}">{% endblock %}
+{% block content %}
+<div class="sr-service" data-desk-status="{{ url_for('salon.desk_status', rid=restaurant.id) }}">
+  <nav class="sr-service-nav" aria-label="Panel del salón">
+    <a href="{{ url_for('salon.desk', rid=restaurant.id) }}">{{ restaurant.name }} · Salón</a>
+    <a href="{{ url_for('salon.manage', rid=restaurant.id) }}">Mesas y QR</a>
+    <a href="{{ url_for('flow.desk', rid=restaurant.id) }}">Cola y aforo</a>
+    <a href="{{ url_for('market.desk', rid=restaurant.id) }}">Cocina y ventas</a>
+    <a href="{{ url_for('loyalty.customers', rid=restaurant.id) }}">Clientes</a>
+  </nav>
+  <header class="sr-service-hero">
+    <div><h1>Salón en vivo</h1><p>Ocupación, solicitudes y cierre de mesas según hechos registrados. Actualiza al cambiar el estado.</p></div>
+    <div class="sr-actions"><span class="sr-chip">{{ seats.occupied }}/{{ seats.seats }} personas</span><span class="sr-chip">{{ pending|length }} solicitudes</span><span class="sr-chip">{{ queue|length }} en cola</span></div>
+  </header>
+
+  <div class="sr-service-stats">
+    <div><strong>{{ seats.occupancy }}%</strong>Aforo ocupado</div>
+    <div><strong>{{ seats.busy_tables }}</strong>Mesas en atención</div>
+    <div><strong>{{ seats.available_tables }}</strong>Mesas libres</div>
+    <div><strong>{{ seats.waiting }}</strong>Grupos esperando</div>
+  </div>
+
+  {% if pending %}
+  <section class="sr-service-card sr-service-card--wide" aria-labelledby="pendientes">
+    <h2 id="pendientes">Solicitudes pendientes</h2>
+    <ul class="sr-list">
+      {% for row in pending %}
+      <li><span><strong>{{ row.kind }}</strong> · mesa #{{ row.table_id }} · {{ row.at[:16].replace('T',' ') }}</span>
+        <form method="post" action="{{ url_for('salon.staff_resolve', rid=restaurant.id, request_id=row.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button>Atender</button></form>
+      </li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% endif %}
+
+  {% if not service_enabled %}<p class="sr-note">La modalidad «Local» no está activa: los pedidos desde mesa serán rechazados. <a href="{{ url_for('market.desk', rid=restaurant.id) }}">Configurar canales</a>.</p>{% endif %}
+
+  {% for floor, floor_rows in rows|groupby('table.floor') %}
+  <section class="sr-service-card sr-service-card--wide">
+    <h2>{{ floor or 'Planta principal' }}</h2>
+    {% for zone, zone_rows in floor_rows|groupby('table.zone') %}
+    {% set positioned = zone_rows|selectattr('table.x', 'defined')|selectattr('table.x', 'ne', none)|selectattr('table.y', 'defined')|selectattr('table.y', 'ne', none)|list %}
+    <div class="sr-zone">
+      <h3>{{ zone or 'General' }}</h3>
+      {% if positioned|length == zone_rows|length %}
+      <div class="sr-plan" style="min-height:340px">
+        {% for row in zone_rows %}
+        <article class="sr-table" data-state="{{ row.state }}" style="left:{{ row.table.x }}%;top:{{ row.table.y }}%">
+          <strong>{{ row.table.label }}</strong>
+          <span>{{ row.state }}</span><br>
+          <small>{% if row.session %}{{ row.session.party_size }} pers. · {{ row.total|soles }}{% else %}{{ row.table.capacity }} plazas{% endif %}</small>
+        </article>
+        {% endfor %}
+      </div>
+      {% endif %}
+      <div class="sr-zone-tables">
+        {% for row in zone_rows %}
+        <article class="sr-table-card">
+          <div class="sr-actions"><strong>Mesa {{ row.table.label }}</strong><span class="sr-chip" data-state="{{ row.state }}">{{ row.state }}</span></div>
+          {% if row.session %}
+            <p class="sr-muted">{{ row.session.party_size }} personas · desde {{ row.session.opened_at[11:16] }} · consumo {{ row.total|soles }}{% if row.release %} · liberación estimada {{ row.release }} ({{ row.release_basis }}){% endif %}</p>
+            {% if row.session.split %}<p class="sr-muted">Dividida en {{ row.session.split.people }} partes ({{ row.session.split.shares|selectattr('paid')|list|length }} cobradas).</p>{% endif %}
+            {% for order in row.orders if order.state != 'Cancelado' %}
+            <div class="sr-service-card">
+              <div class="sr-actions"><span>#{{ order.id }}</span><span class="sr-chip">{{ order.state }}</span><span>{{ order.total|soles }}</span></div>
+              <small>{% for line in order.lines %}{{ line.qty }} × {{ line.name }}{% if not loop.last %} · {% endif %}{% endfor %}</small>
+              <form class="sr-actions" method="post" action="{{ url_for('market.manage_order', rid=restaurant.id, oid=order.id) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                {% for action in {'Recibido':['Confirmado',('Reembolsar' if order.paid else 'Cancelado')], 'Confirmado':['Preparando',('Reembolsar' if order.paid else 'Cancelado')], 'Preparando':['Listo'], 'Listo':['Entregado'], 'En reparto':['Entregado']}.get(order.state,[]) %}
+                <button name="action" value="{{ action }}" class="ghost">{{ action }}</button>
+                {% endfor %}
+              </form>
+            </div>
+            {% endfor %}
+            {% for request in row.requests %}
+            <form class="sr-actions" method="post" action="{{ url_for('salon.staff_resolve', rid=restaurant.id, request_id=request.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><span>Solicitud: {{ request.kind }}</span><button>Atender</button></form>
+            {% endfor %}
+            {% if row.session.split %}
+            <details><summary>Partes de la cuenta</summary>
+              <ul class="sr-list">{% for share in row.session.split.shares %}<li><span>Parte {{ share.n }} · {{ share.amount|soles }}</span>
+                {% if not share.paid %}<form method="post" action="{{ url_for('salon.staff_pay_share', rid=restaurant.id, session_id=row.session.id, number=share.n) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="ghost">Marcar cobrada</button></form>{% else %}<span class="sr-chip">Cobrada</span>{% endif %}
+              </li>{% endfor %}</ul>
+            </details>
+            {% endif %}
+            <form class="sr-service-form" method="post" action="{{ url_for('salon.staff_close', rid=restaurant.id, session_id=row.session.id) }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <label class="sr-check"><input type="checkbox" name="paid" {% if row.total == 0 %}checked{% endif %}> Cobro confirmado</label>
+              <button>Cerrar mesa</button>
+            </form>
+            {% if row.orders|selectattr('state','ne','Entregado')|selectattr('state','ne','Cancelado')|list %}
+            <p class="sr-muted">Cierra cuando todos los pedidos estén entregados.</p>
+            {% endif %}
+          {% elif row.state == 'Limpieza' %}
+            <p class="sr-muted">Pendiente de limpieza y preparación.</p>
+            <form method="post" action="{{ url_for('salon.staff_clean', rid=restaurant.id, session_id=row.last.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button>Marcar limpia</button></form>
+          {% else %}
+            <p class="sr-muted">{{ row.table.capacity }} plazas · {{ row.table.floor }} · {{ row.table.zone }}</p>
+            <form class="sr-service-form" method="post" action="{{ url_for('salon.staff_open', rid=restaurant.id) }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" name="table_id" value="{{ row.table.id }}">
+              <label>Personas<input type="number" name="people" min="1" max="{{ row.table.capacity }}" value="2"></label>
+              <label>Nombre (opcional)<input name="name" maxlength="80"></label>
+              <button>Abrir mesa</button>
+            </form>
+          {% endif %}
+        </article>
+        {% endfor %}
+      </div>
+    </div>
+    {% endfor %}
+  </section>
+  {% else %}
+  <p class="sr-note">No hay mesas registradas. <a href="{{ url_for('salon.manage', rid=restaurant.id) }}">Crear mesas</a>.</p>
+  {% endfor %}
+
+  <section class="sr-service-card">
+    <h2>Cola virtual</h2>
+    <p class="sr-muted">El QR público de entrada permite registrarse sin instalar aplicaciones. La estimación se basa en sesiones cerradas reales.</p>
+    <a class="sr-chip" href="{{ url_for('flow.desk', rid=restaurant.id) }}">Gestionar cola y aforo</a>
+  </section>
+</div>
+<script>
+(function(){
+  const root=document.querySelector('[data-desk-status]');
+  if(!root) return;
+  let last=null;
+  async function refresh(){
+    try{
+      const response=await fetch(root.dataset.deskStatus,{headers:{'Accept':'application/json'}});
+      if(!response.ok) return;
+      const data=await response.json();
+      const signature=JSON.stringify(data.tables)+'|'+data.pending;
+      if(last && signature!==last) location.reload();
+      last=signature;
+    }catch(error){/* conserva la vista actual */}
+  }
+  last='';
+  setInterval(refresh,30000);
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,245 @@
+/* Directional lighting, contact shadows and raised edges for shared surfaces. */
+:root {
+  --forest-light-edge: var(--theme-shadow);
+  --forest-shadow:var(--theme-shadow-rgb);
+  --forest-face: linear-gradient(155deg, var(--sr-surface) 38%, color-mix(in srgb, var(--sr-surface) 78%, var(--sr-tint)));
+  --forest-relief: inset 0 1px var(--forest-light-edge), 0 2px 4px rgb(var(--forest-shadow) / 5%), 0 14px 30px -18px rgb(var(--forest-shadow) / 29%);
+  --forest-lift: inset 0 1px var(--forest-light-edge), 0 4px 8px rgb(var(--forest-shadow) / 7%), 0 20px 38px -19px rgb(var(--forest-shadow) / 36%);
+  --forest-recess: inset 0 2px 5px rgb(var(--forest-shadow) / 12%), 0 1px var(--forest-light-edge);
+  --forest-control-face: linear-gradient(150deg, var(--theme-surface), transparent 52%, var(--theme-surface));
+  --forest-control: inset 0 1px var(--theme-text), inset 0 -2px var(--theme-text), 0 5px 12px -6px rgb(var(--forest-shadow) / 45%);
+  --forest-cream-face: linear-gradient(165deg, var(--theme-surface) 16%, var(--theme-warning-bg));
+  --forest-cream-edge: inset 0 1px var(--theme-shadow), inset 0 -2px var(--theme-shadow), 0 5px 12px var(--theme-shadow);
+  --forest-hero-face: radial-gradient(ellipse at 83% 0%, var(--theme-warning-bg), transparent 54%), linear-gradient(142deg, var(--theme-success-bg), var(--theme-success-bg) 53%, var(--theme-success-bg));
+  --forest-hero-depth: inset 0 1px var(--theme-shadow), inset 0 -2px var(--theme-shadow), 0 24px 42px -24px rgb(var(--forest-shadow) / 55%);
+}
+
+:root[data-theme="dark"] {
+  --forest-light-edge: var(--theme-shadow);
+  --forest-shadow:var(--theme-shadow-rgb);
+}
+
+body .sr-header {
+  box-shadow: inset 0 1px var(--forest-light-edge), 0 7px 19px -14px rgb(var(--forest-shadow) / 56%);
+}
+
+body .sr-mark {
+  box-shadow: var(--forest-control);
+}
+
+body .sr-sidebar {
+  background-image: linear-gradient(145deg, var(--forest-light-edge), transparent 145px);
+  box-shadow: inset -1px 0 var(--forest-light-edge), 10px 0 24px -22px rgb(var(--forest-shadow) / 57%);
+}
+
+body:is([data-role="business_owner"], [data-role="admin"]) .sr-sidebar {
+  --forest-light-edge: var(--theme-shadow);
+  background-image: linear-gradient(145deg, var(--forest-light-edge), transparent 145px);
+}
+
+body .sr-sidebar [aria-current="page"] {
+  background-image: var(--forest-control-face);
+  box-shadow: inset 3px 0 var(--sr-brand), var(--forest-relief);
+}
+
+body .sr-mobile-nav {
+  box-shadow: inset 0 1px var(--forest-light-edge), 0 -9px 24px -17px rgb(var(--forest-shadow) / 45%);
+}
+
+body .sr-mobile-nav [aria-current="page"] {
+  background-image: var(--forest-control-face);
+  box-shadow: var(--forest-relief);
+}
+
+body .sr-footer {
+  box-shadow: inset 0 1px var(--forest-light-edge), 0 -8px 30px -25px rgb(var(--forest-shadow) / 42%);
+}
+
+body :is(.sr-signup, .ax-submit, .market-hero .market-link, .sr-campaign .sr-button, .mgr-hero > a, .radar-primary) {
+  background-image: var(--forest-control-face);
+  box-shadow: var(--forest-control);
+}
+
+body :is(.sr-signup, .ax-submit, .market-hero .market-link, .sr-campaign .sr-button, .mgr-hero > a, .radar-primary):active:not(:disabled) {
+  box-shadow: inset 0 2px 5px var(--theme-shadow);
+}
+
+/* Keep colour and readability consistent across public and management pages. */
+body :is(.sr-campaign-hero, .sr-offers-hero, .market-hero, .mgr .mgr-hero, .ax-food-host) {
+  background: var(--forest-hero-face);
+  color: var(--theme-text);
+  box-shadow: var(--forest-hero-depth);
+}
+
+body .market-hero {
+  padding:clamp(var(--space-md), 3.6vw, var(--space-xl));
+  border-radius: var(--sr-radius-card);
+}
+
+body .market-shell:has(> .market-filters) .market-hero {
+  background-color: var(--theme-success-bg);
+  background-image: linear-gradient(90deg, var(--theme-surface) 5%, var(--theme-overlay) 38%, var(--theme-overlay) 60%, var(--theme-overlay) 90%), url('../images/forest/food-inspiration.webp');
+  background-position: center, center 47%;
+  background-size: cover;
+}
+
+body .market-hero > div {
+  min-width: 0;
+}
+
+body .market-hero h1 {
+  color: inherit;
+}
+
+body .market-hero :is(h1, p) {
+  text-shadow: 0 2px 8px var(--theme-shadow);
+}
+
+body .market-shell .market-hero a {
+  color: var(--theme-text);
+}
+
+body .market-shell .market-hero a.market-link {
+  background: var(--forest-cream-face);
+  color: var(--theme-success);
+  box-shadow: var(--forest-cream-edge);
+  text-decoration: none;
+}
+
+body .market-shell .market-hero a.market-link:hover {
+  text-decoration: underline;
+}
+
+body .market-hero > strong {
+  color: var(--theme-warning);
+}
+
+body .market-shell .market-filters {
+  border: 1px solid var(--sr-line);
+  background-image: var(--forest-face);
+  box-shadow: var(--forest-relief);
+}
+
+body .market-shell :is(input:not([type="checkbox"]):not([type="hidden"]), select, textarea) {
+  box-shadow: var(--forest-recess);
+}
+
+body .market-shell :is(.market-form, .market-filters, .market-inline) button:not(.secondary) {
+  background-image: var(--forest-control-face);
+  box-shadow: var(--forest-control);
+}
+
+body .market-shell :is(.market-form, .market-filters, .market-inline) button:active:not(:disabled) {
+  box-shadow: var(--forest-recess);
+}
+
+body #main-content :is(
+  .market-panel, .market-offer, .mgr-card, .mgr-metric, .profile-sidebar, .profile-form-container,
+  .owner-sidebar, .booking-card, .detail-card, .admin-card, .notification-item, .radar-panel, .radar-candidate,
+  .sr-plan, .sr-business-bento > article
+) {
+  background-image: var(--forest-face);
+  box-shadow: var(--forest-relief);
+}
+
+body #main-content .sr-business-bento > article:first-child {
+  background-image: linear-gradient(145deg, color-mix(in srgb, var(--theme-accent-bg) 13%, var(--sr-tint)), var(--sr-tint));
+}
+
+:root body.sr-auth #main-content .ax-card {
+  background-image: var(--forest-face);
+  box-shadow: var(--forest-lift);
+}
+
+body #main-content :is(.market-photo, .sr-editorial-slides, .detail-container .main-image) {
+  box-shadow: var(--forest-relief);
+}
+
+@media (max-width: 700px) {
+  body .market-shell:has(> .market-filters) .market-hero {
+    background-image: linear-gradient(90deg, var(--theme-overlay), var(--theme-overlay)), url('../images/forest/food-inspiration.webp');
+  }
+}
+
+body:not(.sr-discover) #main-content .restaurant-card {
+  background-image: var(--forest-face);
+  box-shadow: var(--forest-relief);
+}
+
+body:not(.sr-discover) #main-content .restaurant-card:focus-within,
+body #main-content .market-offer:focus-within {
+  box-shadow: var(--forest-lift);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  body:not(.sr-discover) #main-content .restaurant-card:hover,
+  body #main-content .market-offer:hover {
+    box-shadow: var(--forest-lift);
+  }
+}
+
+/* The inventory dashboard has its own theme switch. */
+body .catalog-shell {
+  --cat-ink: var(--theme-text);
+  --cat-muted: var(--theme-muted);
+  --cat-faint: var(--theme-muted);
+  --cat-bg: var(--theme-bg);
+  --cat-panel: var(--theme-surface);
+  --cat-panel-solid: var(--theme-surface);
+  --cat-line: var(--theme-border);
+  --cat-accent: var(--theme-accent);
+  --cat-accent-deep: var(--theme-accent);
+  --cat-accent-soft: var(--theme-elevated);
+  --cat-shadow: inset 0 1px var(--theme-shadow), 0 15px 28px -18px var(--theme-shadow);
+  --cat-inset: inset 0 1px var(--theme-shadow), inset 0 -2px var(--theme-shadow);
+  background: radial-gradient(ellipse at 7% 0%, var(--theme-warning-bg), transparent 42%), radial-gradient(ellipse at 98% 22%, var(--theme-success-bg), transparent 46%), var(--cat-bg);
+}
+
+body .catalog-shell[data-theme="dark"] {
+  --cat-ink: var(--theme-text);
+  --cat-muted: var(--theme-muted);
+  --cat-faint: var(--theme-muted);
+  --cat-bg: var(--theme-bg);
+  --cat-panel: var(--theme-surface);
+  --cat-panel-solid: var(--theme-surface);
+  --cat-line: var(--theme-border);
+  --cat-accent: var(--theme-accent);
+  --cat-accent-deep: var(--theme-accent);
+  --cat-accent-soft: var(--theme-elevated);
+  --cat-shadow: inset 0 1px var(--theme-shadow), 0 16px 33px -19px var(--theme-shadow);
+  --cat-inset: inset 0 1px var(--theme-shadow), inset 0 -2px var(--theme-shadow);
+  background: radial-gradient(ellipse at 7% 0%, var(--theme-surface), transparent 42%), radial-gradient(ellipse at 98% 22%, var(--theme-success-bg), transparent 46%), var(--cat-bg);
+}
+
+body .catalog-shell[data-theme="dark"] .catalog-eyebrow {
+  color: var(--theme-accent);
+}
+
+body .catalog-atmosphere--one {
+  background: linear-gradient(145deg, var(--cat-panel-solid), var(--theme-accent-bg));
+  box-shadow: 18px 24px 48px rgb(var(--forest-shadow) / 13%), var(--cat-inset);
+}
+
+body .catalog-atmosphere--two {
+  background: linear-gradient(145deg, color-mix(in srgb, var(--theme-accent-bg) 24%, var(--cat-panel-solid)), var(--theme-accent-bg));
+  box-shadow: 10px 18px 38px rgb(var(--forest-shadow) / 12%), var(--cat-inset);
+}
+
+body .catalog-metric-card--dark {
+  background: var(--forest-hero-face);
+  border-color: var(--theme-border);
+  color: var(--theme-text);
+  box-shadow: var(--forest-hero-depth);
+}
+
+body .catalog-metric-card--dark .catalog-metric-icon {
+  background: var(--theme-success-bg);
+  color: var(--theme-warning);
+  box-shadow: var(--forest-control);
+}
+
+body .catalog-button--primary {
+  background: linear-gradient(145deg, var(--theme-success-bg), var(--theme-success-bg));
+  color: var(--theme-text);
+  box-shadow: var(--forest-control);
+}

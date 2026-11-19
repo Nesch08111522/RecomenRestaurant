@@ -85,7 +85,7 @@ def authenticate(username, password, token):
         return user
 
 
-def configure(uid, password, action, token):
+def configure(uid, password, action, token, *, email=None, phone=None):
     with document_transaction():
         user = Repo.get_by_id("users", uid, for_update=True)
         if not UserModel.is_active(user) or not check_password_hash(user["password"], password):
@@ -98,6 +98,18 @@ def configure(uid, password, action, token):
             if counter is None:
                 raise ValueError("Introduce un código nuevo del autenticador.")
             Repo.update("account_security", uid, {"last_counter": counter})
+        if action == "contacts":
+            email=str(email or '').strip().lower();phone=str(phone or '').strip()
+            if not re.fullmatch(r'[^\s@]+@[^\s@]+\.[^\s@]+',email) or '\r' in email or '\n' in email:
+                raise ValueError("Revisa el correo de recuperación.")
+            if phone and not re.fullmatch(r'\+[1-9]\d{7,14}',phone):
+                raise ValueError("Usa un teléfono internacional, por ejemplo +51976399537.")
+            profile={**(user.get('profile') or {}),'email':email,'phone':phone}
+            epoch=user.get('auth_epoch',0)+1
+            Repo.update('users',uid,{'profile':profile,'auth_epoch':epoch})
+            from utils.audit import record_event
+            record_event('SECURITY_CONTACTS_CHANGED',resource_type='cuenta',resource_id=uid)
+            return {'epoch':epoch,'contacts_saved':True}
         if action == "recovery":
             code = secrets.token_urlsafe(24)
             Repo.update("account_security", uid, {"recovery": digest("recovery", code).hex()})

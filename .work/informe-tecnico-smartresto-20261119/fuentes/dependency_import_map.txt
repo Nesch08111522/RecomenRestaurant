@@ -1,0 +1,11 @@
+Inventario de requisitos e imports, consulta local de 2026-11-19
+Método: búsqueda estática de imports directos en archivos Python del repositorio; no ejecuta la aplicación ni consulta servicios.
+
+Directos observados: Werkzeug (modelos, utilidades, vistas, scripts y tests); Flask-WTF (app.py, utils/security.py); cryptography (utils/account_security.py); python-dotenv (app.py y scripts); psycopg (conexión/repositorios/modelos/migraciones); OpenAI SDK (utils/admin_ai.py, utils/llm_provider.py); Google GenAI (utils/gemini_menu.py, utils/kitchen_assistant.py y utilidades IA); Pydantic (utils/admin_ai.py); Pillow/PIL (modelos, medios e IA); openpyxl (catalog_workbook/menu_documents); python-docx (menu_documents y restaurant_import_ai); pyDatalog (logic/recommender.py); geopy y haversine (utils/geo.py); pytest (test/); qrcode (utils/catalog_qr.py).
+
+No se encontró import Python directo en los archivos explorados para Flask-Login, pandas ni trimesh. Esto no prueba que sean inútiles: Flask-Login puede ser una dependencia no usada/transitiva; pandas puede utilizarse indirectamente o en herramientas fuera del alcance; trimesh está descrito por static/models/auth/README.md como dependencia de construcción de activos. Deben clasificarse como declaradas, con uso no confirmado desde import directo.
+
+Dependencias declaradas en requirements.txt y restricciones exactas:
+Flask==3.0.0; Flask-Login==0.6.3; Werkzeug==3.0.1; Flask-WTF==1.2.1; cryptography>=44,<51; python-dotenv==1.0.0; psycopg[binary]==3.2.3; openai>=1.0.0,<3; google-genai>=1.0,<2; pydantic>=2.8,<3; Pillow>=10,<13; pandas>=2.2.3; openpyxl>=3.1.5,<4; python-docx>=1.1.2,<2; pyDatalog==0.17.4; geopy==2.4.1; haversine==2.8.0; pytest>=8,<10; qrcode==8.2.
+
+Versiones se describen como requisitos declarados, no como versiones instaladas ni activos verificados.

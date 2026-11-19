@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block extra_head %}<link rel="stylesheet" href="{{ url_for('static', filename='css/service.css') }}">{% endblock %}
+{% block content %}
+<div class="sr-service">
+  <nav class="sr-service-nav" aria-label="Mis puntos">
+    <a href="{{ url_for('loyalty.wallet_page') }}">Mis puntos</a>
+    <a href="{{ url_for('market.orders') }}">Mis pedidos</a>
+    <a href="{{ url_for('auth.favorites') }}">Favoritos</a>
+    <a href="{{ url_for('auth.profile') }}">Mi perfil</a>
+  </nav>
+  <header class="sr-service-hero">
+    <div><h1>Billetera de fidelización</h1><p>Puntos por compras pagadas y visitas verificadas. Una cancelación o reembolso no genera puntos.</p></div>
+    <div class="sr-note"><strong style="font-size:2rem">{{ wallet.balance }}</strong> puntos<br><span class="sr-muted">Nivel {{ wallet.level.name }}</span></div>
+  </header>
+
+  <div class="sr-service-stats">
+    <div><strong>{{ wallet.level.name }}</strong>Nivel actual</div>
+    <div><strong>{{ wallet.visits|length }}</strong>Visitas verificadas</div>
+    <div><strong>{{ wallet.businesses }}</strong>Negocios visitados</div>
+    <div><strong>{{ wallet.earned }}</strong>Puntos históricos</div>
+  </div>
+
+  <section class="sr-service-card">
+    <h2>Progreso de nivel</h2>
+    {% if wallet.level.next %}
+    <p>{{ wallet.level.progress }}% hacia {{ wallet.level.next }} ({{ wallet.level.next_from }} puntos históricos).</p>
+    <div class="sr-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ wallet.level.progress }}"><span style="width:{{ wallet.level.progress }}%"></span></div>
+    {% else %}<p>Alcanzaste el nivel máximo con {{ wallet.earned }} puntos históricos.</p>{% endif %}
+    <h3>Insignias</h3>
+    {% if wallet.badges %}<ul class="sr-badges">{% for badge in wallet.badges %}<li>{{ badge }}</li>{% endfor %}</ul>{% else %}<p class="sr-muted">Tu primera insignia llega con la primera visita verificada.</p>{% endif %}
+    <form class="sr-actions" method="post" action="{{ url_for('loyalty.birthday') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="secondary">Reclamar beneficio de cumpleaños</button><span class="sr-muted">Solo el día de tu cumpleaños, una vez al año.{% if birthday %} Registrado: {{ birthday }}.{% else %} Falta registrar la fecha en tu perfil.{% endif %}</span></form>
+  </section>
+
+  <section class="sr-service-card">
+    <h2>Historial de puntos</h2>
+    <ul class="sr-list">
+      {% for row in wallet.events %}
+      <li><span><strong>{{ row.kind }}</strong>{% if row.business %} · {{ row.business }}{% endif %}<br><small>{{ row.at[:16].replace('T',' ') if row.at else '' }} · {{ row.ref }}</small></span><span>{{ '+' if row.points > 0 else '' }}{{ row.points }}</span></li>
+      {% else %}<li class="sr-muted">Todavía no hay movimientos.</li>{% endfor %}
+    </ul>
+    <p class="sr-muted">Los puntos se calculan con compras entregadas y pagadas (1 punto por cada S/ 10) y 10 puntos por visita verificada. Los canjes registrados en pedidos descuentan su saldo.</p>
+  </section>
+
+  <section class="sr-service-card">
+    <h2>Mis visitas</h2>
+    <ul class="sr-list">
+      {% for visit in visits %}
+      <li><span><strong>{{ visit.business or 'Negocio' }}</strong><br><small>{{ visit.at[:16].replace('T',' ') if visit.at else '' }} · {{ visit.people }} personas · {{ visit.total|soles }} · {{ visit.dishes|length }} platos</small></span><span class="sr-chip">{{ 'Valorada' if visit.reviewed else 'Sin reseña' }}</span></li>
+      {% else %}<li class="sr-muted">Las visitas verificadas aparecen al cerrar una sesión de mesa con consumo pagado.</li>{% endfor %}
+    </ul>
+  </section>
+
+  <section class="sr-service-card">
+    <h2>Platos que has consumido</h2>
+    <ul class="sr-list">{% for name, qty in wallet.dishes %}<li><span>{{ name }}</span><span>{{ qty }}</span></li>{% else %}<li class="sr-muted">Sin consumos registrados en visitas.</li>{% endfor %}</ul>
+  </section>
+
+  <section class="sr-service-card">
+    <h2>Privacidad de fidelización</h2>
+    <form method="post" action="{{ url_for('loyalty.preferences') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label class="sr-check"><input type="checkbox" name="marketing" {% if preferences.get('marketing') %}checked{% endif %}> Recibir promociones personalizadas</label>
+      <label class="sr-check"><input type="checkbox" name="visits_visible" {% if preferences.get('visits_visible', true) %}checked{% endif %}> Usar mi historial de visitas para recomendaciones</label>
+      <label class="sr-check"><input type="checkbox" name="birthday_visible" {% if preferences.get('birthday_visible', true) %}checked{% endif %}> Usar mi cumpleaños para beneficios</label>
+      <button>Guardar preferencias</button>
+    </form>
+    <p class="sr-muted">Las notificaciones de pedidos, turnos y reseñas se controlan además en tu perfil.</p>
+  </section>
+</div>
+{% endblock %}

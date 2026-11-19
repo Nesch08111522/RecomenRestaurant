@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block extra_head %}<link rel="stylesheet" href="{{ url_for('static', filename='css/service.css') }}">{% endblock %}
+{% block content %}
+<div class="sr-service">
+  <nav class="sr-service-nav" aria-label="Carrito de mesa">
+    <a href="{{ url_for('salon.menu', token=table.qr_token) }}">{{ restaurant.name }} · Mesa {{ table.label }}</a>
+    <a href="{{ url_for('salon.session_page', token=table.qr_token) }}">Estado de la mesa</a>
+  </nav>
+  <header class="sr-service-hero"><div><h1>Tu pedido en la mesa</h1><p>{{ visit.party_size }} personas · {{ table.floor }} · {{ table.zone }}</p></div></header>
+  {% if not lines %}<p class="sr-note">El carrito está vacío. Vuelve a la carta para agregar porciones.</p>{% endif %}
+  <ul class="sr-list">
+    {% for row, qty in lines %}
+    <li>
+      <span><strong>{{ qty }} × {{ row.name }}</strong><br><small>{{ row.variant or row.occasion }} · {{ row.price|soles }} c/u</small></span>
+      <form method="post" action="{{ url_for('salon.remove_line', token=table.qr_token) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="offer" value="{{ row.id }}">
+        <button class="ghost">Quitar</button>
+      </form>
+    </li>
+    {% endfor %}
+  </ul>
+  {% if lines %}
+  <div class="sr-service-card">
+    <div class="sr-actions"><strong>Total: {{ total|soles }}</strong><span class="sr-muted">El cobro se realiza al cerrar la mesa. Los precios se revalidan al enviar el pedido.</span></div>
+    <form method="post" action="{{ url_for('salon.place_table_order', token=table.qr_token) }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="total" value="{{ total }}">
+      <button>Enviar pedido a la cocina</button>
+    </form>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

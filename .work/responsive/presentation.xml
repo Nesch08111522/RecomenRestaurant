@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="8" skipped="0" tests="62" time="81.975" timestamp="2026-11-18T22:34:59.588472-05:00" hostname="LAPTOP-25RMARTD"><testcase classname="test.test_theme_contract" name="test_semantic_text_palette_passes_aa_on_all_surfaces" time="0.003" /><testcase classname="test.test_theme_contract" name="test_bootstrap_precedes_styles_in_both_documents" time="0.006" /><testcase classname="test.test_theme_contract" name="test_ui_has_no_literal_colors_outside_token_and_brand_data_sources" time="0.256" /><testcase classname="test.test_theme_contract" name="test_theme_runtime_and_chart_refresh" time="0.118" /><testcase classname="test.test_auth_experience" name="test_auth_views_share_real_scene_and_preserve_csrf[/auth/login]" time="2.243" /><testcase classname="test.test_auth_experience" name="test_auth_views_share_real_scene_and_preserve_csrf[/auth/register]" time="0.176" /><testcase classname="test.test_auth_experience" name="test_auth_views_share_real_scene_and_preserve_csrf[/auth/recuperar]" time="0.143" /><testcase classname="test.test_auth_experience" name="test_login_remember_is_explicit_not_forced" time="0.169" /><testcase classname="test.test_auth_experience" name="test_scene_api_guests_use_editorial_no_private_profile" time="0.069" /><testcase classname="test.test_auth_experience" name="test_registration_confirmation_rejected_before_storage" time="0.252" /><testcase classname="test.test_auth_experience" name="test_auth_adaptive_grid_and_panel_do_not_overflow[/auth/login-320]" time="2.938" /><testcase classname="test.test_auth_experience" name="test_auth_adaptive_grid_and_panel_do_not_overflow[/auth/login-375]" time="0.861" /><testcase classname="test.test_auth_experience" name="test_auth_adaptive_grid_and_panel_do_not_overflow[/auth/login-480]" time="0.796" /><testcase classname="test.test_auth_experience" name="test_auth_adaptive_grid_and_panel_do_not_overflow[/auth/login-640]" time="0.788" /><testcase classname="test.test_auth_experience" name="test_auth_adaptive_grid_and_panel_do_not_overflow[/auth/login-768]" time="0.802" /><testcase classname="test.test_auth_experience" name="test_auth_adaptive_grid_and_panel_do_not_overflow[/auth/login-1024]" time="0.897" /><testcase classname="test.test_auth_experience" name="test_auth_adaptive_grid_and_panel_do_not_overflow[/auth/login-1280]" time="0.860" /><testcase classname="test.test_auth_experience" name="test_auth_adaptive_grid_and_panel_do_not_overflow[/auth/login-1440]" time="0.905" /><testcase classname="test.test_auth_experience" name="test_auth_adaptive_grid_and_panel_do_not_overflow[/auth/login-1920]" time="0.881" /><testcase classname="test.test_auth_experience" name="test_auth_adaptive_grid_and_panel_do_not_overflow[/auth/register-320]" time="0.821" /><testcase classname="test.test_auth_experience" name="test_auth_adaptive_grid_and_panel_do_not_overflow[/auth/register-375]" time="0.810" /><testcase classname="test.test_auth_experience" name="test_auth_adaptive_grid_and_panel_do_not_overflow[/auth/register-480]" time="0.789" /><testcase classname="test.test_auth_experience" name="test_auth_adaptive_grid_and_panel_do_not_overflow[/auth/register-640]" time="0.816" /><testcase classname="test.test_auth_experience" name="test_auth_adaptive_grid_and_panel_do_not_overflow[/auth/register-768]" time="0.814" /><testcase classname="test.test_auth_experience" name="test_auth_adaptive_grid_and_panel_do_not_overflow[/auth/register-1024]" time="0.855" /><testcase classname="test.test_auth_experience" name="test_auth_adaptive_grid_and_panel_do_not_overflow[/auth/register-1280]" time="0.906" /><testcase classname="test.test_auth_experience" name="test_auth_adaptive_grid_and_panel_do_not_overflow[/auth/register-1440]" time="1.120" /><testcase classname="test.test_auth_experience" name="test_auth_adaptive_grid_and_panel_do_not_overflow[/auth/register-1920]" time="1.167" /><testcase classname="test.test_auth_experience" name="test_auth_adaptive_grid_and_panel_do_not_overflow[/auth/recuperar-320]" time="0.789" /><testcase classname="test.test_auth_experience" name="test_auth_adaptive_grid_and_panel_do_not_overflow[/auth/recuperar-375]" time="0.923" /><testcase classname="test.test_auth_experience" name="test_auth_adaptive_grid_and_panel_do_not_overflow[/auth/recuperar-480]" time="0.854" /><testcase classname="test.test_auth_experience" name="test_auth_adaptive_grid_and_panel_do_not_overflow[/auth/recuperar-640]" time="0.912" /><testcase classname="test.test_auth_experience" name="test_auth_adaptive_grid_and_panel_do_not_overflow[/auth/recuperar-768]" time="0.862" /><testcase classname="test.test_auth_experience" name="test_auth_adaptive_grid_and_panel_do_not_overflow[/auth/recuperar-1024]" time="1.029" /><testcase classname="test.test_auth_experience" name="test_auth_adaptive_grid_and_panel_do_not_overflow[/auth/recuperar-1280]" time="1.095" /><testcase classname="test.test_auth_experience" name="test_auth_adaptive_grid_and_panel_do_not_overflow[/auth/recuperar-1440]" time="1.067" /><testcase classname="test.test_auth_experience" name="test_auth_adaptive_grid_and_panel_do_not_overflow[/auth/recuperar-1920]" time="1.095" /><testcase classname="test.test_auth_experience" name="test_business_role_fields_preserve_values" time="0.689" /><testcase classname="test.test_auth_experience" name="test_password_visibility_and_two_factor_are_accessible" time="0.769" /><testcase classname="test.test_auth_experience" name="test_switch_keeps_next_and_never_stores_credentials" time="2.346" /><testcase classname="test.test_forest_home" name="test_home_keeps_results_visible_without_horizontal_clipping[320-1]" time="5.317" /><testcase classname="test.test_forest_home" name="test_home_keeps_results_visible_without_horizontal_clipping[375-1]" time="1.128" /><testcase classname="test.test_forest_home" name="test_home_keeps_results_visible_without_horizontal_clipping[640-2]" time="1.125" /><testcase classname="test.test_forest_home" name="test_home_keeps_results_visible_without_horizontal_clipping[768-2]" time="1.124" /><testcase classname="test.test_forest_home" name="test_home_keeps_results_visible_without_horizontal_clipping[1024-2]" time="1.149" /><testcase classname="test.test_forest_home" name="test_home_keeps_results_visible_without_horizontal_clipping[1440-3]" time="1.208" /><testcase classname="test.test_forest_home" name="test_home_keeps_results_visible_without_horizontal_clipping[1920-3]" time="1.185" /><testcase classname="test.test_forest_home" name="test_map_switch_preserves_current_results_and_query" time="1.744" /><testcase classname="test.test_forest_home" name="test_inline_recommendation_transfers_text_and_escape_restores_focus" time="1.245" /><testcase classname="test.test_forest_home" name="test_featured_selection_can_expand_without_losing_other_sections" time="1.315" /><testcase classname="test.test_forest_home" name="test_authenticated_header_keeps_profile_and_navigation_reachable[320-user]" time="2.523" /><testcase classname="test.test_forest_home" name="test_authenticated_header_keeps_profile_and_navigation_reachable[320-business_owner]" time="2.577"><failure message="assert False&#10; +  where False = is_visible()&#10; +    where is_visible = &lt;Locator frame=&lt;Frame name= url='http://127.0.0.1:58622/__forest_test?role=business_owner'&gt; selector='internal:role=link[name=&quot;Mi perfil&quot;s] &gt;&gt; nth=0'&gt;.is_visible">page = &lt;Page url='http://127.0.0.1:58622/__forest_test?role=business_owner'&gt;
+visual_origin = 'http://127.0.0.1:58622', role = 'business_owner', width = 320
+
+    @pytest.mark.parametrize('role', ['user', 'business_owner', 'admin'])
+    @pytest.mark.parametrize('width', [320,375,768,1440])
+    def test_authenticated_header_keeps_profile_and_navigation_reachable(page, visual_origin, role, width):
+        page.set_viewport_size({'width':width,'height':900})
+        page.goto(visual_origin + '/__forest_test?role=' + role)
+        page.wait_for_load_state('networkidle')
+        assert page.evaluate('document.documentElement.scrollWidth &lt;= innerWidth + 1')
+        profile = page.get_by_role('link', name='Mi perfil', exact=True).first
+&gt;       assert profile.is_visible()
+E       assert False
+E        +  where False = is_visible()
+E        +    where is_visible = &lt;Locator frame=&lt;Frame name= url='http://127.0.0.1:58622/__forest_test?role=business_owner'&gt; selector='internal:role=link[name="Mi perfil"s] &gt;&gt; nth=0'&gt;.is_visible
+
+test\test_forest_home.py:122: AssertionError</failure></testcase><testcase classname="test.test_forest_home" name="test_authenticated_header_keeps_profile_and_navigation_reachable[320-admin]" time="1.851"><failure message="assert False&#10; +  where False = is_visible()&#10; +    where is_visible = &lt;Locator frame=&lt;Frame name= url='http://127.0.0.1:58622/__forest_test?role=admin'&gt; selector='internal:role=link[name=&quot;Mi perfil&quot;s] &gt;&gt; nth=0'&gt;.is_visible">page = &lt;Page url='http://127.0.0.1:58622/__forest_test?role=admin'&gt;
+visual_origin = 'http://127.0.0.1:58622', role = 'admin', width = 320
+
+    @pytest.mark.parametrize('role', ['user', 'business_owner', 'admin'])
+    @pytest.mark.parametrize('width', [320,375,768,1440])
+    def test_authenticated_header_keeps_profile_and_navigation_reachable(page, visual_origin, role, width):
+        page.set_viewport_size({'width':width,'height':900})
+        page.goto(visual_origin + '/__forest_test?role=' + role)
+        page.wait_for_load_state('networkidle')
+        assert page.evaluate('document.documentElement.scrollWidth &lt;= innerWidth + 1')
+        profile = page.get_by_role('link', name='Mi perfil', exact=True).first
+&gt;       assert profile.is_visible()
+E       assert False
+E        +  where False = is_visible()
+E        +    where is_visible = &lt;Locator frame=&lt;Frame name= url='http://127.0.0.1:58622/__forest_test?role=admin'&gt; selector='internal:role=link[name="Mi perfil"s] &gt;&gt; nth=0'&gt;.is_visible
+
+test\test_forest_home.py:122: AssertionError</failure></testcase><testcase classname="test.test_forest_home" name="test_authenticated_header_keeps_profile_and_navigation_reachable[375-user]" time="2.489" /><testcase classname="test.test_forest_home" name="test_authenticated_header_keeps_profile_and_navigation_reachable[375-business_owner]" time="1.989"><failure message="assert False&#10; +  where False = is_visible()&#10; +    where is_visible = &lt;Locator frame=&lt;Frame name= url='http://127.0.0.1:58622/__forest_test?role=business_owner'&gt; selector='internal:role=link[name=&quot;Mi perfil&quot;s] &gt;&gt; nth=0'&gt;.is_visible">page = &lt;Page url='http://127.0.0.1:58622/__forest_test?role=business_owner'&gt;
+visual_origin = 'http://127.0.0.1:58622', role = 'business_owner', width = 375
+
+    @pytest.mark.parametrize('role', ['user', 'business_owner', 'admin'])
+    @pytest.mark.parametrize('width', [320,375,768,1440])
+    def test_authenticated_header_keeps_profile_and_navigation_reachable(page, visual_origin, role, width):
+        page.set_viewport_size({'width':width,'height':900})
+        page.goto(visual_origin + '/__forest_test?role=' + role)
+        page.wait_for_load_state('networkidle')
+        assert page.evaluate('document.documentElement.scrollWidth &lt;= innerWidth + 1')
+        profile = page.get_by_role('link', name='Mi perfil', exact=True).first
+&gt;       assert profile.is_visible()
+E       assert False
+E        +  where False = is_visible()
+E        +    where is_visible = &lt;Locator frame=&lt;Frame name= url='http://127.0.0.1:58622/__forest_test?role=business_owner'&gt; selector='internal:role=link[name="Mi perfil"s] &gt;&gt; nth=0'&gt;.is_visible
+
+test\test_forest_home.py:122: AssertionError</failure></testcase><testcase classname="test.test_forest_home" name="test_authenticated_header_keeps_profile_and_navigation_reachable[375-admin]" time="2.148"><failure message="assert False&#10; +  where False = is_visible()&#10; +    where is_visible = &lt;Locator frame=&lt;Frame name= url='http://127.0.0.1:58622/__forest_test?role=admin'&gt; selector='internal:role=link[name=&quot;Mi perfil&quot;s] &gt;&gt; nth=0'&gt;.is_visible">page = &lt;Page url='http://127.0.0.1:58622/__forest_test?role=admin'&gt;
+visual_origin = 'http://127.0.0.1:58622', role = 'admin', width = 375
+
+    @pytest.mark.parametrize('role', ['user', 'business_owner', 'admin'])
+    @pytest.mark.parametrize('width', [320,375,768,1440])
+    def test_authenticated_header_keeps_profile_and_navigation_reachable(page, visual_origin, role, width):
+        page.set_viewport_size({'width':width,'height':900})
+        page.goto(visual_origin + '/__forest_test?role=' + role)
+        page.wait_for_load_state('networkidle')
+        assert page.evaluate('document.documentElement.scrollWidth &lt;= innerWidth + 1')
+        profile = page.get_by_role('link', name='Mi perfil', exact=True).first
+&gt;       assert profile.is_visible()
+E       assert False
+E        +  where False = is_visible()
+E        +    where is_visible = &lt;Locator frame=&lt;Frame name= url='http://127.0.0.1:58622/__forest_test?role=admin'&gt; selector='internal:role=link[name="Mi perfil"s] &gt;&gt; nth=0'&gt;.is_visible
+
+test\test_forest_home.py:122: AssertionError</failure></testcase><testcase classname="test.test_forest_home" name="test_authenticated_header_keeps_profile_and_navigation_reachable[768-user]" time="2.401" /><testcase classname="test.test_forest_home" name="test_authenticated_header_keeps_profile_and_navigation_reachable[768-business_owner]" time="2.070"><failure message="assert False&#10; +  where False = is_visible()&#10; +    where is_visible = &lt;Locator frame=&lt;Frame name= url='http://127.0.0.1:58622/__forest_test?role=business_owner'&gt; selector='internal:role=link[name=&quot;Mi perfil&quot;s] &gt;&gt; nth=0'&gt;.is_visible">page = &lt;Page url='http://127.0.0.1:58622/__forest_test?role=business_owner'&gt;
+visual_origin = 'http://127.0.0.1:58622', role = 'business_owner', width = 768
+
+    @pytest.mark.parametrize('role', ['user', 'business_owner', 'admin'])
+    @pytest.mark.parametrize('width', [320,375,768,1440])
+    def test_authenticated_header_keeps_profile_and_navigation_reachable(page, visual_origin, role, width):
+        page.set_viewport_size({'width':width,'height':900})
+        page.goto(visual_origin + '/__forest_test?role=' + role)
+        page.wait_for_load_state('networkidle')
+        assert page.evaluate('document.documentElement.scrollWidth &lt;= innerWidth + 1')
+        profile = page.get_by_role('link', name='Mi perfil', exact=True).first
+&gt;       assert profile.is_visible()
+E       assert False
+E        +  where False = is_visible()
+E        +    where is_visible = &lt;Locator frame=&lt;Frame name= url='http://127.0.0.1:58622/__forest_test?role=business_owner'&gt; selector='internal:role=link[name="Mi perfil"s] &gt;&gt; nth=0'&gt;.is_visible
+
+test\test_forest_home.py:122: AssertionError</failure></testcase><testcase classname="test.test_forest_home" name="test_authenticated_header_keeps_profile_and_navigation_reachable[768-admin]" time="1.990"><failure message="assert False&#10; +  where False = is_visible()&#10; +    where is_visible = &lt;Locator frame=&lt;Frame name= url='http://127.0.0.1:58622/__forest_test?role=admin'&gt; selector='internal:role=link[name=&quot;Mi perfil&quot;s] &gt;&gt; nth=0'&gt;.is_visible">page = &lt;Page url='http://127.0.0.1:58622/__forest_test?role=admin'&gt;
+visual_origin = 'http://127.0.0.1:58622', role = 'admin', width = 768
+
+    @pytest.mark.parametrize('role', ['user', 'business_owner', 'admin'])
+    @pytest.mark.parametrize('width', [320,375,768,1440])
+    def test_authenticated_header_keeps_profile_and_navigation_reachable(page, visual_origin, role, width):
+        page.set_viewport_size({'width':width,'height':900})
+        page.goto(visual_origin + '/__forest_test?role=' + role)
+        page.wait_for_load_state('networkidle')
+        assert page.evaluate('document.documentElement.scrollWidth &lt;= innerWidth + 1')
+        profile = page.get_by_role('link', name='Mi perfil', exact=True).first
+&gt;       assert profile.is_visible()
+E       assert False
+E        +  where False = is_visible()
+E        +    where is_visible = &lt;Locator frame=&lt;Frame name= url='http://127.0.0.1:58622/__forest_test?role=admin'&gt; selector='internal:role=link[name="Mi perfil"s] &gt;&gt; nth=0'&gt;.is_visible
+
+test\test_forest_home.py:122: AssertionError</failure></testcase><testcase classname="test.test_forest_home" name="test_authenticated_header_keeps_profile_and_navigation_reachable[1440-user]" time="2.367" /><testcase classname="test.test_forest_home" name="test_authenticated_header_keeps_profile_and_navigation_reachable[1440-business_owner]" time="1.970"><failure message="assert False&#10; +  where False = is_visible()&#10; +    where is_visible = &lt;Locator frame=&lt;Frame name= url='http://127.0.0.1:58622/__forest_test?role=business_owner'&gt; selector='internal:role=link[name=&quot;Mi perfil&quot;s] &gt;&gt; nth=0'&gt;.is_visible">page = &lt;Page url='http://127.0.0.1:58622/__forest_test?role=business_owner'&gt;
+visual_origin = 'http://127.0.0.1:58622', role = 'business_owner', width = 1440
+
+    @pytest.mark.parametrize('role', ['user', 'business_owner', 'admin'])
+    @pytest.mark.parametrize('width', [320,375,768,1440])
+    def test_authenticated_header_keeps_profile_and_navigation_reachable(page, visual_origin, role, width):
+        page.set_viewport_size({'width':width,'height':900})
+        page.goto(visual_origin + '/__forest_test?role=' + role)
+        page.wait_for_load_state('networkidle')
+        assert page.evaluate('document.documentElement.scrollWidth &lt;= innerWidth + 1')
+        profile = page.get_by_role('link', name='Mi perfil', exact=True).first
+&gt;       assert profile.is_visible()
+E       assert False
+E        +  where False = is_visible()
+E        +    where is_visible = &lt;Locator frame=&lt;Frame name= url='http://127.0.0.1:58622/__forest_test?role=business_owner'&gt; selector='internal:role=link[name="Mi perfil"s] &gt;&gt; nth=0'&gt;.is_visible
+
+test\test_forest_home.py:122: AssertionError</failure></testcase><testcase classname="test.test_forest_home" name="test_authenticated_header_keeps_profile_and_navigation_reachable[1440-admin]" time="2.619"><failure message="assert False&#10; +  where False = is_visible()&#10; +    where is_visible = &lt;Locator frame=&lt;Frame name= url='http://127.0.0.1:58622/__forest_test?role=admin'&gt; selector='internal:role=link[name=&quot;Mi perfil&quot;s] &gt;&gt; nth=0'&gt;.is_visible">page = &lt;Page url='http://127.0.0.1:58622/__forest_test?role=admin'&gt;
+visual_origin = 'http://127.0.0.1:58622', role = 'admin', width = 1440
+
+    @pytest.mark.parametrize('role', ['user', 'business_owner', 'admin'])
+    @pytest.mark.parametrize('width', [320,375,768,1440])
+    def test_authenticated_header_keeps_profile_and_navigation_reachable(page, visual_origin, role, width):
+        page.set_viewport_size({'width':width,'height':900})
+        page.goto(visual_origin + '/__forest_test?role=' + role)
+        page.wait_for_load_state('networkidle')
+        assert page.evaluate('document.documentElement.scrollWidth &lt;= innerWidth + 1')
+        profile = page.get_by_role('link', name='Mi perfil', exact=True).first
+&gt;       assert profile.is_visible()
+E       assert False
+E        +  where False = is_visible()
+E        +    where is_visible = &lt;Locator frame=&lt;Frame name= url='http://127.0.0.1:58622/__forest_test?role=admin'&gt; selector='internal:role=link[name="Mi perfil"s] &gt;&gt; nth=0'&gt;.is_visible
+
+test\test_forest_home.py:122: AssertionError</failure></testcase></testsuite></testsuites>

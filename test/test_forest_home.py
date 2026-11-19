@@ -82,7 +82,7 @@ def test_map_switch_preserves_current_results_and_query(page):
     assert page.locator('.map-column').is_visible()
     assert page.locator('input[name=q]').input_value() == 'prueba'
     assert page.locator('#resultsGrid .restaurant-card').count() == 1
-    page.get_by_role('button', name='Ver lista', exact=True).click()
+    page.get_by_role('button', name='Cerrar mapa', exact=True).click()
     assert not page.locator('.map-column').is_visible()
 
 
@@ -103,9 +103,11 @@ def test_featured_selection_can_expand_without_losing_other_sections(page):
       window.app.state.filteredRestaurants = window.app.state.restaurants;
       window.app.renderRestaurants();
     }''')
-    assert page.locator('#resultsGrid .restaurant-card').count() == 3
-    page.get_by_role('button', name='Ver todos los restaurantes', exact=False).click()
     assert page.locator('#resultsGrid .restaurant-card').count() == 5
+    page.evaluate('''() => { const rows=window.app.state.restaurants; window.app.state.filteredRestaurants=[...rows,...rows.map(r=>({...r,id:r.id+100}))];window.app.renderRestaurants(); }''')
+    assert page.locator('#resultsGrid .restaurant-card').count() == 6
+    page.locator('#restaurant-pagination').get_by_role('button',name='Siguiente',exact=True).click()
+    assert page.locator('#resultsGrid .restaurant-card').count() == 4
     assert page.locator('#ofertas').is_visible()
 
 

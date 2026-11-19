@@ -17,7 +17,7 @@ TEMPLATES=('atelier','bistro','studio','commercial','minimal','promotional','fit
 TEXT_LIMITS={'name':160,'slug':70,'tagline':180,'description':2000,'history':5000,
              'seo_title':70,'seo_description':180,'delivery_info':700,'pickup_info':700}
 NETWORKS={'instagram':'instagram.com','facebook':'facebook.com','youtube':'youtube.com',
-          'tiktok':'tiktok.com','website':None}
+          'tiktok':'tiktok.com','whatsapp':'wa.me','website':None}
 
 class SiteModel(DataModel):
     collection='business_sites'
@@ -36,6 +36,7 @@ def default_site(restaurant):
         'tagline':'','description':restaurant.get('description',''),'history':'',
         'primary_color':'#155c48','secondary_color':'#d9b985','template':'atelier',
         'on_primary':'#ffffff','logo':'','cover':'','gallery':[],'videos':[],
+        'hero_style':'commercial',
         'social':{},'specialties':[],'featured_dish_ids':[],'seo_title':restaurant.get('name',''),
         'seo_description':str(restaurant.get('description',''))[:160],
         'delivery_info':'','pickup_info':'','rights_confirmed':False}
@@ -73,6 +74,10 @@ def normalize_site(patch,previous):
     template=patch.get('template',result['template'])
     if template not in TEMPLATES:raise ValueError('Plantilla no disponible')
     result['template']=template
+    hero_style=patch.get('hero_style',result.get('hero_style','commercial'))
+    if hero_style not in {'commercial','minimal','promotional','fit','immersive'}:
+        raise ValueError('Estilo de Hero no disponible')
+    result['hero_style']=hero_style
     for key in ('logo','cover'):
         if key in patch:result[key]=safe_media_url(patch[key])
     for key,limit in [('gallery',20),('videos',8),('specialties',12),('featured_dish_ids',12)]:
@@ -149,6 +154,7 @@ def publish(restaurant,actor,enabled=True):
         conn.execute('SELECT pg_advisory_xact_lock(731041)')
         row=find_site(restaurant['id'])
         if not row:raise ValueError('Guarda el borrador antes de publicar')
+        if enabled and row.get('content_review_state')=='rejected':raise ValueError('El sitio fue retirado; solicita revisión administrativa antes de volver a publicar')
         if enabled:
             if not restaurant.get('verified') or restaurant.get('status') in {'suspended','archived','rejected'}:
                 raise ValueError('El negocio requiere aprobación para publicar su sitio')

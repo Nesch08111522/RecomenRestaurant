@@ -1,6 +1,8 @@
 """Validate compact self-contained binary glTF files before exposing a dish preview."""
 import json
 import struct
+from io import BytesIO
+from PIL import Image
 from logic.market import MarketError
 
 
@@ -41,6 +43,15 @@ def validate_glb(raw):
         buffers = data.get("buffers",[])
         if len(buffers)>1 or buffers and (len(chunks)!=2 or buffers[0]["byteLength"]>len(chunks[1][1])):
             raise ValueError
-    except (ValueError,KeyError,TypeError,RecursionError):
+        for image in data.get('images',[]):
+            if len(chunks)!=2 or image.get('mimeType') not in ('image/png','image/jpeg'):
+                raise ValueError
+            view=data['bufferViews'][image['bufferView']]
+            start=view.get('byteOffset',0);length=view['byteLength']
+            if view.get('buffer',0)!=0 or type(start)!=int or type(length)!=int or start<0 or length<=0 or start+length>len(chunks[1][1]):raise ValueError
+            with Image.open(BytesIO(chunks[1][1][start:start+length])) as texture:
+                if texture.width>4096 or texture.height>4096 or texture.width*texture.height>16000000:raise ValueError
+                texture.verify()
+    except (ValueError,KeyError,TypeError,RecursionError,IndexError,OSError,Image.DecompressionBombError):
         raise MarketError("Exporta un modelo optimizado con texturas incluidas y sin extensiones.") from None
     return raw

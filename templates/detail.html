@@ -22,7 +22,7 @@
         <h1>{{ restaurant.name }}</h1>
         <a href="{{ url_for('main.explore_catalog') }}">Explorar y comparar negocios</a>
         <div class="detail-meta">
-            <span class="rating"><i class="fas fa-star" style="color: #FFB800;"></i> {{ restaurant.rating }}</span>
+            <span class="rating"><i class="fas fa-star" style="color: var(--theme-warning);"></i> {{ restaurant.rating }}</span>
             <span class="dot">•</span>
             <span class="address"><i class="fas fa-map-marker-alt"></i> {{ restaurant.address }}, {{ restaurant.district }}</span>
             {% if restaurant.distance_km is number %}
@@ -94,7 +94,7 @@
                                             <strong>📌 Recomendado porque:</strong>
                                             <ul>
                                                 {% for reason in explanation.reasons %}
-                                                    <li><i class="fas fa-star" style="color: #FFB800;"></i> {{ reason }}</li>
+                                                    <li><i class="fas fa-star" style="color: var(--theme-warning);"></i> {{ reason }}</li>
                                                 {% endfor %}
                                             </ul>
                                         </div>
@@ -105,7 +105,7 @@
                                             <strong>⚠️ Consideraciones:</strong>
                                             <ul>
                                                 {% for exclusion in explanation.exclusions %}
-                                                    <li><i class="fas fa-exclamation-triangle" style="color: #dc2626;"></i> {{ exclusion }}</li>
+                                                    <li><i class="fas fa-exclamation-triangle" style="color: var(--theme-danger);"></i> {{ exclusion }}</li>
                                                 {% endfor %}
                                             </ul>
                                         </div>
@@ -138,13 +138,14 @@
             </section>
 
             <!-- Carta digital -->
-            <section class="menu-section">
+            <section class="menu-section" id="carta">
                 <div class="menu-header">
-                    <h2><i class="fas fa-utensils"></i> Carta y menú de hoy</h2>
+                    <h2><i class="fas fa-utensils"></i> Carta y menú {{ 'del ' ~ menu_day_label if menu_day_label else 'de hoy' }}</h2>
                     <div class="menu-badge">
                         <span class="badge-count">{{ dishes|length }} {{ 'plato' if dishes|length == 1 else 'platos' }}</span>
                     </div>
                 </div>
+                {% if menu_day_label %}<p><a href="{{ url_for('main.detail', restaurant_id=restaurant.id, _anchor='carta') }}">Ver el menú de hoy</a></p>{% endif %}
 
                 {% if restaurant.menu_intro %}
                     <p class="menu-introduction">{{ restaurant.menu_intro }}</p>
@@ -174,12 +175,12 @@
                                 </div>
                                 <div class="category-dishes">
                                     {% for dish in category_dishes %}
-                                        <div class="dish-item">
+                                        <div class="dish-item" id="plato-{{ dish.id }}">
                                             <div class="dish-info">
                                                 <div class="dish-name-wrapper">
                                                     <h4>{{ dish.name }}</h4>
                                                     {% if dish.menu_date %}
-                                                        <span class="variable-menu-badge">Menú variable · hoy</span>
+                                                        <span class="variable-menu-badge">Menú variable · {{ menu_day_label or 'hoy' }}</span>
                                                     {% endif %}
                                                     {% if dish.is_recommended %}
                                                         <span class="chef-recommendation">👨‍🍳 Recomendado</span>
@@ -230,7 +231,7 @@
                     </div>
                 {% else %}
                     <div class="empty-menu">
-                        <i class="fas fa-utensils" style="font-size: 48px; color: var(--light-gray);"></i>
+                        <i class="fas fa-utensils" style="font-size:var(--text-display); color: var(--theme-text);"></i>
                         <p>Este restaurante aún no tiene carta digital.</p>
                     </div>
                 {% endif %}
@@ -346,14 +347,14 @@
     .detail-container {
         max-width: 1120px;
         margin: 0 auto;
-        padding: 24px 40px 60px;
+        padding:var(--space-lg) var(--space-xl) var(--space-2xl);
     }
 
     /* Header */
     .detail-header { margin-bottom: 24px; }
     .detail-header h1 {
         font-family: var(--font-heading);
-        font-size: 32px;
+        font-size:var(--text-2xl);
         font-weight: 700;
         margin-bottom: 8px;
     }
@@ -361,12 +362,12 @@
         display: flex;
         flex-wrap: wrap;
         align-items: center;
-        gap: 8px;
-        color: var(--gray);
-        font-size: 14px;
+        gap:var(--space-sm);
+        color: var(--theme-text);
+        font-size:var(--text-sm);
     }
-    .detail-meta .dot { color: var(--light-gray); }
-    .detail-meta .rating { color: var(--dark); font-weight: 600; }
+    .detail-meta .dot { color: var(--theme-text); }
+    .detail-meta .rating { color: var(--theme-text); font-weight: 600; }
     .detail-meta i { margin-right: 4px; }
 
     /* Galería */
@@ -386,100 +387,100 @@
         position: absolute;
         top: 20px;
         left: 20px;
-        background: var(--primary);
-        color: white;
-        padding: 8px 16px;
+        background: var(--theme-accent-bg);
+        color: var(--theme-text);
+        padding:var(--space-sm) var(--space-md);
         border-radius: 8px;
         font-weight: 600;
-        font-size: 14px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        font-size:var(--text-sm);
+        box-shadow: 0 4px 12px var(--theme-shadow);
     }
     .promo-badge-gallery i { margin-right: 6px; }
 
     /* Layout */
-    .detail-content { display: flex; gap: 60px; }
+    .detail-content { display: flex; gap:var(--space-2xl); }
     .info-column { flex: 1; min-width: 0; }
     .sticky-sidebar { flex: 0 0 340px; }
 
     /* Descripción */
     .description { margin-bottom: 32px; }
-    .description h2 { font-size: 20px; font-weight: 600; margin-bottom: 12px; }
-    .description h2 i { color: var(--primary); margin-right: 8px; }
-    .description p { color: var(--gray); line-height: 1.7; margin-bottom: 16px; }
-    .restaurant-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+    .description h2 { font-size:var(--text-lg); font-weight: 600; margin-bottom: 12px; }
+    .description h2 i { color: var(--theme-accent); margin-right: 8px; }
+    .description p { color: var(--theme-text); line-height: 1.7; margin-bottom: 16px; }
+    .restaurant-tags { display: flex; flex-wrap: wrap; gap:var(--space-sm); }
     .tag-category {
-        padding: 4px 14px;
-        background: var(--primary-light);
-        color: var(--primary);
+        padding:var(--space-xs) var(--space-md);
+        background: var(--theme-accent-bg);
+        color: var(--theme-accent);
         border-radius: 20px;
-        font-size: 13px;
+        font-size:var(--text-sm);
         font-weight: 500;
     }
     .tag-feature {
-        padding: 4px 14px;
-        background: #e5e7eb;
-        color: var(--gray);
+        padding:var(--space-xs) var(--space-md);
+        background: var(--theme-surface);
+        color: var(--theme-text);
         border-radius: 20px;
-        font-size: 13px;
+        font-size:var(--text-sm);
         display: inline-flex;
         align-items: center;
-        gap: 4px;
+        gap:var(--space-xs);
     }
-    .tag-feature i { color: #10B981; font-size: 12px; }
+    .tag-feature i { color: var(--theme-success); font-size:var(--text-xs); }
 
     /* Caja IA */
     .ia-box {
-        background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-        border: 1px solid #bae6fd;
+        background: linear-gradient(135deg, var(--theme-surface) 0%, var(--theme-surface) 100%);
+        border: 1px solid var(--theme-border);
         border-radius: 16px;
-        padding: 24px;
+        padding:var(--space-lg);
         display: flex;
-        gap: 20px;
+        gap:var(--space-md);
         margin: 32px 0;
         transition: all 0.3s ease;
     }
-    .ia-box:hover { box-shadow: 0 4px 20px rgba(56, 189, 248, 0.15); }
+    .ia-box:hover { box-shadow: 0 4px 20px var(--theme-shadow); }
     .ia-icon {
         flex-shrink: 0;
         width: 56px;
         height: 56px;
-        background: #0369a1;
+        background: var(--theme-info-bg);
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        color: white;
-        font-size: 28px;
+        color: var(--theme-text);
+        font-size:var(--text-2xl);
     }
     .ia-content { flex: 1; }
-    .ia-content h3 { font-size: 18px; font-weight: 600; color: #0369a1; margin-bottom: 8px; }
-    .ia-status { padding: 8px 16px; border-radius: 8px; font-weight: 500; margin-bottom: 12px; }
-    .ia-status.compatible { background: #dcfce7; color: #166534; }
-    .ia-status.incompatible { background: #fee2e2; color: #991b1b; }
+    .ia-content h3 { font-size:var(--text-lg); font-weight: 600; color: var(--theme-info); margin-bottom: 8px; }
+    .ia-status { padding:var(--space-sm) var(--space-md); border-radius: 8px; font-weight: 500; margin-bottom: 12px; }
+    .ia-status.compatible { background: var(--theme-success-bg); color: var(--theme-success); }
+    .ia-status.incompatible { background: var(--theme-surface); color: var(--theme-danger); }
     .ia-reasons, .ia-exclusions { margin-bottom: 12px; }
     .ia-reasons strong, .ia-exclusions strong, .ia-dietary strong {
         display: block;
         margin-bottom: 4px;
-        font-size: 14px;
-        color: var(--dark);
+        font-size:var(--text-sm);
+        color: var(--theme-text);
     }
-    .ia-exclusions strong { color: #991b1b; }
-    .ia-reasons ul, .ia-exclusions ul { list-style: none; padding: 0; }
+    .ia-exclusions strong { color: var(--theme-danger); }
+    .ia-reasons ul, .ia-exclusions ul { list-style: none; padding:0; }
     .ia-reasons ul li, .ia-exclusions ul li {
-        padding: 4px 0;
-        font-size: 14px;
-        color: var(--gray);
+        padding:var(--space-xs) 0;
+        font-size:var(--text-sm);
+        color: var(--theme-text);
         display: flex;
         align-items: center;
-        gap: 6px;
+        gap:var(--space-xs);
     }
-    .ia-exclusions ul li { color: #dc2626; }
-    .dietary-tags { display: flex; flex-wrap: wrap; gap: 6px; }
-    .dietary-tag { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 500; }
-    .dietary-tag.vegan { background: #dcfce7; color: #166534; }
-    .dietary-tag.vegetarian { background: #fef3c7; color: #92400e; }
-    .dietary-tag.gluten-free { background: #dbeafe; color: #1e40af; }
-    .dietary-tag.none { background: #f3f4f6; color: #6b7280; }
+    .ia-exclusions ul li { color: var(--theme-danger); }
+    .dietary-tags { display: flex; flex-wrap: wrap; gap:var(--space-xs); }
+    .dietary-tag { padding:var(--space-xs) var(--space-sm); border-radius: 20px; font-size:var(--text-xs); font-weight: 500; }
+    .dietary-tag.vegan { background: var(--theme-success-bg); color: var(--theme-success); }
+    .dietary-tag.vegetarian { background: var(--theme-warning-bg); color: var(--theme-warning); }
+    .dietary-tag.gluten-free { background: var(--theme-info-bg); color: var(--theme-info); }
+    .dietary-tag.none { background: var(--theme-surface); color: var(--theme-text); }
 
     /* Carta digital */
     .menu-section { margin-top: 32px; }
@@ -488,218 +489,218 @@
         justify-content: space-between;
         align-items: center;
         margin-bottom: 24px;
-        padding-bottom: 16px;
-        border-bottom: 2px solid var(--light-gray);
+        padding-bottom:var(--space-md);
+        border-bottom: 2px solid var(--theme-border);
     }
-    .menu-header h2 { font-size: 24px; font-weight: 700; }
-    .menu-header h2 i { color: var(--primary); margin-right: 8px; }
+    .menu-header h2 { font-size:var(--text-xl); font-weight: 700; }
+    .menu-header h2 i { color: var(--theme-accent); margin-right: 8px; }
     .badge-count {
-        background: var(--primary-light);
-        color: var(--primary);
-        padding: 4px 16px;
+        background: var(--theme-accent-bg);
+        color: var(--theme-accent);
+        padding:var(--space-xs) var(--space-md);
         border-radius: 20px;
-        font-size: 14px;
+        font-size:var(--text-sm);
         font-weight: 600;
     }
-    .menu-categories { display: flex; flex-direction: column; gap: 32px; }
+    .menu-categories { display: flex; flex-direction: column; gap:var(--space-lg); }
     .menu-category {
-        background: var(--white);
+        background: var(--theme-surface);
         border-radius: 16px;
-        border: 1px solid var(--light-gray);
+        border: 1px solid var(--theme-border);
         overflow: hidden;
         transition: all 0.3s ease;
     }
-    .menu-category:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
+    .menu-category:hover { box-shadow: 0 4px 20px var(--theme-shadow); }
     .category-header {
-        background: #f8fafc;
-        padding: 16px 24px;
+        background: var(--theme-surface);
+        padding:var(--space-md) var(--space-lg);
         display: flex;
         justify-content: space-between;
         align-items: center;
-        border-bottom: 1px solid var(--light-gray);
+        border-bottom: 1px solid var(--theme-border);
     }
-    .category-header h3 { font-size: 18px; font-weight: 600; color: var(--dark); }
+    .category-header h3 { font-size:var(--text-lg); font-weight: 600; color: var(--theme-text); }
     .category-header h3::before {
         content: "";
         display: inline-block;
         width: 4px;
         height: 20px;
-        background: var(--primary);
+        background: var(--theme-accent-bg);
         border-radius: 4px;
         margin-right: 12px;
         vertical-align: middle;
     }
     .category-count {
-        font-size: 13px;
-        color: var(--gray);
-        background: var(--white);
-        padding: 2px 12px;
+        font-size:var(--text-sm);
+        color: var(--theme-text);
+        background: var(--theme-surface);
+        padding:0.125rem var(--space-sm);
         border-radius: 12px;
-        border: 1px solid var(--light-gray);
+        border: 1px solid var(--theme-border);
     }
-    .category-dishes { padding: 8px 0; }
+    .category-dishes { padding:var(--space-sm) 0; }
     .dish-item {
         display: flex;
         justify-content: space-between;
-        padding: 16px 24px;
-        border-bottom: 1px solid #f1f5f9;
+        padding:var(--space-md) var(--space-lg);
+        border-bottom: 1px solid var(--theme-border);
         transition: background 0.2s ease;
     }
     .dish-item:last-child { border-bottom: none; }
-    .dish-item:hover { background: #fafbfc; }
-    .dish-info { flex: 1; padding-right: 20px; }
+    .dish-item:hover { background: var(--theme-surface); }
+    .dish-info { flex: 1; padding-right:var(--space-md); }
     .dish-name-wrapper {
         display: flex;
         flex-wrap: wrap;
         align-items: center;
-        gap: 8px;
+        gap:var(--space-sm);
         margin-bottom: 4px;
     }
-    .dish-name-wrapper h4 { font-size: 16px; font-weight: 500; color: var(--dark); margin: 0; }
-    .variable-menu-badge { padding: 2px 9px; border-radius: 12px; background: #e0f2fe; color: #075985; font-size: 11px; font-weight: 600; }
+    .dish-name-wrapper h4 { font-size:var(--text-base); font-weight: 500; color: var(--theme-text); margin: 0; }
+    .variable-menu-badge { padding:0.125rem var(--space-sm); border-radius: 12px; background: var(--theme-surface); color: var(--theme-info); font-size:var(--text-xs); font-weight: 600; }
     .chef-recommendation {
-        font-size: 12px;
-        background: #fef3c7;
-        color: #92400e;
-        padding: 2px 10px;
+        font-size:var(--text-xs);
+        background: var(--theme-warning-bg);
+        color: var(--theme-warning);
+        padding:0.125rem var(--space-sm);
         border-radius: 12px;
         font-weight: 500;
     }
-    .spiciness { font-size: 14px; letter-spacing: -2px; }
-    .dish-description { font-size: 14px; color: var(--gray); margin: 4px 0 8px; line-height: 1.5; }
-    .dish-meta { display: flex; flex-wrap: wrap; gap: 12px; font-size: 13px; color: var(--gray); }
-    .dish-ingredients { display: flex; align-items: center; gap: 4px; }
-    .dish-ingredients i { font-size: 12px; color: #10B981; }
-    .dish-dietary { display: flex; gap: 4px; }
+    .spiciness { font-size:var(--text-sm); letter-spacing: -2px; }
+    .dish-description { font-size:var(--text-sm); color: var(--theme-text); margin: 4px 0 8px; line-height: 1.5; }
+    .dish-meta { display: flex; flex-wrap: wrap; gap:var(--space-sm); font-size:var(--text-sm); color: var(--theme-text); }
+    .dish-ingredients { display: flex; align-items: center; gap:var(--space-xs); }
+    .dish-ingredients i { font-size:var(--text-xs); color: var(--theme-success); }
+    .dish-dietary { display: flex; gap:var(--space-xs); }
     .diet-tag {
-        padding: 1px 8px;
-        background: #e5e7eb;
+        padding:0.0625rem var(--space-sm);
+        background: var(--theme-surface);
         border-radius: 10px;
-        font-size: 11px;
-        color: var(--gray);
+        font-size:var(--text-xs);
+        color: var(--theme-text);
     }
-    .dish-time { display: flex; align-items: center; gap: 4px; }
+    .dish-time { display: flex; align-items: center; gap:var(--space-xs); }
     .dish-price { text-align: right; flex-shrink: 0; min-width: 100px; }
-    .price-amount { display: block; font-size: 18px; font-weight: 700; color: var(--dark); }
-    .available-badge { font-size: 12px; color: #10B981; font-weight: 500; }
-    .unavailable-badge { font-size: 12px; color: #dc2626; font-weight: 500; }
+    .price-amount { display: block; font-size:var(--text-lg); font-weight: 700; color: var(--theme-text); }
+    .available-badge { font-size:var(--text-xs); color: var(--theme-success); font-weight: 500; }
+    .unavailable-badge { font-size:var(--text-xs); color: var(--theme-danger); font-weight: 500; }
 
     /* Sidebar */
     .booking-card {
-        background: var(--white);
-        border: 1px solid var(--light-gray);
+        background: var(--theme-surface);
+        border: 1px solid var(--theme-border);
         border-radius: 16px;
-        padding: 28px;
-        box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+        padding:var(--space-lg);
+        box-shadow: 0 4px 24px var(--theme-shadow);
         position: sticky;
         top: 100px;
     }
     .booking-header {
         text-align: center;
-        padding-bottom: 20px;
-        border-bottom: 1px solid var(--light-gray);
+        padding-bottom:var(--space-md);
+        border-bottom: 1px solid var(--theme-border);
         margin-bottom: 20px;
     }
-    .booking-header h3 { font-size: 14px; font-weight: 500; color: var(--gray); margin-bottom: 4px; }
-    .price-val { font-size: 32px; font-weight: 700; color: var(--dark); margin: 0; }
-    .price-per-person { font-size: 13px; color: var(--gray); }
+    .booking-header h3 { font-size:var(--text-sm); font-weight: 500; color: var(--theme-text); margin-bottom: 4px; }
+    .price-val { font-size:var(--text-2xl); font-weight: 700; color: var(--theme-text); margin: 0; }
+    .price-per-person { font-size:var(--text-sm); color: var(--theme-text); }
     .booking-info { margin-bottom: 20px; }
     .info-row {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 8px 0;
-        border-bottom: 1px solid #f1f5f9;
-        font-size: 14px;
+        padding:var(--space-sm) 0;
+        border-bottom: 1px solid var(--theme-border);
+        font-size:var(--text-sm);
     }
     .info-row:last-child { border-bottom: none; }
-    .info-row i { color: var(--primary); width: 20px; }
-    .info-row span { flex: 1; margin-left: 12px; color: var(--gray); }
-    .info-row strong { font-weight: 600; color: var(--dark); }
+    .info-row i { color: var(--theme-accent); width: 20px; }
+    .info-row span { flex: 1; margin-left: 12px; color: var(--theme-text); }
+    .info-row strong { font-weight: 600; color: var(--theme-text); }
 
     .promo-row {
-        background: #fef3c7;
+        background: var(--theme-warning-bg);
         border-radius: 8px;
-        padding: 10px 12px;
+        padding:var(--space-sm) var(--space-sm);
         margin-top: 8px;
         display: flex;
         flex-direction: column;
-        gap: 2px;
+        gap:0.125rem;
     }
-    .promo-title { font-size: 13px; color: #92400e; }
+    .promo-title { font-size:var(--text-sm); color: var(--theme-warning); }
     .promo-title i { margin-right: 6px; }
-    .promo-row strong { color: var(--primary); font-size: 14px; }
+    .promo-row strong { color: var(--theme-accent); font-size:var(--text-sm); }
 
     .reserve-btn {
         width: 100%;
-        padding: 14px;
-        background: var(--primary);
-        color: #fff;
+        padding:var(--space-md);
+        background: var(--theme-accent-bg);
+        color: var(--theme-text);
         border: none;
         border-radius: 10px;
-        font-size: 16px;
+        font-size:var(--text-base);
         font-weight: 600;
         cursor: pointer;
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 8px;
+        gap:var(--space-sm);
         margin-bottom: 20px;
         text-decoration: none;
         transition: transform .2s, box-shadow .2s;
     }
-    .reserve-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 20px rgba(255,56,92,.3); }
-    .reserve-btn--login { background: var(--dark); }
+    .reserve-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 20px var(--theme-shadow); }
+    .reserve-btn--login { background: var(--theme-surface); }
 
     .contact-info {
         display: flex;
         flex-direction: column;
-        gap: 12px;
-        padding-top: 16px;
-        border-top: 1px solid var(--light-gray);
+        gap:var(--space-sm);
+        padding-top:var(--space-md);
+        border-top: 1px solid var(--theme-border);
     }
     .contact-item {
         display: flex;
         align-items: center;
-        gap: 12px;
-        font-size: 14px;
-        color: var(--gray);
+        gap:var(--space-sm);
+        font-size:var(--text-sm);
+        color: var(--theme-text);
     }
-    .contact-item i { width: 20px; color: var(--dark); }
+    .contact-item i { width: 20px; color: var(--theme-text); }
     .contact-item a { color: inherit; text-decoration: none; }
-    .contact-item a:hover { color: var(--primary); }
+    .contact-item a:hover { color: var(--theme-accent); }
     .contact-item--location { align-items: flex-start; }
     .contact-item--location i { margin-top: 3px; }
-    .contact-item--location small { display: block; color: var(--gray); font-size: 13px; }
+    .contact-item--location small { display: block; color: var(--theme-text); font-size:var(--text-sm); }
 
-    .map-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 6px; }
-    .map-actions a { font-size: 13px; font-weight: 600; color: var(--primary); }
+    .map-actions { display: flex; flex-wrap: wrap; gap:var(--space-sm); margin-top: 6px; }
+    .map-actions a { font-size:var(--text-sm); font-weight: 600; color: var(--theme-accent); }
     .map-actions a i { width: auto; color: inherit; margin-right: 4px; }
 
     .open-status {
         margin-left: auto;
-        font-size: 12px;
+        font-size:var(--text-xs);
         font-weight: 600;
-        padding: 2px 10px;
+        padding:0.125rem var(--space-sm);
         border-radius: 12px;
     }
-    .open-status.is-open { background: #dcfce7; color: #166534; }
-    .open-status.is-closed { background: #fee2e2; color: #991b1b; }
+    .open-status.is-open { background: var(--theme-success-bg); color: var(--theme-success); }
+    .open-status.is-closed { background: var(--theme-surface); color: var(--theme-danger); }
 
     .empty-menu {
         text-align: center;
-        padding: 48px 20px;
-        background: var(--white);
+        padding:var(--space-xl) var(--space-md);
+        background: var(--theme-surface);
         border-radius: 16px;
-        border: 1px solid var(--light-gray);
+        border: 1px solid var(--theme-border);
     }
-    .empty-menu p { color: var(--gray); margin-top: 12px; }
+    .empty-menu p { color: var(--theme-text); margin-top: 12px; }
 
     /* Modal de reserva */
     .modal-overlay {
         position: fixed;
         inset: 0;
-        background: rgba(0,0,0,.5);
+        background: var(--theme-surface);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -707,21 +708,21 @@
     }
     .modal-overlay[hidden] { display: none; }
     .modal-box {
-        background: #fff;
+        background: var(--theme-surface);
         border-radius: 16px;
-        padding: 28px;
+        padding:var(--space-lg);
         width: min(420px, 92vw);
         position: relative;
     }
-    .modal-box h3 { margin-bottom: 16px; font-size: 20px; }
-    .modal-box label { display: block; margin-bottom: 14px; font-size: 14px; color: var(--gray); }
+    .modal-box h3 { margin-bottom: 16px; font-size:var(--text-lg); }
+    .modal-box label { display: block; margin-bottom: 14px; font-size:var(--text-sm); color: var(--theme-text); }
     .modal-box input {
         width: 100%;
         margin-top: 4px;
-        padding: 10px 12px;
-        border: 1px solid var(--light-gray);
+        padding:var(--space-sm) var(--space-sm);
+        border: 1px solid var(--theme-border);
         border-radius: 8px;
-        font-size: 15px;
+        font-size:var(--text-base);
     }
     .modal-box .reserve-btn { margin-bottom: 0; margin-top: 8px; }
     .modal-close {
@@ -730,39 +731,39 @@
         right: 16px;
         background: none;
         border: none;
-        font-size: 26px;
+        font-size:var(--text-xl);
         cursor: pointer;
     }
 
     /* Responsive */
     @media (max-width: 768px) {
-        .detail-container { padding: 16px; }
-        .detail-content { flex-direction: column; gap: 32px; }
+        .detail-container { padding:var(--space-md); }
+        .detail-content { flex-direction: column; gap:var(--space-lg); }
         .sticky-sidebar { flex: 1; }
         .booking-card { position: static; }
         .main-image img { height: 250px; }
-        .detail-header h1 { font-size: 24px; }
+        .detail-header h1 { font-size:var(--text-xl); }
         .ia-box { flex-direction: column; align-items: center; text-align: center; }
-        .ia-icon { width: 48px; height: 48px; font-size: 22px; }
-        .dish-item { flex-direction: column; padding: 16px; }
+        .ia-icon { width: 48px; height: 48px; font-size:var(--text-xl); }
+        .dish-item { flex-direction: column; padding:var(--space-md); }
         .dish-price {
             text-align: left;
             min-width: auto;
             margin-top: 8px;
-            padding-top: 8px;
-            border-top: 1px solid var(--light-gray);
+            padding-top:var(--space-sm);
+            border-top: 1px solid var(--theme-border);
         }
         .price-amount { display: inline; margin-right: 12px; }
-        .category-header { flex-direction: column; gap: 4px; text-align: center; }
+        .category-header { flex-direction: column; gap:var(--space-xs); text-align: center; }
         .category-header h3::before { display: none; }
-        .dish-meta { flex-direction: column; gap: 4px; }
+        .dish-meta { flex-direction: column; gap:var(--space-xs); }
     }
     @media (max-width: 480px) {
-        .detail-meta { font-size: 13px; }
-        .restaurant-tags { gap: 4px; }
-        .tag-category, .tag-feature { font-size: 12px; padding: 2px 10px; }
-        .menu-header { flex-direction: column; gap: 8px; text-align: center; }
-        .price-val { font-size: 24px; }
+        .detail-meta { font-size:var(--text-sm); }
+        .restaurant-tags { gap:var(--space-xs); }
+        .tag-category, .tag-feature { font-size:var(--text-xs); padding:0.125rem var(--space-sm); }
+        .menu-header { flex-direction: column; gap:var(--space-sm); text-align: center; }
+        .price-val { font-size:var(--text-xl); }
     }
 </style>
 
@@ -815,6 +816,6 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 <style>
-    .menu-introduction { margin: 4px 0 20px; color: #5b6472; line-height: 1.65; }
+    .menu-introduction { margin: 4px 0 20px; color: var(--theme-text); line-height: 1.65; }
 </style>
 {% endblock %}

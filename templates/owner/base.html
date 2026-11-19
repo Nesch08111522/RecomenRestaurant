@@ -38,13 +38,13 @@
                     <div class="owner-nav-item submenu-toggle" onclick="toggleSubmenu('menuSubmenu')">
                         <i class="fas fa-utensils"></i>
                         <span>Gestionar Menú</span>
-                        <i class="fas fa-chevron-down" style="margin-left: auto; font-size: 12px;"></i>
+                        <i class="fas fa-chevron-down" style="margin-left: auto; font-size:var(--text-xs);"></i>
                     </div>
                     <div class="submenu-items" id="menuSubmenu">
                         {% for r in restaurants %}
                             <a href="{{ url_for('market.desk', rid=r.id) }}" class="owner-nav-item submenu-item">Ventas e inventario · {{ r.name }}</a>
                             <a href="{{ url_for('owner.menu_management', restaurant_id=r.id) }}" class="owner-nav-item submenu-item {% if request.endpoint == 'owner.menu_management' and request.view_args.restaurant_id == r.id %}active{% endif %}">
-                                <i class="fas fa-utensils" style="margin-left: 20px; font-size: 12px;"></i>
+                                <i class="fas fa-utensils" style="margin-left: 20px; font-size:var(--text-xs);"></i>
                                 <span>{{ r.name }}</span>
                             </a>
                         {% endfor %}

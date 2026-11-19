@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block extra_head %}<link rel="stylesheet" href="{{ url_for('static', filename='css/service.css') }}">{% endblock %}
+{% block content %}
+<div class="sr-service">
+  <nav class="sr-service-nav" aria-label="Cola y aforo">
+    <a href="{{ url_for('flow.desk', rid=restaurant.id) }}">{{ restaurant.name }} · Cola y aforo</a>
+    <a href="{{ url_for('salon.desk', rid=restaurant.id) }}">Salón</a>
+    <a href="{{ url_for('salon.manage', rid=restaurant.id) }}">Mesas</a>
+    <a href="{{ url_for('flow.entry_qr', rid=restaurant.id) }}">Descargar QR de entrada</a>
+  </nav>
+  <header class="sr-service-hero">
+    <div><h1>Flujo de atención</h1><p>Capacidad, turnos y rotación con datos de sesiones reales.</p></div>
+    <div class="sr-actions"><span class="sr-chip">{{ seats.occupied }}/{{ seats.seats }} personas</span><span class="sr-chip">{{ queue|length }} esperando</span></div>
+  </header>
+
+  <div class="sr-service-stats">
+    <div><strong>{{ seats.occupancy }}%</strong>Ocupación</div>
+    <div><strong>{{ seats.available_tables }}</strong>Mesas libres</div>
+    <div><strong>{{ seats.busy_tables }}</strong>Mesas ocupadas</div>
+    <div><strong>{{ seats.waiting }}</strong>Grupos en cola</div>
+  </div>
+
+  <section class="sr-service-card">
+    <h2>Configuración de aforo</h2>
+    <form class="sr-service-form" method="post" action="{{ url_for('flow.configure', rid=restaurant.id) }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label class="sr-check"><input type="checkbox" name="accepting" {% if settings.accepting %}checked{% endif %}> Recibiendo turnos</label>
+      <label>Aforo máximo (0 = suma de mesas)<input name="max_capacity" type="number" min="0" max="5000" value="{{ settings.max_capacity }}"></label>
+      <label>Nota pública<input name="note" maxlength="200" value="{{ settings.note }}"></label>
+      <button>Guardar</button>
+    </form>
+    <p class="sr-muted">El aforo mostrado usa la capacidad de las mesas activas. El máximo configurado queda como referencia del negocio.</p>
+  </section>
+
+  <section class="sr-service-card sr-service-card--wide" aria-labelledby="turnos">
+    <h2 id="turnos">Turnos de hoy</h2>
+    {% for row in queue %}
+    <article class="sr-service-card">
+      <div class="sr-actions">
+        <strong>{{ row.code }}</strong><span class="sr-chip">{{ row.status }}</span>
+        <span>{{ row.name }} · {{ row.party_size }} personas</span>
+        <span class="sr-muted">Espera {{ estimates[row.id].minutes if estimates[row.id].minutes is not none else '—' }} min</span>
+      </div>
+      <p class="sr-muted">Base: {{ estimates[row.id].basis }} · muestras {{ estimates[row.id].samples }}{% if row.note %} · {{ row.note }}{% endif %}</p>
+      <div class="sr-actions">
+        <form method="post" action="{{ url_for('flow.call', rid=restaurant.id, qid=row.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="secondary">Llamar</button></form>
+        <form class="sr-service-form" method="post" action="{{ url_for('flow.sit', rid=restaurant.id, qid=row.id) }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <label>Mesa<select name="table_id" required>
+            {% for table in tables|selectattr('capacity','ge',row.party_size) %}<option value="{{ table.id }}">Mesa {{ table.label }} · {{ table.capacity }} plazas · {{ table.zone }}</option>{% endfor %}
+          </select></label>
+          <button>Sentar</button>
+        </form>
+        <form method="post" action="{{ url_for('flow.cancel_staff', rid=restaurant.id, qid=row.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="ghost">Cancelar</button></form>
+        <form method="post" action="{{ url_for('flow.absent', rid=restaurant.id, qid=row.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="ghost">No se presentó</button></form>
+      </div>
+    </article>
+    {% else %}
+    <p class="sr-muted">No hay turnos esperando.</p>
+    {% endfor %}
+  </section>
+
+  <section class="sr-service-card">
+    <h2>Aforo por piso</h2>
+    <table><thead><tr><th scope="col">Piso</th><th scope="col">Sentadas</th><th scope="col">Plazas</th><th scope="col">Mesas</th></tr></thead>
+      <tbody>{% for floor, row in seats.by_floor.items() %}<tr><td>{{ floor }}</td><td>{{ row.occupied }}</td><td>{{ row.seats }}</td><td>{{ row.busy }}/{{ row.tables }}</td></tr>{% endfor %}</tbody></table>
+    <h3>Por zona</h3>
+    <table><tbody>{% for zone, row in seats.by_zone.items() %}<tr><td>{{ zone }}</td><td>{{ row.occupied }}</td><td>{{ row.seats }}</td><td>{{ row.busy }}/{{ row.tables }}</td></tr>{% endfor %}</tbody></table>
+  </section>
+
+  <section class="sr-service-card">
+    <h2>Patrón de llegadas (30 días)</h2>
+    {% if pattern %}
+    <table><thead><tr><th scope="col">Día</th><th scope="col">Hora</th><th scope="col">Grupos</th><th scope="col">Personas</th></tr></thead>
+      <tbody>{% for row in pattern %}<tr><td>{{ ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'][row.weekday] }}</td><td>{{ '%02d:00'|format(row.hour) }}</td><td>{{ row.parties }}</td><td>{{ row.people }}</td></tr>{% endfor %}</tbody></table>
+    <p class="sr-muted">Patrón descriptivo de turnos registrados; no es una predicción entrenada.</p>
+    {% else %}<p class="sr-muted">Aún no hay turnos históricos suficientes.</p>{% endif %}
+  </section>
+
+  <section class="sr-service-card">
+    <h2>Historial reciente</h2>
+    <ul class="sr-list">{% for row in history %}<li><span>{{ row.code }} · {{ row.name }} · {{ row.party_size }}</span><span class="sr-chip">{{ row.status }}</span></li>{% else %}<li class="sr-muted">Sin movimientos.</li>{% endfor %}</ul>
+  </section>
+</div>
+{% endblock %}

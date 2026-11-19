@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block extra_head %}<link rel="stylesheet" href="{{ url_for('static', filename='css/service.css') }}">{% endblock %}
+{% block content %}
+<div class="sr-service">
+  <nav class="sr-service-nav" aria-label="Clientes del negocio">
+    <a href="{{ url_for('loyalty.customers', rid=restaurant.id) }}">{{ restaurant.name }} · Clientes</a>
+    <a href="{{ url_for('salon.desk', rid=restaurant.id) }}">Salón</a>
+    <a href="{{ url_for('market.desk', rid=restaurant.id) }}">Cocina y ventas</a>
+  </nav>
+  <header class="sr-service-hero">
+    <div><h1>Clientes y reputación</h1><p>Clientes nuevos, frecuentes e inactivos según compras entregadas y pagadas. Sin contactos ni datos privados.</p></div>
+    <span class="sr-chip">{{ rating.average }}/5 · {{ rating.total }} reseñas verificadas</span>
+  </header>
+  <div class="sr-service-stats">
+    <div><strong>{{ data.new }}</strong>Nuevos (60 días)</div>
+    <div><strong>{{ data.frequent }}</strong>Frecuentes (3+ compras)</div>
+    <div><strong>{{ data.inactive }}</strong>Inactivos</div>
+    <div><strong>{{ data.customers|length }}</strong>Clientes con compra</div>
+  </div>
+
+  <section class="sr-service-card sr-service-card--wide">
+    <h2>Platos más consumidos</h2>
+    <ul class="sr-list">{% for name, qty in data.dishes %}<li><span>{{ name }}</span><span>{{ qty }}</span></li>{% else %}<li class="sr-muted">Sin ventas registradas.</li>{% endfor %}</ul>
+  </section>
+
+  <section class="sr-service-card sr-service-card--wide">
+    <h2>Clientes</h2>
+    <table>
+      <caption class="sr-muted">El nombre proviene del perfil; no se muestran correos ni teléfonos.</caption>
+      <thead><tr><th scope="col">Cliente</th><th scope="col">Compras</th><th scope="col">Gastado</th><th scope="col">Primera</th><th scope="col">Última</th><th scope="col">Estado</th></tr></thead>
+      <tbody>
+        {% for row in data.customers %}
+        <tr><td>{{ row.name }}</td><td>{{ row.orders }}</td><td>{{ row.spent|soles }}</td><td>{{ row.first[:10] if row.first else '' }}</td><td>{{ row.last[:10] if row.last else '' }}</td><td>{{ 'Frecuente' if row.frequent else ('Activo' if row.active else 'Inactivo') }}</td></tr>
+        {% else %}<tr><td colspan="6" class="sr-muted">Aún no hay compras completadas.</td></tr>{% endfor %}
+      </tbody>
+    </table>
+  </section>
+
+  <section class="sr-service-card">
+    <h2>Reputación</h2>
+    <p>Promedio {{ rating.average }}/5 con {{ rating.total }} reseñas verificadas.</p>
+    <ul class="sr-list">{% for stars in [5,4,3,2,1] %}<li><span>{{ stars }} estrellas</span><span>{{ rating.distribution.get(stars,0) }}</span></li>{% endfor %}</ul>
+    <p class="sr-muted">Solo las reseñas de compras entregadas o visitas cerradas y pagadas cuentan para la reputación.</p>
+  </section>
+</div>
+{% endblock %}

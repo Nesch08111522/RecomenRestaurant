@@ -1,0 +1,219 @@
+{% extends 'base.html' %}
+{% from 'partials/header.html' import glyph with context %}
+{% block body_class %}sr-recommendations{% endblock %}
+{% block legacy_interface %}{% endblock %}
+{% block page_styles %}
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/recommendations.css') }}">
+{% endblock %}
+
+{% set kinds = [('all', 'Todo', 'compass'), ('dish', 'Platos', 'utensils'), ('restaurant', 'Restaurantes', 'store'), ('experience', 'Experiencias', 'calendar-day')] %}
+{% set kind_labels = {'dish': 'Plato', 'restaurant': 'Restaurante', 'experience': 'Experiencia'} %}
+{% set kind_icons = {'dish': 'utensils', 'restaurant': 'store', 'experience': 'calendar-day'} %}
+{% set destination = {'dish': 'Ver plato', 'restaurant': 'Ver restaurante', 'experience': 'Ver experiencia'} %}
+{% set fallback_photos = {'dish': 'creole-inspiration.webp', 'restaurant': 'shop-reference.webp', 'experience': 'food-inspiration.webp'} %}
+{% macro filtered_url(kind, keep_query=true, interest=none, anchor='busqueda') -%}
+  {{ url_for('recommendations.index', kind=kind if kind != 'all' else none, q=filters.q if keep_query and filters.q else none, budget=filters.budget, channel=filters.channel or none, day=filters.day or none, time=filters.time or none, moment=filters.moment or none, open_now='1' if filters.open_now else none, radius=filters.radius, interes=interest, _anchor=anchor) }}
+{%- endmacro %}
+
+{% macro option_count(cards, singular='opción', plural='opciones') -%}
+  <span class="rec-count"><span data-rec-count>{{ cards|length }}</span> <span data-rec-count-label data-singular="{{ singular }}" data-plural="{{ plural }}">{{ singular if cards|length == 1 else plural }}</span></span>
+{%- endmacro %}
+
+{% macro recommendation_card(card, discovery, search_result) %}
+  <article class="rec-card" data-rec-card data-rec-key="{{ card.key }}" {% if card.token %}data-token="{{ card.token }}"{% endif %}>
+    <div class="rec-card-main">
+      <div class="rec-card-media">
+        {% if card.image %}<img data-rec-photo src="{{ card.image }}" alt="" loading="lazy" decoding="async">{% endif %}
+        <img class="rec-photo-fallback" {% if card.image %}hidden{% endif %} src="{{ url_for('static', filename='images/forest/' ~ fallback_photos[card.kind]) }}" alt="" loading="lazy" decoding="async">
+        <span class="rec-photo-caption" {% if card.image %}hidden{% endif %}>Imagen ilustrativa</span>
+        <span class="rec-card-kind"><i class="fas fa-{{ kind_icons[card.kind] }}" aria-hidden="true"></i> {{ kind_labels[card.kind] }}</span>
+        {% if card.token %}<button class="rec-like" type="button" data-rec-like aria-pressed="{{ 'true' if card.liked else 'false' }}" aria-label="Me interesa {{ card.name }}" title="Me interesa">{{ glyph('heart') }}</button>{% endif %}
+        {% if card.offer_id and card.model %}<a class="rec-model-link" data-rec-view href="{{ card.href }}#load-dish-model">Ver en 3D</a>{% endif %}
+      </div>
+      <div class="rec-card-body">
+          {% if card.is_seasonal or (card.is_new and discovery) %}<div class="rec-card-signals">
+            {% if card.is_new and discovery %}<span><i class="fas fa-compass" aria-hidden="true"></i> Por descubrir</span>{% endif %}
+          {% if card.is_seasonal %}<span class="rec-season-label"><i class="fas fa-leaf" aria-hidden="true"></i> De temporada</span>{% endif %}
+        </div>{% endif %}
+        <h3>{{ card.name }}</h3>
+        {% if card.business and card.business != card.name %}<p class="rec-business">{{ card.business }}</p>{% endif %}
+        {% if card.variant and card.variant != card.name %}<p class="rec-variant">{{ card.variant }}</p>{% endif %}
+        {% if card.price is not none or card.distance_km is not none or card.day %}<p class="rec-card-meta">{% if card.price is not none %}<strong>{{ 'Desde ' if card.price_from else '' }}S/ {{ '%.2f'|format(card.price) }}</strong>{% endif %}{% if card.distance_km is not none %}<span><i class="fas fa-location-dot" aria-hidden="true"></i> {{ card.distance_km }} km</span>{% endif %}{% if card.day %}<span><i class="far fa-calendar" aria-hidden="true"></i> <time datetime="{{ card.day }}">{{ card.day[8:10] }}/{{ card.day[5:7] }}/{{ card.day[:4] }}</time></span>{% endif %}</p>{% endif %}
+        {% if card.channels %}<ul class="rec-tags" aria-label="Modalidades">{% for channel in card.channels %}<li>{{ 'En el local' if channel == 'Local' else channel }}</li>{% endfor %}</ul>{% endif %}
+          {% if card.reasons %}<details class="rec-reasons"><summary><i class="fas fa-circle-info" aria-hidden="true"></i> {{ '¿Por qué coincide?' if search_result else '¿Por qué te lo sugerimos?' }}</summary><ul>{% for reason in card.reasons %}<li>{{ reason }}</li>{% endfor %}</ul></details>{% endif %}
+        <div class="rec-card-actions">
+          {% if card.href %}<a class="rec-card-link" data-rec-view href="{{ card.href }}">{{ destination[card.kind] }} <i class="fas fa-arrow-right" aria-hidden="true"></i></a>{% endif %}
+            {% if card.token and not search_result %}<button class="rec-dismiss" type="button" data-rec-dismiss aria-label="Ocultar {{ card.name }} de tu selección" title="Ocultar de tu selección"><span aria-hidden="true">−</span></button>{% endif %}
+        </div>
+      </div>
+    </div>
+      {% if card.token and not search_result %}<div class="rec-card-dismissed" data-rec-dismissed hidden><p>Ocultamos {{ card.name }} de tu selección.</p><button class="rec-inline-link" type="button" data-rec-undo>Deshacer</button></div>{% endif %}
+  </article>
+{% endmacro %}
+
+{% macro card_grid(cards, empty_title, empty_message, discovery=false, search_result=false, visible=3) %}
+  <p class="rec-feedback-status" data-rec-feedback role="status"></p>
+  <div class="rec-grid">
+    {% for card in cards[:visible] %}
+      {{ recommendation_card(card, discovery, search_result) }}
+    {% else %}
+      <div class="rec-empty"><h3>{{ empty_title }}</h3><p>{{ empty_message }}</p></div>
+    {% endfor %}
+  </div>
+  {% if cards|length > visible %}
+    <details class="rec-feed-more">
+      <summary>Ver más opciones</summary>
+      <div class="rec-grid">{% for card in cards[visible:] %}{{ recommendation_card(card, discovery, search_result) }}{% endfor %}</div>
+    </details>
+  {% endif %}
+{% endmacro %}
+
+{% block content %}
+<div class="rec-shell" data-recommendations data-interaction-url="{{ url_for('recommendations.interaction') }}" data-location-url="{{ url_for('recommendations.location') }}" data-location-enabled="{{ 'true' if location_enabled else 'false' }}">
+  <section class="rec-hero" aria-labelledby="rec-title">
+    <div class="rec-hero-art" aria-hidden="true"><img src="{{ url_for('static', filename='images/forest/recommendations-mesa.webp') }}" alt="" width="1440" height="960" fetchpriority="high"></div>
+    <div class="rec-hero-copy">
+      <p class="rec-eyebrow"><i class="fas fa-location-dot" aria-hidden="true"></i> {{ CIUDAD }}, Perú</p>
+      <h1 id="rec-title">Sabores <em>para ti</em></h1>
+      <p>{% if authenticated and profile.name %}{{ profile.name }}, descubre platos, restaurantes y experiencias que encajan con tus gustos y tu momento.{% else %}Descubre platos, restaurantes y experiencias para tu presupuesto y tu momento. Inicia sesión para sumar tus gustos y tu historial.{% endif %}</p>
+      <div class="rec-hero-actions">
+        <a class="rec-button rec-button-cream" href="#seleccion">Ver selección <i class="fas fa-arrow-down" aria-hidden="true"></i></a>
+        <a class="rec-hero-link" href="#por-descubrir">Descubrir algo nuevo <i class="fas fa-arrow-down" aria-hidden="true"></i></a>
+      </div>
+    </div>
+  </section>
+
+  <form class="rec-filter" id="filtros-recomendaciones" action="{{ url_for('recommendations.index', _anchor='busqueda') }}" method="get" aria-label="Filtros de recomendaciones" data-rec-search-form>
+    {% if filters.kind and filters.kind != 'all' %}<input type="hidden" name="kind" value="{{ filters.kind }}">{% endif %}
+    <div class="rec-filter-row">
+      <div class="rec-query-field">
+        <label for="rec-query"><span><i class="fas fa-magnifying-glass" aria-hidden="true"></i> Tu antojo <small>opcional</small></span></label>
+        <div class="rec-search-control"><input id="rec-query" name="q" type="search" value="{{ filters.q or '' }}" maxlength="140" placeholder="Ej. cocina criolla, ramen o postres"><button class="rec-search-submit" type="submit" data-rec-search-submit>Buscar</button></div>
+      </div>
+      <label><span><i class="fas fa-wallet" aria-hidden="true"></i> Presupuesto</span><input name="budget" type="number" min="0" max="1000000" step="0.01" value="{{ filters.budget if filters.budget is not none else '' }}" placeholder="Máximo en S/"></label>
+      <label><span><i class="fas fa-concierge-bell" aria-hidden="true"></i> Modalidad</span><select name="channel"><option value="">Cualquiera</option>{% for channel, label in [('Local', 'En el local'), ('Recojo', 'Recojo'), ('Delivery', 'Delivery')] %}<option value="{{ channel }}" {% if filters.channel == channel %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></label>
+      <button class="rec-button rec-button-primary" type="submit">Aplicar filtros <i class="fas fa-arrow-right" aria-hidden="true"></i></button>
+    </div>
+    <details class="rec-advanced" {% if filters.day or filters.time or filters.radius or filters.moment or filters.open_now %}open{% endif %}>
+      <summary><i class="fas fa-sliders" aria-hidden="true"></i> Más filtros</summary>
+      <div class="rec-advanced-fields">
+        <label><span>Fecha</span><input type="date" name="day" min="{{ today }}" max="{{ last_day }}" value="{{ filters.day or '' }}"></label>
+        <label><span>Hora de visita</span><input type="time" name="time" value="{{ filters.time or '' }}"></label>
+        <label><span>Ocasión</span><select name="moment"><option value="">Cualquiera</option>{% for value, label in moments.items() %}<option value="{{ value }}" {% if filters.moment == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></label>
+        {% if location_enabled %}<label><span>Distancia máxima (km)</span><input type="number" min="0.1" max="100" step="0.1" name="radius" value="{{ filters.radius if filters.radius is not none else '' }}"></label>{% endif %}
+        <label class="rec-check"><input name="open_now" type="checkbox" value="1" {% if filters.open_now %}checked{% endif %}> Abiertos ahora</label>
+        <a class="rec-inline-link" href="{{ url_for('recommendations.index', _anchor='seleccion') }}">Limpiar filtros</a>
+      </div>
+    </details>
+    <a class="rec-inline-link rec-context-shortcut" href="#rec-context"><i class="fas fa-location-dot" aria-hidden="true"></i> Ubicación y clima</a>
+    {% if authenticated %}<a class="rec-inline-link rec-context-shortcut" href="#mi-historial">Tu historial</a>{% endif %}
+    <p class="rec-feedback-status rec-search-status" data-rec-search-status role="status"></p>
+  </form>
+
+  <div class="rec-layout">
+
+    <div class="rec-selection" id="seleccion">
+      <nav class="rec-section-links" aria-label="Secciones de Para ti"><a href="#busqueda">Resultados de búsqueda</a><a href="#para-ti">Para ti</a><a href="#por-descubrir">Algo que te podría interesar</a>{% if authenticated %}<a href="#mi-historial">Tu historial</a>{% endif %}</nav>
+
+      <section class="rec-feed rec-feed-results" id="busqueda" aria-labelledby="rec-search-results-title" data-rec-list>
+        <div class="rec-feed-heading">
+          <span class="rec-feed-icon">{{ glyph('sliders') }}</span>
+          <div><h2 id="rec-search-results-title">Resultados de búsqueda</h2><p>{% if filters.q %}Coincidencias para «{{ filters.q }}»{% elif search_active %}Coincidencias con los filtros aplicados.{% else %}Busca un plato, restaurante o experiencia, o aplica un filtro para ver coincidencias.{% endif %}</p></div>
+          {% if search_active %}{{ option_count(search_results, 'coincidencia', 'coincidencias') }}{% endif %}
+          {% if filters.q %}<a class="rec-inline-link rec-clear-query" href="{{ filtered_url(filters.kind, false) }}">Quitar búsqueda</a>{% endif %}
+        </div>
+        <nav class="rec-kind-nav" aria-label="Tipo de resultado de búsqueda">
+          {% for kind, label, icon in kinds %}<a href="{{ filtered_url(kind) }}" {% if filters.kind == kind %}aria-current="page"{% endif %}><i class="fas fa-{{ icon }}" aria-hidden="true"></i> {{ label }}</a>{% endfor %}
+        </nav>
+        {% if search_active %}
+          {{ card_grid(search_results, 'Sin coincidencias', 'Prueba otro término o cambia los filtros aplicados.', search_result=true) }}
+        {% endif %}
+      </section>
+
+      <section class="rec-feed rec-feed-personal" id="para-ti" aria-labelledby="rec-for-you-title" data-rec-list>
+        <div class="rec-feed-heading">
+          <span class="rec-feed-icon">{{ glyph('heart') }}</span>
+          <div><h2 id="rec-for-you-title">Para ti</h2><p>{% if active_history_topic %}Opciones relacionadas con «{{ active_history_topic.query }}».{% else %}Platos, negocios y experiencias relacionados con tus búsquedas y compras confirmadas.{% endif %}</p></div>
+          {{ option_count(for_you['items']) }}
+        </div>
+        {% if history_topics %}
+          {% set visible_topics = history_topics[:6] %}
+          {% if active_history_topic and active_history_topic not in visible_topics %}{% set visible_topics = [active_history_topic] + history_topics[:5] %}{% endif %}
+          <nav class="rec-kind-nav rec-interest-nav" aria-label="Explorar por búsqueda guardada">
+            <a href="{{ filtered_url(filters.kind, anchor='para-ti') }}" {% if not active_history_topic %}aria-current="true"{% endif %}>Todo mi historial</a>
+            {% for topic in visible_topics %}
+              <a href="{{ filtered_url(filters.kind, interest=topic.id, anchor='para-ti') }}" {% if active_history_topic and active_history_topic.id == topic.id %}aria-current="true"{% endif %}>{{ topic.query }}</a>
+            {% endfor %}
+            {% if history_topics|length > 6 %}<a href="#mi-historial">Ver búsquedas guardadas</a>{% endif %}
+          </nav>
+        {% endif %}
+        {% if for_you['items'] %}
+          {{ card_grid(for_you['items'], '', '', visible=6) }}
+        {% elif not authenticated %}
+          <div class="rec-empty"><h3>Consulta las sugerencias de tu cuenta</h3><p>Inicia sesión para usar tu historial de búsquedas y compras.</p><a class="rec-inline-link" href="{{ url_for('auth.login', next=request.full_path.rstrip('?')) }}">Iniciar sesión</a></div>
+        {% elif context.has_recommendation_history %}
+          <div class="rec-empty"><h3>El catálogo no tiene opciones relacionadas disponibles</h3><p>{{ 'Elige otra búsqueda de tu historial para explorar.' if active_history_topic else 'La selección se actualiza al guardar búsquedas o confirmar compras.' }}</p></div>
+        {% else %}
+          <div class="rec-empty"><h3>Tu historial aún está vacío</h3><p>Tus búsquedas y compras confirmadas ayudarán a crear esta selección.</p></div>
+        {% endif %}
+      </section>
+
+      <section class="rec-feed rec-feed-discovery" id="por-descubrir" aria-labelledby="rec-discovery-title" data-rec-list>
+        <div class="rec-feed-heading">
+          <span class="rec-feed-icon">{{ glyph('compass') }}</span>
+          <div><h2 id="rec-discovery-title">Algo que te podría interesar</h2><p>Platos, negocios y experiencias por descubrir para variar tu selección.</p></div>
+          {{ option_count(discovery_items['items']) }}
+        </div>
+        {{ card_grid(discovery_items['items'], 'Por ahora no hay más descubrimientos', 'Aquí aparecerán nuevas opciones a medida que cambie el catálogo.', true) }}
+      </section>
+
+    </div>
+
+    <aside class="rec-context" id="rec-context" aria-label="Contexto y actividad gastronómica">
+      <section class="rec-panel" aria-labelledby="rec-context-title">
+        <div class="rec-panel-heading"><span class="rec-panel-icon">{{ glyph('compass') }}</span><div><h2 id="rec-context-title">Tu contexto</h2></div></div>
+        <dl class="rec-context-data">
+          <div><dt><i class="far fa-clock" aria-hidden="true"></i> Momento</dt><dd>{{ (context.meal or 'Hoy')|capitalize }}</dd></div>
+          {% if context.season %}<div><dt><i class="fas fa-leaf" aria-hidden="true"></i> Temporada</dt><dd>{{ context.season|capitalize }}</dd></div>{% endif %}
+          {% if context.preferred_channel %}<div><dt><i class="fas fa-concierge-bell" aria-hidden="true"></i> Modalidad preferida</dt><dd>{{ 'En el local' if context.preferred_channel == 'Local' else context.preferred_channel }}</dd></div>{% endif %}
+          <div><dt><i class="fas fa-location-crosshairs" aria-hidden="true"></i> Ubicación</dt><dd>{{ 'Activa' if location_enabled else 'Opcional' }}</dd></div>
+          <div><dt><i class="fas fa-cloud-sun" aria-hidden="true"></i> Clima</dt><dd>{% if context.weather and context.weather.apparent_temperature is number %}{{ context.weather.apparent_temperature|round|int }} °C{% elif context.weather_used %}En uso{% elif weather_enabled %}Sin datos{% else %}Opcional{% endif %}</dd></div>
+        </dl>
+        <label class="rec-check rec-weather"><input type="checkbox" data-rec-weather {% if weather_enabled %}checked{% endif %}> Usar también el clima local</label>
+        <button class="rec-button rec-button-outline" type="button" data-rec-location><i class="fas fa-location-arrow" aria-hidden="true"></i> {{ 'Actualizar ubicación' if location_enabled else 'Usar mi ubicación' }}</button>
+        {% if location_consent or location_enabled %}<button class="rec-inline-link" type="button" data-rec-location-clear>Desactivar ubicación</button>{% endif %}
+        <p class="rec-context-note" data-rec-geo-status role="status">{% if location_enabled %}Usamos tu ubicación para calcular distancias.{% else %}Actívala si quieres ver opciones cercanas.{% endif %}</p>
+      </section>
+
+      <section class="rec-panel" aria-labelledby="rec-profile-title">
+        <div class="rec-panel-heading"><span class="rec-panel-icon">{{ glyph('sliders') }}</span><div><h2 id="rec-profile-title">Tus gustos</h2><p>Perfil gastronómico</p></div></div>
+        {% if authenticated %}
+          {% if profile.preferences %}<ul class="rec-tags" aria-label="Preferencias">{% for preference in profile.preferences %}<li>{{ preference }}</li>{% endfor %}</ul>{% endif %}
+          {% if profile.restrictions %}<p class="rec-context-note"><strong>Restricciones</strong> {{ profile.restrictions|join(', ') }}. Confirma con el negocio los ingredientes y el contacto cruzado.</p>{% endif %}
+          {% if not profile.preferences and not profile.restrictions %}<p class="rec-context-note">Agrega tus preferencias y restricciones para encontrar opciones adecuadas al descubrir.</p>{% endif %}
+          {% if recurring %}<h3>Sabores que se repiten</h3><ul class="rec-tags" aria-label="Preferencias recurrentes">{% for signal in recurring %}<li>{{ signal.label }}</li>{% endfor %}</ul>{% endif %}
+          <a class="rec-inline-link" href="{{ url_for('auth.profile') }}">Editar preferencias <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+        {% else %}
+          <p class="rec-context-note">Inicia sesión para guardar búsquedas y combinar tus gustos, pedidos y visitas con nuevas opciones.</p>
+          <a class="rec-button rec-button-outline" href="{{ url_for('auth.login', next=request.full_path.rstrip('?')) }}">Iniciar sesión <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+        {% endif %}
+      </section>
+
+      {% if authenticated %}
+      <section class="rec-panel" id="mi-historial" aria-labelledby="rec-history-title">
+        <div class="rec-panel-heading"><span class="rec-panel-icon">{{ glyph('receipt') }}</span><div><h2 id="rec-history-title">Tu historial</h2><p>Actividad de tu cuenta</p></div></div>
+        <details class="rec-history"><summary>Búsquedas recientes ({{ history_topics|length }})</summary><ul>{% for entry in history_topics %}<li><a class="rec-history-query" href="{{ filtered_url(filters.kind, interest=entry.id, anchor='para-ti') }}">{{ entry.query }}</a><span>{{ entry.count }} {{ 'búsqueda' if entry.count == 1 else 'búsquedas' }}{% if entry.last_searched_at %} · <time datetime="{{ entry.last_searched_at }}">{{ entry.last_searched_at[8:10] }}/{{ entry.last_searched_at[5:7] }}/{{ entry.last_searched_at[:4] }}</time>{% endif %}</span></li>{% else %}<li>Tus próximas búsquedas aparecerán aquí.</li>{% endfor %}</ul></details>
+        <details class="rec-history"><summary>Platos consumidos ({{ history.dishes|length }})</summary><ul>{% for item in history.dishes %}<li><strong>{{ item.name }}</strong><span>{{ item.business or 'Pedido' }} · {{ item.quantity }} {{ 'unidad' if item.quantity == 1 else 'unidades' }}</span></li>{% else %}<li>Todavía no tienes platos consumidos registrados.</li>{% endfor %}</ul></details>
+        <details class="rec-history"><summary>Restaurantes visitados ({{ history.restaurants|length }})</summary><ul>{% for item in history.restaurants %}<li><strong>{{ item.name }}</strong><span>{{ item.visits }} {{ 'visita' if item.visits == 1 else 'visitas' }}</span></li>{% else %}<li>Todavía no tienes visitas confirmadas.</li>{% endfor %}</ul></details>
+        <a class="rec-inline-link" href="{{ url_for('market.orders') }}">Ver mis pedidos <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+      </section>
+      {% endif %}
+    </aside>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/recommendations.js') }}" defer></script>
+{% endblock %}

@@ -1,0 +1,46 @@
+{
+  "normal_startup_ms": 186.97,
+  "pages": [
+    {
+      "path": "/",
+      "status": 200,
+      "ms": 110.94
+    },
+    {
+      "path": "/auth/login",
+      "status": 200,
+      "ms": 31.89
+    },
+    {
+      "path": "/auth/register",
+      "status": 200,
+      "ms": 7.81
+    },
+    {
+      "path": "/ofertas",
+      "status": 200,
+      "ms": 22.81
+    },
+    {
+      "path": "/para-negocios",
+      "status": 200,
+      "ms": 16.43
+    },
+    {
+      "path": "/api/platform/health",
+      "status": 200,
+      "ms": 1.81
+    }
+  ],
+  "csrf_without_token": 400,
+  "simultaneous_reads": 8,
+  "pool": {
+    "maximum": 4,
+    "total": 2,
+    "available": 2,
+    "in_use": 0,
+    "created": 2,
+    "wait_timeouts": 0,
+    "cooldown": false
+  }
+}

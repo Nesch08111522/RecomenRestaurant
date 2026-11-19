@@ -1,0 +1,947 @@
+# **Plan maestro de desarrollo de SmartResto por fases**
+
+**Objetivo:** dividir todo el proyecto en fases independientes, ordenadas y conectadas entre sí, para que puedas desarrollarlo progresivamente sin perder funcionalidades ni duplicar módulos.
+
+SmartResto será una plataforma integral de negocios gastronómicos que combina un marketplace, un recomendador inteligente, un sistema de gestión empresarial, comercio electrónico, cartas digitales, administración de restaurantes, inteligencia artificial y experiencias gastronómicas 3D.
+
+La propuesta está diseñada para los tres roles principales: **Comensal, Empresario y Administrador**.
+
+# **FASE 1. Arquitectura general y estructura central de SmartResto**
+
+Fundación del proyecto
+
+**¿Qué se desarrollará?**
+
+Se preparará la estructura tecnológica que permitirá integrar todos los módulos en una misma plataforma.
+
+Incluye:
+
+1. Arquitectura general del sistema.
+2. Organización de módulos y servicios.
+3. Base de datos centralizada en PostgreSQL / Supabase.
+4. Administración de usuarios, roles y permisos.
+5. Gestión de negocios, sucursales y establecimientos.
+6. Gestión de sesiones y autenticación.
+7. Registro de actividades y auditoría.
+8. APIs para conectar los módulos.
+9. Sistema de notificaciones centralizado.
+10. Configuración general de SmartResto.
+11. Diseño adaptable a móviles, tabletas y escritorio.
+12. Tema claro y oscuro.
+13. Componentes visuales reutilizables.
+14. Protección de información y datos personales.
+
+**Resultado:** una arquitectura preparada para soportar todos los módulos sin convertir SmartResto en varios sistemas desconectados.
+
+# **FASE 2. Gestión de usuarios, roles y perfiles**
+
+**¿Qué se desarrollará?**
+
+Se implementará la gestión completa de los usuarios y los permisos de cada perfil.
+
+### **Comensal**
+
+- Registro e inicio de sesión.
+- Perfil personal.
+- Preferencias gastronómicas.
+- Presupuesto diario y semanal.
+- Restricciones alimentarias.
+- Historial de consumo.
+- Direcciones y ubicación autorizada.
+- Favoritos.
+- Configuración de privacidad.
+- Preferencias de notificaciones.
+
+### **Empresario**
+
+- Registro empresarial.
+- Creación de uno o varios negocios.
+- Administración de sucursales.
+- Información comercial.
+- Registro de personal.
+- Asignación de permisos.
+- Verificación de identidad y negocio.
+- Administración de establecimientos.
+
+### **Administrador**
+
+- Gestión de cuentas.
+- Gestión de roles.
+- Verificación de empresarios.
+- Suspensiones y restricciones.
+- Moderación.
+- Auditoría.
+- Configuración de permisos generales.
+
+**Resultado:** cada perfil tendrá su propio espacio y podrá acceder exclusivamente a las funcionalidades autorizadas.
+
+# **FASE 3. Descubrimiento automático de negocios gastronómicos**
+
+IA y automatización
+
+**¿Qué se desarrollará?**
+
+Un motor que permita encontrar nuevos negocios gastronómicos en Internet y preparar automáticamente sus registros en SmartResto.
+
+Incluye:
+
+1. Búsqueda automatizada de establecimientos.
+2. Integración con fuentes de información autorizadas.
+3. Integración con proveedores de mapas y lugares.
+4. Identificación de restaurantes, cafeterías, panaderías, juguerías, pastelerías, emprendimientos, cocinas ocultas y tiendas de comida.
+5. Identificación de categorías gastronómicas.
+6. Detección de páginas web y redes oficiales.
+7. Identificación de menús publicados.
+8. Extracción de información mediante IA.
+9. Identificación de fotografías y videos disponibles.
+10. Detección de negocios duplicados.
+11. Identificación de datos incompletos.
+12. Clasificación según nivel de confianza.
+13. Generación automática de fichas provisionales.
+14. Invitación al empresario para reclamar su establecimiento.
+15. Actualización periódica de información.
+16. Revisión administrativa de información pendiente.
+
+**Ejemplo:** SmartResto descubre una nueva cafetería en Trujillo, prepara su ficha comercial, identifica sus canales públicos y genera una invitación para que el propietario reclame y verifique el negocio.
+
+**Resultado:** el catálogo de SmartResto podrá crecer sin depender exclusivamente de los registros manuales.
+
+*La IA no debe inventar datos ni copiar indiscriminadamente información protegida o restringida de otras plataformas. Los datos comerciales se publicarán según su procedencia, permisos y verificación.*
+
+# **FASE 4. Portal empresarial y creación automática de páginas web**
+
+**¿Qué se desarrollará?**
+
+Cada empresario tendrá un espacio digital propio, desde el que podrá administrar su presencia dentro y fuera de SmartResto.
+
+Incluye:
+
+1. Página pública personalizada por negocio.
+2. Página independiente por sucursal.
+3. Nombre, logotipo e identidad visual.
+4. Descripción de la empresa.
+5. Historia y presentación del establecimiento.
+6. Galería de fotografías.
+7. Publicación de videos cortos.
+8. Secciones para especialidades y platos destacados.
+9. Carta digital.
+10. Promociones y descuentos.
+11. Horarios y ubicación.
+12. Información de delivery y recojo.
+13. Reseñas de clientes.
+14. Enlaces a redes sociales.
+15. Personalización de colores y plantillas.
+16. Generación de metadatos para compartir en redes.
+17. Dirección web personalizada.
+18. Asistente de IA para redactar descripciones y contenido promocional.
+
+**Ejemplo:** un emprendimiento de comida desde casa podrá tener su propia página empresarial, mostrar sus platos, publicar videos y recibir pedidos sin necesitar desarrollar una web por separado.
+
+**Resultado:** SmartResto será también una plataforma de creación y administración de sitios web gastronómicos.
+
+# **FASE 5. Catálogo gastronómico, menús y registro inteligente de productos**
+
+IA multimodal
+
+**¿Qué se desarrollará?**
+
+Un módulo para registrar y administrar todos los productos gastronómicos de cada establecimiento.
+
+Incluye:
+
+1. Registro de platos.
+2. Registro de bebidas.
+3. Registro de postres.
+4. Categorías y subcategorías.
+5. Variantes de tamaños y porciones.
+6. Adicionales y complementos.
+7. Precios.
+8. Ingredientes declarados.
+9. Información sobre alérgenos.
+10. Fotografías.
+11. Videos.
+12. Descripciones comerciales.
+13. Recetas y cantidades por porción.
+14. Disponibilidad.
+15. Productos promocionales.
+16. Gestión de platos agotados.
+
+### **Incorporación de IA**
+
+**A. Registro mediante fotografías**
+
+El empresario toma una fotografía del plato. La IA:
+
+- Reconoce visualmente el tipo de preparación.
+- Propone un nombre.
+- Sugiere una categoría.
+- Identifica ingredientes probables.
+- Redacta una descripción.
+- Sugiere etiquetas.
+- Prepara un borrador de publicación.
+
+El empresario podrá agregar, corregir o eliminar ingredientes antes de confirmar.
+
+**B. Registro mediante voz**
+
+El empresario podrá decir:
+
+«Registra un arroz con pollo, agrega ensalada, cuesta 18 soles y la porción es personal».
+
+La IA interpretará la instrucción y preparará los campos del formulario.
+
+**C. Registro mediante Excel**
+
+Se ofrecerán plantillas predefinidas para importar:
+
+- Negocios.
+- Sucursales.
+- Platos.
+- Categorías.
+- Ingredientes.
+- Recetas.
+- Variantes.
+- Precios.
+- Inventario.
+- Mesas y códigos QR.
+
+El sistema verificará los datos, detectará errores y mostrará una previsualización antes de importar.
+
+**Resultado:** el empresario podrá registrar uno o cientos de productos mediante formularios, fotografías, voz o Excel.
+
+# **FASE 6. Marketplace gastronómico y buscador inteligente**
+
+**¿Qué se desarrollará?**
+
+El marketplace será el espacio donde los comensales descubrirán todos los negocios gastronómicos disponibles.
+
+Incluye:
+
+1. Catálogo de restaurantes.
+2. Catálogo de emprendimientos gastronómicos.
+3. Cafeterías y negocios de bebidas.
+4. Panaderías y pastelerías.
+5. Tiendas de comida.
+6. Cocinas ocultas.
+7. Negocios de delivery.
+8. Filtros por distrito.
+9. Filtros por presupuesto.
+10. Filtros por categoría.
+11. Filtros por modalidad de atención.
+12. Filtros por disponibilidad.
+13. Filtros por horarios.
+14. Filtros por puntuación.
+15. Búsqueda de platos específicos.
+16. Búsqueda por ingredientes.
+17. Búsqueda por promociones.
+18. Favoritos.
+19. Comparación de opciones.
+20. Fichas de negocio y producto.
+
+### **Integración con mapas**
+
+- Google Maps Platform o una solución de mapas equivalente.
+- Ubicación de establecimientos.
+- Negocios cercanos.
+- Puntos de recojo.
+- Zonas de cobertura de delivery.
+- Direcciones y rutas.
+- Distancias estimadas.
+- Filtros geográficos.
+
+### **Recomendaciones con IA**
+
+El buscador podrá interpretar consultas como:
+
+«Quiero almorzar algo económico, que tenga pollo y esté cerca de mí».
+
+La IA convierte la consulta en filtros estructurados y el backend recupera las opciones reales del catálogo.
+
+**Resultado:** el cliente podrá descubrir cualquier tipo de negocio de comida, no solamente restaurantes tradicionales.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# **FASE 7. Recomendador inteligente y personalización gastronómica**
+
+Motor inteligente principal
+
+**¿Qué se desarrollará?**
+
+Este será uno de los módulos más importantes de SmartResto.
+
+Su función será recomendar negocios, platos y experiencias adaptadas a cada persona.
+
+Incluye:
+
+1. Recomendaciones personalizadas.
+2. Historial de platos consumidos.
+3. Historial de restaurantes visitados.
+4. Preferencias gastronómicas.
+5. Restricciones alimentarias.
+6. Presupuesto.
+7. Ubicación autorizada.
+8. Horario.
+9. Clima.
+10. Disponibilidad de productos.
+11. Preferencias de modalidad.
+12. Recomendaciones por temporada.
+13. Sugerencias de platos nuevos.
+14. Recomendaciones según compras anteriores.
+15. Explicación de por qué se recomienda cada opción.
+16. Detección de preferencias recurrentes.
+17. Recomendaciones entre diferentes negocios.
+
+### **Ejemplo**
+
+El usuario consumió ceviche anteriormente.
+
+SmartResto podrá recomendar:
+
+- Arroz con mariscos.
+- Leche de tigre.
+- Jalea mixta.
+- Otros restaurantes especializados en comida marina.
+- Alternativas más económicas.
+- Opciones disponibles para delivery.
+
+El sistema no debe recomendar únicamente aquello que la persona ya consume: también debe ayudarle a descubrir platos nuevos.
+
+**Resultado:** un recomendador que evoluciona con cada interacción y compra confirmada.
+
+# **FASE 8. Carta digital, códigos QR y administración de mesas**
+
+Operación presencial
+
+**¿Qué se desarrollará?**
+
+Se implementará un sistema de cartas digitales vinculadas a establecimientos, sucursales, pisos, zonas y mesas.
+
+### **Estructura de identificación**
+
+```
+
+Negocio
+
+\\\&#x20; └── Sucursal
+
+\\\&#x20;      └── Piso
+
+\\\&#x20;           └── Zona
+
+\\\&#x20;                └── Mesa
+
+\\\&#x20;                     └── Código QR
+
+\\\&#x20;                          └── Sesión de atención
+
+```
+
+Incluye:
+
+1. Generación automática de códigos QR.
+2. QR individual para cada mesa.
+3. Identificación de piso y zona.
+4. Configuración de capacidad por mesa.
+5. Plano visual del establecimiento.
+6. Carta digital.
+7. Categorías y productos.
+8. Fotografías y videos.
+9. Ingredientes y alérgenos declarados.
+10. Precios y variantes.
+11. Modelos 3D.
+12. Adicionales.
+13. Carrito de pedidos.
+14. Solicitud de atención del mozo.
+15. Solicitud de cuenta.
+16. División del consumo.
+17. Consulta de estado de pedido.
+18. Sesiones de mesa.
+19. Estados de ocupación.
+20. Liberación de mesas después del cierre y la limpieza.
+
+**Ejemplo:** el cliente escanea el QR de la mesa 08 del segundo piso. SmartResto identifica automáticamente la ubicación dentro del negocio y muestra su carta digital.
+
+**Resultado:** cada establecimiento podrá operar con una carta digital y un sistema de atención vinculado a sus mesas.
+
+# **FASE 9. Comercio electrónico, pedidos, reservas y pagos**
+
+**¿Qué se desarrollará?**
+
+El sistema permitirá que los clientes compren productos gastronómicos desde diferentes modalidades.
+
+Incluye:
+
+1. Carrito de compras.
+2. Pedidos presenciales.
+3. Pedidos por QR.
+4. Pedidos para recojo.
+5. Pedidos delivery.
+6. Compras programadas.
+7. Reservas.
+8. Selección de fecha y hora.
+9. Disponibilidad de turnos.
+10. Cupones.
+11. Promociones.
+12. División de cuentas.
+13. Pagos digitales.
+14. Contraentrega.
+15. Integración con Mercado Pago.
+16. Confirmaciones de pago mediante webhooks.
+17. Constancias de compra.
+18. Cancelaciones.
+19. Reembolsos.
+20. Seguimiento de pedidos.
+
+El cliente podrá comprar en uno o varios negocios, respetando que cada vendedor tenga sus propios pedidos, pagos y condiciones operativas.
+
+**Resultado:** SmartResto será una plataforma de comercio gastronómico completa.
+
+# **FASE 10. Gestión inteligente de cocina, recetas e inventario**
+
+IA y control operativo
+
+**¿Qué se desarrollará?**
+
+Este módulo estará conectado con los productos, pedidos, recetas y producción.
+
+Incluye:
+
+1. Inventario de ingredientes.
+2. Registro de lotes.
+3. Fechas de vencimiento.
+4. Costos de compra.
+5. Recetas por plato.
+6. Cantidades por porción.
+7. Preparación de alimentos.
+8. Producción diaria.
+9. Control de porciones.
+10. Descuento de ingredientes por venta.
+11. Control de mermas.
+12. Registro de desperdicios.
+13. Alertas de stock bajo.
+14. Reposición de ingredientes.
+15. Control de productos agotados.
+16. Simulador de costos.
+17. Rentabilidad por plato.
+18. Sugerencias de sustituciones.
+19. Historial de producción.
+20. Trazabilidad de ingredientes.
+
+### **IA en la cocina**
+
+- Registro de ingredientes mediante voz.
+- Reconocimiento visual de platos.
+- Creación de borradores de recetas.
+- Sugerencias de cantidades.
+- Interpretación de instrucciones.
+- Predicción de necesidades de producción.
+
+### **Ejemplo**
+
+El empresario registra 2 kg de arroz y una receta que utiliza 200 g por plato.
+
+El sistema calcula diez porciones teóricas, pero verifica también el pollo, las verduras y los demás ingredientes.
+
+Cuando se vendan o reserven las porciones, la disponibilidad se actualizará automáticamente.
+
+**Resultado:** la cocina conocerá qué puede producir, qué tiene disponible, cuánto puede vender y qué necesita reponer.
+
+# **FASE 11. SmartResto Flow: aforo, cola virtual y rotación de mesas**
+
+Gestión inteligente de atención
+
+**¿Qué se desarrollará?**
+
+Este módulo administrará la ocupación de los establecimientos y la atención de clientes en espera.
+
+### **Aforo inteligente**
+
+1. Aforo máximo del establecimiento.
+2. Capacidad por piso.
+3. Capacidad por zona.
+4. Capacidad por mesa.
+5. Mesas ocupadas.
+6. Mesas disponibles.
+7. Mesas reservadas.
+8. Mesas en limpieza.
+9. Sesiones activas.
+10. Personas atendidas.
+11. Clientes esperando.
+12. Ocupación en tiempo real.
+
+### **Predicción de espera**
+
+1. Tiempo de permanencia.
+2. Historial de rotación de mesas.
+3. Hora y día.
+4. Cantidad de comensales.
+5. Mesas próximas a liberarse.
+6. Tiempo estimado de espera.
+7. Predicción de demanda.
+8. Actualización automática de estimaciones.
+
+### **Cola virtual**
+
+1. QR público en la entrada.
+2. Registro del cliente.
+3. Número de personas.
+4. Generación de turno.
+5. Posición en la cola.
+6. Tiempo estimado.
+7. Confirmación de interés.
+8. Notificaciones de proximidad.
+9. Asignación de mesa.
+10. Cancelación o recuperación de turnos.
+
+### **Notificaciones a clientes**
+
+- Aviso de alta ocupación.
+- Consulta voluntaria sobre necesidades adicionales.
+- Aviso de mesa próxima a liberarse.
+- Confirmación de disponibilidad.
+- Recordatorio de turno.
+- Aviso de mesa lista.
+
+### **Pedidos anticipados**
+
+Mientras espera, el cliente podrá consultar la carta y preparar su pedido, que quedará pendiente de confirmación para evitar preparaciones prematuras.
+
+**Resultado:** los restaurantes podrán administrar su capacidad, reducir la incertidumbre en las colas y organizar mejor la atención.
+
+# **FASE 12. Fidelización, puntos, visitas y reputación**
+
+Experiencia y retención
+
+**¿Qué se desarrollará?**
+
+Un sistema centralizado de recompensas que permita fidelizar a los consumidores y conectar las compras con el historial gastronómico.
+
+Incluye:
+
+1. Billetera de puntos.
+2. Acumulación de puntos por compras.
+3. Recompensas por visitas verificadas.
+4. Beneficios por recurrencia.
+5. Niveles de fidelización.
+6. Insignias.
+7. Cupones.
+8. Descuentos.
+9. Beneficios por cumpleaños.
+10. Promociones personalizadas.
+11. Historial de puntos.
+12. Reversión de puntos por cancelaciones.
+13. Historial de visitas.
+14. Restaurantes favoritos.
+15. Platos consumidos.
+16. Clientes frecuentes.
+17. Clientes nuevos.
+18. Clientes inactivos.
+19. Reseñas verificadas.
+20. Reputación de negocios.
+
+### **Seguimiento posterior al consumo**
+
+Después de una compra entregada o una visita presencial confirmada:
+
+- Se envía una notificación de valoración.
+- El cliente califica el establecimiento.
+- Puede calificar el plato, atención y ambiente.
+- Puede dejar un comentario y fotografías.
+- Se registran las visitas verificadas.
+- Se actualizan los puntos correspondientes.
+
+### **Privacidad y permisos**
+
+Se implementarán configuraciones independientes para:
+
+- Cookies.
+- Notificaciones.
+- Ubicación.
+- Promociones.
+- Geolocalización.
+- Seguimiento de preferencias.
+
+**Resultado:** SmartResto conocerá mejor los hábitos de consumo y ayudará a que los negocios generen relaciones duraderas con sus clientes.
+
+# **FASE 13. SmartResto Home: cocina inteligente en casa**
+
+Integración de NiriNutri
+
+**¿Qué se desarrollará?**
+
+Este módulo ampliará SmartResto para que el cliente también pueda descubrir qué preparar en su hogar.
+
+Toma como referencia las propuestas visuales del documento NiriNutri: despensa interactiva, escaneo de alimentos, planificación semanal, recetas y seguimiento de hábitos. El documento contempla estos componentes como parte de un prototipo, no como una implementación técnica comprobada.&#x20;
+
+Avance de Proyecto 3 - Herramientas de Prototipado..docx
+
+Avance de Proyecto 3 - Herramientas de Prototipado..docx
+
+
+
+Incluye:
+
+1. Despensa personal.
+2. Registro de ingredientes.
+3. Escaneo mediante cámara.
+4. Fechas de vencimiento.
+5. Cantidades disponibles.
+6. Reconocimiento de alimentos mediante IA.
+7. Recomendaciones de recetas.
+8. Planificador semanal.
+9. Planificación según presupuesto.
+10. Preparación paso a paso.
+11. Tiempos de cocción.
+12. Dificultad.
+13. Cantidades por porción.
+14. Sustitución de ingredientes.
+15. Lista de compras.
+16. Registro de comidas preparadas.
+17. Seguimiento de hábitos.
+18. Aprovechamiento de alimentos.
+19. Alertas de posibles alérgenos.
+20. Recomendaciones de alimentación adaptadas a preferencias.
+
+### **Conexión con el marketplace**
+
+El cliente podrá elegir:
+
+- Comprar los ingredientes que le faltan.
+- Encontrar un negocio que venda esos productos.
+- Pedirlos mediante delivery.
+- Consultar negocios cercanos.
+- Preparar la receta con instrucciones de IA.
+
+**Resultado:** SmartResto no solamente recomendará dónde comer, sino también qué preparar y cómo hacerlo.
+
+# **FASE 14. Experiencias 3D, realidad aumentada y menú inmersivo**
+
+Experiencia visual avanzada
+
+**¿Qué se desarrollará?**
+
+Se incorporará un sistema de visualización tridimensional de platos y productos gastronómicos.
+
+Incluye:
+
+1. Modelos 3D por plato.
+2. Carga de modelos GLB.
+3. Visor interactivo.
+4. Rotación de 360 grados.
+5. Zoom.
+6. Visualización de diferentes perspectivas.
+7. Cambio de variantes.
+8. Presentaciones por tamaño.
+9. Escala dimensional.
+10. Configuración de porciones.
+11. Realidad aumentada.
+12. Visualización sobre mesas reales.
+13. Texturas y materiales.
+14. Optimización de modelos.
+15. Carga bajo demanda.
+16. Gestión de archivos 3D.
+17. Revisión administrativa.
+18. Comparación con fotografías reales.
+
+### **IA aplicada**
+
+La IA podrá ayudar a analizar fotografías y generar recursos visuales o borradores de modelos.
+
+El empresario revisará la representación y confirmará los datos de tamaño y porción.
+
+**Resultado:** el cliente podrá observar los platos en 3D, girarlos y colocarlos visualmente sobre su mesa mediante realidad aumentada.
+
+
+
+# **FASE 15. Inteligencia empresarial, analítica y predicción**
+
+Business Intelligence + IA
+
+**¿Qué se desarrollará?**
+
+Un centro analítico que permita a cada empresario comprender el comportamiento de su negocio y al administrador supervisar el ecosistema completo.
+
+### **Para el empresario**
+
+1. Ventas diarias, semanales y mensuales.
+2. Ingresos.
+3. Costos.
+4. Rentabilidad.
+5. Platos más vendidos.
+6. Platos menos vendidos.
+7. Clientes nuevos.
+8. Clientes frecuentes.
+9. Clientes inactivos.
+10. Horarios de mayor demanda.
+11. Ocupación por horas.
+12. Rotación de mesas.
+13. Tiempo de espera.
+14. Merma.
+15. Ingredientes críticos.
+16. Rendimiento del inventario.
+17. Campañas y promociones.
+18. Rendimiento de su página empresarial.
+19. Rendimiento de sus recomendaciones.
+20. Comparación entre períodos.
+
+### **Para el administrador**
+
+1. Negocios registrados.
+2. Negocios activos.
+3. Ofertas publicadas.
+4. Establecimientos más visitados.
+5. Establecimientos mejor valorados.
+6. Negocios emergentes.
+7. Demanda por distrito.
+8. Demanda por categoría.
+9. Platos más populares.
+10. Actividad de los usuarios.
+11. Embudo de recomendaciones.
+12. Interacciones y conversiones.
+13. Reclamaciones.
+14. Incidencias.
+15. Moderación y auditoría.
+
+### **IA predictiva**
+
+La IA podrá detectar tendencias y generar informes como:
+
+- «Los viernes aumenta la demanda de comida marina».
+- «Este establecimiento necesita mayor producción durante el almuerzo».
+- «El arroz con pollo tiene una demanda creciente».
+- «El negocio registra una reducción de clientes recurrentes».
+- «Estos ingredientes podrían agotarse mañana».
+- «Esta zona muestra mayor actividad gastronómica».
+
+**Resultado:** SmartResto será una plataforma que no solo registra operaciones, sino que ayuda a tomar decisiones comerciales.
+
+# **FASE 16. SmartResto Copilot: asistente inteligente integral**
+
+Asistente central de IA
+
+**¿Qué se desarrollará?**
+
+Un asistente conversacional que conectará las funcionalidades de SmartResto con cada rol.
+
+No se limitará a responder preguntas: podrá preparar operaciones, consultar información y ejecutar acciones autorizadas.
+
+### **Para el comensal**
+
+- Buscar restaurantes.
+- Recomendar platos.
+- Consultar menús.
+- Encontrar delivery.
+- Crear recetas.
+- Preparar planes semanales.
+- Consultar puntos.
+- Revisar historial.
+- Encontrar promociones.
+- Recomendar alternativas.
+
+### **Para el empresario**
+
+- Registrar platos por voz.
+- Crear recetas.
+- Importar información.
+- Consultar ventas.
+- Revisar ingredientes.
+- Analizar rentabilidad.
+- Crear promociones.
+- Consultar ocupación.
+- Revisar demanda.
+- Administrar pedidos.
+- Generar contenido empresarial.
+
+### **Para el administrador**
+
+- Consultar tendencias.
+- Revisar publicaciones.
+- Identificar negocios duplicados.
+- Detectar anomalías.
+- Generar reportes.
+- Revisar incidencias.
+- Supervisar los procesos de IA.
+
+**Resultado:** cada usuario tendrá un asistente que conocerá las funcionalidades a las que tiene acceso y podrá ayudarle a utilizarlas.
+
+La IA deberá solicitar confirmación para operaciones sensibles y no tendrá autorización automática para cambiar precios, publicar contenido, gestionar cobros o modificar datos críticos sin controles del servidor.
+
+# **FASE 17. Administración global, seguridad y confianza**
+
+**¿Qué se desarrollará?**
+
+Aunque el administrador interviene desde las primeras fases, aquí se consolidará el control integral de la plataforma.
+
+Incluye:
+
+1. Gestión general de usuarios.
+2. Verificación de negocios.
+3. Revisión de documentos.
+4. Moderación de fotografías.
+5. Moderación de videos.
+6. Revisión de palabras y descripciones.
+7. Detección de posibles fraudes.
+8. Detección de contenido duplicado.
+9. Gestión de reclamos.
+10. Gestión de reportes.
+11. Historial de auditoría.
+12. Gestión de pagos e incidencias.
+13. Gestión de restricciones.
+14. Control de integraciones.
+15. Configuración de proveedores de IA.
+16. Gestión de cuotas y consumo de IA.
+17. Seguridad de sesiones.
+18. Control de permisos.
+19. Gestión de consentimiento.
+20. Protección de datos personales.
+
+**Resultado:** un entorno administrativo que permita supervisar el crecimiento y operación de SmartResto de forma segura.
+
+# **FASE 18. Pruebas integrales, optimización y despliegue**
+
+**¿Qué se desarrollará?**
+
+Esta fase garantiza que todos los módulos funcionen juntos y que el proyecto pueda operar de forma confiable.
+
+Incluye:
+
+1. Pruebas unitarias.
+2. Pruebas de integración.
+3. Pruebas de permisos por rol.
+4. Pruebas de concurrencia.
+5. Pruebas de pagos.
+6. Pruebas de pedidos duplicados.
+7. Pruebas de inventario.
+8. Pruebas de última porción.
+9. Pruebas de aforo.
+10. Pruebas de cola virtual.
+11. Pruebas de asignación de mesas.
+12. Pruebas de notificaciones.
+13. Pruebas de IA.
+14. Pruebas de Excel.
+15. Pruebas de voz.
+16. Pruebas de carga.
+17. Pruebas de seguridad.
+18. Pruebas de accesibilidad.
+19. Pruebas responsive.
+20. Pruebas de experiencia completa.
+21. Monitoreo de errores.
+22. Copias de seguridad.
+23. Despliegue.
+24. Documentación técnica.
+25. Manuales de usuario.
+
+**Resultado:** una plataforma integrada, verificable y lista para desplegar progresivamente.
+
+## **Resumen general de las 18 fases**
+
+Esta tabla te servirá para dividir el trabajo en tareas o entregas independientes.
+
+| N.º | Fase                                  | Área principal           |
+| --- | ------------------------------------- | ------------------------ |
+| 01  | Arquitectura general                  | Infraestructura          |
+| 02  | Usuarios, roles y perfiles            | Autenticación            |
+| 03  | Descubrimiento automático de negocios | IA y datos               |
+| 04  | Portal empresarial y páginas web      | Sitios web               |
+| 05  | Catálogo y registro inteligente       | Productos e IA           |
+| 06  | Marketplace gastronómico              | Comercio                 |
+| 07  | Recomendador inteligente              | Personalización          |
+| 08  | Carta QR y mesas                      | Atención presencial      |
+| 09  | Pedidos, reservas y pagos             | Comercio electrónico     |
+| 10  | Cocina, recetas e inventario          | Operaciones              |
+| 11  | SmartResto Flow                       | Aforo y colas            |
+| 12  | Fidelización y reputación             | Clientes                 |
+| 13  | SmartResto Home                       | Cocina doméstica         |
+| 14  | 3D y realidad aumentada               | Experiencia inmersiva    |
+| 15  | Analítica y predicción                | Inteligencia empresarial |
+| 16  | SmartResto Copilot                    | IA conversacional        |
+| 17  | Administración y seguridad            | Supervisión              |
+| 18  | Pruebas y despliegue                  | Calidad y producción     |
+
+## **Orden recomendado de ejecución**
+
+No es necesario esperar a terminar las 18 fases para mostrar avances. Puedes organizar las entregas en bloques:
+
+Bloque 1
+
+**Plataforma funcional inicial**
+
+# **Fases 1–6**
+
+Construir la base, registrar negocios, crear páginas empresariales, gestionar menús y habilitar el marketplace.
+
+Bloque 2
+
+**Experiencia de compra y operación**
+
+# **Fases 7–11**
+
+Recomendaciones, QR, pedidos, pagos, inventario, producción, ocupación y cola virtual.
+
+Bloque 3
+
+**Inteligencia y fidelización**
+
+# **Fases 12–16**
+
+Puntos, visitas, cocina en casa, experiencias 3D, analítica, predicciones y Copilot.
+
+Bloque 4
+
+**Consolidación y lanzamiento**
+
+# **Fases 17–18**
+
+Seguridad, supervisión, auditoría, pruebas completas y despliegue.
+
+## **Criterio para considerar cada fase terminada**
+
+Cada fase debería tener cinco entregables:
+
+1. **Interfaz:** pantallas terminadas y responsive.
+2. **Backend:** endpoints, validaciones y reglas de negocio.
+3. **Base de datos:** tablas, relaciones, índices y migraciones.
+4. **Integraciones:** IA, APIs, notificaciones o proveedores que correspondan.
+5. **Pruebas:** recorridos funcionales, permisos, errores y casos límite.
+
+No consideres una fase completada solamente porque su interfaz esté terminada.
+
+## **Mi recomendación para comenzar**
+
+Empezaría por las **fases 1, 2, 3, 4, 5 y 6**, porque constituyen la base comercial de SmartResto. Después desarrollaría los pedidos, QR, cocina y aforo. Cuando exista un flujo real de consumo, tendrá sentido potenciar la fidelización, el historial de visitas y las recomendaciones inteligentes.
+
+De esta manera tendrás entregas funcionales, podrás probar cada parte y evitarás construir funciones avanzadas que todavía no tienen datos ni procesos operativos para funcionar correctamente.
