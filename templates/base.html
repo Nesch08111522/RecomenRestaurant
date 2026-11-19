@@ -38,7 +38,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/public-navigation.css') }}" />
     <script src="{{ url_for('static', filename='js/shell.js') }}"></script>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/theme-components.css') }}">
-<link rel="stylesheet" href="{{ url_for('static',filename='css/responsive-layout.css') }}">
+<link rel="stylesheet" href="{{ url_for('static',filename='css/responsive-layout.css') }}?v=20261119-map-dialog-fix1">
 <script src="{{ url_for('static',filename='js/responsive-layout.js') }}" defer></script>
 <link rel="stylesheet" href="{{ url_for('static',filename='css/layout-system.css') }}">
 {% if sr_workspace %}<link rel="stylesheet" href="{{ url_for('static', filename='css/internal-workspace.css') }}">{% endif %}
@@ -96,7 +96,7 @@
     <!-- Custom JS -->
     {% if request.endpoint not in ['auth.login', 'auth.register', 'auth.recover'] %}
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/map.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/map.js') }}?v=20261120-maplibre-liberty"></script>
     <script src="{{ url_for('static', filename='js/search.js') }}"></script>
     <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
     <script src="{{ url_for('static', filename='js/ai-assistant.js') }}"></script>

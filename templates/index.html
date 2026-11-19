@@ -4,7 +4,7 @@
 {% block legacy_interface %}{% endblock %}
 {% block page_styles %}
 <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/forest-home.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/forest-home.css') }}?v=20261119-map-dialog-fix1">
 {% endblock %}
 
 {% block content %}
@@ -135,7 +135,7 @@
 (function () {
     'use strict';
 
-const STYLE_URL = 'https://tiles.openfreemap.org/styles/positron';
+const STYLE_URL = 'https://tiles.openfreemap.org/styles/liberty';
     const COLOR = (typeof APP_CONFIG !== 'undefined' && APP_CONFIG.primaryColor) || window.SRTheme.color('danger');
     const DEFAULT_CENTER = [-79.03, -8.11]; // [lng, lat] Trujillo
 
@@ -225,12 +225,10 @@ const STYLE_URL = 'https://tiles.openfreemap.org/styles/positron';
             maxPitch: 70,
             attributionControl: { compact: true }
         });
-        map.on('style.load', () => {
-    const style = map.getStyle();
-
-    console.log('Fuentes del mapa:', style.glyphs);
-    console.log('Estilo cargado:', style.name);
-});
+        const mapResizeObserver = new ResizeObserver(() => {
+            if (container.isConnected && container.clientWidth > 0 && container.clientHeight > 0) map.resize();
+        });
+        mapResizeObserver.observe(container);
         map.on('error', (e) => {
     console.error('❌ Error MapLibre:', {
         message: e.error?.message,
@@ -430,6 +428,11 @@ const STYLE_URL = 'https://tiles.openfreemap.org/styles/positron';
                 }
             });
 
+            if (!map.getSource('openmaptiles')) {
+                const threeDButton = document.getElementById('toggle3dBtn');
+                if (threeDButton) threeDButton.hidden = true;
+            }
+
             // Edificios en 3D (si el estilo no los trae)
 if (!map.getLayer('rm-buildings-3d') && map.getSource('openmaptiles')) {
                     map.addLayer({
@@ -565,7 +568,7 @@ const last = window.app?.state?.userLocation;
 </script>
 
 {% for module in ['processor', 'logic-rules', 'ui', 'controller'] %}
-<script src="{{ url_for('static', filename='js/forest/' ~ module ~ '.js') }}"></script>
+<script src="{{ url_for('static', filename='js/forest/' ~ module ~ '.js') }}?v=20261119-map-dialog-fix1"></script>
 {% endfor %}
 <!-- Asistente de IA (Qwen): búsqueda inteligente + chat -->
 
