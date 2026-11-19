@@ -276,8 +276,9 @@
     clearTimeout(timer);
     if (!listening || disposed || busy || speaking || running) return;
     segments = [];
+    const generation = voiceGeneration;
     const begin = () => {
-      if (!listening || disposed || busy || speaking || running || blocked) return;
+      if (generation !== voiceGeneration || !listening || disposed || busy || speaking || running || blocked) return;
       try { running = true; recognition.start(); }
       catch (_) { running = false; blocked = true; stopListening(false); show('No se pudo iniciar el micrófono. Puedes volver a activarlo.'); }
     };

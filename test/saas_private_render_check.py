@@ -120,7 +120,10 @@ class PrivateRenderChecks(unittest.TestCase):
 
     def test_guest_private_routes_have_no_private_css(self):
         for endpoint in CASES.values():
-            self.assertNotIn('saas-private.css', render('base.html', endpoint, authenticated=False))
+            for role in ('user', 'business_owner', 'admin'):
+                html = render('base.html', endpoint, role, authenticated=False)
+                self.assertNotIn('saas-private.css', html)
+                self.assertNotIn('admin-precision.css', html)
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
