@@ -65,13 +65,40 @@ def desk_page(rid, **extra):
     produced = sum(o["produced"] for o in finished)
     surplus = sum(o["stock"] for o in finished)
     at = now()
+    needs = {}
+    for offer in offers:
+        if offer.get("paused") or offer.get("ends", "") <= at.isoformat():
+            continue
+        for name, amount in (offer.get("recipe") or {}).items():
+            needs[name] = needs.get(name, 0) + int(amount) * int(offer.get("stock") or 0)
+    alerts = []
+    for name, lot in store.get("pantry", {}).items():
+        quantity = int(lot.get("quantity") or 0)
+        expires = lot.get("expires") or ""
+        try:
+            days = (date.fromisoformat(expires) - at.date()).days
+        except ValueError:
+            days = None
+        if quantity <= 0:
+            state, detail = "Agotado", "Sin existencias registradas."
+        elif expires and expires < at.date().isoformat():
+            state, detail = "Vencido", f"El lote venció el {expires}."
+        elif days is not None and days <= 3:
+            state, detail = "Vence pronto", f"Vence en {days} día(s)."
+        elif needs.get(name, 0) > quantity:
+            state, detail = "No cubre lo publicado", f"Necesitas {needs[name]} {lot.get('unit','')} para las porciones vigentes."
+        else:
+            continue
+        alerts.append({"name": name, "state": state, "detail": detail, "quantity": quantity,
+                       "unit": lot.get("unit", ""), "expires": expires})
+    production = [offer for offer in offers if offer.get("produced")]
     reservations = ReservationModel.get_by_restaurant(rid)
     target = at.date() + timedelta(days=1)
     predictions = [(d["name"], forecast(orders, d["id"], target)) for d in records("dishes", restaurant_id=rid)]
     return render_template("market/kitchen.html", context_tags=TAGS, seasons=SEASONS, business=business, store=store, offers=offers[::-1],
         dishes=records("dishes", restaurant_id=rid), orders=orders[::-1], metrics=indicators(orders),
         moves=records("market_movements", rid=rid)[-12:][::-1], forecasts=predictions, target=target,
-        produced=produced, surplus=surplus,
+        produced=produced, surplus=surplus, alerts=alerts, production=production[::-1][:12],
         reservations=reservations, kinds=BUSINESSES, channels=CHANNELS,
         occasions=OCCASIONS, diets=commerce_settings()['diets'], today=at.date().isoformat(),
         attendance_ids={booking["id"] for booking in reservations if can_record_attendance(booking, at)},

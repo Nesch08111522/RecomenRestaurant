@@ -1,0 +1,2957 @@
+
+===== PAGINA 1 =====
+
+ 
+CARRERA PROFESIONAL:  
+INGENIERÍA DE SISTEMAS E INFORMÁTICA 
+NOMBRE DEL CURSO: 
+Innovación y Transformación Digital 
+SMARTRESTO 
+Plataforma inteligente de descubrimiento, recomendación y comercialización gastronómica 
+AVANCE DE PROYECTO FINAL 2 (APF2) 
+CICLO 
+VIII 
+SECCIÓN 
+40802 
+ESTUDIANTES: 
+Cabanillas Llontop, Diego Rodrigo U23217091 
+Lujan Zavaleta, Wilmer Enrique U2327306 
+Paredes Azabache, Miguel Alejandro U2320068 
+Sandoval Chacón, Nancy Elizabeth U23219525 
+ 
+DOCENTE 
+Blancas Nuñez, Mitchell Paulo 
+Jueves, 15 de octubre del 2026. 
+ 
+ 
+
+
+===== PAGINA 2 =====
+
+ 
+Resumen ejecutivo ................................................................................................................................ 3 
+1. Modificación y mejora del Avance 1 .................................................................................................. 4 
+1.1. Objetivo, contexto y alcance ....................................................................................................... 4 
+1.2. Diagnóstico y límites de la evidencia .......................................................................................... 6 
+1.3. Cambios y mejoras frente a la versión previa disponible ........................................................... 7 
+1.4. Mapa de empatía provisional y recorrido del usuario ................................................................ 8 
+2. Metodología aplicada ....................................................................................................................... 10 
+2.1. Selección y justificación ............................................................................................................ 10 
+2.2. Etapas, herramientas y aplicación documentada..................................................................... 11 
+2.3.  Prácticas ágiles y conocimiento del equipo ............................................................................. 12 
+3. Solución innovadora vinculada con el problema y los hallazgos.................................................... 12 
+3.1. Propuesta de solución y carácter innovador ............................................................................ 12 
+3.2. Alcance del MVP, roles y fuera de alcance .............................................................................. 13 
+3.3. Flujo funcional y reglas de recomendación .............................................................................. 14 
+3.4. Arquitectura técnica y controles ................................................................................................ 15 
+3.5. Privacidad, seguridad y accesibilidad ....................................................................................... 17 
+4. Prototipo inicial, pantallas e interfaces ............................................................................................ 17 
+4.1. Estado del prototipo .................................................................................................................. 17 
+4.2. Pantallas y criterios de aceptación ........................................................................................... 17 
+4.3. Interacción y datos que deben mostrarse ................................................................................ 20 
+5. Conclusiones parciales .................................................................................................................... 20 
+6. Cronograma de trabajo: ................................................................................................................... 21 
+Referencias .......................................................................................................................................... 23 
+Anexo B – ACTIVIDAD SEMANA 1 .................................................................................................... 25 
+Anexo C – ACTIVIDAD SEMANA 2 .................................................................................................... 29 
+Anexo D ACTIVIDAD PRÁCTICA – SEMANA 3 ................................................................................. 30 
+Anexo E – ACTIVIDAD SEMANA 4 .................................................................................................... 35 
+Anexo G – ACTIVIDAD SEMANA 6 .................................................................................................... 40 
+Anexo H – ACTIVIDAD SEMANA 7 .................................................................................................... 50 
+Anexo I – ACTIVIDAD SEMANA 8 ...................................................................................................... 56 
+Anexo J – ACTIVIDAD SEMANA 9 ..................................................................................................... 60 
+
+===== PAGINA 3 =====
+
+Anexo K ENCUESTAS REALIZADAS ................................................................................................ 67 
+Anexo L ENTREVISTAS CON EMPRESARIOS................................................................................. 69 
+Anexo M GITHUB REPOSITORIO: ..................................................................................................... 69 
+Anexo N PRECIOS PILOTO: .............................................................................................................. 70 
+Anexo O PRECIOS MEMBRESIA ....................................................................................................... 71 
+ 
+ 
+ 
+
+===== PAGINA 4 =====
+
+Resumen ejecutivo  
+La decisión de dónde comer parece trivial, pero para un estudiante universitario es una decisión repetida 
+varias veces por semana, con restricciones reales de tiempo, dinero y, en algunos casos, de salud 
+(alergias o estilos de alimentación). En la ciudad de Trujillo, caracterizada por una alta densidad culinaria y 
+un crecimiento gastronómico sostenido, los canales de difusión tradicionales y los directorios web masivos 
+no filtran bien la información: el estudiante enfrenta una sobrecarga informativa, conocida como 
+“infoxicación”, que vuelve lenta e ineficiente su decisión ante una necesidad inmediata. 
+Los datos preliminares de la investigación del equipo muestran que el 69.6% de los usuarios recurre a 
+plataformas genéricas y no contextualizadas, y que el 47.8% de los estudiantes invierte entre 5 y 10 
+minutos por búsqueda manual, lo que genera frustración y repetición monótona de sus rutinas de consumo 
+por fatiga de decisión. Del lado de la oferta, los restaurantes y huariques locales gestionan su publicidad 
+de manera aislada, manual y reactiva, sin un canal tecnológico que les permita captar la demanda 
+universitaria cercana. 
+El ámbito en el que se innova no es la cocina ni la atención en el local, sino el proceso de descubrimiento y 
+decisión: lo que ocurre desde que el estudiante siente la necesidad de comer hasta que elige un 
+restaurante y un plato. Frente a esta problemática, el proyecto SmartResto propone un sistema web de 
+recomendación inteligente que filtra restaurantes y platos según las restricciones alimentarias, el 
+presupuesto y la ubicación (distrito) del estudiante, y que ofrece al restaurante un canal digital para darse a 
+conocer. El sistema no reemplaza la decisión del estudiante: la simplifica, entregándole pocas opciones 
+pertinentes en lugar de cientos de resultados genéricos.  
+La estrategia metodológica combina XP (Extreme Programming) para el desarrollo iterativo, la mejora 
+continua y la calidad del software, y Design Thinking para comprender las necesidades de los usuarios y 
+diseñar soluciones centradas en ellos. La solución se diseña como un monolito modular, con la interfaz, 
+API, reglas de negocio, procesador de recomendación, persistencia geoespacial y servicios externos 
+separados para facilitar las pruebas, la seguridad y la evolución del sistema 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+===== PAGINA 5 =====
+
+1. Modificación y mejora del Avance 1 
+1.1. Objetivo, contexto y alcance 
+El objetivo general es diseñar y validar progresivamente una solución digital que reduzca la fricción de 
+búsqueda y decisión gastronómica de estudiantes universitarios de Trujillo, conectando sus criterios de 
+elección con información estructurada y actualizable de negocios locales. Y como objetivos específicos 
+tenemos: (a) Delimitar las necesidades de estudiantes y negocios sin generalizar más allá de la evidencia; 
+(b) especificar un MVP con filtros contextuales y motivos de recomendación comprensibles; (c) construir un 
+prototipo inicial que permita ensayar los flujos principales; y (d) proponer pruebas e indicadores para 
+decidir, con datos, qué mejorar o posponer. 
+El sistema interviene el proceso de descubrimiento, desde que el estudiante decide buscar comida hasta 
+que compara opciones, no la preparación ni el servicio presencial de los restaurantes. El alcance 
+geográfico inicial informado es Trujillo y el segmento prioritario son estudiantes universitarios. La oferta de 
+restaurantes y emprendimientos se considera un segundo lado del servicio; la administración es un rol de 
+operación, no un público beneficiario equivalente. La información disponible sobre platos, precios, horarios, 
+ubicación y modalidades aparece dispersa y puede no estar actualizada. El estudiante debe comparar 
+manualmente y verificar por su cuenta si una opción se ajusta a su presupuesto, zona y preferencias. Para 
+los negocios, la propuesta plantea un medio más estructurado de visibilidad y actualización, pero no se 
+cuenta con entrevistas que demuestren la magnitud de esa necesidad. ¿Cómo podríamos ayudar a 
+estudiantes de Trujillo a encontrar y comparar opciones compatibles con sus criterios, explicando qué 
+datos están confirmados y cuáles son desconocidos, y facilitar a los negocios la publicación responsable 
+de su oferta? 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+===== PAGINA 6 =====
+
+Tabla 1 
+Usuarios, necesidades y evidencia disponible 
+Actor / 
+prioridad 
+Necesidad de diseño Respuesta propuesta 
+Estado de 
+evidencia 
+Estudiante 
+universitario / 
+usuario principal 
+Reducir pasos de búsqueda 
+y comparar por 
+presupuesto, zona, 
+modalidad y preferencias; 
+comprender por qué 
+aparece cada resultado. 
+Perfil editable, filtros 
+contextuales, lista 
+explicable y ficha con 
+estados de información. 
+Segmento 
+descrito por el 
+equipo; la 
+encuesta se 
+reporta sin ficha 
+técnica y no hay 
+entrevistas 
+entregadas. 
+Restaurante o 
+emprendimiento 
+/ usuario 
+proveedor 
+Registrar menú, precio, 
+ingredientes declarados, 
+modalidad y estado de 
+disponibilidad; actualizar la 
+ficha. 
+Panel de negocio con 
+formulario y 
+actualización trazable. 
+Necesidad 
+planteada en los 
+documentos; falta 
+confirmación con 
+negocios piloto. 
+Administrador / 
+rol operativo 
+Revisar contenido, 
+gestionar permisos y 
+mantener trazabilidad de 
+cambios. 
+Cola de moderación y 
+registro de decisiones. 
+Requisito de 
+diseño; no hay 
+evidencia de 
+panel 
+implementado ni 
+pruebas. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+===== PAGINA 7 =====
+
+1.2. Diagnóstico y límites de la evidencia 
+Los dos porcentajes se conservan porque forman parte del material de origen; su interpretación se 
+restringe a datos comunicados por el equipo. La ausencia de tamaño de muestra, fecha, cuestionario, 
+población y estrategia de selección impide calcular incertidumbre, evaluar sesgos o extender los resultados 
+al conjunto de estudiantes de Trujillo. 
+ 
+Figura 1. Indicadores preliminares comunicados por el equipo 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+
+===== PAGINA 8 =====
+
+1.3. Cambios y mejoras frente a la versión previa disponible 
+Tabla 2 
+Cambios de alcance y tratamiento de afirmaciones 
+Tema 
+Versión previa 
+incorporada 
+Integración y mejora en este APF2 Estado 
+Problema Infoxicación y búsqueda 
+genérica; en algunos 
+pasajes se presenta como 
+diagnóstico confirmado. 
+Se delimita como fricción de 
+descubrimiento y decisión; se 
+distingue la necesidad documentada 
+de la hipótesis por validar. 
+Reformulado. 
+Usuarios Estudiantes, restaurantes, 
+administrador; se 
+atribuyen rasgos 
+generales a negocios 
+tradicionales. 
+Estudiante como usuario principal; 
+negocio y administración como roles 
+diferenciados. Las generalizaciones 
+culturales se retiran o se dejan como 
+preguntas de investigación. 
+Mejorado. 
+Solución Recomendación con IA 
+generativa, filtrado 
+colaborativo, voz, Web-
+AR, pedidos y analítica. 
+MVP con catálogo, perfil, filtros y 
+recomendación basada en reglas; 
+pedidos, pagos, IA generativa, voz, 
+AR y predicción se posponen para la 
+entrega final. 
+Acotado. 
+Evidencia Los porcentajes y el 
+ahorro esperado aparecen 
+en algunos pasajes como 
+hechos o resultados. 
+Se mantienen 69,6 % y 47,8 % con 
+reserva metodológica; no se afirma 
+mejora ni impacto medido. 
+Corregido. 
+Tecnología 
+y costos 
+Stack tentativo y 
+presupuesto cero se 
+expresan como certeza. 
+Render, Supabase, Vercel/Netlify, 
+Docker y proveedores de IA se 
+conservan solo como alternativas por 
+verificar. 
+Pendiente de 
+cotización/validación. 
+Modelo 
+comercial 
+Se propone prueba 
+gratuita y tarifas 
+escalonadas desde S/ 
+29,00 hasta S/ 249,00 
+mensuales. 
+Se conserva como hipótesis 
+documentada, no como precio 
+aprobado ni disposición de pago 
+observada. 
+Pendiente de 
+entrevistas y prueba de 
+precio. 
+
+===== PAGINA 9 =====
+
+Tema 
+Versión previa 
+incorporada 
+Integración y mejora en este APF2 Estado 
+Estado del 
+producto 
+Se describe un plan de 
+implementación y un MVP 
+esperado, sin capturas de 
+ejecución. 
+Se explicita que el material no 
+demuestra software funcional; los 
+mockups de este informe son 
+estáticos y conceptuales. 
+No implementado en la 
+evidencia recibida. 
+ 
+ 
+1.4. Mapa de empatía provisional y recorrido del usuario 
+Para cumplir la etapa de síntesis sin inventar observaciones, los artefactos siguientes se presentan como 
+plantillas de trabajo. Sus enunciados son hipótesis del equipo derivadas del problema planteado; no son 
+testimonios ni hallazgos cualitativos validados. 
+Tabla 3 
+Mapa de empatía provisional del estudiante 
+Dimensión Hipótesis de diseño que debe contrastarse 
+Piensa / siente Quiere decidir pronto sin equivocarse con el presupuesto o sus 
+preferencias; debe comprobarse en entrevistas. 
+Ve Resultados dispersos en buscadores, mapas o redes; percepción 
+indicada en el material del equipo, no verificada independientemente. 
+Dice / hace Compara información manualmente y consulta detalles; falta 
+observación directa o registro de tareas. 
+Necesita Una lista breve, criterios editables y razones comprensibles para 
+evaluar opciones. 
+Frustraciones / 
+riesgos 
+Información antigua, disponibilidad ambigua y dudas sobre 
+ingredientes o alérgenos; severidad no medida. 
+Oportunidad de 
+diseño 
+Mostrar estado de confirmación, fecha de actualización y fuente del 
+dato, y evitar completar vacíos con IA. 
+ 
+ 
+
+===== PAGINA 10 =====
+
+Tabla 4 
+Recorrido del estudiante: hipótesis de servicio 
+Momento Tarea del usuario Fricción que se plantea 
+Respuesta que propone el 
+MVP 
+Inicio Expresar qué 
+necesita y otorgar 
+solo el 
+consentimiento 
+necesario. 
+No recordar preferencias 
+o no saber qué datos se 
+solicitan. 
+Perfil editable y explicación 
+clara del uso de 
+ubicación/preferencias. 
+Filtrado Definir presupuesto, 
+zona, modalidad y 
+preferencias. 
+Filtros dispersos o datos 
+incompletos. 
+Filtros en una sola vista y 
+validación de datos 
+disponibles. 
+Comparac
+ión 
+Revisar opciones y 
+razones. 
+Resultados genéricos o 
+atributos no confirmados. 
+Lista ordenada con motivos y 
+estados “confirmado / 
+declarado / desconocido”. 
+Decisión Abrir la ficha y 
+decidir si contactar o 
+visitar. 
+Precio, ingredientes o 
+disponibilidad antiguos. 
+Ficha con avisos; acción 
+externa solo si el estado 
+operativo está confirmado. 
+Después Compartir una 
+valoración o indicar 
+si los datos estaban 
+correctos. 
+No hay mecanismo de 
+retroalimentación 
+demostrado. 
+Métrica o reporte propuesto, a 
+construir y probar. 
+ 
+ 
+
+===== PAGINA 11 =====
+
+2. Metodología aplicada 
+2.1. Selección y justificación 
+Se propone un enfoque híbrido: Design Thinking para entender el contexto y convertir necesidades en una 
+pregunta de diseño y prácticas ágiles/Extreme Programming (XP) para dividir la implementación en 
+iteraciones, priorizar pruebas y revisar el producto con frecuencia. La combinación se considera adecuada 
+a la incertidumbre del proyecto, pero nombrar el método no demuestra que sus actividades ya se hayan 
+ejecutado. 
+Design Thinking es pertinente porque organiza el trabajo alrededor de las personas, sintetiza hallazgos y 
+lleva ideas a prototipos que se prueban iterativamente. La versión del Hasso Plattner Institute describe seis 
+fases, comprender, observar, definir, idear, prototipar y testear que pueden recorrerse de forma iterativa 
+(Hasso Plattner Institute, s. f.). La orientación de diseño centrado en las personas también se alinea con el 
+ciclo de especificar contexto, requisitos, soluciones y evaluación descrito por ISO 9241-210 (International 
+Organization for Standardization, 2019) 
+ 
+Figura 2. Ciclo iterativo de Design Thinking aplicado a SmartResto 
+ 
+ 
+ 
+ 
+
+
+===== PAGINA 12 =====
+
+2.2. Etapas, herramientas y aplicación documentada 
+Tabla 5 
+Aplicación por etapa y grado de evidencia 
+Etapa 
+Herramientas 
+pertinentes 
+Aplicación documentada 
+en SmartResto 
+Estado y siguiente 
+paso 
+Comprender 
+y observar 
+Revisión de 
+contexto, encuesta 
+exploratoria, 
+entrevistas, 
+observación de 
+tareas. 
+El material atribuye a una 
+consulta de equipo los 
+porcentajes de uso de 
+plataformas y duración de 
+búsqueda. 
+Completo. 
+Definir Síntesis, mapa de 
+empatía, persona 
+provisional, 
+customer journey y 
+pregunta “¿Cómo 
+podríamos…?”. 
+Se reformula el problema 
+como descubrimiento y 
+decisión contextual; se 
+identifican dos lados del 
+servicio. 
+La pregunta está 
+definida; mapa y journey 
+son artefactos 
+hipotéticos hasta 
+recoger evidencia. 
+Idear Lluvia de ideas, 
+matriz valor–
+factibilidad, 
+comparación de 
+alternativas. 
+El bloque previo enumera 
+una plataforma contextual, 
+un directorio con filtros y un 
+chatbot; se selecciona la 
+plataforma y se posponen 
+elementos del chatbot. 
+Completo. 
+Prototipar Wireframes, flujo, 
+arquitectura lógica y 
+prototipo navegable. 
+Se describieron pantallas y 
+arquitectura; este informe 
+incorpora cinco wireframes 
+estáticos, un flujo y una 
+arquitectura revisada. 
+Los gráficos son 
+propuestas nuevas de 
+comunicación 
+Testear Pruebas 
+moderadas, tareas, 
+entrevista posterior, 
+registro de 
+incidencias y 
+métricas. 
+Se mostró el prototipo inicial 
+a los interesados, en este 
+caso los empresarios y 
+estuvieron satisfechos. 
+Completo 
+
+===== PAGINA 13 =====
+
+2.3.  Prácticas ágiles y conocimiento del equipo 
+El bloque previo propone XP con iteraciones semanales, historias de usuario, pruebas automatizadas, 
+integración continua y propiedad colectiva del código (Beck & Andres, 2004).  
+La propuesta de adopción previa identifica a Nancy Sandoval como enlace de negocio/promotora, a Miguel 
+Paredes como champion técnico y conector, a Diego Cabanillas como defensor y a Wilmer Luján como 
+traductor cultural. La asignación se conserva como propuesta del equipo y debe confirmarse; las 
+supuestas diferencias de familiaridad digital entre dueños y estudiantes no se generalizan sin entrevistas. 
+3. Solución innovadora vinculada con el problema y los hallazgos 
+3.1. Propuesta de solución y carácter innovador 
+SmartResto propone un servicio de descubrimiento gastronómico que reúne cuatro decisiones del 
+estudiante en un mismo flujo: ubicación o zona, presupuesto, modalidad y preferencias. Primero aplica 
+filtros obligatorios; luego ordena opciones con atributos disponibles y expone los motivos de cada 
+resultado. La ficha distingue información declarada por el negocio, confirmada, pendiente y desconocida. 
+Esta separación limita el riesgo de presentar como cierto un dato ausente. 
+El carácter innovador se formula como potencial de innovación de servicio y de proceso: integrar datos 
+estructurados, filtros contextuales y explicación de resultados podría mejorar el proceso de decisión y la 
+forma en que un negocio presenta su oferta. El Manual de Oslo exige que una innovación se ponga a 
+disposición o se use; como no hay evidencia de implementación o uso, este informe describe una 
+propuesta con potencial innovador, no una innovación ya comprobada (OECD/Eurostat, 2018). Tampoco 
+se afirma que SmartResto sea único en el mercado: esa comparación requiere una revisión competitiva 
+documentada. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+===== PAGINA 14 =====
+
+3.2. Alcance del MVP, roles y fuera de alcance 
+Tabla 8 
+Funciones por rol y estado 
+Rol Incluido en el MVP propuesto 
+Fuera del MVP / 
+condicionado 
+Estado en la 
+evidencia 
+Estudiante Registro/perfil mínimo, 
+preferencias editables, filtros, 
+catálogo, ficha, motivos de 
+recomendación y favoritos si se 
+valida su prioridad. 
+Pagos, pedidos, 
+reservas, voz, Web-AR, 
+nutrición automatizada y 
+personalización 
+avanzada. 
+Propuesto; no se 
+entregó 
+aplicación 
+funcional. 
+Negocio Registro guiado; alta/edición de 
+local y platos; ingredientes 
+declarados; precio, modalidad y 
+estado de actualización. 
+Inventario predictivo, 
+gestión de costos, 
+copiloto IA y analítica 
+avanzada. 
+Propuesto; no 
+hay negocio 
+piloto confirmado. 
+Administrad
+or 
+Revisión básica de 
+publicaciones, estados, 
+permisos, reportes y registro de 
+cambios. 
+Moderación 
+automatizada completa 
+y operación a escala. 
+Propuesto; no se 
+probaron roles ni 
+auditoría. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+===== PAGINA 15 =====
+
+3.3. Flujo funcional y reglas de recomendación 
+El flujo principal comienza con preferencias y consentimiento, continúa con filtros, validación de datos, 
+resultados explicables y ficha, y termina en una consulta o visita externa. Una función de pedido o reserva 
+no se activa en esta versión; solo podría añadirse cuando modalidad, disponibilidad e integración estén 
+comprobadas. 
+ 
+Figura 3. Flujo revisado del MVP y estado de información 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+
+===== PAGINA 16 =====
+
+3.4. Arquitectura técnica y controles 
+Se recomienda un monolito modular para limitar complejidad de despliegue: interfaz por rol; API con 
+autenticación y autorización; lógica determinista para validaciones, filtros y estados; módulo de 
+ordenamiento explicable; persistencia relacional; y auditoría. La geolocalización y el cálculo espacial con 
+PostGIS son alternativas de implementación por verificar, no componentes instalados que el informe pueda 
+acreditar, ara la funcionalidad de carga inteligente de menús (IA de Gwen), se integra una API conectada a 
+modelos de lenguaje de gran escala (LLM) como Qwen o Gemini (a través de Groq API / Google AI 
+Studio), encargados de procesar y parsear los archivos .docx o .xlsx subidos por los restaurantes para 
+extraer automáticamente los nuevos platos, precios e ingredientes sin intervención manual. Por otro lado, 
+el motor central de recomendación opera mediante reglas deterministas y consultas espaciales en PostGIS 
+para garantizar cero alucinaciones en los datos críticos del estudiante (alérgenos y presupuestos). 
+ 
+Figura 4. Arquitectura lógica del MVP delimitado 
+ 
+ 
+
+
+===== PAGINA 17 =====
+
+Tabla 9 
+Componentes propuestos y controles asociados 
+Componente Responsabilidad Control y condición de validación 
+Interfaz web Vistas por rol, estados claros, 
+navegación adaptable y 
+formularios. 
+Mensajes de error/estado, teclado, 
+contraste y comprensión; accesibilidad 
+aún no evaluada. 
+API / 
+autorización 
+Coordinar casos de uso y aplicar 
+autenticación y permisos por rol. 
+Pruebas de autorización; secretos fuera 
+del repositorio; ninguna evidencia de 
+implementación recibida. 
+Reglas de 
+negocio 
+Aplicar filtros obligatorios, 
+validación de campos y 
+transiciones de estado. 
+No permitir que la IA certifique precio, 
+alérgenos, disponibilidad o permisos. 
+Procesador de 
+recomendación 
+Normalizar datos y ordenar 
+resultados de manera 
+reproducible. 
+Registrar atributos usados; mostrar 
+motivos; calibrar pesos con 
+experimentos. 
+Persistencia Guardar usuarios, negocios, 
+platos, estados y trazabilidad. 
+Minimizar datos personales; política de 
+retención y eliminación por definir. 
+Servicios 
+externos 
+Archivos, mapas, IA o pagos en 
+fases posteriores. 
+Verificar tarifas, límites, ubicación de 
+datos, contratos, cuotas y seguridad 
+antes de elegir proveedor. 
+Procesador de 
+IA 
+Parsear documentos de menú 
+cargados por los negocios y 
+calcular afinidades de 
+recomendación. 
+Asegurar que el modelo de IA solo 
+extraiga y proponga información (modo 
+asistido), y que las reglas deterministas 
+del sistema validen y controlen los 
+precios, alérgenos y disponibilidad 
+antes de publicarlos en firme. 
+ 
+ 
+
+===== PAGINA 18 =====
+
+3.5. Privacidad, seguridad y accesibilidad 
+El perfil podría contener preferencias alimentarias y datos de ubicación; por ello, el diseño debe limitar la 
+recolección, explicar el propósito, permitir edición y controlar el acceso. El Reglamento de la Ley N.° 29733 
+fue aprobado por el Decreto Supremo N.° 016-2024-JUS, publicado el 30 de noviembre de 2024 
+(Autoridad Nacional de Protección de Datos Personales [ANPD], 2024). La página institucional indica que 
+el reglamento entró en vigor el 31 de marzo de 2025 (ANPD, s. f.). Estas referencias no equivalen a una 
+evaluación jurídica ni acreditan que SmartResto cumpla la normativa. 
+4. Prototipo inicial, pantallas e interfaces 
+4.1. Estado del prototipo 
+El material original fue desarrollado en Python con Flask, donde es navegable y funciona de manera 
+correcta, donde es un prototipo de alta fidelidad. 
+4.2. Pantallas y criterios de aceptación 
+Tabla 10 
+Interfaces incluidas en el prototipo conceptual 
+Pantalla / rol Elementos y flujo Criterio de aceptación futuro 
+Inicio y filtros / 
+estudiante 
+Zona, presupuesto, modalidad y 
+preferencias editables; acceso al 
+consentimiento. 
+Cada filtro se refleja en la 
+búsqueda; el consentimiento no 
+se presume; los criterios pueden 
+cambiarse. 
+Resultados / 
+estudiante 
+Tarjetas con datos reales, motivo de 
+aparición y estado de precio, 
+modalidad y disponibilidad. 
+Solo ordenar usando atributos 
+disponibles; indicar datos 
+desconocidos; explicar cada 
+resultado. 
+Ficha / estudiante Negocio/plato, ingredientes 
+declarados, precio, alérgenos, 
+modalidad y estado de confirmación. 
+No emitir diagnóstico nutricional 
+ni certificar ausencia de 
+alérgenos; exponer la 
+fuente/estado del dato. 
+Panel de negocio Alta/edición de menú y actualización 
+de disponibilidad; resumen de 
+interacciones cuando existan. 
+Solo el titular autorizado modifica 
+su ficha; los cambios quedan 
+fechados y trazables. 
+Panel de 
+administración 
+Cola de revisión, reportes, roles y 
+auditoría. 
+Registrar actor, estado, motivo y 
+fecha; probar permisos y 
+acciones de corrección. 
+ 
+
+===== PAGINA 19 =====
+
+Figura 5. 
+Inicio y filtros de búsqueda 
+ 
+Figura 6. Resultados con estados y motivos 
+ 
+ 
+
+
+===== PAGINA 20 =====
+
+Figura 7. 
+Ficha de plato y transparencia del dato  
+Figura 8. 
+Panel del negocio 
+ 
+
+
+===== PAGINA 21 =====
+
+ 
+Figura 9. Panel de administración 
+4.3. Interacción y datos que deben mostrarse 
+En la primera interacción, el estudiante elige una zona o decide no compartir ubicación precisa. Luego 
+completa criterios contextuales. Los resultados deben identificar al menos el motivo principal de inclusión y 
+el estado de precio, modalidad, disponibilidad e ingredientes. Al abrir una ficha, el usuario debe poder 
+diferenciar “confirmado” de “declarado por el negocio” y “desconocido”. El flujo comercial termina en 
+consulta o visita externa hasta que el equipo valide otra integración. 
+En el panel del negocio, los datos deben incorporar responsable y fecha de actualización; una ficha sin 
+confirmación no debe aparecer como disponible. La administración debe poder solicitar correcciones y 
+conservar rastro de decisión. Estos controles son criterios de diseño, no funcionalidades ya verificadas. 
+5. Conclusiones parciales 
+• El problema queda mejor delimitado como una fricción de descubrimiento y decisión gastronómica, 
+no como una carencia general de oferta. La propuesta conecta una necesidad del estudiante con 
+una oportunidad potencial de estructuración para negocios locales. 
+• La comparación con la versión previa permite ver un avance de alcance: se separa el MVP de la 
+visión futura y se retiran afirmaciones de impacto que no están sustentadas. 
+• La metodología híbrida es pertinente para explorar la necesidad, convertirla en hipótesis y aprender 
+mediante iteraciones. La evidencia disponible acredita una formulación y selección de alternativas, 
+pero no entrevistas, prototipo interactivo ni pruebas con usuarios. 
+• La recomendación debe comenzar con reglas deterministas y explicables. IA generativa, filtrado 
+colaborativo, predicción, voz y Web-AR no deben controlar disponibilidad, precios, ingredientes ni 
+alérgenos; se consideran evoluciones condicionadas. 
+• El prototipo inicial creado permite revisar coherencia entre problema, roles, datos y pantallas.  
+
+
+===== PAGINA 22 =====
+
+• La viabilidad tecnológica y económica no está confirmada. La afirmación de costo cero y las tarifas 
+de suscripción proceden de propuestas del equipo y requieren verificación con proveedores y 
+negocios. 
+• La decisión sobre continuar, ajustar o pivotar debe tomarse después de recuperar la ficha técnica 
+del diagnóstico, probar el flujo con estudiantes y completar un piloto pequeño con al menos un 
+negocio, registrando resultados y limitaciones. 
+6. Cronograma de trabajo:  
+La semana 10 es la semana actual indicada por el equipo. El cronograma cubre desde el inicio de esa 
+semana hasta el cierre de la semana 18. Las actividades posteriores a la revisión documental son 
+propuestas; no se les atribuye avance hasta que existan los entregables. 
+Tabla 11 
+Plan de inicio, validación y cierre 
+Semana Actividad prioritaria Entregable verificable Estado / cierre 
+10 (actual) Integrar este APF2; solicitar el 
+Avance 1 independiente; reunir 
+instrumentos, capturas, 
+backlog y evidencias 
+existentes; confirmar nombres, 
+códigos y responsables. 
+Matriz de fuentes, lista de 
+inconsistencias y 
+expediente de evidencias. 
+En curso para 
+integración; 
+fuentes no 
+entregadas se 
+mantienen 
+pendientes. 
+11 Recuperar ficha técnica del 
+sondeo; entrevistar 
+estudiantes y negocios; 
+documentar consentimiento y 
+notas anonimizadas. 
+Instrumento, ficha 
+metodológica, 
+transcripciones/notas y 
+matriz de hallazgos. 
+Propuesto; 
+cerrar solo con 
+evidencia 
+primaria. 
+12 Contrastar mapa de empatía y 
+customer journey; validar la 
+pregunta de diseño. 
+Mapa/recorrido basados en 
+hallazgos  
+Propuesto; cada 
+insight debe 
+enlazar a 
+evidencia o 
+marcarse como 
+hipótesis. 
+13 Probar los wireframes con 
+tareas; revisar etiquetas, 
+estados y criterios de 
+aceptación. 
+Prototipo navegable o 
+registro de prueba de los 
+mockups; lista priorizada de 
+cambios. 
+Propuesto; la 
+aceptación se 
+basa en 
+comprensión 
+observada. 
+
+===== PAGINA 23 =====
+
+Semana Actividad prioritaria Entregable verificable Estado / cierre 
+14 Construir base del MVP: 
+autenticación mínima, roles, 
+catálogo, formularios y 
+separación de datos de 
+prueba. 
+Versión funcional 
+identificada y casos de 
+aceptación ejecutables. 
+Propuesto; no 
+introducir datos 
+reales sin 
+consentimiento y 
+control. 
+15 Añadir filtros contextuales, 
+reglas y motivos reproducibles; 
+validar manejo de información 
+desconocida. 
+Flujo de búsqueda trazable 
+y conjunto de pruebas con 
+casos límite. 
+Propuesto; no 
+habilitar 
+transacciones ni 
+datos críticos no 
+confirmados. 
+16 Ejecutar pruebas funcionales, 
+de usabilidad, accesibilidad y 
+calidad del catálogo; corregir 
+fallos prioritarios. 
+Guion, participantes, 
+resultados, incidencias y 
+registro de correcciones. 
+Propuesto; 
+declarar 
+pendientes si un 
+control no se 
+prueba. 
+17 Realizar piloto controlado con 
+estudiantes y al menos un 
+negocio, si hay consentimiento 
+y disponibilidad. 
+Registro de tareas, tiempos, 
+respuestas, actualizaciones 
+de menú y límites del piloto. 
+Propuesto; no 
+extrapolar un 
+piloto pequeño a 
+la población. 
+18 (cierre) Analizar resultados, actualizar 
+Canvas/roadmap y preparar 
+entrega final con evidencia y 
+decisión de iteración. 
+Informe de resultados, 
+limitaciones, decisión de 
+perseverar/ajustar/pivotar y 
+anexos. 
+Propuesto; 
+decisión 
+respaldada en 
+métricas 
+observadas, sin 
+umbrales 
+inventados. 
+ 
+ 
+
+===== PAGINA 24 =====
+
+Referencias 
+Autoridad Nacional de Protección de Datos Personales. (s. f.). Nuevo Reglamento de Protección de 
+Datos Personales. https://www.gob.pe/institucion/anpd/campanas/128319-nuevo-
+reglamento-de-proteccion-de-datos-personales 
+ 
+Autoridad Nacional de Protección de Datos Personales. (2024, 30 de noviembre). Decreto Supremo 
+N.° 16-2024-JUS: Reglamento de la Ley N.° 29733, Ley de Protección de Datos Personales. 
+https://www.gob.pe/institucion/anpd/normas-legales/6554453-n-016-2024-jus 
+ 
+Beck, K., & Andres, C. (2004). Extreme programming explained: Embrace change (2nd ed.). 
+Addison-Wesley Professional. https://www.oreilly.com/library/view/extreme-programming-
+explained/0321278658/ 
+ 
+Equipo SmartResto. (2026). Diagnóstico preliminar del segmento universitario de Trujillo [Datos de 
+investigación no publicados, documentados en el archivo fuente APF2].  
+Hasso Plattner Institute. (s. f.). Design thinking. https://hpi.de/en/d-school/topics/design-thinking/ 
+ 
+International Organization for Standardization. (2019). ISO 9241-210:2019: Ergonomics of human-
+system interaction—Part 210: Human-centred design for interactive systems. 
+https://www.iso.org/standard/77520.html 
+ 
+Maurya, A. (2012). Running Lean (2nd ed.). O’Reilly Media. 
+https://www.oreilly.com/library/view/running-lean-2nd/9781449321529/ 
+ 
+OECD/Eurostat. (2018). Oslo manual 2018: Guidelines for collecting, reporting and using data on 
+innovation (4th ed.). OECD Publishing. https://doi.org/10.1787/9789264304604-en 
+ 
+The Lean Startup. (s. f.). Methodology. https://theleanstartup.com/principles 
+World Wide Web Consortium. (2024, 12 de diciembre). Web Content Accessibility Guidelines 
+(WCAG) 2.2. https://www.w3.org/TR/WCAG22/ 
+
+===== PAGINA 25 =====
+
+Anexo A. Evidencias visuales conservadas del archivo fuente 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+
+===== PAGINA 26 =====
+
+Anexo B – ACTIVIDAD SEMANA 1 
+Paso 
+¿Qué deben 
+desarrollar? 
+Respuesta del grupo 
+1. Idea 
+inicial del 
+proyecto 
+Coloquen la idea o 
+ideas de proyecto que trajeron 
+a clase. Descríbanlas 
+brevemente. 
+SmartResto: sistema web de recomendación 
+inteligente de restaurantes para estudiantes 
+universitarios de Trujillo, que sugiere locales y platos 
+según restricciones alimentarias, presupuesto y 
+ubicación (distrito) del estudiante. 
+2. 
+Problema u 
+oportunidad 
+¿Qué problema real u 
+oportunidad de mejora 
+pretende atender su proyecto? 
+¿Qué sucede actualmente? 
+Problema: en Trujillo, el exceso de información 
+dispersa en redes y directorios genera “infoxicación”. El 
+69.6% de los universitarios recurre a plataformas 
+genéricas y no contextualizadas, y el 47.8% invierte 
+entre 5 y 10 minutos por búsqueda manual, lo que 
+causa frustración y repetición de rutinas de consumo. 
+Oportunidad: los restaurantes locales hacen 
+publicidad aislada, manual y reactiva, sin un canal 
+tecnológico que capte la demanda universitaria 
+cercana. 
+3. 
+Soluciones 
+posibles 
+Antes de decidir, 
+planteen mínimo 3 
+alternativas para solucionar el 
+problema. La idea que trajeron 
+puede ser una de ellas. 
+1. SmartResto: plataforma web de 
+recomendación personalizada y geolocalizada (distrito, 
+presupuesto, restricciones alimentarias) con perfiles 
+para estudiante, restaurante y administrador. 
+2. Directorio/mapa digital de restaurantes 
+estudiantiles con filtros manuales (precio, tipo de 
+comida, distancia) y reseñas de otros universitarios. 
+3. Chatbot conversacional 
+(WhatsApp/Telegram) que recomienda menús por 
+texto o voz según lo que el estudiante le escriba. 
+4. 
+¿Dónde está la 
+innovación? 
+Para cada alternativa, 
+indiquen brevemente qué 
+tendría de nuevo o mejorado 
+respecto a la situación actual. 
+Alt. 1: personalización automática con perfil 
+permanente del estudiante, cálculo de distancia con 
+PostGIS y un generador de platos sugeridos por IA; 
+además da al restaurante un canal y un panel de 
+analítica. 
+Alt. 2: reúne la oferta estudiantil en un solo 
+lugar y filtra por criterios básicos; es una mejora sobre 
+Google Maps y las redes, pero el estudiante sigue 
+decidiendo y comparando manualmente. 
+
+===== PAGINA 27 =====
+
+Alt. 3: interacción natural y sin instalar apps 
+nuevas; la novedad está en el canal conversacional, 
+aunque depende de datos de restaurantes que hoy no 
+están estructurados. 
+5. Tipo 
+de innovación 
+Según lo aprendido en 
+la primera clase, ¿qué tipo de 
+innovación consideran que 
+representa cada alternativa? 
+Justifiquen brevemente. 
+Alt. 1: innovación de producto/servicio con 
+base tecnológica; es incremental en lo tecnológico 
+(combina tecnologías existentes) pero genera una 
+propuesta de valor nueva para el segmento 
+universitario, y también innova en el proceso de 
+captación de clientes del restaurante. 
+Alt. 2: innovación incremental de producto: 
+mejora un directorio que ya existe, sin cambiar la forma 
+de decidir. 
+Alt. 3: innovación incremental de 
+canal/comunicación: usa un medio ya conocido 
+(mensajería) para entregar información. 
+6. 
+Funnel de 
+innovación 
+Comparen las 
+alternativas considerando 
+principalmente su potencial 
+para generar valor y también 
+su factibilidad inicial. ¿Cuál 
+debería continuar y cuáles 
+podrían descartarse? 
+Criterios: potencial de valor (alto/medio/bajo) y 
+factibilidad inicial. 
+Alt. 1: valor ALTO (resuelve la infoxicación y 
+beneficia a ambos lados del mercado); factibilidad 
+MEDIA-ALTA (infraestructura gratuita: Render, 
+Supabase, Vercel; costo S/ 0.00). → CONTINÚA. 
+Alt. 2: valor MEDIO (no reduce el tiempo de 
+decisión); factibilidad ALTA. → SE DESCARTA como 
+propuesta, pero sus filtros se incorporan a la Alt. 1. 
+Alt. 3: valor MEDIO; factibilidad MEDIA 
+(depende de APIs y límites de mensajería). → SE 
+POSPONE; su idea de búsqueda por voz se integra 
+después con la Web Speech API. 
+7. Idea 
+seleccionada 
+¿Cuál será, por ahora, 
+la propuesta de proyecto del 
+grupo? Expliquen por qué la 
+seleccionaron. 
+Seleccionamos la Alternativa 1 (SmartResto). 
+Es la que más valor genera porque ataca la causa del 
+problema (la decisión manual y sin contexto), beneficia 
+tanto al estudiante como al restaurante, es viable para 
+un equipo de 4 estudiantes con presupuesto cero y 
+puede crecer por fases (Web-AR, voz y otros 
+módulos). 
+8. Expliquen cómo 1) Diagnóstico: encuestas a universitarios de 
+
+===== PAGINA 28 =====
+
+Desarrollo de 
+la solución 
+funcionaría en la práctica. 
+¿Cómo pasaría de ser una 
+idea a convertirse en una 
+solución real? 
+Trujillo para validar el problema. 
+2) Diseño: arquitectura modular con 
+PostgreSQL/PostGIS, backend en Python (FastAPI) o 
+Node.js y despliegue con Docker en 
+Render/Supabase/Vercel. 
+3) Desarrollo en iteraciones semanales 
+(Extreme Programming): primero el registro de 
+estudiante y restaurante, luego el motor de 
+recomendación por distrito y presupuesto. 
+4) Prototipo funcional (MVP) con tres roles: 
+Estudiante, Restaurante y Administrador. 
+5) Prueba piloto con estudiantes y un 
+restaurante, ajustes con su feedback y entrega del 
+MVP en diciembre. 
+9. Valor 
+/ impacto 
+¿Qué valor generaría 
+la solución? ¿A quién 
+beneficiaría? ¿Qué problema 
+reduciría o qué situación 
+mejoraría? 
+Estudiantes: ahorran tiempo (de 5–10 minutos 
+de búsqueda a una recomendación inmediata), 
+respetan sus alergias o estilo de vida y su presupuesto, 
+y descubren opciones nuevas. 
+Restaurantes: captan demanda universitaria 
+cercana, digitalizan su menú y acceden a analítica de 
+ventas. 
+Administrador/ecosistema: control de 
+afiliaciones y métricas de la demanda en Trujillo. 
+Reduce: la infoxicación, la fatiga de decisión y 
+la publicidad reactiva de los negocios locales. 
+10. 
+Propuesta 
+inicial del 
+proyecto 
+Redacten en 5–6 
+líneas: problema + solución 
+seleccionada + innovación + 
+funcionamiento + valor 
+esperado. 
+En Trujillo, los universitarios pierden entre 5 y 
+10 minutos por búsqueda y deciden con información 
+dispersa y poco personalizada, mientras los 
+restaurantes locales carecen de un canal para llegar a 
+ellos. SmartResto es un sistema web de 
+recomendación inteligente que filtra restaurantes y 
+platos según restricciones alimentarias, presupuesto y 
+ubicación. Su innovación está en combinar 
+geolocalización (PostGIS), IA para sugerir platos y un 
+perfil permanente del estudiante, con extras de costo 
+cero como búsqueda por voz y Web-AR. Funciona con 
+tres roles (estudiante, restaurante y administrador) 
+
+===== PAGINA 29 =====
+
+sobre infraestructura gratuita en la nube. Se espera 
+ahorrar tiempo al estudiante, aumentar la visibilidad de 
+los restaurantes y digitalizar la oferta gastronómica de 
+Trujillo. 
+ 
+ 
+ 
+
+===== PAGINA 30 =====
+
+Anexo C – ACTIVIDAD SEMANA 2 
+ 
+ 
+
+===== PAGINA 31 =====
+
+Anexo D ACTIVIDAD PRÁCTICA – SEMANA 3 
+Aplicación de Interculturalidad y Championing al Proyecto Grupal 
+Propósito 
+Aplicar los conceptos desarrollados durante la Semana 3 al proyecto grupal del curso, analizando 
+cómo las diferencias entre las personas pueden influir en la propuesta y cómo el equipo puede impulsar y 
+defender su idea para lograr que sea aceptada e implementada. 
+Trabajen directamente sobre el proyecto grupal que vienen desarrollando en el curso. No deben 
+crear un proyecto nuevo. 
+1. Recordamos nuestro proyecto 
+Completen la siguiente información de manera breve y concreta. 
+Aspecto Respuesta del equipo 
+Nombre 
+del proyecto 
+SmartResto 
+Proble
+ma que 
+buscamos 
+resolver 
+En Trujillo, la sobrecarga de información (“infoxicación”) en redes y 
+directorios obliga a los universitarios a buscar entre 5 y 10 minutos dónde 
+comer (47.8%), y el 69.6% usa plataformas genéricas sin personalización de 
+ubicación, dieta o presupuesto. Los restaurantes, por su lado, se 
+promocionan de forma manual y reactiva. 
+Solució
+n que 
+proponemos 
+Sistema web de recomendación inteligente que sugiere restaurantes 
+y platos según restricciones alimentarias, presupuesto y ubicación (distrito) 
+del estudiante, con perfiles para estudiante, restaurante y administrador. 
+Principa
+les usuarios o 
+beneficiarios 
+Estudiantes universitarios de Trujillo (usuarios principales), 
+restaurantes y huariques locales (clientes del servicio) y el administrador de 
+la plataforma. 
+Principa
+l beneficio de 
+nuestra 
+propuesta 
+Ahorro de tiempo y mejores decisiones de consumo para el 
+estudiante, y mayor visibilidad y captación de clientes para el restaurante, 
+con un MVP de costo S/ 0.00. 
+2. Interculturalidad aplicada a nuestro proyecto 
+Las personas pueden tener diferentes formas de comunicarse, trabajar, tomar decisiones, 
+relacionarse con la autoridad o afrontar situaciones nuevas. Seleccionen UNA diferencia que podría 
+presentarse entre los usuarios, clientes o integrantes relacionados con su proyecto. 
+ 
+ 
+
+===== PAGINA 32 =====
+
+Pregunta Respuesta del equipo 
+¿Qué diferencia identificamos? 
+Muchos dueños de restaurantes y 
+huariques tradicionales tienen menor familiaridad 
+con la tecnología y más desconfianza a pagar por 
+herramientas digitales nuevas que los 
+estudiantes, quienes son usuarios digitales y 
+adoptan apps con rapidez. 
+¿Con qué concepto visto en clase 
+podemos relacionarla? 
+Hofstede: aversión a la incertidumbre. Los 
+dueños prefieren métodos conocidos (boca a 
+boca, redes sociales, carta impresa) y ven riesgo 
+en una plataforma nueva y en una suscripción 
+mensual. 
+¿Cómo podría afectar a nuestro 
+proyecto? 
+Puede frenar la afiliación de restaurantes. 
+Sin menús cargados, el motor de recomendación 
+no tendría qué recomendar y el estudiante 
+perdería interés, lo que debilita a ambos lados de 
+la plataforma. 
+¿Qué adaptación realizaríamos en 
+nuestra solución? 
+Prueba gratuita de 14 días; registro 
+guiado y presencial (carga de menú y horarios 
+con ayuda del equipo); interfaz simple en español 
+con pasos cortos; planes escalonados por 
+estrellas (desde S/ 29.00) y soporte por 
+WhatsApp; mostrar casos reales de estudiantes 
+que llegaron al local gracias a la app. 
+Pueden relacionarlo con alguno de estos conceptos: 
+Hofstede: distancia al poder, individualismo/colectivismo, aversión a la incertidumbre, entre otros. 
+Trompenaars: universalismo/particularismo, neutral/afectiva, específica/difusa, logro/adscripción, 
+entre otros. 
+Lewis: lineal-activo, multiactivo o reactivo. 
+3. Championing de nuestra innovación 
+Una buena idea no necesariamente se convierte en innovación por sí sola. El equipo deberá pensar 
+cómo conseguiría apoyo para llevar su propuesta a la realidad. 
+ 
+ 
+ 
+ 
+
+===== PAGINA 33 =====
+
+Pregunta Respuesta del equipo 
+¿Quién podría asumir el rol de 
+Champion del proyecto? 
+Un integrante del equipo designado como 
+responsable de la relación con restaurantes y 
+universidades (a definir entre Diego, Wilmer, 
+Miguel y Nancy), con apoyo del docente como 
+mentor. 
+¿A qué personas, usuarios u 
+organización necesitaríamos convencer? 
+Dueños y administradores de restaurantes 
+y huariques cercanos a las universidades; 
+estudiantes y delegados de facultad como 
+usuarios piloto; y áreas de la universidad (como 
+Bienestar Estudiantil) que puedan difundir la 
+herramienta. 
+¿Cuál sería nuestro principal 
+argumento para convencerlos? 
+Los datos del diagnóstico: casi la mitad de 
+los estudiantes pierde de 5 a 10 minutos 
+buscando dónde comer. SmartResto les lleva 
+esos clientes de forma directa, con una prueba 
+gratuita y sin inversión inicial en tecnología. 
+¿Qué resistencia o dificultad podrían 
+presentar? 
+Desconfianza hacia lo nuevo, temor al 
+costo mensual, poco tiempo para cargar el menú, 
+dudas sobre si realmente llegarán más clientes y 
+miedo a la competencia con locales mejor 
+posicionados. 
+¿Cómo responderíamos ante esa 
+resistencia? 
+Con prueba gratuita de 14 días, ayuda del 
+equipo para el registro, precios según nivel del 
+restaurante, y resultados medibles desde el 
+dashboard (visitas al perfil y platos más vistos) 
+para que vean el beneficio antes de pagar. 
+¿Cómo demostraríamos que nuestra 
+propuesta realmente funciona? 
+Con un prototipo funcional y una prueba 
+piloto con estudiantes y al menos un restaurante, 
+midiendo el tiempo de búsqueda antes y 
+después, el número de registros, las visitas 
+generadas al restaurante y la satisfacción de los 
+usuarios. 
+4. Roles del Champion en nuestro proyecto 
+Indiquen una acción concreta que realizarían en su proyecto para cada uno de los siguientes roles. 
+Rol ¿Qué haríamos en nuestro proyecto? 
+
+===== PAGINA 34 =====
+
+Promotor: dar a conocer la idea y sus 
+beneficios. 
+Presentar SmartResto en las aulas y 
+redes de la universidad y en visitas a 
+restaurantes, con un demo corto y los datos de la 
+encuesta (69.6% y 47.8%). 
+Defensor: responder dudas y defender 
+la propuesta frente a la resistencia. 
+Responder dudas de costo, seguridad de 
+datos y utilidad, y explicar con datos que el MVP 
+funciona con infraestructura gratuita y que la 
+suscripción se adapta al tamaño del negocio. 
+Traductor cultural: adaptar la 
+propuesta a diferentes usuarios o contextos. 
+Hablar con cada público en su lenguaje: a 
+los estudiantes, ahorro de tiempo y cuidado de su 
+dieta y presupuesto; a los dueños, más clientes y 
+menos publicidad manual; usar canales como 
+WhatsApp y trato personal con los locales 
+tradicionales. 
+Conector: conseguir personas, áreas o 
+aliados que puedan apoyar. 
+Contactar a restaurantes piloto, docentes, 
+la facultad, delegados estudiantiles y áreas 
+universitarias que puedan difundir el proyecto o 
+facilitar el contacto con otros locales. 
+Motivador: mantener al equipo 
+comprometido con la propuesta. 
+Mantener reuniones breves semanales, 
+metas por iteración (como las de XP), reconocer 
+los avances en equipo y mostrar los comentarios 
+positivos de los usuarios piloto. 
+5. De la idea a la implementación 
+Imaginen que desean llevar su proyecto a una situación real. Expliquen brevemente qué harían en 
+cada etapa. 
+Etapa ¿Qué haría el equipo? 
+1. Presentar la idea 
+Exponer el problema con los datos del 
+diagnóstico y mostrar el demo de SmartResto 
+ante docentes, jurado, estudiantes y dueños de 
+restaurantes. 
+2. Desarrollar un prototipo 
+Construir el MVP (registro de estudiante y 
+restaurante, motor de recomendación por distrito 
+y presupuesto) en iteraciones semanales, 
+desplegado en Render/Supabase/Vercel. 
+
+===== PAGINA 35 =====
+
+3. Probarlo con usuarios reales 
+Invitar a un grupo de estudiantes 
+universitarios y a un restaurante piloto a usar la 
+app durante una semana y ver cómo la usan. 
+4. Recoger opiniones y resultados 
+Aplicar un breve cuestionario y revisar las 
+métricas: tiempo de búsqueda, registros, visitas al 
+local y satisfacción, además de comentarios 
+libres. 
+5. Mejorar la propuesta 
+Ajustar filtros, interfaz y recomendaciones 
+según el feedback; reordenar el trabajo en el 
+siguiente planning y agregar después módulos 
+como voz o Web-AR. 
+6. Conseguir apoyo para implementarla 
+Presentar los resultados del piloto a más 
+restaurantes, a la universidad y a posibles aliados 
+(incubadoras, concursos o la cámara de comercio 
+local) para obtener respaldo, afiliaciones y 
+financiamiento futuro. 
+ 
+Producto final de la actividad 
+El equipo deberá entregar las cinco tablas desarrolladas utilizando su propio proyecto grupal. 
+Al finalizar, cada equipo realizará una presentación breve de 2 a 3 minutos respondiendo 
+principalmente: 
+¿Qué adaptación identificamos para nuestro proyecto y cómo impulsaríamos nuestra 
+propuesta para conseguir que sea aceptada e implementada? 
+ 
+ 
+ 
+ 
+
+===== PAGINA 36 =====
+
+Anexo E – ACTIVIDAD SEMANA 4 
+Tecnologías Clave aplicadas al Proyecto Grupal 
+Propósito 
+Aplicar los conceptos de tecnologías clave al proyecto grupal que vienen desarrollando en el curso, 
+identificando qué tecnología puede contribuir a mejorar la solución propuesta y justificando su elección de 
+acuerdo con el problema que busca resolver. 
+Trabajen directamente sobre su proyecto grupal actual. No deben crear un proyecto nuevo. 
+1. Nuestro proyecto 
+Completen brevemente la información principal de su proyecto. 
+Cómo la utilizaríamos 
+dentro de nuestra solución?". 
+Respuesta del equipo 
+Nombre del proyecto SmartResto 
+Problema que buscamos 
+resolver 
+Los universitarios de Trujillo sufren 
+“infoxicación” al buscar dónde comer: el 47.8% invierte 
+de 5 a 10 minutos por búsqueda y el 69.6% usa 
+plataformas genéricas sin personalización de dieta, 
+presupuesto ni ubicación. Los restaurantes se 
+promocionan de forma manual y reactiva. 
+Solución que 
+proponemos 
+Sistema web de recomendación inteligente que 
+filtra restaurantes y platos según restricciones 
+alimentarias, presupuesto y geolocalización (PostGIS), 
+con roles de Estudiante, Restaurante y Administrador. 
+Principales usuarios o 
+beneficiarios 
+Estudiantes universitarios de Trujillo, 
+restaurantes y huariques locales, y el administrador de 
+la plataforma. 
+ 
+2. Analizamos las necesidades de nuestro proyecto 
+Antes de seleccionar una tecnología, analicen qué necesita realmente su solución. 
+Necesidad 
+S
+í / No 
+¿Por qué o para qué? 
+¿Necesitamos almacenar y acceder 
+a información desde Internet? 
+S
+í 
+Para guardar perfiles, 
+menús y ubicaciones, y que 
+estudiantes y restaurantes 
+accedan desde cualquier lugar. 
+Usaremos Supabase 
+
+===== PAGINA 37 =====
+
+(PostgreSQL + PostGIS), Render 
+y Vercel. 
+¿Necesitamos analizar datos, 
+reconocer patrones, predecir o generar 
+contenido? 
+S
+í 
+Para recomendar 
+restaurantes con filtros y árboles 
+de decisión, y para generar 
+sugerencias de platos con un 
+LLM (Groq / Google AI Studio) 
+según tendencias. 
+¿Necesitamos obtener información 
+de sensores, equipos u objetos físicos? 
+N
+o 
+El MVP no usa sensores 
+ni dispositivos físicos. La 
+ubicación se obtiene con la API 
+de geolocalización del 
+navegador, no con hardware IoT. 
+¿Necesitamos proteger 
+información, usuarios o accesos? 
+S
+í 
+Por el sistema de roles 
+(estudiante, restaurante, 
+administrador), la autenticación y 
+la protección de datos personales 
+como alergias, estilo de vida y 
+ubicación. 
+¿Necesitamos mantener registros 
+verificables y difíciles de alterar entre 
+diferentes participantes? 
+N
+o 
+No es necesario en el 
+MVP. La auditoría de insumos y 
+los DID quedan como línea de 
+investigación futura. 
+ 
+3. Seleccionamos las tecnologías adecuadas 
+Considerando el análisis anterior, determinen cuáles de las tecnologías estudiadas podrían aportar 
+realmente al proyecto. 
+Tecnología clave 
+¿La 
+utilizaríamos? 
+¿Para qué la utilizaríamos en 
+nuestro proyecto? 
+Blockchain No 
+No en esta fase. Podría servir más 
+adelante para trazabilidad de insumos y 
+tokens de fidelización, pero añadiría 
+complejidad innecesaria al MVP. 
+Cloud Computing Sí 
+Para alojar la base de datos, el 
+backend y el frontend en capas gratuitas 
+(Supabase, Render, Vercel), con acceso 24/7 
+
+===== PAGINA 38 =====
+
+y despliegue continuo desde GitHub. 
+Inteligencia 
+Artificial 
+Sí 
+Motor de recomendación y generador 
+de platos sugeridos, que personalizan los 
+resultados para cada estudiante y de lectura 
+de archivos para el llenado de datos de los 
+menús y cartas. 
+Internet de las 
+Cosas (IoT) 
+No 
+No se usarán sensores. Si el proyecto 
+escala, podría evaluarse en el futuro para 
+cocina inteligente. 
+Ciberseguridad Sí 
+Autenticación segura, control de 
+permisos por rol, cifrado de datos y validación 
+de afiliación de restaurantes para evitar 
+fraudes. 
+ 
+Importante: No es obligatorio utilizar todas las tecnologías. Seleccionen únicamente aquellas que 
+tengan una función clara dentro de su propuesta. 
+4. Elegimos nuestra tecnología clave principal 
+De las tecnologías analizadas, seleccionen UNA que consideren especialmente importante para 
+mejorar o potenciar su proyecto. 
+Pregunta Respuesta del equipo 
+¿Qué tecnología seleccionamos? 
+I Inteligencia Artificial (motor de 
+recomendación, procesamiento con LLMs y la 
+IA de Gwen). 
+¿Qué problema específico 
+ayudará a resolver? 
+La infoxicación del estudiante al buscar 
+dónde comer y la resistencia u obstáculo del 
+empresario tradicional para actualizar su menú 
+de forma manual y tediosa. 
+¿Cómo la utilizaríamos dentro de 
+nuestra solución? 
+Además de cruzar el perfil del 
+estudiante con la oferta mediante filtros y 
+PostGIS, utilizamos modelos de IA (LLM / 
+Gwen AI, usando Qwen o Gemini a través de 
+Groq / Google AI Studio) para automatizar la 
+lectura de menús en documentos Word 
+(.docx) y Excel (.xlsx) subidos por los 
+empresarios, permitiendo detectar y registrar 
+nuevos platos, precios e ingredientes de forma 
+
+===== PAGINA 39 =====
+
+automática. 
+¿Qué información o datos 
+necesitaría? 
+Restricciones alimentarias, 
+presupuesto y distrito del estudiante; ubicación 
+de los locales (PostGIS); y los archivos con 
+menús o plantillas estructuradas subidos por 
+los restaurantes. 
+¿Quién utilizaría o se beneficiaría 
+de esta tecnología? 
+El estudiante (recomendaciones 
+precisas y sin alérgenos), el restaurante 
+(actualización rápida de su carta sin 
+formularios complejos) y el administrador. 
+¿Qué beneficio concreto 
+generaría? 
+Reduce drásticamente el tiempo de 
+búsqueda del estudiante y elimina la fricción 
+operativa del restaurante al actualizar su 
+oferta. 
+ 
+5. Representamos cómo funcionaría 
+Representen mediante un flujo sencillo cómo funcionaría la tecnología seleccionada dentro de su 
+proyecto. 
+ENTRADA / DATOS  →  TECNOLOGÍA CLAVE  →  PROCESAMIENTO  →  RESULTADO  →  
+USUARIO / BENEFICIARIO 
+Flujo de nuestro proyecto: 
+ENTRADA / DATOS: perfil del estudiante (restricciones alimentarias, presupuesto), 
+distrito/ubicación, y menús, precios y horarios de los restaurantes. 
+TECNOLOGÍA CLAVE: Inteligencia Artificial (filtros y árboles de decisión, filtrado colaborativo y 
+LLM Groq/Google AI Studio), sobre PostgreSQL/PostGIS en la nube. 
+PROCESAMIENTO: el sistema filtra por distancia, presupuesto y dieta, ordena los locales por 
+afinidad y genera platos sugeridos. 
+RESULTADO: lista personalizada de restaurantes y platos recomendados cerca del estudiante, y 
+estadísticas de visitas para el restaurante. 
+USUARIO / BENEFICIARIO: el estudiante decide en segundos, el restaurante capta clientes y el 
+administrador monitorea la demanda. 
+6. Justificamos nuestra decisión 
+Finalmente, evalúen si la tecnología seleccionada realmente tiene sentido dentro de su proyecto. 
+Pregunta Respuesta del equipo 
+
+===== PAGINA 40 =====
+
+¿Por qué esta tecnología es 
+adecuada para nuestro problema? 
+Porque el problema es de exceso de 
+información: la IA puede analizar muchas 
+variables (dieta, presupuesto, distancia y 
+gustos) a la vez y mostrar solo lo relevante 
+para cada estudiante. 
+¿Qué mejora produciría respecto 
+a la solución actual? 
+Pasar de una búsqueda manual y 
+genérica a recomendaciones personalizadas y 
+automáticas, que mejoran con el uso. 
+¿Podríamos resolver el problema 
+sin esta tecnología? ¿Cómo? 
+Sí, con filtros manuales (precio, distrito 
+y tipo de comida), pero el estudiante seguiría 
+comparando por su cuenta y no habría 
+sugerencias ni personalización. Se resolvería 
+solo en parte. 
+¿Por qué decidimos utilizarla a 
+pesar de existir otras alternativas? 
+Porque su valor es el más directo para 
+el problema y es viable con costo S/ 0.00: 
+empezamos con reglas simples y APIs 
+gratuitas, y escalamos después. El blockchain 
+y el IoT no aportan valor al MVP. 
+¿Qué resultado esperamos 
+obtener con su implementación? 
+Menos tiempo de búsqueda, más 
+satisfacción del estudiante, más visibilidad 
+para los restaurantes y un MVP funcional en 
+diciembre. 
+ 
+Producto final 
+El equipo deberá presentar las seis secciones desarrolladas y el flujo de funcionamiento de la 
+tecnología dentro del proyecto. 
+Al finalizar, cada equipo realizará una presentación de 3 minutos respondiendo principalmente: 
+¿Qué tecnología clave incorporaremos a nuestro proyecto, qué problema específico 
+resolverá, cómo funcionará y por qué consideramos que es la alternativa adecuada? 
+La propuesta debe demostrar que la tecnología fue seleccionada por su utilidad para resolver el 
+problema y generar valor, y no únicamente por ser una tecnología moderna. 
+ 
+
+===== PAGINA 41 =====
+
+Anexo G – ACTIVIDAD SEMANA 6 
+Aplicación de Metodologías de Innovación al Proyecto del Curso 
+Sesiones 11 y 12 
+Propósito 
+Aplicar Design Thinking, Lean Startup y Lean Change Management al proyecto grupal del curso 
+para comprender mejor al usuario y su problema, validar los principales supuestos de la solución mediante 
+un MVP y plantear acciones que faciliten su adopción. 
+Importante: Desarrollen la actividad utilizando el proyecto grupal que vienen trabajando. No deben 
+crear un proyecto nuevo. 
+1. Situación actual del proyecto 
+Elemento Desarrollo del equipo 
+Nombre del proyecto SmartResto 
+Problema que buscamos 
+resolver 
+La sobrecarga de información dispersa 
+("infoxicación") en redes y directorios obliga a los 
+estudiantes universitarios de Trujillo a invertir entre 5 
+y 10 minutos por búsqueda manual (47.8%), 
+utilizando plataformas genéricas sin personalización 
+de presupuesto, ubicación o dieta (69.6%). Por otro 
+lado, los restaurantes locales promocionan su oferta 
+de manera manual, aislada y reactiva. 
+Usuarios o beneficiarios 
+principales 
+Estudiantes universitarios de Trujillo 
+(usuarios consumidores principales), restaurantes y 
+huariques locales (usuarios proveedores/clientes del 
+servicio) y la administración de la plataforma (rol 
+operativo). 
+Solución propuesta Sistema web de recomendación inteligente 
+que filtra restaurantes y platos según restricciones 
+alimentarias, presupuesto y ubicación (distrito) del 
+estudiante, ofreciendo a los negocios un canal digital 
+para gestionar y estructurar su oferta. 
+Principal beneficio que 
+buscamos generar 
+Reducción del tiempo y fricción en la 
+decisión gastronómica para el estudiante, y mayor 
+visibilidad, captación de clientes y estructuración 
+digital para los restaurantes locales. 
+ 
+2. Design Thinking: comprendemos al usuario y el problema 
+
+===== PAGINA 42 =====
+
+Analicen el problema desde la perspectiva de las personas que lo experimentan. 
+Pregunta Desarrollo del equipo 
+¿Quién experimenta 
+principalmente el problema? 
+El estudiante universitario de la ciudad 
+de Trujillo que busca opciones de alimentación 
+diarias o frecuentes. 
+¿Qué necesidad o dificultad 
+concreta presenta? 
+Necesidad de encontrar rápidamente 
+opciones gastronómicas compatibles con su 
+presupuesto, ubicación (distrito), preferencias 
+alimentarias o alergias, sin perder tiempo 
+comparando manualmente en plataformas no 
+contextualizadas. 
+¿Cómo realiza actualmente esta 
+actividad o proceso? 
+Realiza búsquedas manuales en 
+motores de búsqueda, redes sociales 
+(Instagram/Facebook) o directorios genéricos 
+como Google Maps, o simplemente consulta a 
+compañeros. 
+¿Qué dificultades encuentra? 
+ Información desactualizada de precios 
+y menús, falta de filtros por restricciones 
+dietéticas/presupuesto, sobrecarga informativa 
+y fatiga de decisión. 
+¿Qué podríamos preguntarle u 
+observar para comprender mejor su 
+necesidad? 
+ Observar la tarea directa de búsqueda 
+de almuerzo en su teléfono; preguntarle 
+cuánto tiempo dedica, qué criterios descartan 
+una opción de inmediato y qué inconvenientes 
+ha tenido previamente con datos 
+desactualizados de un local. 
+ 
+Definición del problema 
+Nuestro usuario necesita filtrar y comparar opciones gastronómicas en segundos según su 
+presupuesto, distrito y restricciones alimentarias porque la información actual está dispersa, no 
+contextualizada y le genera infoxicación y pérdida de tiempo antes de comer. 
+3. Design Thinking: revisamos nuestra solución 
+Pregunta Desarrollo del equipo 
+
+===== PAGINA 43 =====
+
+¿Qué alternativas de solución 
+podrían resolver el problema? 
+Plataforma web de recomendación 
+personalizada y geolocalizada por distrito y 
+presupuesto con perfiles para estudiante, 
+restaurante y administrador. 
+Directorio o mapa digital estático de 
+restaurantes estudiantiles con filtros manuales 
+y reseñas. 
+Chatbot conversacional en 
+WhatsApp/Telegram para consulta de menús 
+por texto o voz. 
+ 
+¿Cuál estamos desarrollando en 
+nuestro proyecto? 
+La opción 1: SmartResto (plataforma 
+web de recomendación con filtros contextuales 
+obligatorios, motor por reglas deterministas y 
+panel de gestión). 
+¿Por qué consideramos que 
+puede generar valor? 
+ Porque ataca directamente la causa 
+del problema (la toma de decisión manual y 
+fragmentada), agrupando en una sola vista 
+presupuesto, zona, modalidad y dieta, 
+indicando además la 
+transparencia/confirmación de los datos 
+mostrados. 
+ 
+¿Qué parte de la solución 
+podríamos representar mediante un 
+prototipo sencillo? 
+El flujo de búsqueda del estudiante 
+(ingreso de filtros contextuales, generación de 
+lista explicable con motivos de recomendación 
+y ficha detallada del local/plato) y el panel del 
+restaurante para actualizar el menú. 
+¿Con qué usuarios podríamos 
+probarlo? 
+Estudiantes universitarios de Trujillo y 
+dueños/administradores de restaurantes o 
+huariques cercanos a los campus 
+universitarios. 
+ 
+El prototipo puede ser un boceto, Figma, interfaz, página web sencilla, formulario, chatbot básico, 
+simulación, funcionalidad demostrativa u otra alternativa apropiada para el proyecto. 
+4. Lean Startup: formulamos nuestras hipótesis 
+
+===== PAGINA 44 =====
+
+Una hipótesis representa algo que el equipo considera que puede ser cierto, pero que todavía 
+necesita ser comprobado. 
+Hipótesis Formulación del equipo 
+Hipótesis de problema: ¿Qué creemos 
+que está afectando realmente a los usuarios? 
+Creemos que los estudiantes 
+universitarios de Trujillo pierden tiempo 
+valioso y experimentan frustración al 
+elegir qué comer debido a la infoxicación 
+y la falta de información estructurada por 
+presupuesto, distrito y restricciones 
+alimentarias. 
+Hipótesis de cliente: ¿Quiénes 
+creemos que presentan principalmente este 
+problema? 
+Creemos que los estudiantes 
+universitarios con restricciones de 
+tiempo/presupuesto y los restaurantes 
+locales cerca de los campus son los 
+actores que presentan principalmente 
+esta necesidad de conexión eficiente. 
+Hipótesis de valor: ¿Por qué creemos 
+que nuestra solución será valiosa para ellos? 
+Creemos que mostrar una lista 
+reducida y explicable de 
+platos/restaurantes filtrados por 
+presupuesto, zona y dieta generará 
+suficiente valor para que los estudiantes 
+adopten SmartResto como su canal 
+primario de decisión gastronómica. 
+ 
+Hipótesis prioritaria 
+¿Cuál de las hipótesis anteriores es la más importante que debemos comprobar antes de continuar 
+desarrollando el proyecto? 
+Hipótesis de valor (que una lista filtrada por presupuesto, distrito y dieta reduce significativamente 
+la fricción y el tiempo de búsqueda del estudiante, siendo adoptada preferentemente).¿Por qué? 
+Porque si los estudiantes no perciben un ahorro claro de tiempo ni valor en las recomendaciones 
+filtradas frente a sus métodos habituales, el producto no tendrá adopción, independientemente de la 
+tecnología desplegada o de la cantidad de restaurantes afiliados. 
+5. Lean Startup: diseñamos nuestro MVP 
+Propongan un Producto Mínimo Viable (MVP) que permita comprobar rápidamente la hipótesis 
+prioritaria, sin necesidad de desarrollar todavía toda la solución final. 
+Pregunta Desarrollo del equipo 
+
+===== PAGINA 45 =====
+
+¿Qué hipótesis queremos 
+comprobar? 
+ Queremos comprobar si el uso de 
+filtros contextuales combinados (presupuesto, 
+distrito y restricciones) reduce el tiempo de 
+decisión de los estudiantes a menos de 2 
+minutos y genera alta satisfacción. 
+¿Qué MVP desarrollaremos para 
+comprobarla? 
+Un prototipo funcional web 
+(desarrollado en Python/Flask / HTML-CSS) 
+centrado en el flujo de búsqueda del 
+estudiante y un panel de carga rápida para el 
+restaurante.  
+¿Qué funcionalidad o 
+característica SÍ debe incluir? 
+Registro/perfil mínimo con 
+preferencias, filtros contextuales obligatorios 
+(presupuesto, distrito, modalidad, dieta), lista 
+de resultados con motivos explicables de 
+recomendación y ficha de plato/restaurante 
+con estado de confirmación del dato. 
+¿Qué funcionalidades NO 
+necesitamos todavía? 
+ Pasarela de pagos en línea, sistema 
+automatizado de reservas, módulo de 
+pedidos/delivery, voz, realidad aumentada 
+(Web-AR) e IA generativa/analítica avanzada. 
+¿Con qué usuarios lo 
+probaríamos? 
+Con un grupo piloto de estudiantes 
+universitarios de Trujillo y al menos 1 o 2 
+restaurantes locales asociados. 
+¿Cómo realizaríamos la prueba? 
+Asignando tareas de búsqueda en vivo 
+con el prototipo a los estudiantes, registrando 
+el tiempo empleado y aplicando un 
+cuestionario posterior de usabilidad y 
+satisfacción. 
+ 
+6. Aplicamos el ciclo Construir – Medir – Aprender 
+Etapa Aplicación en nuestro proyecto 
+CONSTRUIR: ¿Qué desarrollaremos 
+o prepararemos para realizar la prueba? 
+Un prototipo web interactivo 
+desplegado con catálogo de restaurantes 
+piloto, filtros de presupuesto, distrito y dieta, 
+y tarjetas de resultados explicables. 
+
+===== PAGINA 46 =====
+
+MEDIR: ¿Qué datos o resultados 
+recogeremos? 
+Tiempo empleado por el estudiante 
+para elegir una opción, cantidad de 
+búsquedas completadas exitosamente, 
+porcentaje de clics en las fichas y nivel de 
+satisfacción reportado. 
+ 
+APRENDER: ¿Qué queremos 
+descubrir a partir de los resultados? 
+Descubrir si los filtros propuestos 
+son suficientes para generar confianza en la 
+decisión, qué criterios influyen más (¿precio 
+o distancia?) y si el formato explicable 
+aclara las dudas del usuario. 
+ 
+ 
+ 
+ 
+HIPÓTESIS  →  MVP  →  USUARIOS  →  PRUEBA  →  MEDICIÓN  →  APRENDIZAJE 
+7. Definimos cómo validaremos el MVP 
+Establezcan previamente qué evidencia utilizarán para determinar si los resultados son favorables 
+o si necesitan realizar cambios. 
+Elemento Desarrollo del equipo 
+¿Qué queremos medir? 
+La eficiencia en el tiempo de 
+decisión gastronómica y la usabilidad del 
+sistema de recomendaciones.  
+¿Qué indicador utilizaremos? 
+Tiempo promedio de 
+búsqueda/decisión (minutos/segundos), 
+Tasa de finalización de tarea (% de 
+usuarios que eligen opción) y Escala de 
+Satisfacción / Usabilidad (SUS o CSAT). 
+¿Cómo recogeremos la 
+información? 
+Registro automático/observación 
+directa del tiempo durante la prueba de uso 
+y encuesta digital breve de 
+retroalimentación tras finalizar la prueba. 
+ 
+
+===== PAGINA 47 =====
+
+¿Con cuántos o qué tipo de usuarios 
+realizaremos la prueba? 
+ Con 15 a 20 estudiantes 
+universitarios de Trujillo y 2 administradores 
+de negocios locales. 
+¿Qué resultado consideraríamos 
+favorable? 
+Una reducción del tiempo medio de 
+decisión a menos de 2 minutos y un nivel 
+de satisfacción/facilidad de uso superior al 
+80%. 
+¿Qué resultado indicaría que 
+debemos realizar cambios? 
+Tiempos de búsqueda superiores a 
+4 minutos, confusión en el uso de los filtros 
+o más del 30% de usuarios abandonando la 
+búsqueda sin elegir. 
+ 
+ 
+Pueden utilizar indicadores como cantidad de usuarios, tareas completadas, tiempo empleado, 
+reducción de errores, solicitudes realizadas, frecuencia de uso, satisfacción u otros relacionados 
+directamente con el proyecto. 
+8. Decidimos: perseverar o pivotar 
+Situación ¿Qué haríamos? 
+La hipótesis se confirma y los 
+resultados son favorables 
+PERSEVERAR: Validar la 
+arquitectura, integrar la carga masiva 
+de menús para más negocios locales y 
+optimizar la precisión de las reglas de 
+recomendación. 
+Descubrimos que el problema no era 
+exactamente el que pensábamos 
+PIVOTAR EL PROBLEMA: 
+Reorientar los filtros y la propuesta de 
+valor hacia los aspectos específicos 
+que el usuario realmente priorice (ej. 
+solo promociones del día o velocidad 
+de entrega). 
+El problema existe, pero nuestra 
+solución no genera el resultado esperado 
+PIVOTAR LA SOLUCIÓN: 
+Cambiar la interfaz o el mecanismo de 
+interacción (ej. simplificar a un formato 
+de lista de tarjetas ultra rápida o 
+integración ligera). 
+Descubrimos que otro grupo de 
+usuarios tiene mayor necesidad de nuestra 
+PIVOTAR EL SEGMENTO DE 
+CLIENTE: Enfocar la plataforma hacia 
+
+===== PAGINA 48 =====
+
+solución ejecutivos u oficinistas del centro de la 
+ciudad si muestran mayor disposición 
+de uso y urgencia. 
+Decisión ¿Cuándo la tomaríamos? 
+PERSEVERAR: continuar y mejorar la 
+propuesta actual. 
+PERSEVERAR: Cuando más 
+del 75% de los usuarios piloto elijan 
+una opción en menos de 2 minutos y 
+califiquen la herramienta como útil. 
+PIVOTAR: realizar un cambio 
+importante a partir de lo aprendido. 
+PIVOTAR: Si los estudiantes no 
+logran decidir rápidamente o si los 
+datos del restaurante resultan difíciles 
+de mantener actualizados bajo la 
+estructura actual. 
+ 
+ 
+9. Lean Change Management: facilitamos la adopción 
+Supongan que la validación fue favorable y que la solución será implementada en una situación 
+real. 
+¿Quiénes tendrían que utilizar o adoptar nuestra solución?: Los estudiantes universitarios 
+(para consultar) y los dueños/encargados de restaurantes locales (para registrar y actualizar sus menús). 
+¿Qué resistencia al cambio podría aparecer?: Desconfianza de los dueños de negocios hacia 
+plataformas digitales nuevas, temor a costos ocultos o percepción de que actualizar el menú les tomará 
+demasiado tiempo. 
+¿Por qué podrían resistirse?: Por aversión a la incertidumbre, hábito con métodos tradicionales 
+(pizarra, redes sociales) y baja familiaridad digital en algunos emprendimientos tradicionales. 
+¿Con qué grupo pequeño realizaríamos una implementación piloto?: Con 2 
+restaurantes/huariques universitarios cercanos al campus de UTP Trujillo y un grupo de 20 estudiantes 
+delegados/usuarios frecuentes. 
+¿Cómo involucraríamos a estas personas durante el cambio?: Brindando acompañamiento 
+presencial y registro asistido gratuito para los negocios, y mostrando demostraciones rápidas del impacto 
+en visibilidad. 
+¿Qué retroalimentación recogeríamos?: Facilidad del formulario de carga para el empresario, 
+frecuencia de actualización del menú y comentarios del estudiante sobre la exactitud de la información. 
+¿Qué ajustaríamos antes de implementar la solución a mayor escala?: Simplificación de 
+formularios, optimización de la vista móvil y aclaración de avisos de confirmación de datos. 
+ 
+
+===== PAGINA 49 =====
+
+10. Integramos las metodologías 
+Metodol
+ogía 
+¿Cómo la aplicamos al proyecto? 
+¿Qué aprendizaje nos 
+proporciona? 
+Design 
+Thinking 
+Comprendiendo la empatía del 
+estudiante y del dueño del restaurante, 
+definiendo el problema de infoxicación y 
+prototipando pantallas centradas en el 
+usuario. 
+Revela que el valor no está en 
+mostrar cientos de locales, sino en 
+entregar pocas opciones pertinentes, 
+explicables y con datos confirmados. 
+Lean 
+Startup 
+Formulando la hipótesis de valor, 
+delimitando un MVP sin exceso de 
+funciones (sin pasarela de pago ni AR 
+inicial) y aplicando el ciclo Construir-Medir-
+Aprender. 
+Permite validar la idea de forma 
+rápida y con presupuesto S/ 0.00 antes 
+de invertir tiempo en desarrollo de 
+software complejo. 
+Lean 
+Change 
+Management 
+Gestionando la adopción en los 
+restaurantes tradicionales mediante pilotos 
+asistidos, acompañamiento presencial y 
+mitigación de la aversión a la incertidumbre. 
+Muestra que el éxito del 
+software depende de facilitar la 
+transición operativa del dueño del 
+restaurante para mantener la 
+información viva y confiable. 
+ 
+Conclusión del equipo 
+Antes de continuar desarrollando nuestro proyecto necesitamos comprobar que: el motor de 
+recomendación basado en presupuesto, distrito y dieta reduce el tiempo de decisión del estudiante 
+y genera confianza. 
+Para comprobarlo utilizaremos: un MVP prototipado en web interactiva probado con un 
+piloto de estudiantes universitarios de Trujillo y restaurantes locales. 
+Si los resultados son favorables, para facilitar la adopción de nuestra solución realizaremos: 
+un programa de acompañamiento y registro asistido gratuito para negocios locales, escalando 
+progresivamente la plataforma. 
+ 
+Entregable 
+El equipo deberá presentar un documento con las 10 secciones desarrolladas, incluyendo: análisis 
+del usuario y problema, hipótesis, propuesta de MVP, ciclo Construir–Medir–Aprender, indicadores de 
+validación, decisión de perseverar o pivotar y propuesta para facilitar la adopción de la solución. 
+ 
+
+===== PAGINA 50 =====
+
+Anexo H – ACTIVIDAD SEMANA 7 
+Aplicación de Extreme Programming (XP) al Proyecto del Curso 
+Sesiones 13 y 14 
+Datos del equipo Completar 
+Nombre del proyecto SmartResto 
+Integrantes 
+Cabanillas Llontop, Diego Rodrigo 
+Lujan Zavaleta, Wilmer Enrique 
+Paredes Azabache, Miguel Alejandro 
+Sandoval Chacón, Nancy Elizabeth 
+Sección 40799 
+Fecha [Completar] 
+1. Identifiquen y prioricen el trabajo 
+A partir de SmartResto, identificamos 5 Historias de Usuario principales del MVP: 
+N
+.° 
+Historia de Usuario / 
+Funcionalidad 
+Prio
+ridad 
+¿Por qué es importante? 
+1 
+Registro y perfil del 
+estudiante (restricciones 
+alimentarias y presupuesto) 
+Alta 
+Es el dato base que alimenta al 
+motor de recomendación; sin esta 
+historia ninguna otra puede probarse de 
+forma realista. 
+2 
+Registro y gestión del 
+perfil del restaurante 
+(ubicación, menú, horarios) 
+Alta 
+Sin oferta cargada en el sistema 
+no hay nada que el motor pueda 
+recomendar; habilita el lado 
+"empresario". 
+3 
+Motor de 
+recomendación geolocalizado 
+por distrito (PostGIS) 
+Alta 
+Es el valor central del producto y 
+el punto de mayor incertidumbre técnica; 
+en XP se ataca primero con Diseño 
+Simple. 
+4 
+Dashboard básico de 
+analítica para el restaurante 
+Med
+ia 
+Da valor al empresario, pero el 
+sistema puede funcionar y probarse con 
+
+===== PAGINA 51 =====
+
+el usuario final sin ella. 
+5 
+Búsqueda por voz 
+(Web Speech API) y 
+previsualización Web-AR 
+Baj
+a 
+Mejora la experiencia, pero no 
+bloquea el flujo principal; se añade 
+cuando el core ya sea estable. 
+ 
+¿Cuál debería desarrollarse primero y por qué? 
+Las Historias 1 y 2 (registro del estudiante y del restaurante), porque el motor de recomendación no 
+puede probarse sin datos reales de ambos lados. En XP esto significa escribir primero las tarjetas de esas 
+dos historias, definir su prueba de aceptación y solo después iniciar la Historia 3, aplicando siempre el 
+valor de la Simplicidad: construir hoy solo lo que la iteración actual necesita. 
+2. Elijan su enfoque de trabajo 
+Pregunta Respuesta del equipo 
+¿Qué enfoque 
+elegimos? 
+Extreme Programming (XP). 
+¿Por qué se adapta 
+mejor a nuestro proyecto? 
+Somos un equipo de 4 estudiantes donde todos 
+programan; XP elimina roles de gestión que no aportan al 
+código (reuniones de pie de 5 minutos, sin Scrum Master ni 
+Product Owner separados). 
+El motor de recomendación es incierto por 
+naturaleza: no sabemos de entrada qué algoritmo 
+funcionará mejor. El valor de Simplicidad de XP nos obliga a 
+programar solo lo necesario hoy, en lugar de diseñar de 
+más. 
+El sistema es basado en roles (Estudiante, 
+Restaurante, Administrador), lo que es propenso a errores 
+de permisos. Las Pruebas Automatizadas (TDD) de XP 
+verifican en cada cambio que los roles sigan aislados y 
+seguros. 
+¿Qué ventaja tendría 
+para nuestro equipo? 
+Propiedad colectiva del código: cualquiera del equipo 
+puede corregir y mejorar cualquier módulo, sin dependencia 
+de una sola persona. 
+Integración continua: se fusiona el código varias 
+veces al día, evitando el caos de unir todo el día antes de la 
+
+===== PAGINA 52 =====
+
+entrega. 
+Programación en pareja: el que más sabe de bases 
+de datos enseña en tiempo real al resto mientras construyen 
+el sistema de roles. 
+Refactorización constante: permite limpiar el 
+algoritmo de recomendación a medida que crece, sin 
+acumular deuda técnica. 
+3. Organicen el trabajo (enfoque XP) 
+Desarrollamos nuestro plan bajo la estructura propia de Extreme Programming: iteraciones cortas 
+planificadas mediante el Juego de Planificación (Planning Game). 
+Plan de iteración XP 
+Elemento Propuesta del equipo 
+Duración de la 
+iteración 
+1 semana (iteraciones cortas, típicas de XP). 
+Objetivo de la 
+iteración 
+Tener un incremento funcional y probado: registro de 
+estudiante, registro de restaurante y un primer filtro de 
+recomendación por distrito. 
+Historias de usuario 
+a trabajar 
+Historia 1 (registro de estudiante) e Historia 2 
+(registro de restaurante), tomadas del Juego de 
+Planificación y estimadas en pareja. 
+Resultado funcional 
+entregado 
+Un prototipo desplegado (Docker + 
+Render/Supabase) donde un estudiante y un restaurante 
+pueden registrarse, con pruebas automatizadas pasando. 
+Prácticas XP aplicadas por el equipo 
+Práctica XP Cómo la aplicamos en SmartResto 
+Programación en 
+pareja 
+El equipo se divide en dos parejas; quien domina más 
+PostgreSQL/PostGIS guía al resto al construir el sistema de 
+roles y el motor de recomendación. 
+Pruebas 
+automatizadas (TDD) 
+Antes de programar un endpoint de rol 
+(Estudiante/Restaurante/Administrador), se escribe la prueba 
+
+===== PAGINA 53 =====
+
+que verifica que los permisos queden aislados. 
+Integración 
+continua 
+Cada integrante fusiona su código al repositorio varias 
+veces al día; si algo se rompe, se detecta en minutos, no la 
+noche antes de la entrega. 
+Propiedad 
+colectiva del código 
+Nadie es "dueño" único de un módulo; cualquiera puede 
+entrar a corregir el motor de recomendación o el módulo de 
+roles. 
+Diseño simple 
+Se implementa primero un filtro básico por distrito y 
+presupuesto, en lugar de una arquitectura de IA compleja desde 
+el día uno. 
+Refactorización 
+Cada vez que el algoritmo de recomendación gane 
+lógica nueva, se limpia el código para que siga siendo rápido y 
+escalable. 
+ 
+¿Cuántas historias trabajará el equipo por iteración como máximo? 
+2 historias de usuario por semana, para asegurar que cada una termine completamente (código + 
+pruebas + integración) antes de tomar la siguiente, respetando el ritmo sostenible de XP. 
+4. Respondan ante un cambio 
+Durante el desarrollo, los usuarios prueban SmartResto y solicitan un cambio importante que no 
+estaba considerado inicialmente. 
+Pregunta Decisión del equipo 
+¿Cómo afecta el 
+cambio a nuestro trabajo 
+actual? 
+No lo descarrila: en XP solo se planifica en detalle 
+una iteración de una semana a la vez, así que el cambio se 
+incorpora en el siguiente Juego de Planificación sin rehacer 
+meses de trabajo ya avanzado. 
+¿Cambiaríamos 
+alguna prioridad? ¿Cuál? 
+Sí. Es el cliente (usuario/profesor) quien re-prioriza 
+las historias en el juego de planificación; una historia de 
+menor valor (por ejemplo, Web-AR) puede bajar de prioridad 
+para dar paso a la nueva. 
+¿Cómo 
+incorporaríamos el cambio 
+Se redacta una nueva historia de usuario con su 
+prueba de aceptación, se estima en pareja y se ubica en la 
+
+===== PAGINA 54 =====
+
+sin desorganizar todo el 
+proyecto? 
+iteración actual o la siguiente. Gracias al Diseño Simple y la 
+Integración Continua, agregarla no rompe lo ya construido. 
+5. Definan su primera entrega de valor 
+Pregunta Respuesta del equipo 
+¿Qué entregaremos 
+primero? 
+El resultado de la primera iteración: registro de 
+estudiante, registro de restaurante y un motor de 
+recomendación mínimo que filtra por distrito y presupuesto. 
+¿Qué podrá hacer el 
+usuario con esta entrega? 
+Un estudiante podrá registrarse indicando sus 
+restricciones alimentarias y presupuesto, y ver una lista de 
+restaurantes de su distrito que calzan con ese perfil. 
+¿Qué valor le 
+genera? 
+Ataca directamente el problema de "infoxicación": 
+reduce los 5-10 minutos de búsqueda manual reportados en 
+el diagnóstico a una recomendación filtrada e inmediata. 
+¿Cómo recogeremos 
+su feedback? 
+Con el rol de Cliente en el sitio propio de XP: 
+estudiantes y un restaurante piloto prueban el incremento al 
+final de cada iteración semanal, y sus observaciones entran 
+directo al siguiente Juego de Planificación. 
+Conclusión del equipo 
+Para organizar nuestro proyecto utilizaremos Extreme Programming (XP) porque nuestro equipo es 
+pequeño (4 estudiantes que programan todos), el reto técnico central —el motor de recomendación— es 
+incierto y necesita iterarse rápido, y el sistema basado en roles exige pruebas automatizadas constantes 
+para no comprometer la seguridad. 
+Nuestra primera entrega será un incremento funcional con registro de estudiante, registro de 
+restaurante y un motor de recomendación básico por distrito, construido en una iteración semanal con 
+programación en pareja e integración continua. 
+Utilizaremos el feedback de los usuarios para reajustar el Juego de Planificación de la siguiente 
+iteración y refactorizar el motor de recomendación conforme evolucionen las reglas de negocio. 
+Entregable 
+Este documento desarrolla las 5 secciones solicitadas, aplicando íntegramente Extreme 
+Programming (XP) al proyecto SmartResto. 
+Sustentación breve 
+3 minutos para explicar cómo XP —Juego de Planificación, programación en pareja, TDD, 
+integración continua y propiedad colectiva del código— organiza el desarrollo de SmartResto. 
+
+===== PAGINA 55 =====
+
+ 
+ 
+
+===== PAGINA 56 =====
+
+Anexo I – ACTIVIDAD SEMANA 8 
+Aplicación del Marco Ágil al Proyecto del Curso – Sesión 16 
+ 
+Nombre del proyecto: SmartResto 
+Integrantes: Cabanillas Llontop, Diego Rodrigo; Lujan Zavaleta, Wilmer Enrique; Paredes 
+Azabache, Miguel Alejandro; Sandoval Chacón, Nancy Elizabeth 
+Sección: [Completar] Fecha: 1 de octubre de 2026 
+Propósito 
+Aplicar Scrum, Kanban o XP al proyecto grupal del curso, organizando el trabajo del equipo para 
+desarrollar una primera versión funcional de su solución. 
+ 
+ 
+Seleccionen las funcionalidades a desarrollar 
+Identifiquen 5 funcionalidades o actividades concretas que necesita actualmente su proyecto y 
+ordénenlas según su prioridad. 
+ 
+N
+.° 
+Funcionalidad / actividad Prio
+ridad 
+Responsable 
+1 Algoritmo de recomendación de 
+restaurantes (El 'corazón' que cruza 
+ubicación, dinero y dieta) 
+Alta Todo el equipo 
+2 Gestión de menús y locales para 
+restaurantes (Para tener opciones reales 
+qué recomendar) 
+Alta Todo el equipo 
+3 Configuración del perfil del 
+estudiante (Definir su presupuesto y qué no 
+puede comer) 
+Alta Todo el equipo 
+4 Panel de estadísticas para los 
+restaurantes (Para que vean qué buscan 
+más los estudiantes) 
+Medi
+a 
+Todo el equipo 
+5 Búsqueda por voz y vista de 
+platillos en realidad aumentada (Un extra 
+para mejorar la experiencia) 
+Baja Todo el equipo 
+¿Qué funcionalidad deberían desarrollar primero y por qué? 
+
+===== PAGINA 57 =====
+
+Se debe desarrollar primero la Funcionalidad 1: el Algoritmo de recomendación de restaurantes. 
+En la metodología XP, se debe atacar primero la parte central que da valor al negocio y que representa el 
+mayor reto. El corazón de SmartResto no es solo registrar usuarios, sino lograr que el sistema encuentre 
+coincidencias exactas entre lo que el estudiante busca y lo que el restaurante ofrece. Para no depender de 
+los registros iniciales, este algoritmo se programará y probará primero usando datos simulados, 
+asegurando que el 'corazón' funcione antes de agregarle el resto de partes. 
+ 
+Apliquen el marco ágil elegido 
+C. Si utilizan XP – Extreme Programming 
+Elemento Aplicación en nuestro proyecto 
+Funcionalidad que 
+desarrollaremos primero 
+El algoritmo de recomendación de restaurantes. 
+Prueba que permitirá 
+comprobar que funciona 
+correctamente 
+Pruebas automáticas creadas antes de programar (TDD) 
+que validen que, si un estudiante tiene S/15 y alergia al maní, el 
+sistema solo le muestre locales cercanos que cumplan eso al 
+100%. 
+Programación en pareja: 
+¿quiénes trabajarán juntos? 
+Wilmer Lujan trabajará con Miguel Paredes en la lógica del 
+algoritmo, mientras que Diego Cabanillas y Nancy Sandoval 
+programarán las pantallas y los perfiles. 
+Integración frecuente: ¿cómo 
+integrarán los cambios realizados? 
+Uniremos nuestro código al proyecto principal varias veces 
+al día. Así, si el algoritmo de alguien rompe el sistema, nos damos 
+cuenta en minutos y no el día antes de la entrega. 
+Refactorización: ¿qué parte 
+podrían mejorar sin cambiar su 
+funcionalidad? 
+El código de las búsquedas y filtros. Lo limpiaremos 
+constantemente para que el sistema responda rápido sin importar 
+si hay 10 o 1,000 restaurantes registrados. 
+
+===== PAGINA 58 =====
+
+¿Cómo ayudará XP a mejorar la calidad del software que están desarrollando? 
+Como todos somos programadores, la propiedad colectiva del código permitirá que si 
+Wilmer o Diego no están, Nancy o Miguel puedan entrar y arreglar el algoritmo sin problemas. 
+Además, las pruebas automáticas (TDD) nos darán la tranquilidad de que las reglas 
+importantes (como no recomendar comida con gluten a un celíaco) nunca fallen por accidente 
+al agregar nuevas cosas. 
+ 
+Simulen un problema real del proyecto 
+ 
+Pregunta Decisión 
+¿Qué haríamos ante este 
+problema? 
+No detenemos el trabajo de la semana. Anotamos el 
+problema técnico y lo llevamos a la siguiente reunión de 
+planificación semanal para ver cómo resolverlo sin afectar lo que 
+ya funciona. 
+¿Cambiaríamos alguna 
+prioridad? 
+Sí. Hablaríamos con el profesor o usuario para bajarle la 
+prioridad a cosas menos urgentes (como la búsqueda por voz) y 
+usar ese tiempo en arreglar el algoritmo principal. 
+¿Cómo evitaríamos que el 
+problema detenga a todo el equipo? 
+Gracias a la programación en pareja, dos integrantes 
+pueden dedicarse a investigar y solucionar el bloqueo, mientras los 
+otros dos continúan avanzando con la gestión de menús o los 
+perfiles de usuario. 
+ 
+Definan su próxima entrega funcional 
+ 
+Pregunta Respuesta del equipo 
+¿Qué entregaremos? Un prototipo donde el algoritmo principal ya funciona, 
+conectando los perfiles de los estudiantes con los menús de los 
+restaurantes. 
+¿Qué podrá hacer el 
+usuario? 
+Un estudiante podrá poner su presupuesto máximo, marcar 
+sus alergias, y la pantalla le mostrará una lista exacta de locales 
+
+===== PAGINA 59 =====
+
+cercanos que le sirven. 
+¿Cómo comprobaremos que 
+funciona correctamente? 
+Verificando que todas nuestras pruebas automáticas pasen 
+al 100% y que al unir el código de las parejas no haya ningún error. 
+¿Qué feedback 
+necesitaremos del usuario? 
+Haremos que estudiantes reales prueben el sistema para 
+ver si las recomendaciones les parecen útiles y si de verdad les 
+ahorra tiempo al momento de decidir dónde comer. 
+ 
+Conclusión del equipo 
+Nuestro proyecto utilizará XP (Extreme Programming) porque somos un equipo donde 
+todos programamos y necesitamos atacar rápidamente la parte más compleja (el algoritmo de 
+recomendación) asegurando su calidad con pruebas constantes (TDD). 
+Nuestra próxima entrega funcional será el algoritmo de recomendación funcionando 
+en conjunto con la configuración básica de los perfiles de estudiantes y restaurantes. 
+Para comprobar que estamos generando valor evaluaremos si los estudiantes reales 
+que prueben el prototipo logran encontrar comida adecuada más rápido que haciéndolo 
+manualmente. 
+ 
+ 
+
+===== PAGINA 60 =====
+
+Anexo J – ACTIVIDAD SEMANA 9 
+Escalamiento ágil de nuestro proyecto 
+Nombre del proyecto: SmartResto 
+Integrantes: Cabanillas Llontop, Diego Rodrigo; Lujan Zavaleta, Wilmer Enrique; 
+Paredes Azabache, Miguel Alejandro; Sandoval Chacón, Nancy Elizabeth 
+Propósito: Aplicar los conceptos de organizaciones ágiles y escalamiento al proyecto 
+grupal del curso, definiendo cómo se organizaría el trabajo si el proyecto creciera y necesitara 
+varios equipos. 
+Organicen el proyecto en equipos 
+Dividan el proyecto en 3 o 4 equipos, según las principales áreas o componentes de su 
+solución. 
+ 
+Equipo Responsabilidad 
+principal 
+¿Qué desarrollará? 
+Equipo Core y Algoritmo 
+(Backend) 
+Lógica de negocio y 
+procesamiento geoespacial. 
+Desarrollará el motor 
+PostGIS, las consultas 
+multicriterio de filtrado y las 
+APIs REST centrales de 
+SmartResto. 
+Equipo Experiencia 
+Estudiantil (App B2C) 
+Interfaz de usuario y 
+flujo del consumidor final. 
+Desarrollará la 
+aplicación (móvil/web) donde el 
+estudiante configura su 
+presupuesto, restricciones y 
+recibe los matches. 
+Equipo Portal 
+Restaurantes (Web B2B) 
+Herramientas de gestión 
+para los negocios. 
+Desarrollará el 
+dashboard donde los 
+restaurantes actualizan menús 
+en tiempo 
+real, etiquetas 
+nutricionales y ven analíticas. 
+
+===== PAGINA 61 =====
+
+Equipo Plataforma y 
+Calidad (DevOps/QA) 
+Infraestructura en la 
+nube, despliegues y 
+estabilidad. 
+Desarrollará los 
+pipelines de Integración 
+Continua (CI/CD), 
+contenedores 
+Docker y la 
+automatización de pruebas a 
+escala. 
+Seleccionen cómo escalarían su proyecto 
+Elijan UNA alternativa: ☐ SAFe ☒ LeSS ☐ Scrum@Scale 
+ 
+Pregunta Respuesta del equipo 
+Framework seleccionado LeSS (Large-Scale Scrum) 
+¿Por qué lo eligieron para su 
+proyecto? 
+Porque SmartResto es un único 
+producto enfocado en un solo flujo de valor 
+(conectar 
+estudiantes con comida). LeSS nos 
+permite escalar manteniendo un único 
+Product 
+ Backlog y un solo Product Owner. 
+Además, como venimos usando Extreme 
+Programming (XP), LeSS hace un énfasis 
+fuerte en escalar justamente la excelencia 
+técnica de XP (TDD, Integración 
+Continua). 
+¿Qué ventaja tendría al crecer el 
+proyecto? 
+Evita la burocracia excesiva. En 
+lugar de crear capas de jefaturas pesadas 
+(como podría pasar con SAFe), LeSS 
+mantiene a los desarrolladores cerca de los 
+usuarios y centrados en colaborar 
+directamente entre 
+equipos mediante código 
+
+===== PAGINA 62 =====
+
+compartido. 
+Identifiquen las dependencias 
+Analicen qué equipos necesitarán del trabajo de otros para poder avanzar. 
+ 
+Equipo Depende de... ¿Qué necesita del 
+otro 
+equipo? 
+Equipo Exp. 
+Estudiantil 
+Equipo Core y 
+Algoritmo 
+Necesita que los 
+endpoints (APIs) de filtrado 
+espacial estén listos para 
+poder pintar los restaurantes 
+cercanos en la 
+pantalla del mapa. 
+Equipo Portal 
+Restaurantes 
+Equipo Core y 
+Algoritmo 
+Necesita que la 
+estructura de la base de 
+datos (PostgreSQL) esté 
+definida para poder guardar 
+los menús con el etiquetado 
+correcto que el motor 
+exigirá. 
+Equipo Core y 
+Algoritmo 
+Equipo Plataforma y 
+QA 
+Necesita que los 
+servidores en la nube y la 
+base de datos espacial 
+(PostGIS) estén 
+desplegados correctamente 
+para poder hacer pruebas 
+de estrés al motor. 
+
+===== PAGINA 63 =====
+
+Definan objetivos comunes 
+Definan 2 objetivos principales para la siguiente etapa del proyecto. Los objetivos deben 
+expresar resultados, no solamente tareas. 
+ 
+Objetivo ¿Qué resultado 
+esperan 
+conseguir? 
+Equipos involucrados 
+Eficiencia en alta 
+concurrencia 
+Lograr que el 
+algoritmo recomiende locales 
+en menos de 1 segundo, 
+incluso cuando 5,000 
+estudiantes realicen 
+búsquedas simultáneas a la 
+Core y Algoritmo, 
+Plataforma y QA. 
+ hora de salida de 
+clases. 
+ 
+Sincronización de Garantizar que, si un Portal Restaurantes, 
+Exp. 
+inventario en tiempo 
+real 
+restaurante marca un 
+plato como "Agotado", 
+Estudiantil, Core y 
+Algoritmo. 
+ desaparezca  
+ instantáneamente de 
+los 
+ 
+ resultados de 
+búsqueda de 
+ 
+ todos los estudiantes  
+ cercanos.  
+Integración de Inteligencia Artificial 
+Pregunta Respuesta 
+
+===== PAGINA 64 =====
+
+¿Qué aplicación de IA podría utilizar 
+el proyecto? 
+Un modelo de predicción de 
+demanda mediante Machine Learning 
+(análisis de 
+series de tiempo). 
+¿Qué problema ayudaría a resolver? Predecirá en qué horarios, días y 
+zonas geográficas habrá picos de demanda 
+de ciertos platillos (ej. dietas veganas). 
+Ayudará a los restaurantes a 
+preparar insumos con anticipación, evitando 
+que los estudiantes se queden sin opciones 
+y 
+reduciendo el desperdicio de comida 
+del negocio. 
+¿Qué equipo sería responsable? Equipo Core y Algoritmo (asumiendo 
+un rol de Data Analytics). 
+¿Con qué otro equipo tendría que 
+integrarse? 
+Con el Equipo Portal Restaurantes, 
+para 
+que estos pronósticos se muestren 
+como gráficos intuitivos en su panel de 
+analítica. 
+Riesgo de escalamiento 
+Identifiquen un problema que podría aparecer al pasar de un equipo a varios equipos. 
+ 
+Riesgo identificado ¿Cómo afectaría al 
+proyecto? 
+¿Cómo lo 
+solucionarían? 
+
+===== PAGINA 65 =====
+
+"Integration Hell" 
+(Caos de integración de 
+código) 
+Al haber 4 equipos 
+subiendo código 
+simultáneamente, los 
+cambios de la App 
+Estudiantil podrían romper 
+silenciosamente las 
+validaciones del motor Core, 
+causando caídas del sistema 
+y retrasando lanzamientos. 
+Estableciendo reglas 
+estrictas de Integración 
+Continua. Nadie puede unir 
+su código a la rama principal 
+(main) si el pipeline 
+automatizado no confirma 
+antes que el 100% de las 
+pruebas TDD han pasado 
+exitosamente. 
+Además, coordinar el 
+trabajo desde el inicio en una 
+única reunión de 
+planificación (Sprint 
+Planning One de 
+LeSS). 
+
+===== PAGINA 66 =====
+
+66 
+CONCLUSIÓN DEL EQUIPO 
+Nuestro proyecto utilizaría LeSS (Large-Scale Scrum) para escalar porque mantiene la 
+simplicidad de tener un único Product Backlog y un solo Product Owner para todo SmartResto, 
+complementándose perfectamente con las prácticas técnicas de calidad (TDD, XP) que ya 
+utilizamos. 
+El principal desafío al pasar de un equipo a varios equipos sería gestionar 
+correctamente las dependencias técnicas y evitar que los cambios de código 
+concurrentes rompan el motor central de recomendaciones (Integration Hell). 
+Para mantener a todos los equipos alineados proponemos realizar planificaciones 
+conjuntas al inicio de cada ciclo (Sprint Planning 1) y depender de una integración 
+continua automatizada e impecable como única fuente de verdad técnica. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+===== PAGINA 67 =====
+
+67 
+Anexo K ENCUESTAS REALIZADAS 
+ 
+
+
+===== PAGINA 68 =====
+
+68 
+ 
+ 
+
+
+===== PAGINA 69 =====
+
+69 
+Anexo L ENTREVISTAS CON EMPRESARIOS 
+ 
+ENTREVISTAS SANDRO: https://youtu.be/hW4md_tZAhQ?si=IKx1z7oXaTOoz59E 
+ENTREVISTAS MATIAS: https://youtu.be/d5PKozqRkuA?si=x9MQ9OFjydKR1PJe 
+ENTREVISTAS ALIDA: https://youtu.be/LV25BU1dLE0?si=rs7XJZX9hlLNHOpw 
+ENTREVISTAS POLLOS: https://youtu.be/_DAlnz93SEM?si=9sCEWbnXKjvVHGb5 
+ 
+Anexo M GITHUB REPOSITORIO: 
+ 
+https://github.com/Nesch08111522/RecomenRestaurant.git 
+ 
+
+
+===== PAGINA 70 =====
+
+70 
+Anexo N PRECIOS PILOTO: 
+Component
+e 
+Proveedor / 
+Servicio 
+Configuraci
+ón técnica 
+Costo 
+mensual 
+Servidor 
+backend y API 
+Render (Free 
+Tier) 
+Web Service 
+con RAM y CPU 
+compartidos 
+S/ 0.00 
+Base de 
+datos relacional 
+Supabase 
+(Free Tier) 
+PostgreSQL 
+gestionado con 
+PostGIS 
+S/ 0.00 
+Alojamiento 
+del frontend 
+Vercel o 
+Netlify 
+Despliegue 
+continuo desde 
+GitHub 
+S/ 0.00 
+Modelo de IA 
+(LLM) 
+Groq API / 
+Google AI Studio 
+Claves 
+gratuitas con límites 
+de cuota 
+S/ 0.00 
+Entorno de 
+desarrollo 
+Docker 
+Desktop 
+Contenedore
+s locales para 
+estandarizar base 
+de datos y APIs 
+S/ 0.00 
+Librerías de 
+innovación 
+AR.js y Web 
+Speech API 
+Código 
+abierto, ejecutadas 
+en el navegador 
+S/ 0.00 
+Inversión 
+total   S/ 0.00 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+===== PAGINA 71 =====
+
+71 
+Anexo O PRECIOS MEMBRESIA 
+Plan Incluye 
+Tarifa 
+base (1-2 
+estrellas) 
+Interme
+dia (3 
+estrellas) 
+Premiu
+m (4-5 
+estrellas) 
+Essential 
+Perfil 
+básico, 
+ubicación en 
+mapa, menú 
+digital y 
+analítica 
+estática de 
+vistas 
+S/ 29.00 
+/ mes 
+S/ 49.00 
+/ mes 
+S/ 79.00 
+/ mes 
+Growth 
+Essential 
++ generador de 
+platos por IA, 
+aparición 
+prioritaria por 
+distrito y 
+soporte básico 
+S/ 59.00 
+/ mes 
+S/ 89.00 
+/ mes 
+S/ 
+129.00 / mes 
+SmartRe
+sto (Full) 
+Growth 
++ menú 3D en 
+Web-AR por 
+QR, analítica 
+predictiva e 
+integración con 
+búsqueda por 
+voz 
+S/ 99.00 
+/ mes 
+S/ 
+149.00 / mes 
+S/ 
+249.00 / mes 
+ 
+ 

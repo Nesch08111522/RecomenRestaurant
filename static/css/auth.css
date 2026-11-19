@@ -21,12 +21,11 @@ body.sr-auth input::-ms-reveal, body.sr-auth input::-ms-clear { display: none; }
   background: linear-gradient(to right, var(--sr-hero) 50%, var(--sr-bg) 50%);
   perspective: 1400px;
 }
-.ax-stage[data-mode="register"] { background: linear-gradient(to right, var(--sr-bg) 50%, var(--sr-hero) 50%); }
 
 .ax-forms {
   position: relative;
   z-index: 2;
-  width: 50%;
+  width: 100%;
   min-height: inherit;
   display: flex;
   flex-direction: column;
@@ -37,7 +36,6 @@ body.sr-auth input::-ms-reveal, body.sr-auth input::-ms-clear { display: none; }
   transition: transform var(--ax-dur) var(--ax-ease);
   will-change: transform;
 }
-.ax-stage[data-mode="register"] .ax-forms { transform: translateX(100%); }
 
 .ax-panes { display: grid; }
 .ax-pane {
@@ -57,13 +55,14 @@ body.sr-auth input::-ms-reveal, body.sr-auth input::-ms-clear { display: none; }
 
 .ax-visual {
   position: absolute;
-  top: 0; right: 0;
-  width: 50%; height: 100%;
+  inset: 0;
+  width: 40%;
+  height: auto;
+  min-height: inherit;
   z-index: 1;
   transition: transform var(--ax-dur) var(--ax-ease);
   will-change: transform;
 }
-.ax-stage[data-mode="register"] .ax-visual { transform: translateX(-100%); }
 
 /* == 2. FORMULARIOS == */
 .ax-flashes { margin: 0 auto 14px; width: min(100%, 460px); display: grid; gap:var(--space-sm); }

@@ -1,0 +1,67 @@
+/* Salón, carta QR, cola y fidelización. Solo tokens del tema activo. */
+.sr-service{max-width:1180px;margin:0 auto;padding:1.25rem clamp(1rem,4vw,3rem) 4rem;color:var(--theme-text);font-family:var(--font-main,Arial),sans-serif}
+.sr-service h1,.sr-service h2,.sr-service h3{color:var(--theme-text);line-height:1.18;margin:.2em 0}
+.sr-service h1{font-size:clamp(1.9rem,4.6vw,3.1rem);letter-spacing:-.04em}
+.sr-service h2{font-size:1.35rem;margin-top:1.6em}
+.sr-service p{line-height:1.55;margin:.5em 0}
+.sr-service a{color:var(--theme-accent);text-underline-offset:3px}
+.sr-service :focus-visible{outline:3px solid var(--sr-focus);outline-offset:3px}
+.sr-service-nav{display:flex;flex-wrap:wrap;gap:.75rem 1.2rem;align-items:center;border-bottom:1px solid var(--sr-line);padding:.6rem 0 1rem;margin-bottom:1rem}
+.sr-service-nav a:first-child{font-weight:700;margin-right:auto}
+.sr-service-hero{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:end;gap:1rem;margin:1rem 0 1.4rem}
+.sr-service-hero p{max-width:60ch}
+.sr-chip{display:inline-flex;align-items:center;gap:.35rem;border:1px solid var(--sr-line);border-radius:999px;padding:.28rem .7rem;font-size:.8rem;font-weight:650;background:var(--sr-tint);color:var(--theme-text)}
+.sr-chip[data-state="Disponible"]{border-color:var(--sr-brand)}
+.sr-chip[data-state="Solicita atención"],.sr-chip[data-state="Solicita cuenta"]{border-color:var(--theme-accent)}
+.sr-chip[data-state="Limpieza"],.sr-chip[data-state="Pendiente de pago"]{border-style:dashed}
+.sr-service-grid{display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr))}
+.sr-service-card{border:1px solid var(--sr-line);border-radius:14px;background:var(--sr-surface);padding:1.1rem}
+.sr-service-card--wide{grid-column:1/-1}
+.sr-service-stats{display:grid;gap:.8rem;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));margin:1rem 0}
+.sr-service-stats div{border-left:3px solid var(--sr-brand);padding:.7rem 1rem;background:var(--sr-tint)}
+.sr-service-stats strong{display:block;font-size:1.5rem}
+.sr-service-form{display:grid;gap:.85rem;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));align-items:end;margin:1rem 0}
+.sr-service label{display:grid;gap:.3rem;font-size:.9rem;font-weight:600}
+.sr-service input:not([type=checkbox]):not([type=hidden]),.sr-service select,.sr-service textarea{border:1px solid var(--sr-muted);border-radius:8px;background:var(--sr-surface);padding:.62rem;width:100%;font:inherit;color:var(--theme-text)}
+.sr-service input[type=checkbox]{width:auto}
+.sr-service button{border:0;border-radius:8px;padding:.7rem 1rem;font:inherit;font-weight:650;background:var(--theme-accent-bg);color:var(--theme-text);cursor:pointer;min-height:44px}
+.sr-service button.secondary{background:var(--sr-tint)}
+.sr-service button.ghost{background:transparent;border:1px solid var(--sr-line)}
+.sr-service button:disabled{opacity:.45;cursor:not-allowed}
+.sr-service .sr-actions{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;margin:.7rem 0}
+.sr-service .sr-note{background:var(--sr-tint);padding:.75rem;border-radius:8px}
+.sr-service .sr-muted{color:var(--theme-muted,var(--sr-muted));font-size:.88rem}
+.sr-service .sr-list{display:grid;gap:.6rem;margin:.6rem 0;padding:0;list-style:none}
+.sr-service .sr-list li{border-bottom:1px solid var(--sr-line);padding:.55rem 0;display:flex;flex-wrap:wrap;gap:.6rem;justify-content:space-between;align-items:center}
+.sr-service .sr-menu-section{margin:1.5rem 0}
+.sr-service .sr-dish{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:.8rem;border-bottom:1px solid var(--sr-line);padding:1rem 0}
+.sr-service .sr-dish h3{margin:.1rem 0}
+.sr-service .sr-dish small{display:block;color:var(--theme-muted,var(--sr-muted))}
+.sr-service .sr-offer{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;justify-content:space-between;border:1px dashed var(--sr-line);border-radius:10px;padding:.6rem;margin-top:.5rem}
+.sr-service .sr-offer form{display:flex;gap:.4rem;align-items:center}
+.sr-service .sr-offer input{max-width:5rem}
+.sr-service .sr-photo{width:100%;max-width:220px;aspect-ratio:4/3;object-fit:cover;border-radius:10px}
+.sr-service .sr-plan{position:relative;min-height:260px;border:1px solid var(--sr-line);border-radius:14px;background:var(--sr-tint);overflow:hidden}
+.sr-service .sr-plan .sr-table{position:absolute;width:96px;min-height:84px;transform:translate(-50%,-50%);border:1px solid var(--sr-line);border-radius:12px;background:var(--sr-surface);padding:.45rem;text-align:center;font-size:.78rem;box-shadow:var(--theme-shadow,none)}
+.sr-service .sr-plan .sr-table strong{display:block;font-size:1rem}
+.sr-service .sr-table[data-state="Solicita atención"],.sr-service .sr-table[data-state="Solicita cuenta"]{border-color:var(--theme-accent)}
+.sr-service .sr-table[data-state="Limpieza"]{opacity:.7;border-style:dashed}
+.sr-service .sr-plan-fallback{display:grid;gap:.8rem;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr))}
+.sr-service .sr-zone{margin:1rem 0}
+.sr-service .sr-zone h3{font-size:1rem;text-transform:uppercase;letter-spacing:.08em}
+.sr-service .sr-zone-tables{display:grid;gap:.7rem;grid-template-columns:repeat(auto-fill,minmax(min(100%,160px),1fr))}
+.sr-service .sr-table-card{border:1px solid var(--sr-line);border-radius:12px;padding:.7rem;background:var(--sr-surface)}
+.sr-service .sr-table-card form{display:inline-flex;gap:.3rem;margin:.2rem .2rem 0 0;flex-wrap:wrap}
+.sr-service .sr-table-card button{padding:.45rem .6rem;font-size:.8rem;min-height:36px}
+.sr-service .sr-badge{font-size:.72rem;border:1px solid var(--sr-line);border-radius:999px;padding:.15rem .5rem}
+.sr-service table{width:100%;border-collapse:collapse}
+.sr-service th,.sr-service td{text-align:left;padding:.55rem;border-bottom:1px solid var(--sr-line);font-size:.9rem}
+.sr-service .sr-progress{height:10px;border-radius:999px;background:var(--sr-tint);overflow:hidden;margin:.4rem 0}
+.sr-service .sr-progress span{display:block;height:100%;background:var(--sr-brand)}
+.sr-service .sr-badges{display:flex;flex-wrap:wrap;gap:.4rem;padding:0;list-style:none}
+.sr-service .sr-badges li{border:1px solid var(--sr-line);border-radius:999px;padding:.25rem .65rem;font-size:.8rem;background:var(--sr-tint)}
+.sr-service .sr-sticky{position:sticky;bottom:0;background:var(--theme-surface,var(--sr-surface));border-top:1px solid var(--sr-line);padding:.8rem 0;display:flex;flex-wrap:wrap;gap:.7rem;justify-content:space-between;align-items:center;z-index:2}
+.sr-service details{border-bottom:1px solid var(--sr-line);padding:.7rem 0}
+.sr-service summary{cursor:pointer;font-weight:650}
+@media(max-width:620px){.sr-service .sr-dish{grid-template-columns:1fr}.sr-service .sr-service-form{grid-template-columns:1fr}.sr-service-nav{font-size:.9rem}}
+@media(prefers-reduced-motion:no-preference){.sr-service .sr-table{transition:border-color .2s ease}}

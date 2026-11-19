@@ -272,7 +272,7 @@ def update_profile():
     
     profile = dict(db_user.get('profile') or {})
     try:
-        changes = normalize_profile_patch({
+        payload = {
             'name': request.form.get('name', profile.get('name')),
             'email': request.form.get('email', profile.get('email')),
             'preferences': request.form.getlist('preferences'),
@@ -288,7 +288,10 @@ def update_profile():
             },
             'location_consent': request.form.get('location_consent') == 'on',
             'cookies_consent': request.form.get('cookies_consent') == 'on',
-        })
+        }
+        if 'birthday' in request.form:
+            payload['birthday'] = request.form.get('birthday')
+        changes = normalize_profile_patch(payload)
     except ValueError as error:
         flash(str(error), 'error')
         return redirect(url_for('auth.profile'))

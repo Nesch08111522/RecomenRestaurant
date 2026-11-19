@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block extra_head %}<link rel="stylesheet" href="{{ url_for('static', filename='css/service.css') }}">{% endblock %}
+{% block content %}
+<div class="sr-service">
+  <nav class="sr-service-nav" aria-label="Mesa y carta">
+    <a href="{{ url_for('salon.menu', token=table.qr_token) }}">{{ restaurant.name }}</a>
+    <span class="sr-chip" data-state="{{ state }}">{{ state }}</span>
+    {% if mine %}<a href="{{ url_for('salon.session_page', token=table.qr_token) }}">Mi cuenta de mesa{% if cart_count %} · {{ cart_count }} en carrito{% endif %}</a>{% endif %}
+    <a href="{{ url_for('main.detail', restaurant_id=restaurant.id) }}">Ficha del negocio</a>
+  </nav>
+
+  <header class="sr-service-hero">
+    <div>
+      <p class="sr-muted">{{ restaurant.name }} · {{ table.floor or 'Planta principal' }} · {{ table.zone or 'General' }}</p>
+      <h1>Mesa {{ table.label }}</h1>
+      <p>Carta digital vinculada a esta mesa. El QR identifica la ubicación; la atención se abre solo cuando el comensal o el personal lo confirman.</p>
+    </div>
+    <div>
+      {% if current and mine %}
+        <p class="sr-note">Sesión #{{ current.id }} · {{ current.party_size }} personas · desde {{ current.opened_at[:16].replace('T',' ') }}</p>
+      {% elif current %}
+        <p class="sr-note">Esta mesa está en atención. Puedes consultar la carta; para pedir, pide ayuda al personal o únete si eres parte de la mesa.</p>
+        {% if session.user %}<form method="post" action="{{ url_for('salon.join_table', token=table.qr_token) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="secondary">Unirme a esta mesa</button></form>{% endif %}
+      {% elif session.user %}
+        <form class="sr-service-form" method="post" action="{{ url_for('salon.open_table', token=table.qr_token) }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <label>Personas en la mesa<input type="number" name="people" min="1" max="{{ table.capacity }}" value="2" required></label>
+          <button {% if not service_enabled %}disabled{% endif %}>Iniciar atención</button>
+        </form>
+        {% if not service_enabled %}<p class="sr-muted">El negocio aún no habilitó la modalidad «Local» en su configuración comercial.</p>{% endif %}
+      {% else %}
+        <a class="sr-chip" href="{{ url_for('auth.login', next=request.path) }}">Inicia sesión para abrir la mesa y pedir</a>
+      {% endif %}
+    </div>
+  </header>
+
+  {% if current and mine %}
+  <div class="sr-actions">
+    <form method="post" action="{{ url_for('salon.request_waiter', token=table.qr_token) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="kind" value="Mozo"><button class="secondary">Solicitar al mozo</button></form>
+    <form method="post" action="{{ url_for('salon.request_waiter', token=table.qr_token) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="kind" value="Cuenta"><button class="ghost">Pedir la cuenta</button></form>
+    {% if split %}<span class="sr-chip">Cuenta dividida en {{ split.people }} partes</span>{% endif %}
+  </div>
+  {% endif %}
+
+  {% if not sections %}<p class="sr-note">La carta aún no tiene platos publicados.</p>{% endif %}
+  {% for section in sections %}
+  <section class="sr-menu-section" aria-labelledby="cat-{{ loop.index }}">
+    <h2 id="cat-{{ loop.index }}">{{ section.category }}</h2>
+    {% for item in section['items'] %}
+    {% set dish = item.dish %}
+    <article class="sr-dish">
+      <div>
+        <h3>{{ dish.name }}</h3>
+        <small>{{ dish.description or 'Descripción pendiente de confirmar por el negocio.' }}</small>
+        {% if dish.ingredients %}<small>Ingredientes declarados: {{ dish.ingredients|join(', ') }}</small>{% endif %}
+        {% if dish.allergens %}<small>Alérgenos declarados: {{ dish.allergens|join(', ') }}</small>{% else %}<small>Alérgenos no declarados: consulta con el personal.</small>{% endif %}
+        {% if dish.addons %}<small>Adicionales: {% for addon in dish.addons %}{{ addon.name }} ({{ addon.price_cents|soles }}){% if not loop.last %} · {% endif %}{% endfor %}</small>{% endif %}
+        {% if dish.videos %}<small>Video: {% for video in dish.videos %}<a href="{{ video }}" rel="noopener noreferrer" target="_blank">ver preparación {{ loop.index }}</a>{% if not loop.last %} · {% endif %}{% endfor %}</small>{% endif %}
+        {% for offer in item.offers %}
+        <div class="sr-offer">
+          <div>
+            <strong>{{ offer.name }}{% if offer.variant %} · {{ offer.variant }}{% endif %}</strong>
+            <small>{{ offer.price|soles }} · {{ offer.available }} porciones · {{ offer.occasion }}</small>
+            {% if offer.allergens %}<small>Alérgenos: {{ offer.allergens|join(', ') }}</small>{% endif %}
+            <a href="{{ url_for('market.offer_detail', oid=offer.id) }}">Ver ficha{% if offer.model_id %} y 3D{% endif %}</a>
+          </div>
+          {% if mine and current %}
+          <form method="post" action="{{ url_for('salon.add_to_cart', token=table.qr_token) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="offer" value="{{ offer.id }}">
+            <input type="number" name="qty" min="1" max="{{ [offer.available,100]|min }}" value="1" aria-label="Cantidad de {{ dish.name }}">
+            <button {% if not offer.available %}disabled{% endif %}>Agregar</button>
+          </form>
+          {% endif %}
+        </div>
+        {% else %}
+        <p class="sr-muted">Sin porciones disponibles hoy en esta presentación. Precio de carta: S/ {{ '%.2f'|format(dish.price or 0) }}.</p>
+        {% endfor %}
+      </div>
+      {% if item.offers and item.offers[0].photo_id %}<img class="sr-photo" src="{{ url_for('market.offer_photo', oid=item.offers[0].id) }}" alt="{{ dish.name }}" loading="lazy">{% endif %}
+    </article>
+    {% endfor %}
+  </section>
+  {% endfor %}
+
+  {% if mine and current %}
+  <div class="sr-sticky">
+    <span>{{ cart_count }} porciones · {{ cart_total|soles }}</span>
+    <a class="sr-chip" href="{{ url_for('salon.table_cart', token=table.qr_token) }}">Revisar carrito</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

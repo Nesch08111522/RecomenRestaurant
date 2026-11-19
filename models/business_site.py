@@ -17,7 +17,7 @@ TEMPLATES=('atelier','bistro','studio','commercial','minimal','promotional','fit
 TEXT_LIMITS={'name':160,'slug':70,'tagline':180,'description':2000,'history':5000,
              'seo_title':70,'seo_description':180,'delivery_info':700,'pickup_info':700}
 NETWORKS={'instagram':'instagram.com','facebook':'facebook.com','youtube':'youtube.com',
-          'tiktok':'tiktok.com','website':None}
+          'tiktok':'tiktok.com','whatsapp':'wa.me','website':None}
 
 class SiteModel(DataModel):
     collection='business_sites'

@@ -265,3 +265,7 @@
 .bs-preview-window{overflow:clip;}
 /* Keep the editor's decorative 3D orb inside its own canvas on narrow screens. */
 .bs-editor-shell{overflow-x:clip;}
+
+.bs-social-links { display:flex; flex-wrap:wrap; gap:var(--space-sm); margin-block:var(--space-md); }
+.bs-social-links .bs-underlined-link { border:1px solid var(--theme-border); border-radius:999px; padding:8px 12px; background:color-mix(in srgb,var(--theme-surface) 88%,var(--site-secondary)); }
+.bs-social-links .bs-underlined-link:focus-visible { outline:2px solid var(--theme-info); outline-offset:3px; }

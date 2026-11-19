@@ -1,0 +1,30 @@
+{
+  "typst_cli": [
+    {
+      "organization": "Typst GmbH",
+      "title": "Open source at Typst — install the compiler",
+      "url": "https://typst.app/open-source/",
+      "verified_claim": "La página oficial documenta la instalación del compilador en Windows y enlaza el binario x86_64; la versión consultada fue 0.15.1.",
+      "use_in_user_report": false
+    },
+    {
+      "organization": "Typst",
+      "title": "Typst releases",
+      "url": "https://github.com/typst/typst/releases",
+      "verified_claim": "La página de releases muestra Typst 0.15.1 como versión Latest consultada el 19-11-2026.",
+      "use_in_user_report": false
+    }
+  ],
+  "image_search_candidates": [
+    {"position": 1, "url": "https://files.manuscdn.com/search-media/310419663032668998/QZWReduLc6acJZjR2ECiFT/yjYJeJvcXGvq4u7ouJvk3J.jpg"},
+    {"position": 2, "url": "https://files.manuscdn.com/search-media/310419663032668998/QZWReduLc6acJZjR2ECiFT/bBHsUZuQuxWNBmTscG3kkK.jpg"},
+    {"position": 3, "url": "https://files.manuscdn.com/search-media/310419663032668998/QZWReduLc6acJZjR2ECiFT/nwuMki6nAEyTXqCGqRDMtn.jpg"},
+    {"position": 4, "url": "https://files.manuscdn.com/search-media/310419663032668998/QZWReduLc6acJZjR2ECiFT/fUL3zD2JomUneoyRXJDand.jpg"},
+    {"position": 5, "url": "https://files.manuscdn.com/search-media/310419663032668998/QZWReduLc6acJZjR2ECiFT/3HE9KYa7PDBGv6mU5TRboL.jpg"},
+    {"position": 6, "url": "https://files.manuscdn.com/search-media/310419663032668998/QZWReduLc6acJZjR2ECiFT/v5u5eJz5DTkcPZBwfLrMKj.jpg"},
+    {"position": 7, "url": "https://files.manuscdn.com/search-media/310419663032668998/QZWReduLc6acJZjR2ECiFT/9hg7wqHgGodRQWgZHq9vtZ.jpg"},
+    {"position": 8, "url": "https://files.manuscdn.com/search-media/310419663032668998/QZWReduLc6acJZjR2ECiFT/TiPfF4J4a6tWBstekjNA9o.jpg"}
+  ],
+  "image_selection_note": "La búsqueda devolvió URLs directas pero no metadatos de autor/licencia ni miniaturas visibles. No se usará ninguna de esas imágenes; el informe empleará capturas QA locales del proyecto y diagramas propios.",
+  "access_date": "2026-11-19"
+}

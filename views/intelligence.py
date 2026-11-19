@@ -5,7 +5,8 @@ from models.restaurant import RestaurantModel
 from models.dish import DishModel
 from models.market import kitchen
 from analytics.management import reporting_period,scoped_records
-from analytics.intelligence import report
+from analytics.intelligence import report,service_metrics
+from models.salon import tables
 from logic.market import now
 from database.repository import document_transaction
 
@@ -23,6 +24,8 @@ def snapshot():
     except ValueError:abort(400,description='Selecciona un período válido de hasta 366 días.')
     products=[p for p in DishModel.all() if p.get('restaurant_id') in ids]
     result=report(scoped_records('market_orders',ids),products,start,end)
+    result['service']=service_metrics(scoped_records('table_sessions',ids),scoped_records('flow_queue',ids),sum(len(tables(i)) for i in ids),start,end)
+    result['missing_metrics']=[m for m in result['missing_metrics'] if not m.startswith('Ocupación')]
     offers=scoped_records('market_offers',ids);views=scoped_records('site_daily_views',ids)
     result.update(start=start.isoformat(),end=end.isoformat(),businesses=len(ids),published_businesses=sum(bool(s.get('verified')) for s in shops if s['id'] in ids),published_offers=sum(o.get('review_state','approved')=='approved' for o in offers),website_views=sum(v.get('views',0) for v in views if start.isoformat()<=v.get('day','')<=end.isoformat()),campaign_deliveries=len([c for c in scoped_records('campaign_deliveries',ids) if start.isoformat()<=str(c.get('day') or c.get('at') or '')[:10]<=end.isoformat()]),critical_ingredients=[{'rid':i,'name':name} for i in ids for name,item in kitchen(i).get('pantry',{}).items() if item.get('quantity',0)<=0 or item.get('expires','9999')<end.isoformat()])
     movements=[m for m in scoped_records('market_movements',ids) if m.get('move')=='Merma' and start.isoformat()<=m.get('at','')[:10]<=end.isoformat()]

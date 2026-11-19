@@ -90,7 +90,8 @@
                                 data-id="{{ user.id }}"
                                 data-name="{{ user.profile.name or '' }}"
                                 data-email="{{ user.profile.email or '' }}"
-                                data-role="{{ user.role }}">
+                                data-role="{{ user.role }}"
+                                data-status="{{ user.status or 'ACTIVE' }}">
                             <i class="fas fa-edit"></i>
                         </button>
                         {% if user.role != 'admin' %}
@@ -135,18 +136,12 @@
             </select>
         </div>
         <div class="um-field">
-            <label for="edit-password">Nueva contraseña <span class="um-muted um-small">(opcional)</span></label>
-            <div class="um-pass-wrap">
-                <input type="password" id="edit-password" minlength="8" autocomplete="new-password"
-                       placeholder="Déjalo vacío para no cambiarla">
-                <button type="button" class="um-pass-toggle" id="pass-toggle" aria-label="Mostrar contraseña">
-                    <i class="fas fa-eye"></i>
-                </button>
-            </div>
-        </div>
-        <div class="um-field">
-            <label for="edit-password2">Confirmar contraseña</label>
-            <input type="password" id="edit-password2" autocomplete="new-password">
+            <label for="edit-status">Estado</label>
+            <select id="edit-status">
+                <option value="ACTIVE">Activo</option>
+                <option value="SUSPENDED">Suspendido</option>
+                <option value="PENDING">Pendiente</option>
+            </select>
         </div>
         <div class="um-modal-actions">
             <button class="um-btn um-btn-ghost" id="edit-cancel">Cancelar</button>
@@ -382,8 +377,7 @@
     const fName = document.getElementById('edit-name');
     const fEmail = document.getElementById('edit-email');
     const fRole = document.getElementById('edit-role');
-    const fPass = document.getElementById('edit-password');
-    const fPass2 = document.getElementById('edit-password2');
+    const fStatus = document.getElementById('edit-status');
     const saveBtn = document.getElementById('edit-save');
     let editingRow = null;
 
@@ -392,9 +386,7 @@
         fName.value = btn.dataset.name;
         fEmail.value = btn.dataset.email;
         fRole.value = btn.dataset.role;
-        fPass.value = '';
-        fPass2.value = '';
-        fPass.type = 'password';
+        fStatus.value = (btn.dataset.status || 'ACTIVE').toUpperCase();
         modal.hidden = false;
         fName.focus();
     }
@@ -404,24 +396,15 @@
     modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
     document.addEventListener('keydown', e => { if (e.key === 'Escape' && !modal.hidden) closeModal(); });
 
-    document.getElementById('pass-toggle').addEventListener('click', () => {
-        fPass.type = fPass.type === 'password' ? 'text' : 'password';
-    });
-
     saveBtn.addEventListener('click', async () => {
         if (!editingRow) return;
         const id = editingRow.dataset.id;
-        const payload = { name: fName.value.trim(), email: fEmail.value.trim(), role: fRole.value };
-        if (!payload.email || !fEmail.checkValidity()) { toast('Ingresa un email válido', true); return; }
-        if (fPass.value) {
-            if (fPass.value.length < 8) { toast('La contraseña debe tener al menos 8 caracteres', true); return; }
-            if (fPass.value !== fPass2.value) { toast('Las contraseñas no coinciden', true); return; }
-            payload.password = fPass.value;   // solo se envía si se escribió una nueva
-        }
+        const payload = { profile: { name: fName.value.trim(), email: fEmail.value.trim() }, role: fRole.value, status: fStatus.value };
+        if (!payload.profile.email || !fEmail.checkValidity()) { toast('Ingresa un email válido', true); return; }
 
         saveBtn.disabled = true;
         try {
-            // Requiere un endpoint PUT /admin/user/<id> en el backend
+            // El endpoint valida el perfil, el rol y el estado en el servidor.
             await request(`/admin/user/${id}`, 'PUT', payload);
             toast('Usuario actualizado');
             setTimeout(() => location.reload(), 600);

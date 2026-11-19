@@ -19,7 +19,7 @@ body footer.sr-footer.sr-unified-footer {
 
     box-sizing: border-box !important;
 
-    background: var(--sr-surface, #1e252b) !important;
+    background: var(--sr-surface, var(--theme-surface)) !important;
     color: var(--theme-text);
 
     border-top: 1px solid var(--sr-line);

@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block extra_head %}<link rel="stylesheet" href="{{ url_for('static', filename='css/service.css') }}">{% endblock %}
+{% block content %}
+<div class="sr-service">
+  <header class="sr-service-hero"><div><h1>No se pudo completar la acción</h1><p class="sr-note">{{ message }}</p></div></header>
+  <div class="sr-actions">
+    <a class="sr-chip" href="{{ back or url_for('market.browse') }}">Volver</a>
+    <a class="sr-chip" href="{{ url_for('main.index') }}">Ir al inicio</a>
+  </div>
+</div>
+{% endblock %}

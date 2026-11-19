@@ -112,7 +112,7 @@ def reward_balance(uid, rid):
     return earned-used
 
 
-def place_order(uid, rid, cart, channel, destination, slot, request_key, method, expected=None, coordinates=(None, None), coupon_code="", use_reward=False):
+def place_order(uid, rid, cart, channel, destination, slot, request_key, method, expected=None, coordinates=(None, None), coupon_code="", use_reward=False, table_session=None):
     try:
         request_key = str(UUID(request_key))
     except (ValueError, TypeError, AttributeError):
@@ -125,16 +125,29 @@ def place_order(uid, rid, cart, channel, destination, slot, request_key, method,
         store = kitchen(rid)
         if not business.get("verified") or channel not in store["channels"]:
             raise MarketError("Esta modalidad ya no está disponible.")
-        if channel == "Delivery" and (destination[0] not in store["zones"] or not destination[1].strip()):
-            raise MarketError("Selecciona una zona de cobertura e indica la dirección de entrega.")
-        if channel == "Delivery" and store.get("radius"):
-            point = normalize_coordinates(*coordinates)
-            if not point or calculate_distance(*store["pin"], *point) > store["radius"]:
-                raise MarketError("Indica un punto de entrega dentro del radio de cobertura del negocio.")
+        table = None
+        if table_session is not None:
+            from logic.salon import active as session_active
+            table = Repo.get_by_id("table_sessions", table_session["id"], for_update=True)
+            if (not table or table.get("rid") != rid or not session_active(table)
+                    or table.get("uid") not in (None, uid) or channel != "Local"):
+                raise MarketError("La sesión de mesa ya no admite pedidos.")
+            if table.get("uid") is None:
+                table = Repo.update("table_sessions", table["id"], {"uid": uid})
+            slot = now()
+            destination = [f"Mesa {table.get('table_label') or table['table_id']}",
+                           " · ".join(filter(None, [table.get("floor"), table.get("zone")]))]
+        else:
+            if channel == "Delivery" and (destination[0] not in store["zones"] or not destination[1].strip()):
+                raise MarketError("Selecciona una zona de cobertura e indica la dirección de entrega.")
+            if channel == "Delivery" and store.get("radius"):
+                point = normalize_coordinates(*coordinates)
+                if not point or calculate_distance(*store["pin"], *point) > store["radius"]:
+                    raise MarketError("Indica un punto de entrega dentro del radio de cobertura del negocio.")
         at = now()
-        if slot <= at + timedelta(minutes=store.get("lead", 0)) or slot > at + timedelta(days=30):
+        if table is None and (slot <= at + timedelta(minutes=store.get("lead", 0)) or slot > at + timedelta(days=30)):
             raise MarketError("Selecciona una hora futura dentro de los próximos 30 días.")
-        if channel == "Recojo":
+        if table is None and channel == "Recojo":
             hour = slot.isoformat()[:13]
             reservations = sum(o["channel"] == channel and o["slot"][:13] == hour and o["state"] != "Cancelado"
                                for o in records("market_orders", rid=rid, day=slot.date().isoformat()))
@@ -190,13 +203,27 @@ def place_order(uid, rid, cart, channel, destination, slot, request_key, method,
         save_kitchen(store)
         order = Repo.create("market_orders", {"uid": uid, "rid": rid, "business": business["name"], "lines": lines,
             "day": slot.date().isoformat(), "slot": slot.isoformat(), "total": total - discount, "discount": discount, "channel": channel,
-            "destination": destination if channel == "Delivery" else [], "method": method, "paid": False,
+            "destination": destination if channel in {"Delivery", "Local"} else [], "method": method, "paid": False,
             "reward_points":reward_points, "coupon": coupon_code, "state": "Recibido", "request_key": request_key, "created": at.isoformat(),
+            "table_id": table.get("table_id") if table else None,
+            "table_session": table.get("id") if table else None,
+            "table_label": table.get("table_label") if table else None,
+            "service": "Salón" if table else "Pedido",
             "history": [{"state": "Recibido", "at": at.isoformat()}]})
-        NotificationModel.create_notification(business["owner_id"], "Nuevo pedido", f"Pedido {order['id']} para {slot:%d/%m %H:%M}.",
-                                              link=f"/mercado/cocina/{rid}")
+        if table:
+            Repo.update("table_sessions", table["id"], {
+                "status": "Pedido", "last_activity": at.isoformat(), "split": None,
+                "order_ids": list(table.get("order_ids") or []) + [order["id"]],
+            })
+        recipients = {business["owner_id"], *(store.get("team") or [])}
+        for staff_id in recipients:
+            if staff_id:
+                NotificationModel.create_notification(
+                    staff_id, "Nuevo pedido por mesa",
+                    f"Pedido {order['id']} · mesa {table.get('table_label') if table else ''} · {slot:%d/%m %H:%M}.",
+                    link=f"/salon/{rid}")
         NotificationModel.create_notification(uid, "Pedido confirmado", f"Pedido #{order['id']} en {business['name']}.",
-                                              link="/mercado/pedidos")
+                                              link=f"/mesa/{table['token']}" if table else "/mercado/pedidos")
         return order
 
 

@@ -79,6 +79,12 @@ def create_app(test_config=None):
     app.register_blueprint(copilot_bp)
     from views.trust_center import bp as trust_center_bp
     app.register_blueprint(trust_center_bp)
+    from views.salon import salon_bp
+    app.register_blueprint(salon_bp)
+    from views.flow import flow_bp
+    app.register_blueprint(flow_bp)
+    from views.loyalty import loyalty_bp
+    app.register_blueprint(loyalty_bp)
     app.register_blueprint(admin_ai_bp)
 
     from utils.restaurant_review import RestaurantRejected

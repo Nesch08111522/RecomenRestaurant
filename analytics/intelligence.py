@@ -7,6 +7,38 @@ LIMA=ZoneInfo('America/Lima')
 
 def paid(o):return o.get('state')=='Entregado' and o.get('paid') is True and not o.get('refunded')
 def day(o):return str(o.get('created') or o.get('day') or '')[:10]
+
+
+def service_metrics(sessions,queue_rows,tables_count,start,end):
+    """Rotación y espera con sesiones y turnos registrados; sin inventar ocupación."""
+    first,last=start.isoformat(),end.isoformat();days=(end-start).days+1
+    closed=[];durations=[]
+    for session in sessions:
+        closed_at=str(session.get('closed_at') or '')[:10]
+        if session.get('status')!='Finalizada' or not first<=closed_at<=last:continue
+        try:
+            opened=datetime.fromisoformat(session['opened_at']);ended=datetime.fromisoformat(session['closed_at'])
+        except (KeyError,ValueError):continue
+        minutes=(ended-opened).total_seconds()/60
+        if 1<=minutes<=600:
+            closed.append(session);durations.append(minutes)
+    waits=[];no_shows=0
+    for row in queue_rows:
+        created=str(row.get('created_at') or '')[:10]
+        if not first<=created<=last:continue
+        if row.get('status')=='No se presentó':no_shows+=1
+        stamp=row.get('seated_at') or row.get('called_at')
+        if not stamp:continue
+        try:waits.append(max(0,(datetime.fromisoformat(stamp)-datetime.fromisoformat(row['created_at'])).total_seconds()/60))
+        except (KeyError,ValueError):pass
+    return {'sessions':len(closed),'average_minutes':round(mean(durations),1) if durations else None,
+            'median_minutes':round(sorted(durations)[len(durations)//2],1) if durations else None,
+            'rotation_per_table_day':round(len(closed)/max(1,tables_count)/days,2) if tables_count else None,
+            'wait_samples':len(waits),'median_wait_minutes':round(sorted(waits)[len(waits)//2],1) if waits else None,
+            'no_shows':no_shows,'tables':tables_count,
+            'method':'Sesiones de mesa cerradas y turnos registrados en el período. La ocupación en vivo se consulta en Flow.'}
+
+
 def report(orders,products,start,end):
     eligible=[o for o in orders if paid(o)]
     selected=[o for o in eligible if start.isoformat()<=day(o)<=end.isoformat()]

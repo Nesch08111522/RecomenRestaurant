@@ -1,4 +1,4 @@
-{% set sr_system_page = session.get('user') and request.blueprint in ['owner', 'admin', 'comunicacion', 'auth', 'market', 'discovery', 'ecosystem', 'sites', 'catalog', 'intelligence', 'copilot', 'trust_center'] and request.endpoint not in ['auth.login', 'auth.register', 'auth.recover', 'market.browse', 'market.offer_detail', 'ecosystem.home', 'sites.public_page', 'sites.branch_page', 'discovery.claim_page'] %}
+{% set sr_system_page = session.get('user') and request.blueprint in ['owner', 'admin', 'comunicacion', 'auth', 'market', 'discovery', 'ecosystem', 'sites', 'catalog', 'intelligence', 'copilot', 'trust_center', 'salon', 'flow', 'loyalty'] and request.endpoint not in ['auth.login', 'auth.register', 'auth.recover', 'market.browse', 'market.offer_detail', 'ecosystem.home', 'sites.public_page', 'sites.branch_page', 'discovery.claim_page'] %}
 <!DOCTYPE html>
 <html lang="es" class="sr-compact" data-theme="dark">
   <head>

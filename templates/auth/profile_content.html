@@ -35,6 +35,9 @@
                     <label>Presupuesto semanal (S/.)<input type="number" name="weekly_budget" min="0" max="1000000" step="0.01" value="{{ user.profile.get('weekly_budget', '') }}" class="form-input"></label>
                 </div>
                 <div class="form-group">
+                    <label>Fecha de cumpleaños (para el beneficio anual)<input type="date" name="birthday" value="{{ user.profile.get('birthday', '') }}" class="form-input"></label>
+                </div>
+                <div class="form-group">
                     <label>Preferencias de comunicación</label>
                     {% set notifications = user.profile.get('notification_preferences', {}) %}
                     <div class="checkbox-group">

@@ -2,6 +2,7 @@
 {% macro field(label,name,type='text',value='',required=false) %}<label>{{ label }}<input type="{{ type }}" name="{{ name }}" value="{{ value }}" {% if required %}required{% endif %} {% if type=='number' %}min="0" step="any"{% endif %}></label>{% endmacro %}
 {% block market %}
 <header class="market-hero"><div><h1>{{ business.name }}</h1><p>Ventas, inventario y producción de esta cocina.</p></div><a href="{{ url_for('market.browse') }}">Ver mercado</a></header>
+<nav class="market-nav" aria-label="Operación del negocio"><a href="{{ url_for('salon.desk', rid=business.id) }}">Salón y mesas</a><a href="{{ url_for('flow.desk', rid=business.id) }}">Cola y aforo</a><a href="{{ url_for('loyalty.customers', rid=business.id) }}">Clientes y puntos</a></nav>
 <div class="market-stats"><div><strong>{{ metrics.income|soles }}</strong>Ventas entregadas</div><div><strong>{{ metrics.sales }}</strong>Pedidos completados</div><div><strong>{{ metrics.rescued }}</strong>Porciones rescatadas</div><div><strong>{{ metrics.repeat }} / {{ metrics.customers }}</strong>Clientes que repiten</div></div>
 {% if business.owner_id==session.user.id %}
 <details {% if not store.channels %}open{% endif %}><summary>Mi negocio y canales de venta</summary>
@@ -18,6 +19,7 @@
 {{ field('Colaboradores autorizados, por usuario','team',value=store.get('team_names','')) }}
 <button>Guardar configuración</button></form></details>{% endif %}
 <details><summary>Inventario, vencimientos y mermas</summary>
+{% if alerts %}<div class="market-note"><strong>Alertas de inventario</strong>{% for alert in alerts %}<p>{{ alert.name }} · {{ alert.state }} · {{ alert.detail }}</p>{% endfor %}</div>{% endif %}
 {% for name,lot in store.pantry.items() %}<p>{{ name }} · {{ lot.quantity }} {{ lot.unit }} · vence {{ lot.expires }}{% if not lot.quantity %} · Agotado{% elif lot.expires <= target.isoformat() %} · Revisar vencimiento{% endif %}</p>{% endfor %}
 <form class="market-form" method="post" action="{{ url_for('market.inventory',rid=business.id) }}">{{ token() }}
 <label>Movimiento<select name="move"><option>Entrada</option><option>Merma</option><option>Conteo</option></select></label>
@@ -57,6 +59,7 @@
 {% if simulation %}<p>Con el inventario vigente puedes preparar {{ simulation.possible }} porciones. Costo del lote solicitado: {{ simulation.batch|soles }}. Precio para el margen objetivo: {{ simulation.suggested|soles }}.</p>{% for name,need in simulation.needs.items() %}<p>Falta {{ name }} · {{ need.missing }} {{ need.unit }}. Sustituciones a evaluar: {{ need.alternatives|join(', ') or 'ninguna registrada' }}.</p>{% endfor %}{% endif %}
 {% if simulation %}<p>Costo por porción {{ simulation.cost|soles }} · Contribución {{ simulation.contribution|soles }} · Margen {{ simulation.margin if simulation.margin is not none else '—' }} % · Equilibrio {{ simulation.break_even if simulation.break_even is not none else 'inalcanzable con este precio' }} porciones.</p>{% endif %}</details>
 <details><summary>Demanda estimada para {{ target }}</summary>{% for name,f in forecasts %}<p>{{ name }} · {% if f %}{{ f.portions }} porciones, según {{ f.days }} días comparables con ventas{% else %}Historial insuficiente{% endif %}</p>{% else %}<p>Registra platos para consultar su demanda.</p>{% endfor %}</details>
+<details><summary>Historial de producción</summary>{% for item in production %}<p>{{ item.created[:10] }} · {{ item.name }}{% if item.variant %} · {{ item.variant }}{% endif %} · producidas {{ item.produced }} · restan {{ item.stock }} · cierra {{ item.ends[:16].replace('T',' ') }}</p>{% else %}<p>Aún no hay producción registrada. Publica porciones para iniciar el historial.</p>{% endfor %}</details>
 <details><summary>Mis ofertas y resultados</summary>
 <p>{% if produced %}Porciones sin vender al cierre: {{ surplus }} de {{ produced }} publicadas ({{ (surplus*100/produced)|round(1) }} %).{% else %}El porcentaje de excedentes aparecerá cuando cierre una oferta con producción registrada.{% endif %}</p>
 <p>Contribución tras costo de receta: {{ metrics.margin|soles }} en {{ metrics.costed }} pedidos con costo conocido.{% if metrics.peak %} Hora con más entregas programadas: {{ metrics.peak }} h.{% endif %}</p>
