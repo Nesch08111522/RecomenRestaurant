@@ -44,17 +44,99 @@
       else help.textContent = 'Espera a que termine de cargar el mapa y vuelve a pulsar.';
     });
     panel.before(dialog); dialog.append(panel);
+    const fallbackToLeaflet = () => {
+      if (window.getLeafletMap?.()) return window.getLeafletMap();
+      const modern = window.mapGL;
+      try { modern?.map?.remove(); } catch (error) { console.warn('No se pudo cerrar MapLibre antes del mapa alternativo.', error); }
+      window.mapGL = null;
+      const current = byId('main-map');
+      if (current) {
+        const clean = current.cloneNode(false);
+        clean.id = 'main-map';
+        clean.className = 'map-container';
+        clean.removeAttribute('style');
+        current.replaceWith(clean);
+      }
+      ['zoomInBtn', 'zoomOutBtn', 'toggle3dBtn'].forEach(id => {
+        const button = byId(id);
+        if (button) button.replaceWith(button.cloneNode(true));
+      });
+      if (typeof initMap !== 'function' || typeof L === 'undefined') {
+        const status = byId('geo-status');
+        if (status) status.textContent = 'No se pudo cargar el mapa. Revisa tu conexión e inténtalo de nuevo.';
+        return null;
+      }
+      try {
+        initMap();
+        const leaflet = window.getLeafletMap?.();
+        if (!leaflet) throw new Error('Leaflet no pudo inicializar el mapa.');
+        byId('zoomInBtn')?.addEventListener('click', () => leaflet.zoomIn());
+        byId('zoomOutBtn')?.addEventListener('click', () => leaflet.zoomOut());
+        const threeD = byId('toggle3dBtn');
+        threeD?.remove();
+        const status = byId('geo-status');
+        if (status && status.textContent.startsWith('No se pudo cargar')) status.textContent = '';
+        help.textContent = window._osmTilesState === 'ready' ? 'Calles de OpenStreetMap cargadas.' : 'Descargando calles de OpenStreetMap…';
+        requestAnimationFrame(() => leaflet.invalidateSize());
+        panel.dataset.mapFallback = 'leaflet';
+        return leaflet;
+      } catch (error) {
+        console.error('Falló el mapa alternativo Leaflet:', error);
+        const status = byId('geo-status');
+        if (status) status.textContent = 'No se pudo cargar el mapa. Revisa tu conexión e inténtalo de nuevo.';
+        return null;
+      }
+    };
+    // Espera a que el diálogo sea visible antes de inicializar/redimensionar el mapa.
+    let mapOpenSequence = 0;
     const setMap = visible => {
       panel.hidden = !visible;
       map.setAttribute('aria-pressed', String(visible));
       list.setAttribute('aria-pressed', String(!visible));
-      if (!visible) { dialog.close(); return; }
+      if (!visible) { mapOpenSequence++; dialog.close(); return; }
       if (!dialog.open) dialog.showModal();
-      window.dispatchEvent(new Event('forest:map-open'));
-      if (typeof maplibregl === 'undefined' && typeof initMap === 'function' && typeof L !== 'undefined' && !window.mapGL) {
-        if (!panel.querySelector('.leaflet-pane')) initMap();
-      }
-      requestAnimationFrame(() => { window.mapGL?.map.resize(); if (typeof window.map !== 'undefined') window.map?.invalidateSize?.(); window.dispatchEvent(new Event('resize')); });
+      const sequence = ++mapOpenSequence;
+      help.textContent = 'Cargando el mapa…';
+
+      // Inicializa después de que el diálogo modal tenga un tamaño visible.
+      requestAnimationFrame(() => {
+        if (sequence !== mapOpenSequence || !dialog.open || panel.hidden) return;
+        window.dispatchEvent(new Event('forest:map-open'));
+        if (window.mapGL) {
+          const modern = window.mapGL;
+          let loadErrors = 0;
+          let mapLoaded = modern.map.loaded();
+          if (mapLoaded) {
+            help.textContent = '';
+          } else {
+            modern.map.once('load', () => {
+              mapLoaded = true;
+              if (window.mapGL === modern) help.textContent = '';
+            });
+          }
+          modern.map.on('error', () => { loadErrors += 1; });
+          // Cero elementos renderizados puede ser válido; no usarlo como señal de fallo.
+          window.setTimeout(() => {
+            if (sequence !== mapOpenSequence || !dialog.open || panel.hidden || window.mapGL !== modern || mapLoaded) return;
+            if (!modern.map.loaded() || loadErrors >= 5) fallbackToLeaflet();
+          }, 10000);
+        } else {
+          help.textContent = 'Abriendo el mapa de calles…';
+          fallbackToLeaflet();
+        }
+
+        const resizeMap = () => {
+          if (!dialog.open || panel.hidden) return;
+          window.mapGL?.map.resize();
+          window.getLeafletMap?.()?.invalidateSize({ pan: false });
+        };
+        requestAnimationFrame(() => {
+          resizeMap();
+          window.setTimeout(resizeMap, 120);
+          window.setTimeout(resizeMap, 350);
+          window.setTimeout(resizeMap, 800);
+        });
+      });
     };
     closeMap.addEventListener('click', () => setMap(false));
     dialog.addEventListener('cancel', event => { event.preventDefault(); setMap(false); });

@@ -7,6 +7,7 @@ let map = null;
 let markers = {};
 window.getLeafletMap = () => map;
 
+// Inicializa el mapa solo cuando su contenedor está visible y tiene dimensiones.
 function initMap() {
     if (document.body.classList.contains('sr-discover') && document.getElementById('forest-map-panel')?.hidden) return;
     // Verificar que el contenedor existe
@@ -30,9 +31,31 @@ function initMap() {
     
     map = L.map('main-map').setView(center, 13);
     
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors'
-    }).addTo(map);
+    window._osmTilesState = 'loading';
+    let loadedOsmTiles = 0;
+    let failedOsmTiles = 0;
+    const mapNotice = () => document.querySelector('.sr-map-dialog .sr-map-help');
+    const osmTiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    });
+    osmTiles.on('tileload', () => {
+        loadedOsmTiles += 1;
+        window._osmTilesState = 'ready';
+        const notice = mapNotice();
+        if (notice && /Descargando calles|Mapa gratuito|OpenStreetMap no entregó/.test(notice.textContent)) {
+            notice.textContent = 'Calles de OpenStreetMap cargadas.';
+        }
+    });
+    osmTiles.on('tileerror', event => {
+        failedOsmTiles += 1;
+        console.error('OpenStreetMap no pudo descargar una tesela:', event.tile?.src);
+        if (loadedOsmTiles === 0 && failedOsmTiles >= 2) {
+            window._osmTilesState = 'error';
+            const notice = mapNotice();
+            if (notice) notice.textContent = 'El mapa inició, pero OpenStreetMap no entregó las calles. Revisa la conexión, el firewall o un bloqueador.';
+        }
+    });
+    osmTiles.addTo(map);
 
     // Verificar si hay coordenadas pendientes
     if (window._pendingCenter) {
@@ -42,14 +65,23 @@ function initMap() {
     }
 
     // Verificar que los datos existen
-    if (typeof RESTAURANTS_DATA !== 'undefined' && RESTAURANTS_DATA && RESTAURANTS_DATA.length > 0) {
-        updateMarkers(RESTAURANTS_DATA);
+    const restaurantsToRender = window._pendingRestaurants || RESTAURANTS_DATA;
+    if (Array.isArray(restaurantsToRender) && restaurantsToRender.length > 0) {
+        updateMarkers(restaurantsToRender);
     }
+    delete window._pendingRestaurants;
 }
 
 function updateMarkers(restaurants) {
+    if (!map && window.mapGL) {
+        const visibleIds = Array.isArray(restaurants)
+            ? restaurants.map(restaurant => restaurant.id).filter(id => id != null)
+            : null;
+        window.mapGL.setVisible(visibleIds);
+        return;
+    }
     if (!map) {
-        console.warn('⚠️ Map not initialized');
+        window._pendingRestaurants = restaurants;
         return;
     }
     
@@ -107,7 +139,7 @@ function centerMap(lat, lng) {
         map.setView([lat, lng], 15);
         console.log('✅ Mapa centrado correctamente');
     } else {
-        console.warn('⚠️ Mapa no inicializado, guardando coordenadas para después');
+        // La ubicación queda en cola y se aplica al abrir el mapa.
         // Guardar para usar cuando el mapa esté listo
         window._pendingCenter = { lat, lng };
     }
@@ -180,7 +212,7 @@ function centerMap(lat, lng, accuracy) {
         }
         console.log('✅ Mapa centrado con marcador de ubicación');
     } else {
-        console.warn('⚠️ Mapa no inicializado, guardando coordenadas para después');
+        // La ubicación queda en cola y se aplica al abrir el mapa.
         window._pendingCenter = { lat, lng, accuracy };
     }
 }
