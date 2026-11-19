@@ -40,4 +40,4 @@
 <dialog id="radarInvitation"><form method="dialog"><button class="radar-dialog-close" aria-label="Cerrar">×</button></form><h2>Invitación preparada</h2><p>Este enlace vence en siete días y se utiliza una sola vez. No se envió correo ni mensaje externo automáticamente.</p><label for="radarInviteLink">Enlace para el empresario</label><textarea id="radarInviteLink" readonly rows="3"></textarea><button id="radarCopy" class="radar-primary" type="button">Copiar enlace</button></dialog>
 <script id="radarData" type="application/json">{{ candidates|tojson }}</script>
 {% endblock %}
-{% block scripts %}<script src="{{ url_for('static',filename='js/discovery.js') }}"></script>{% endblock %}
+{% block scripts %}<script defer src="{{ url_for('static',filename='js/discovery.js') }}"></script>{% endblock %}

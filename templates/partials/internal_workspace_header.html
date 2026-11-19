@@ -23,7 +23,7 @@
     <nav class="sr-workspace-crumbs" aria-label="Ruta de navegación">
       <span>SmartResto</span><span aria-hidden="true">/</span><span>{{ 'Mi empresa' if owner_space else 'Administración' if workspace_user.get('role') == 'admin' else 'Personal' }}</span><span aria-hidden="true">/</span><strong>{{ workspace_title }}</strong>
     </nav>
-    <p class="sr-workspace-kicker">{{ 'OPERACIÓN COMERCIAL' if owner_space else 'OPERACIÓN DE PLATAFORMA' }}</p>
+    <p class="sr-workspace-kicker">{{ 'OPERACIÓN COMERCIAL' if owner_space else 'OPERACIÓN DE PLATAFORMA' if workspace_user.get('role') == 'admin' else 'ESPACIO PERSONAL' }}</p>
   </div>
   <div class="sr-workspace-tools" aria-label="Acciones rápidas">
     <a href="{{ url_for('copilot.page') }}">Asistente IA</a>

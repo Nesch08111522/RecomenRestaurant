@@ -95,7 +95,10 @@ def test_idle_connection_expires():
 def test_performance_api_is_admin_only(monkeypatch):
     from app import create_app
     from models.user import UserModel
-    client = create_app({'TESTING':True, 'SECRET_KEY':'x'*32}).test_client()
+    import views.companies as companies
+    app = create_app({'TESTING':True, 'SECRET_KEY':'x'*32})
+    app.before_request_funcs[None].remove(companies.presence)
+    client = app.test_client()
     assert client.get('/admin/api/performance').status_code in (302,401,403)
     monkeypatch.setattr(UserModel, 'get_by_id', lambda _: {'id':1,'role':'user','username':'test','profile':{}})
     with client.session_transaction() as session: session['user_id'] = 1
@@ -122,8 +125,9 @@ def test_public_auth_does_not_query_private_sidebar(monkeypatch):
     from models.restaurant import RestaurantModel
     from models.category import CategoryModel
     import context_processors
+    from models.site_settings import DEFAULTS
     monkeypatch.setattr(CategoryModel,'all',lambda:[])
-    monkeypatch.setattr(context_processors,'site_settings',lambda:dict(context_processors.DEFAULTS))
+    monkeypatch.setattr(context_processors,'site_settings',lambda:dict(DEFAULTS))
     def unavailable(): raise DatabaseConnectionError('private diagnostic')
     monkeypatch.setattr(RestaurantModel,'all',unavailable)
     client=create_app({'TESTING':True,'SECRET_KEY':'x'*32}).test_client()
@@ -139,8 +143,9 @@ def test_database_error_page_does_not_requery_private_sidebar(monkeypatch):
     from models.user import UserModel
     from models.category import CategoryModel
     import context_processors
+    from models.site_settings import DEFAULTS
     monkeypatch.setattr(CategoryModel,'all',lambda:[])
-    monkeypatch.setattr(context_processors,'site_settings',lambda:dict(context_processors.DEFAULTS))
+    monkeypatch.setattr(context_processors,'site_settings',lambda:dict(DEFAULTS))
     def unavailable(): raise DatabaseConnectionError('private diagnostic')
     monkeypatch.setattr(RestaurantModel,'all',unavailable)
     monkeypatch.setattr(UserModel,'get_by_id',lambda _:{'id':1,'role':'admin','username':'test','profile':{}})

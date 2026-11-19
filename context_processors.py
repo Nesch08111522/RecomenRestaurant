@@ -2,23 +2,12 @@
 from config import Config
 from models.category import CategoryModel
 from flask import session, request
-from models.site_settings import site_settings, DEFAULTS
-import logging
-from psycopg import OperationalError
-from database.connection import DatabaseConnectionError, DatabaseConfigurationError
+from models.site_settings import site_settings
 
 def inject_globals():
     """Inyecta variables globales en todos los templates"""
-    try:
-        categories = CategoryModel.all()
-    except (OperationalError, DatabaseConnectionError, DatabaseConfigurationError):
-        logging.getLogger(__name__).warning("Las categorías no están disponibles temporalmente.")
-        categories = []
-    
-    try:
-        website = site_settings()
-    except (OperationalError, DatabaseConnectionError, DatabaseConfigurationError):
-        website = dict(DEFAULTS)
+    categories = CategoryModel.all()
+    website = site_settings()
     role = (session.get("user") or {}).get("role")
     internal = role in {"admin", "business_owner"} and request.blueprint not in {"main", "food_experience", "recommendations"} and request.endpoint != "sites.public_page"
     from pathlib import Path

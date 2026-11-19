@@ -75,7 +75,10 @@ def admin_companies():
 def company_template_context():
     from models.user import UserModel
     user = fresh_session_user()
+    shops = None
+    allowed = {}
     def company_nav_allowed(endpoint):
+        nonlocal shops
         from models.company import permitted
         from models.restaurant import RestaurantModel
         if not user or user.get('role') not in ('owner', 'business_owner'):
@@ -84,8 +87,11 @@ def company_template_context():
             'salon.manage_default': 'tables.manage', 'sites.editor': 'site.manage'}.get(endpoint)
         if not permission:
             return True
-        shops = RestaurantModel.get_by_owner(user['id'])
-        return bool(shops) and all(permitted(user, r['id'], permission) for r in shops)
+        if shops is None:
+            shops = RestaurantModel.get_by_owner(user['id'])
+        if permission not in allowed:
+            allowed[permission] = bool(shops) and all(permitted(user, r['id'], permission) for r in shops)
+        return allowed[permission]
     if not user or user['role'] != 'admin':
         return {'demo_owners': [], 'company_nav_allowed': company_nav_allowed}
     return {'company_nav_allowed': company_nav_allowed, 'demo_owners': [{'id': u['id'], 'username': u['username']} for u in UserModel.all() if u.get('company_demo') and u.get('activation_pending')]}

@@ -56,7 +56,7 @@
     <small class="field-hint">Escribe y presiona Enter o coma para agregar.</small>
   </div>
 {% endmacro %}
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='vendor/leaflet/leaflet.css') }}">
 <div class="admin-container{% if not is_edit %} restaurant-create{% endif %}">
   <div class="admin-header">
     <h1>{% if is_edit %}<i class="fas fa-edit"></i> Editar restaurante{% else %}<i class="fas fa-plus"></i> Nuevo restaurante{% endif %}</h1>
@@ -560,7 +560,7 @@
   }
 </style>
 {% endif %}
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script defer src="{{ url_for('static', filename='vendor/leaflet/leaflet.js') }}"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     'use strict';

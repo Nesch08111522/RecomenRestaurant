@@ -72,7 +72,7 @@
 .sr-admin-precision .admin-chart-values { margin-top: 12px; }
 .sr-admin-precision .admin-chart-values dl { display: grid; grid-template-columns: minmax(0,3fr) minmax(0,1fr); gap: 8px; }
 .sr-admin-precision .admin-chart-values dd { margin: 0; overflow-wrap: anywhere; text-align: right; }
-.sr-admin-precision *, .sr-admin-precision *::before, .sr-admin-precision *::after { box-shadow: none !important; text-shadow: none !important; background-image: none !important; }
+.sr-admin-precision :is(.cat-form,.ai-import,.radar-control,.radar-territory,.radar-inbox,.moderation-card,.review-card,.moderation-section,.service-mode-card,.um-search-box,.um-stat,.stat-icon,.activity-icon) { box-shadow: none !important; text-shadow: none !important; background-image: none !important; }
 @media (prefers-reduced-motion: reduce) {
   .sr-admin-precision *, .sr-admin-precision *::before, .sr-admin-precision *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }

@@ -1,9 +1,11 @@
 {% set shell_user = session.get('user') %}
 {% set sr_authenticated = shell_user is mapping and shell_user.get('id') and shell_user.get('role') in ['user', 'admin', 'business_owner'] %}
-{% set sr_system_page = sr_authenticated and request.blueprint in ['owner', 'admin', 'comunicacion', 'auth', 'market', 'discovery', 'ecosystem', 'sites', 'catalog', 'intelligence', 'copilot', 'trust_center', 'business_access', 'salon', 'flow', 'loyalty', 'home_kitchen'] and request.endpoint not in ['auth.login', 'auth.register', 'auth.recover', 'market.browse', 'market.offer_detail', 'ecosystem.home', 'sites.public_page', 'sites.branch_page', 'discovery.claim_page'] %}
-{% set sr_saas_private = sr_system_page and not (request.blueprint == 'sites' and request.endpoint not in ['sites.editor']) and not (request.blueprint == 'flow' and request.endpoint != 'flow.desk') and not (request.blueprint == 'salon' and request.endpoint not in ['salon.manage_default', 'salon.manage', 'salon.desk_default', 'salon.desk']) %}
+{# Mixed public/private blueprints require an explicit internal endpoint boundary. #}
+{% set sr_internal_endpoints = ['auth.profile', 'auth.profile_owner', 'auth.update_profile', 'auth.favorites', 'auth.account_security', 'sites.editor', 'catalog.dashboard', 'flow.desk', 'salon.manage_default', 'salon.manage', 'salon.desk_default', 'salon.desk', 'discovery.dashboard', 'discovery.google_page', 'discovery.owner_space', 'companies.connected', 'companies.admin_companies', 'companies.owner_subscriptions', 'companies.activation_link', 'commercial_radar.dashboard', 'ecosystem.scan', 'ecosystem.groups', 'ecosystem.group', 'ecosystem.business', 'ecosystem.city', 'ecosystem.publications', 'ecosystem.rewards', 'market.cart', 'market.orders', 'market.trust', 'market.desk'] %}
+{% set sr_system_page = sr_authenticated and (request.blueprint in ['owner', 'admin', 'comunicacion', 'intelligence', 'copilot', 'trust_center', 'business_access', 'loyalty', 'home_kitchen'] or request.endpoint in sr_internal_endpoints) %}
+{% set sr_saas_private = sr_system_page %}
 {% set sr_admin_ui = sr_saas_private and session.get('user', {}).get('role') == 'admin' and request.blueprint != 'intelligence' %}
-{% set sr_workspace = sr_system_page and session.get('user', {}).get('role') in ['admin', 'business_owner'] and request.blueprint != 'auth' %}
+{% set sr_workspace = sr_system_page %}
 <!DOCTYPE html>
 <html lang="es" class="sr-compact" data-theme="dark">
   <head>
@@ -14,13 +16,15 @@
     <meta name="csrf-token" content="{{ csrf_token() }}" />
     <title>{{ APP_NAME }} - Recomendación Inteligente de Restaurantes</title>
 
+    {% if request.endpoint not in ['auth.profile', 'auth.update_profile'] %}
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
     {% if request.endpoint not in ['auth.login', 'auth.register', 'auth.recover'] %}
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link href="{{ url_for('static', filename='vendor/material-icons/material-icons.css') }}" rel="stylesheet" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='vendor/fontawesome/css/all.min.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='vendor/leaflet/leaflet.css') }}" />
+    {% endif %}
     {% endif %}
 
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}" />
@@ -36,18 +40,19 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/forest-depth.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/adaptive-experience.css') }}" />
     <link rel="stylesheet" href="{{ url_for('static', filename='css/public-navigation.css') }}" />
-    <script src="{{ url_for('static', filename='js/shell.js') }}"></script>
+    <script defer src="{{ url_for('static', filename='js/shell.js') }}"></script>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/theme-components.css') }}">
 <link rel="stylesheet" href="{{ url_for('static',filename='css/responsive-layout.css') }}">
 <script src="{{ url_for('static',filename='js/responsive-layout.js') }}" defer></script>
 <link rel="stylesheet" href="{{ url_for('static',filename='css/layout-system.css') }}">
-{% if sr_workspace %}<link rel="stylesheet" href="{{ url_for('static', filename='css/internal-workspace.css') }}">{% endif %}
+
 {% if request.endpoint in ['auth.profile', 'auth.profile_owner'] %}<link rel="stylesheet" href="{{ url_for('static', filename='css/profile-responsive.css') }}">{% endif %}
 <script src="{{ url_for('static',filename='js/layout-system.js') }}" defer></script>
 {% if sr_authenticated %}<link rel="stylesheet" href="{{ url_for('static', filename='css/copilot-wake.css') }}">{% endif %}
 {% if sr_saas_private %}<link rel="stylesheet" href="{{ url_for('static', filename='css/saas-private.css') }}">{% endif %}
 {% if sr_admin_ui %}<link rel="stylesheet" href="{{ url_for('static', filename='css/admin-precision.css') }}">{% endif %}
 {% if sr_system_page %}<link rel="stylesheet" href="{{ url_for('static', filename='css/shell.css') }}" />{% endif %}
+{% if sr_workspace %}<link rel="stylesheet" href="{{ url_for('static', filename='css/internal-workspace.css') }}">{% endif %}
 {% if sr_system_page %}<script src="{{ url_for('static', filename='js/private-shell.js') }}" defer></script>{% endif %}
 </head>
   <body data-role="{{ shell_user.get('role') if sr_authenticated else 'guest' }}"
@@ -73,7 +78,7 @@
     {% include 'partials/copilot_wake.html' %}
 
     <main id="main-content" class="main-content" tabindex="-1">
-      {% if sr_workspace and not sr_saas_private %}{% include 'partials/internal_workspace_header.html' %}{% endif %}
+      {% if sr_workspace %}{% include 'partials/internal_workspace_header.html' %}{% endif %}
       {% block content %}{% endblock %}
     </main>
 
@@ -84,22 +89,24 @@
     {% endif %}
 
     {% if request.endpoint not in ['auth.login', 'auth.register', 'auth.recover'] %}
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    {% if request.endpoint not in ['auth.profile', 'auth.update_profile'] %}
+    <script defer src="{{ url_for('static', filename='vendor/leaflet/leaflet.js') }}"></script>
+    {% endif %}
     <script src="{{ url_for('static',filename='vendor/chartjs/chart-4.5.1.umd.min.js') }}" defer></script>
     <script src="{{ url_for('static', filename='js/theme-charts.js') }}" defer></script>
     {% endif %}
-    <script src="{{ url_for('static', filename='js/security.js') }}"></script>
+    <script defer src="{{ url_for('static', filename='js/security.js') }}"></script>
     {% if session.get('user_id') %}
-    <script src="{{ url_for('static', filename='js/search-history.js') }}" data-history-url="{{ url_for('recommendation_history.history') }}"></script>
+    <script defer src="{{ url_for('static', filename='js/search-history.js') }}" data-history-url="{{ url_for('recommendation_history.history') }}"></script>
     {% endif %}
 
     <!-- Custom JS -->
     {% if request.endpoint not in ['auth.login', 'auth.register', 'auth.recover'] %}
-    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/map.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/search.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/ai-assistant.js') }}"></script>
+    <script defer src="{{ url_for('static', filename='js/app.js') }}"></script>
+    <script defer src="{{ url_for('static', filename='js/map.js') }}"></script>
+    <script defer src="{{ url_for('static', filename='js/search.js') }}"></script>
+    <script defer src="{{ url_for('static', filename='js/admin.js') }}"></script>
+    <script defer src="{{ url_for('static', filename='js/ai-assistant.js') }}"></script>
     <script src="{{ url_for('static', filename='js/editorial-slides.js') }}" defer></script>
     {% endif %}
     {% if sr_admin_ui %}<script src="{{ url_for('static', filename='js/admin-precision.js') }}" defer></script>{% endif %}

@@ -3,7 +3,7 @@
 {% block body_class %}sr-discover{% endblock %}
 {% block legacy_interface %}{% endblock %}
 {% block page_styles %}
-<link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/forest-home.css') }}">
 {% endblock %}
 
@@ -129,8 +129,8 @@
     console.log('✅ MONEDA:', MONEDA);
 </script>
 
-<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" />
-<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='vendor/maplibre/maplibre-gl.css') }}" />
+<script defer src="{{ url_for('static', filename='vendor/maplibre/maplibre-gl.js') }}"></script>
 <script>
 (function () {
     'use strict';
@@ -559,13 +559,14 @@ const last = window.app?.state?.userLocation;
         if (last) showPosition(last.lat,last.lng);
     }
 
-    window.addEventListener('load', init);
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, {once:true});
+    else init();
     window.addEventListener('forest:map-open', init);
 })();
 </script>
 
 {% for module in ['processor', 'logic-rules', 'ui', 'controller'] %}
-<script src="{{ url_for('static', filename='js/forest/' ~ module ~ '.js') }}"></script>
+<script defer src="{{ url_for('static', filename='js/forest/' ~ module ~ '.js') }}"></script>
 {% endfor %}
 <!-- Asistente de IA (Qwen): búsqueda inteligente + chat -->
 

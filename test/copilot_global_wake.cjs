@@ -42,7 +42,7 @@ assert.equal(h.rec.starts, 1);
 h.rec.emit('end'); h.flush(); assert.equal(h.rec.starts, 2);
 h.wake('hola smart copilot abre pedidos');
 assert.equal(h.window.destination, undefined, 'wait for microphone release');
-h.rec.emit('end'); assert.equal(h.window.destination, 'https://test.local/copilot?voice=1');
+h.rec.emit('end'); assert.equal(h.window.destination, 'https://test.local/copilot?voice=1&voice_intent=abre+pedidos');
 h = harness(null, true, true); h.elements['sr-wake-enable'].emit('click');
 h.wake('hola SmartResto Copilot consulta'); h.rec.emit('end');
 assert.equal(h.document.lastEvent.type, 'smartresto:copilot-wake');
@@ -68,6 +68,21 @@ for (let i = 0; i < 10; i++) { h.rec.emit('end'); h.flush(); }
 assert.equal(h.rec.starts, 6, 'empty restart cycles are bounded');
 h = harness('false'); assert.equal(h.elements['sr-wake-toggle'].checked, false);
 h = harness(null, false); assert.equal(h.elements['sr-wake-enable'].disabled, true);
+h = harness(); h.elements['sr-wake-enable'].emit('click');
+let firstReady = 0, secondReady = 0;
+h.window.smartrestoVoice.acquire('first', () => firstReady++);
+h.window.smartrestoVoice.acquire('second', () => secondReady++);
+h.rec.emit('end');
+assert.equal(firstReady, 1, 'second acquisition must not overwrite pending callback');
+assert.equal(secondReady, 1);
+for (const phrase of ['HOLA, SMART COPILOT', 'hola Smart Resto Copilot', 'hola copilot']) {
+  h = harness(); h.elements['sr-wake-enable'].emit('click');
+  const interim = [{ transcript: phrase }]; interim.isFinal = false;
+  h.rec.emit('result', { resultIndex: 0, results: [interim] });
+  assert.equal(h.rec.aborts, 0, 'interim alone cannot navigate');
+  h.wake(phrase); h.rec.emit('end');
+  assert.equal(h.window.destination, 'https://test.local/copilot?voice=1');
+}
 const shell = fs.readFileSync(require.resolve('../static/js/shell.js'), 'utf8');
 const accountSource = shell.slice(shell.indexOf("        const account = document.querySelector('[data-account-toggle]');"), shell.indexOf('        // Private navigation owns'));
 const handlers = {}, lifecycle = {};
@@ -77,7 +92,7 @@ const link = { focus() { focused = link; } };
 const account = { addEventListener(k, f) { handlers['account:' + k] = f; }, setAttribute(k, v) { this[k] = v; }, focus() { focused = account; } };
 const options = { hidden: true, querySelector() { return link; }, addEventListener(k, f) { handlers['options:' + k] = f; } };
 const doc = { activeElement: { closest() { return null; } }, querySelector(s) { return s === '[data-account-toggle]' ? account : null; }, getElementById() { return options; }, addEventListener(k, f) { handlers[k] = f; } };
-vm.runInNewContext(accountSource, { document: doc, window: { addEventListener(k, f) { lifecycle[k] = f; } }, queueMicrotask: f => f() });
+vm.runInNewContext(accountSource, { document: doc, window: { addEventListener(k, f) { lifecycle[k] = f; } }, Element: class {} , queueMicrotask: f => f() });
 handlers['account:click']();
 assert.equal(options.hidden, false); assert.equal(focused, link); assert.equal(account['aria-expanded'], 'true');
 let prevented = false;
@@ -85,7 +100,7 @@ handlers.keydown({ key: 'Escape', preventDefault() { prevented = true; }, stopIm
 assert.equal(prevented, true); assert.equal(options.hidden, true); assert.equal(focused, account);
 handlers['account:click'](); handlers.click({ target: { closest() { return container; } } }); assert.equal(options.hidden, false);
 handlers.click({ target: { closest() { return null; } } }); assert.equal(options.hidden, true);
-handlers['account:click'](); handlers['options:focusout'](); assert.equal(options.hidden, true);
+handlers['account:click'](); handlers['options:focusout']({relatedTarget: null}); assert.equal(options.hidden, false);
 handlers['account:click'](); lifecycle.pagehide(); assert.equal(options.hidden, true);
 console.log('PASS shared account dropdown: first-link focus, Escape restore, inside/outside click, focusout, pagehide');
 console.log('PASS global wake: default, permission gesture, persistence, phrases, navigation/event, exclusive dictation/TTS, denial, visibility, cleanup, duplicate guard, unsupported');

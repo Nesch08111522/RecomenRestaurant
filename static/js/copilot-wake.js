@@ -10,7 +10,12 @@
   let preferred = true;
   try { preferred = localStorage.getItem(key) !== 'false'; } catch (_) {}
   let authorized = false, blocked = false, running = false, disposed = false;
-  let timer = null, failures = 0, pending = null;
+  let timer = null, failures = 0;
+  const pending = new Map();
+  function ready() {
+    const callbacks = [...pending.values()]; pending.clear();
+    callbacks.forEach(next => next());
+  }
   const owners = new Set();
   const recognition = Speech ? new Speech() : null;
   const say = text => { status.textContent = text; };
@@ -31,10 +36,11 @@
   // A competing recognizer starts only after the wake recognizer has ended.
   window.smartrestoVoice = {
     acquire(owner, ready) {
-      owners.add(owner); pending = ready || null; stop(); say('Activación pausada por dictado o audio.');
-      if (!running && pending) { const next = pending; pending = null; next(); }
+      owners.add(owner); if (ready) pending.set(owner, ready);
+      stop(); say('Activación pausada por dictado o audio.');
+      if (!running) { const next = pending.get(owner); pending.delete(owner); next?.(); }
     },
-    release(owner) { owners.delete(owner); resume(); }
+    release(owner) { pending.delete(owner); owners.delete(owner); resume(); }
   };
   toggle.checked = preferred;
   toggle.addEventListener('change', () => {
@@ -62,7 +68,8 @@
       for (let i = event.resultIndex; i < event.results.length; i++) {
         if (!event.results[i].isFinal) continue;
         const text = event.results[i][0].transcript.trim();
-        const match = /(?:^|\s)hola\s+(?:smart\s+copilot|smartresto\s+copilot)(?=$|[\s,.!?])/i.exec(text);
+        const normalized = text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+        const match = /(?:^|\s)hola[\s,]+(?:smart\s*resto\s*copilot|smart\s*copilot|copilot)(?=$|[\s,.!?])/i.exec(normalized);
         if (!match) continue;
         const transcript = text.slice(match.index + match[0].length).replace(/^[\s,.!?]+/, '').trim();
         window.smartrestoVoice.acquire('handoff', () => {
@@ -72,7 +79,9 @@
             window.smartrestoVoice.release('handoff');
           } else {
             const target = new URL(panel.dataset.copilotUrl, window.location.origin);
-            target.searchParams.set('voice', '1'); window.location.assign(target.href);
+            target.searchParams.set('voice', '1');
+            if (transcript) target.searchParams.set('voice_intent', transcript.slice(0, 2000));
+            window.location.assign(target.href);
           }
         });
         break;
@@ -86,7 +95,7 @@
     });
     recognition.addEventListener('end', () => {
       running = false;
-      if (pending) { const next = pending; pending = null; next(); }
+      if (pending.size) ready();
       else {
         if (eligible() && ++failures >= 6) { blocked = true; say('Reconexiones detenidas. Pulsa Habilitar micro.'); }
         else { if (eligible()) say('Reconectando micrófono…'); resume(); }
@@ -95,13 +104,13 @@
     say(preferred ? 'Preferencia activa. Pulsa Habilitar micro.' : 'Activación por voz desactivada.');
     // A saved preference is not proof of microphone permission.
     try { window.navigator?.permissions?.query({ name: 'microphone' }).then(permission => {
-      if (!disposed && permission.state === 'granted') { authorized = true; start(); }
+      // Permission alone must not start listening without this page's gesture.
       permission.onchange = () => {
         if (permission.state !== 'granted') { authorized = false; blocked = true; stop(); say('Permiso pendiente. Pulsa Habilitar micro.'); }
       };
     }).catch(() => {}); } catch (_) {}
   }
   document.addEventListener('visibilitychange', () => { if (document.hidden) { stop(); say('Escucha pausada: pestaña oculta.'); } else resume(); });
-  window.addEventListener('pagehide', () => { disposed = true; pending = null; stop(); });
+  window.addEventListener('pagehide', () => { disposed = true; pending.clear(); owners.clear(); stop(); });
   window.addEventListener('pageshow', event => { if (event.persisted) { disposed = false; owners.clear(); resume(); } });
 })();

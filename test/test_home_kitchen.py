@@ -77,6 +77,8 @@ def test_weekly_shopping_allocates_stock_once_and_preparation_updates_plan(servi
     first = home.plan(uid, r['id'], day.isoformat(), 'Almuerzo')
     home.plan(uid, r['id'], day.isoformat(), 'Cena')
     assert home.shopping(uid, start) == [dict(name='arroz', unit='g', quantity=50)]
+    with pytest.raises(MarketError):
+        home.save_recipe(uid, r, r['id'])
     home.prepare(uid, r['id'], 1, str(uuid4()), first['id'])
     assert Repo.get_by_id('home_plan', first['id'])['prepared'] is True
     with pytest.raises(MarketError):
@@ -118,6 +120,34 @@ def test_home_http_private_shell_and_cross_user(service_db):
     with client.session_transaction() as s:
         s['user_id'] = uid
     assert client.get('/home/').status_code == 200
+
+
+def test_recipe_plan_and_preparation_reject_other_user(service_db):
+    uid = make_user(uuid4().hex)['id']
+    other = make_user(uuid4().hex)['id']
+    r = recipe(uid)
+    planned = home.plan(uid, r['id'], now().date().isoformat(), 'Almuerzo')
+    with pytest.raises(MarketError):
+        home.plan(other, r['id'], now().date().isoformat(), 'Almuerzo')
+    with pytest.raises(MarketError):
+        home.prepare(other, r['id'], 1, str(uuid4()), planned['id'])
+    with pytest.raises(MarketError):
+        home.remove(other, 'home_plan', planned['id'])
+    assert home.rows('home_plan', other) == []
+    assert home.rows('home_preparations', uid) == []
+
+
+def test_home_mutations_require_csrf_and_object_json(service_db):
+    uid = make_user(uuid4().hex)['id']
+    client = create_app(dict(TESTING=True, SECRET_KEY=uuid4().hex)).test_client()
+    with client.session_transaction() as s:
+        s['user_id'] = uid
+    assert client.post('/home/pantry', json={'name':'arroz'}).status_code == 400
+    assert home.rows('home_pantry', uid) == []
+    other_client = create_app(dict(TESTING=True, SECRET_KEY=uuid4().hex, WTF_CSRF_ENABLED=False)).test_client()
+    with other_client.session_transaction() as s:
+        s['user_id'] = uid
+    assert other_client.post('/home/recipes', json=[]).status_code == 400
 
 
 def test_audit_failure_rolls_back_stock(service_db, monkeypatch):

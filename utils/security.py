@@ -65,15 +65,25 @@ def valid_coordinate(value: object, minimum: float, maximum: float) -> bool:
 
 def fresh_session_user():
     """Revalida el rol contra el almacenamiento antes de autorizar."""
+    if hasattr(g, "session_user_error"):
+        raise g.session_user_error
     if hasattr(g, "session_identity"):
         return g.session_identity
     raw_id = session.get("user_id")
     try:
         user_id = int(raw_id)
     except (TypeError, ValueError):
+        g.session_identity = None
         return None
-    user = UserModel.get_by_id(user_id)
+    from database.connection import DatabaseConfigurationError, DatabaseConnectionError
+    from psycopg import OperationalError
+    try:
+        user = UserModel.get_by_id(user_id)
+    except (DatabaseConfigurationError, DatabaseConnectionError, OperationalError) as error:
+        g.session_user_error = error
+        raise
     if not UserModel.is_active(user) or session.get('auth_epoch', 0) != user.get('auth_epoch', 0):
+        g.session_identity = None
         session.clear()
         flash("Tu sesión expiró o se cerró en otro dispositivo. Inicia sesión de nuevo.", "warning")
         return None

@@ -104,8 +104,12 @@ def normalize_product(patch,previous=None):
             name=str(option.get('name','')).strip()[:100]
             if not name or name.casefold() in seen:raise ValueError('Variante/adicional requiere nombre único')
             cents=money(option.get('price'))
-            normalized.append({'name':name,'portion':str(option.get('portion',''))[:100],
-                'price':None if cents is None else cents/100,'price_cents':cents});seen.add(name.casefold())
+            normalized_option = {'name':name,'portion':str(option.get('portion',''))[:100],
+                                 'price':None if cents is None else cents/100,'price_cents':cents}
+            if field == 'addons' and option.get('stock') is not None:
+                from logic.market import integer
+                normalized_option['stock'] = integer(option['stock'], 0, 1000000)
+            normalized.append(normalized_option);seen.add(name.casefold())
         result[field]=normalized
     result['is_available']=result['availability']=='available'
     return result

@@ -1,4 +1,13 @@
 {% extends 'market/base.html' %}{% from 'market/base.html' import token with context %}
+{% block body_class %}sr-home-kitchen{% endblock %}
+{% block page_styles %}
+<style>
+@media (min-width: 641px) and (max-width: 900px) {
+  .sr-home-kitchen .sr-top { flex-wrap: wrap; }
+  .sr-home-kitchen .sr-top > .sr-actions { margin-left: auto; }
+}
+</style>
+{% endblock %}
 {% block market %}
 <header class="market-hero"><div><h1>SmartResto Home</h1><p>Tu despensa, tus recetas declaradas y tu semana. Nada se consume hasta confirmar una preparación.</p></div></header>
 <nav class="market-nav" aria-label="Cocina en casa"><a href="#despensa">Despensa</a><a href="#recetas">Recetas</a><a href="#plan">Plan semanal</a><a href="#compras">Lista de compras</a></nav>

@@ -215,14 +215,9 @@ def profile():
     
     logger.info(f"👤 Cargando perfil de: {user.get('username')}")
     
-    if user.get('id'):
-        updated_user = UserModel.get_by_id(user.get('id'))
-        if updated_user:
-            user = session_identity(updated_user)
-            session['user'] = user
-            user = {**user, 'profile': updated_user.get('profile') or {}}
-            session['user_id'] = user['id']
-            session['role'] = user['role']
+    from flask import g
+    # fresh_session_user already validated and read this account in this request.
+    user = {**user, 'profile': g.account_record.get('profile') or {}}
     
     # ✅ Usar template según rol
     if user.get('role') == 'business_owner':
