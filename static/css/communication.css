@@ -1,0 +1,25 @@
+.comm-workspace { min-width: 0; }
+.comm-split { display: grid; grid-template-columns: minmax(240px,320px) minmax(0,1fr); border: 1px solid var(--theme-border); border-radius: 8px; overflow: hidden; background: var(--theme-surface); margin-top: 16px; min-height: 520px; }
+.comm-list { border-right: 1px solid var(--theme-border); padding: 16px; overflow: auto; max-height: 75vh; }
+.comm-list label { display: grid; gap: 6px; margin-bottom: 12px; }
+.comm-detail { padding: 20px; min-width: 0; overflow-wrap: anywhere; }
+.comm-row { display: flex; gap: 12px; width: 100%; text-align: left; padding: 14px 8px !important; border: 0 !important; border-bottom: 1px solid var(--theme-border) !important; border-radius: 0 !important; text-decoration: none; color: var(--theme-text); background: transparent !important; }
+.comm-row > span { min-width: 0; }
+.comm-row strong,.comm-row small,.comm-row time { display: block; overflow-wrap: anywhere; }
+.comm-row small,.comm-row time { color: var(--theme-muted); font-size: 12px; }
+.comm-row[aria-current=page],.comm-row[aria-expanded=true],.comm-row:hover { background: var(--theme-elevated) !important; }
+.comm-initial { display: grid !important; place-items: center; flex: 0 0 32px; height: 32px; border-radius: 50%; border: 1px solid var(--theme-border); }
+.comm-search { display: grid; gap: 8px; margin-bottom: 12px; }
+.comm-messages { display: flex; flex-direction: column; gap: 12px; padding: 20px 0; max-height: 55vh; overflow-y: auto; }
+.comm-message { align-self: flex-start; max-width: 85%; padding: 12px 16px; border: 1px solid var(--theme-border); background: var(--theme-elevated); border-radius: 8px; }
+.comm-message-own { align-self: flex-end; background: var(--theme-accent-bg); }
+.comm-message p { white-space: pre-wrap; overflow-wrap: anywhere; }
+.comm-message time { display: block; font-size: 11px; color: var(--theme-muted); }
+.comm-workspace [hidden] { display: none !important; }
+@media(max-width:699px) {
+ .comm-split { grid-template-columns: 1fr; min-height: 0; }
+ .comm-list { border-right: 0; border-bottom: 1px solid var(--theme-border); max-height: 40vh; }
+ .comm-detail { padding: 16px; }
+ .comm-thread .comm-list { display: none; }
+ .comm-message { max-width: 95%; }
+}

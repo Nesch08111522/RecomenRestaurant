@@ -100,13 +100,16 @@ def configure(uid, password, action, token, *, email=None, phone=None):
             Repo.update("account_security", uid, {"last_counter": counter})
         if action == "contacts":
             email=str(email or '').strip().lower();phone=str(phone or '').strip()
-            if not re.fullmatch(r'[^\s@]+@[^\s@]+\.[^\s@]+',email) or '\r' in email or '\n' in email:
+            if len(email) > 254 or not re.fullmatch(r'[^\s@]+@[^\s@]+\.[^\s@]+',email) or '\r' in email or '\n' in email:
                 raise ValueError("Revisa el correo de recuperación.")
             if phone and not re.fullmatch(r'\+[1-9]\d{7,14}',phone):
                 raise ValueError("Usa un teléfono internacional, por ejemplo +51976399537.")
             profile={**(user.get('profile') or {}),'email':email,'phone':phone}
             epoch=user.get('auth_epoch',0)+1
+            profile['email_verified'] = False if email != (user.get('profile') or {}).get('email') else profile.get('email_verified', False)
+            profile['phone_verified'] = False if phone != (user.get('profile') or {}).get('phone') else profile.get('phone_verified', False)
             Repo.update('users',uid,{'profile':profile,'auth_epoch':epoch})
+            Repo.update('account_security', uid, {'recovery': None})
             from utils.audit import record_event
             record_event('SECURITY_CONTACTS_CHANGED',resource_type='cuenta',resource_id=uid)
             return {'epoch':epoch,'contacts_saved':True}

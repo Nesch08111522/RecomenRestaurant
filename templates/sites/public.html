@@ -45,6 +45,7 @@
     </header>
     <div class="bs-public-mobile-links" id="bs-public-links"><a href="#historia">Historia</a><a href="#carta">Carta</a><a href="#visitanos">Visítanos</a><a href="#reservar">Reservar</a></div>
 
+    {% include 'partials/copilot_wake.html' %}
     <main>
         {% call FullBleedSection(class_name='bs-public-hero', id='inicio', label='Presentación de ' ~ site_name) %}
             <div class="bs-hero-copy"><p class="bs-eyebrow"><span class="bs-eyebrow-dot"></span> Sitio oficial · {{ restaurant.district or restaurant.city or 'Tu ciudad' }}</p><h1>{{ site.get('tagline') or site_name }}</h1><p class="bs-hero-description">{{ site.get('description') or restaurant.description or 'Cocina con identidad, hospitalidad sin prisa y una experiencia hecha para compartir.' }}</p><div class="bs-hero-actions"><a class="bs-public-button" href="#carta">Explorar la carta <span aria-hidden="true">↗</span></a><a class="bs-hero-secondary" href="#historia">Conócenos <span aria-hidden="true">↓</span></a></div></div>

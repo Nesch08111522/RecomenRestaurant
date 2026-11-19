@@ -14,7 +14,7 @@ from unicodedata import normalize as unicode_normalize
 from zipfile import BadZipFile, ZipFile
 
 from openpyxl import Workbook, load_workbook
-from openpyxl.formatting.rule import FormulaRule
+from openpyxl.comments import Comment
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.datavalidation import DataValidation
@@ -27,6 +27,7 @@ MAX_ZIP_MEMBERS = 1000
 MAX_TOTAL_ROWS = 1500
 
 SHEETS: dict[str, tuple[str, ...]] = {
+    "Restaurantes": ("ref", "name", "category_id", "district", "service_mode", "avg_price", "address", "phone", "description", "open_time", "close_time"),
     "Negocios": ("ref", "name", "description", "business_type"),
     "Sucursales": ("ref", "business_ref", "name", "address", "district", "lat", "lng", "open_time", "close_time"),
     "Categorias": ("ref", "branch_ref", "name", "parent_ref", "product_type"),
@@ -89,6 +90,7 @@ def _key(value: Any) -> str:
     return re.sub(r"[^a-z0-9]+", "", text.lower())
 
 
+_ALIASES.update({key: {key} for key in ("category_id", "service_mode", "avg_price", "phone")})
 _ALIAS_INDEX: dict[str, str] = {}
 for _canonical, _values in _ALIASES.items():
     for _value in {_canonical, *_values}:
@@ -296,10 +298,8 @@ def build_catalog_workbook() -> BytesIO:
             cell = sheet.cell(2, col)
             cell.fill = PatternFill("solid", fgColor="F7FAFB")
             cell.border = border
-        sheet.conditional_formatting.add(
-            f"A2:{get_column_letter(len(headers))}1048576",
-            FormulaRule(formula=["MOD(ROW(),2)=0"], fill=PatternFill("solid", fgColor="F7FAFB")),
-        )
+        for cell in sheet[1]:
+            cell.comment = Comment("Obligatorio" if cell.value in _REQUIRED[sheet_name] else "Opcional", "SmartResto")
 
     instructions = workbook.create_sheet("Instrucciones")
     instructions.sheet_view.showGridLines = False
@@ -364,6 +364,33 @@ def build_catalog_workbook() -> BytesIO:
             sheet.add_data_validation(validation)
             validation.add(f"{col}2:{col}1501")
 
+    instructions.append(["Limites", "5 MB comprimidos, 50 MB internos, 1500 filas totales; solo altas, sin eliminar ni modificar registros existentes."])
+    instructions.append(["Contexto", "Marca comercial se representa por Negocios. No se importan usuarios, pedidos, pagos ni produccion. actual requiere un restaurante propio seleccionado."])
+    instructions.append(["Restaurantes", "category_id debe existir; district debe estar registrado; service_mode: dine_in_only, dine_in_and_delivery, delivery_only, pickup_only. Nuevos locales quedan pendientes de moderacion."])
+    instructions.append(["Confirmacion", "Preview sin escrituras. Confirmacion caduca a los 15 minutos y se invalida si cambia el contexto. Toda la carga usa una transaccion."])
+    for name, required in _REQUIRED.items():
+        instructions.append([name, "Obligatorios: " + ", ".join(sorted(required)) + ". En Platos: precio, ingredientes y alergenos confirmados. Inventario: expires vigente, cost y basis."])
+    examples = workbook.create_sheet("Ejemplos")
+    examples.append(["Hoja (NO IMPORTAR)", "Campos", "Valores ilustrativos; copiar a hoja real y adaptar referencias"])
+    examples.append(["Restaurantes", "ref,name,category_id,district,service_mode,avg_price", "r1,Restaurante La Cocina,1,Trujillo,dine_in_only,25"])
+    examples.append(["Negocios", "ref,name,description,business_type", "marca1,Sabores del Norte,Cocina criolla,restaurante"])
+    examples.append(["Sucursales", "ref,business_ref,name", "local1,marca1,Restaurante Centro"])
+    examples.append(["Platos", "ref,branch_ref,name,product_type,price,ingredients,allergens,ingredients_confirmed,allergens_confirmed", "p1,actual,Arroz con pollo,plato,22,arroz;pollo,,yes,yes"])
+    sample_values = {
+        'Categorias': 'cat1,actual,Fondos,,plato',
+        'Ingredientes': 'i1,actual,Arroz,',
+        'Recetas': 'p1,i1,100,g',
+        'Variantes': 'p1,Grande,Doble,30',
+        'Precios': 'p1,22',
+        'Inventario': 'actual,i1,5,kg,20,1,2027-12-31,lote1',
+        'Mesas': 'm1,actual,1,Salon,Mesa 1,4',
+    }
+    for name, values in sample_values.items():
+        examples.append([name, ','.join(SHEETS[name]), values])
+    for sheet in workbook:
+        for row in sheet:
+            for cell in row:
+                cell.font = Font(name="Arial", size=11, bold=cell.row == 1, color=white if cell.row == 1 else navy)
     output = BytesIO()
     workbook.save(output)
     output.seek(0)
@@ -371,6 +398,7 @@ def build_catalog_workbook() -> BytesIO:
 
 
 _REQUIRED: dict[str, set[str]] = {
+    "Restaurantes": {"ref", "name", "category_id", "district", "service_mode"},
     "Negocios": {"ref", "name"},
     "Sucursales": {"ref", "business_ref", "name"},
     "Categorias": {"ref", "branch_ref", "name"},
@@ -421,7 +449,7 @@ def _canonical_sheet_name(value: str) -> str | None:
     for sheet in SHEETS:
         if _key(sheet) == target:
             return sheet
-    if _key(value) == _key("instrucciones"):
+    if _key(value) in {_key("Instrucciones"), _key("Ejemplos")}:
         return "Instrucciones"
     return None
 
@@ -436,6 +464,20 @@ def _parse_row(sheet: str, row_number: int, raw_data: dict[str, Any], errors: li
             data[field] = _list_text(value)
         elif field in _MONEY:
             parsed, problem = _money(value)
+            data[field] = parsed
+            if problem:
+                errors.append(_message(sheet, row_number, field, problem))
+        elif field in {'lat', 'lng'}:
+            parsed, problem = None, None
+            if not _blank(value):
+                try:
+                    number = Decimal(str(value))
+                    limit = 90 if field == 'lat' else 180
+                    if not number.is_finite() or not -limit <= number <= limit:
+                        raise ValueError()
+                    parsed = str(number)
+                except (InvalidOperation, ValueError):
+                    problem = 'coordenada fuera de rango'
             data[field] = parsed
             if problem:
                 errors.append(_message(sheet, row_number, field, problem))
@@ -588,7 +630,10 @@ def validate_catalog_workbook(raw: bytes, existing_refs: Mapping[str, Iterable[A
                 errors.append(_message(sheet, 1, "sheet", "hoja duplicada tras normalizar el nombre"))
                 continue
             seen_sheet_names.add(sheet)
-            iterator = worksheet.iter_rows(values_only=True)
+            if worksheet.max_column and worksheet.max_column > 40 or worksheet.max_row and worksheet.max_row > 1502:
+                errors.append(_message(sheet, 0, 'dimension', 'maximo 40 columnas y 1501 filas por hoja'))
+                continue
+            iterator = worksheet.iter_rows(max_col=40, max_row=1502, values_only=True)
             try:
                 header_values = list(next(iterator))
             except StopIteration:

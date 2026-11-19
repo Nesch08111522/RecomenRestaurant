@@ -80,6 +80,32 @@ def test_radar_routes_exist_and_deny_guest_and_diner(monkeypatch):
     assert guest.post('/admin/api/discovery/runs',json={'source':'osm'}).status_code==403
 
 
+@pytest.mark.usefixtures('test_database')
+def test_refresh_tracks_menu_changes_without_publishing():
+    from models import discovery
+    from logic.business_radar import from_osm
+    row=from_osm({'type':'node','id':918273,'tags':{'name':'QA refresh cafe','amenity':'cafe'}})
+    source=discovery.register_source({'kind':'osm'})
+    assert discovery.ingest([deepcopy(row)],source['id'])['created']==1
+    saved=next(r for r in discovery.CandidateModel.all() if r['source_key']==row['source_key'])
+    unchanged=deepcopy(row)
+    for evidence in unchanged['evidence'].values():
+        evidence['retrieved_at']='2026-11-20T00:00:00+00:00'
+    discovery.ingest([unchanged],source['id'])
+    assert not discovery.CandidateModel.get_by_id(saved['id']).get('update_pending')
+    changed=deepcopy(row)
+    changed['menu_links']=['https://example.com/carta.pdf']
+    discovery.ingest([changed],source['id'])
+    pending=discovery.CandidateModel.get_by_id(saved['id'])
+    assert pending['update_pending'] is True
+    assert pending['menu_links']==[]
+    assert pending['proposed_update']['menu_links']==changed['menu_links']
+    reviewed=discovery.review(saved['id'],'accept_update',1,'Revisar nueva referencia de carta')
+    assert reviewed['menu_links']==changed['menu_links']
+    assert reviewed['status']=='pending_review'
+    assert not reviewed.get('business_id')
+
+
 def test_claim_invitation_is_not_business_ownership():
     module=engine()
     assert module.claim_transition('invited','request')=='claim_pending'

@@ -1,0 +1,7 @@
+#sr-wake { position: relative; margin: .5rem auto; padding: .5rem .8rem; width: min(94%, 34rem); box-sizing: border-box; border: 1px solid var(--border-color, #52635a); border-radius: .6rem; background: var(--surface-color, #14231c); color: var(--text-color, #eef4f0); font: inherit; }
+#sr-wake summary { cursor: pointer; font-size: .85rem; }
+#sr-wake label { display: inline-flex; align-items: center; gap: .4rem; margin: .7rem .5rem .4rem 0; }
+#sr-wake button { padding: .4rem .7rem; color: inherit; background: transparent; border: 1px solid currentColor; border-radius: .4rem; cursor: pointer; }
+#sr-wake p { margin: .4rem 0; }
+#sr-wake small { display: block; line-height: 1.5; }
+#sr-wake :focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }

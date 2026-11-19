@@ -22,8 +22,8 @@
   <!-- Resumen -->
   <section class="stats-row" aria-label="Resumen">
     <div class="stat-card"><span class="stat-value" id="statTotal">{{ restaurants|length }}</span><span class="stat-label">Restaurantes</span></div>
-    <div class="stat-card"><span class="stat-value" id="statOpen">0</span><span class="stat-label">Abiertos ahora</span></div>
-    <div class="stat-card"><span class="stat-value" id="statPromo">0</span><span class="stat-label">Con promoción</span></div>
+    <div class="stat-card"><span class="stat-value" id="statOpen">{{ restaurants|selectattr('is_open')|list|length }}</span><span class="stat-label">Abiertos ahora</span></div>
+    <div class="stat-card"><span class="stat-value" id="statPromo">{{ restaurants|selectattr('promo')|list|length }}</span><span class="stat-label">Con promoción</span></div>
   </section>
 
   <!-- Filtros -->

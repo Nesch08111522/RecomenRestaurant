@@ -9,9 +9,41 @@ from typing import Any, Mapping
 _ALLOWED = {
     "name", "email", "preferences", "restrictions", "daily_budget", "weekly_budget",
     "addresses", "notification_preferences", "location_consent", "cookies_consent",
-    "birthday",
+    "birthday", "phone",
 }
 _EMAIL = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+
+
+def save_profile_image(upload, uid, kind):
+    """Decode and re-encode images; never retain filenames, metadata or active content."""
+    import io
+    import secrets
+    import warnings
+    from pathlib import Path
+    from flask import current_app
+    from PIL import Image, ImageOps, UnidentifiedImageError
+    if kind not in ('avatar', 'background'):
+        raise ValueError('Tipo de foto no valido.')
+    raw = upload.stream.read(2 * 1024 * 1024 + 1)
+    if not raw or len(raw) > 2 * 1024 * 1024:
+        raise ValueError('Cada foto debe pesar como maximo 2 MB.')
+    try:
+        with warnings.catch_warnings():
+            warnings.simplefilter('error', Image.DecompressionBombWarning)
+            with Image.open(io.BytesIO(raw)) as image:
+                if image.format not in ('JPEG', 'PNG', 'WEBP') or image.width * image.height > 16_000_000 or getattr(image, 'n_frames', 1) != 1:
+                    raise ValueError('Usa una foto JPEG, PNG o WebP estatica de hasta 16 megapixeles.')
+                image.verify()
+            with Image.open(io.BytesIO(raw)) as image:
+                clean = ImageOps.exif_transpose(image).convert('RGB')
+                clean.thumbnail((1600, 1600) if kind == 'background' else (512, 512))
+                root = Path(current_app.instance_path) / 'profile_images' / str(int(uid))
+                root.mkdir(parents=True, exist_ok=True)
+                filename = secrets.token_hex(24) + '.jpg'
+                clean.save(root / filename, 'JPEG', quality=85)
+                return filename
+    except (UnidentifiedImageError, OSError, Image.DecompressionBombError, Image.DecompressionBombWarning):
+        raise ValueError('El archivo no es una imagen segura y valida.') from None
 
 
 def _text(value: Any, limit: int) -> str:
@@ -46,12 +78,21 @@ def normalize_profile_patch(source: Mapping[str, Any] | None) -> dict[str, Any]:
         if key == "name":
             result[key] = _text(value, 120)
         elif key == "email":
-            email = _text(value, 254).lower()
+            email = str(value or '').strip().lower()
+            if len(email) > 254 or '\r' in email or '\n' in email:
+                raise ValueError('Revisa la longitud y formato del correo.')
             if email and not _EMAIL.fullmatch(email):
                 raise ValueError("El correo electrónico no tiene un formato válido")
             result[key] = email
+        elif key == 'phone':
+            phone = str(value or '').strip()
+            if not re.fullmatch(r'\+[1-9][0-9]{7,14}', phone):
+                raise ValueError('El celular requiere formato internacional E164.')
+            result[key] = phone
         elif key in {"preferences", "restrictions"}:
             result[key] = _list(value)
+            if key == 'restrictions' and (not isinstance(value, list) or len(value) > 30 or any(str(item).strip().lower() not in {'vegano', 'vegetariano', 'celiaco', 'sin gluten', 'alergia mariscos'} for item in value)):
+                raise ValueError('Selecciona restricciones alimenticias reconocidas.')
         elif key in {"daily_budget", "weekly_budget"}:
             amount = _money(value)
             if amount is None and value not in (None, ""):

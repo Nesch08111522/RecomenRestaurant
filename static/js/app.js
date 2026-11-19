@@ -44,10 +44,8 @@ class AppController {
 
     loadState() {
 
-        const savedFavorites = localStorage.getItem('favorites');
-        if (savedFavorites) {
-            this.state.favorites = JSON.parse(savedFavorites);
-        }
+        // Favorites belong to the authenticated server account, not this browser.
+        this.state.favorites = [];
 
         const savedLat = localStorage.getItem('userLat');
         const savedLng = localStorage.getItem('userLng');
@@ -60,7 +58,17 @@ class AppController {
     }
 
     saveState() {
-        localStorage.setItem('favorites', JSON.stringify(this.state.favorites));
+        document.querySelectorAll('.fav-btn').forEach(button => {
+            const id = Number(button.dataset.restaurantId || button.closest('[data-id]')?.dataset.id);
+            const active = this.state.favorites.includes(id);
+            button.classList.toggle('active', active);
+            button.setAttribute('aria-pressed', String(active));
+            button.title = active ? 'Quitar de favoritos' : 'Agregar a favoritos';
+            const icon = button.querySelector('.fa-heart');
+            if (icon) { icon.classList.toggle('fas', active); icon.classList.toggle('far', !active); }
+            const label = button.querySelector('[data-favorite-label]');
+            if (label) label.textContent = active ? 'Quitar de favoritos' : 'Guardar favorito';
+        });
     }
 
     bindEvents() {
@@ -611,11 +619,12 @@ class AppController {
             const response = await fetch('/auth/api/favorites');
             if (response.ok) {
                 const data = await response.json();
-                this.state.favorites = data.favorites.map(f => f.restaurant_id);
+                this.state.favorites = data.favorites.map(f => Number(f.restaurant_id));
                 this.saveState();
                 console.log('✅ Favoritos cargados desde servidor:', this.state.favorites);
             } else {
-                console.warn('⚠️ Error cargando favoritos, usando caché local');
+                this.state.favorites = [];
+                this.saveState();
             }
         } catch (error) {
             console.error('❌ Error cargando favoritos:', error);
@@ -625,31 +634,33 @@ class AppController {
     async toggleFavorite(restaurantId, event) {
         if (event) event.stopPropagation();
 
-        // Verificar si el usuario está autenticado
-        const isLoggedIn = document.querySelector('.user-dropdown') !== null;
-        if (!isLoggedIn) {
-            alert('Debes iniciar sesión para guardar favoritos');
-            window.location.href = '/auth/login';
-            return;
-        }
+        restaurantId = Number(restaurantId);
+        this.pendingFavorites ||= new Set();
+        if (this.pendingFavorites.has(restaurantId)) return;
+        this.pendingFavorites.add(restaurantId);
 
         try {
             const response = await fetch('/auth/api/favorites/toggle', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('meta[name="csrf-token"]')?.content || ''
                 },
                 body: JSON.stringify({ restaurant_id: restaurantId })
             });
 
+            if (response.status === 401) {
+                window.location.href = '/auth/login?next=' + encodeURIComponent(window.location.pathname);
+                return;
+            }
             const data = await response.json();
 
-            if (!response.ok) {
+            if (!response.ok || !data.success) {
                 throw new Error(data.error || 'Error al procesar la solicitud');
             }
 
             if (data.favorites) {
-                this.state.favorites = data.favorites;
+                this.state.favorites = data.favorites.map(Number);
             } else {
                 if (data.favorited) {
                     if (!this.state.favorites.includes(restaurantId)) {
@@ -670,6 +681,8 @@ class AppController {
         } catch (error) {
             console.error('❌ Error al toggle favorito:', error);
             alert(error.message || 'Error al guardar favorito. Por favor intenta de nuevo.');
+        } finally {
+            this.pendingFavorites.delete(restaurantId);
         }
     }
 

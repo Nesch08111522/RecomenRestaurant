@@ -1,0 +1,8 @@
+<details id="sr-wake" data-copilot-url="{{ url_for('copilot.page') }}">
+  <summary>Configuración de voz Copilot</summary>
+  <label><input id="sr-wake-toggle" type="checkbox" checked> Activación global por voz</label>
+  <button id="sr-wake-enable" type="button">Habilitar micro</button>
+  <p id="sr-wake-status" role="status" aria-live="polite">Preferencia activa; micrófono pendiente.</p>
+  <small>Di «hola smart copilot» o «hola SmartResto Copilot». Requiere permiso y una pestaña visible. El navegador puede procesar audio mediante su proveedor.</small>
+</details>
+<script src="{{ url_for('static', filename='js/copilot-wake.js') }}"></script>

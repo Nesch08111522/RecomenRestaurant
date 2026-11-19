@@ -88,6 +88,11 @@ def scan():
         if draft["vision"]:
             profile = food_preferences(UserModel.get_by_id(identity()["id"]))
             matches, _ = discover(catalog(), {"q":draft["name"]}, profile, [])
+    if request.method == 'POST' and request.accept_mimetypes.best == 'application/json':
+        from flask import jsonify
+        response = jsonify(success=True, html=render_template('ecosystem/scan_result.html', draft=draft, rows=matches[:6]))
+        response.headers['Cache-Control'] = 'private, no-store'
+        return response
     return render_template("ecosystem/scan.html", draft=draft, rows=matches[:6])
 
 

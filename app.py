@@ -1,4 +1,5 @@
 import logging
+import mimetypes
 import os
 import uuid
 from time import perf_counter
@@ -19,6 +20,7 @@ if load_dotenv:
 from config import Config
 from context_processors import inject_globals
 from utils.security import csrf, fresh_session_user
+from core.platform_context import build_platform_context
 from views.admin import admin_bp
 from views.admin_ai_routes import admin_ai_bp
 from views.auth import auth_bp
@@ -39,6 +41,8 @@ logger = logging.getLogger(__name__)
 
 
 def create_app(test_config=None):
+    # Windows MIME registries do not consistently include WebP.
+    mimetypes.add_type("image/webp", ".webp")
     app = Flask(__name__)
     app.config.from_object(Config)
 
@@ -65,6 +69,8 @@ def create_app(test_config=None):
     app.register_blueprint(ecosystem_bp)
     app.register_blueprint(communication_bp)
     app.register_blueprint(platform_bp)
+    from views.business_access import bp as business_access_bp
+    app.register_blueprint(business_access_bp)
     app.register_blueprint(discovery_bp)
     app.register_blueprint(sites_bp)
     app.register_blueprint(catalog_bp)
@@ -105,6 +111,7 @@ def create_app(test_config=None):
         request.request_id = str(uuid.uuid4())
         if request.endpoint != "static" and "user_id" in session:
             fresh_session_user()
+        g.platform_context = build_platform_context(session)
 
     @app.after_request
     def add_security_headers(response):

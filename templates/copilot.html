@@ -1,1 +1,56 @@
-{% extends 'base.html' %}{% block content %}<section class="sr-info copilot-page"><p>SmartResto Copilot</p><h1>Tu siguiente paso,<br>con contexto.</h1><p>Consulta información de tu espacio. Las acciones sensibles se revisan y confirman por separado.</p><div id="copilot-conversation" aria-live="polite" role="log"></div><form id="copilot-question"><label>¿Qué necesitas?<textarea required maxlength="2000" name="message" rows="3" placeholder="¿Qué platos se vendieron más? ¿Cómo publico mi carta?"></textarea></label><button class="sr-button">Consultar</button></form><p id="copilot-status" role="status"></p>{% if shops %}<details><summary>Preparar una promoción para mi negocio</summary><form id="copilot-proposal"><label>Negocio<select name="rid">{% for s in shops %}<option value="{{ s.id }}">{{ s.name }}</option>{% endfor %}</select></label><label>Texto promocional<input name="text" required maxlength="200" placeholder="Cena especial para compartir"></label><button class="sr-button">Preparar propuesta</button></form><div id="copilot-preview" hidden><h2>Revisa antes de confirmar</h2><p></p><button type="button" class="sr-button" id="copilot-confirm">Confirmar cambio</button><button type="button" id="copilot-cancel">Cancelar</button></div></details>{% endif %}<nav class="mgr-links"><a href="{{ url_for('recommendations.index') }}">Recomendaciones</a><a href="{{ url_for('market.orders') }}">Mis pedidos</a>{% if shops %}<a href="{{ url_for('intelligence.dashboard') }}">Inteligencia empresarial</a>{% if session.user.role=='business_owner' %}<a href="{{ url_for('catalog.dashboard') }}">Registro por fotos, voz y Excel</a>{% else %}<a href="{{ url_for('trust_center.dashboard') }}">Seguridad y confianza</a>{% endif %}{% endif %}</nav></section>{% endblock %}{% block scripts %}<script src="{{ url_for('static',filename='js/copilot.js') }}" defer></script>{% endblock %}
+{% extends 'base.html' %}
+{% block body_class %}copilot-view{% endblock %}
+{% block page_styles %}<link rel="stylesheet" href="{{ url_for('static',filename='css/copilot.css') }}">{% endblock %}
+{% block content %}
+<section class="copilot-page" aria-labelledby="copilot-title">
+  <header class="saas-view-heading">
+    <div><h1 id="copilot-title">SmartResto Copilot</h1>
+    <p class="copilot-intro">Consulta tu espacio y prepara acciones con contexto.</p></div>
+    <div class="copilot-heading-tools"><span class="saas-badge">Confirmación humana</span><button type="button" id="copilot-expand" aria-pressed="false" aria-controls="copilot-chat">Ampliar espacio</button></div>
+  </header>
+  <div class="saas-copilot-grid">
+  <section class="saas-panel copilot-chat" id="copilot-chat" aria-label="Consulta y conversación">
+  <div class="copilot-chat-scroll">
+  <div class="copilot-welcome" id="copilot-welcome"><span class="copilot-kicker">SMARTRESTO / TU ASISTENTE</span><h2>Hola, ¿qué hacemos hoy?</h2><p>Encuentra respuestas en tu espacio de trabajo.<br>Prepara el siguiente paso, con el control en tus manos.</p></div>
+  <div id="copilot-conversation" role="log" aria-live="polite" aria-label="Conversación con SmartResto Copilot" hidden></div>
+  </div>
+  <div class="copilot-dock">
+  <form id="copilot-question">
+    <label for="copilot-message">¿Qué necesitas?</label>
+    <div class="copilot-composer" id="copilot-drop">
+      <textarea id="copilot-message" maxlength="2000" name="message" rows="3" placeholder="Escribe, dicta o pega una imagen…" aria-describedby="copilot-status copilot-input-help"></textarea>
+      <div id="copilot-images" aria-label="Imágenes adjuntas"></div>
+      <div class="copilot-voice-display"><canvas id="copilot-wave" width="320" height="40" aria-label="Actividad del micrófono"></canvas><span id="copilot-partial" role="status"></span></div>
+      <div class="copilot-composer-tools">
+        <button type="button" id="copilot-attach">Adjuntar imagen</button><input id="copilot-files" type="file" accept="image/png,image/jpeg,image/webp" multiple hidden>
+        <button type="button" id="copilot-voice" aria-label="Dictar consulta por voz" aria-pressed="false">Voz</button>
+        <button type="button" id="copilot-voice-stop" disabled>Detener y enviar</button>
+        <button type="submit" class="copilot-send">Enviar</button>
+      </div>
+      <div class="copilot-composer-tools" aria-label="Controles de voz">
+        <button type="button" id="copilot-read" aria-pressed="false">Activar lectura automática</button>
+        <button type="button" id="copilot-audio-stop" disabled>Detener audio</button>
+      </div>
+    </div>
+  </form>
+  <details class="copilot-input-details"><summary>Ayuda de imágenes y voz</summary>
+  <p id="copilot-input-help" class="copilot-help">Enter envía; Shift+Enter añade una línea. Pega o arrastra hasta 3 imágenes PNG, JPG o WebP: 2 MB cada una, 4 MB en total. Se envían al proveedor configurado; su modelo debe admitir imágenes. La respuesta se presenta con escritura progresiva tras recibirla completa.</p>
+  <dialog id="copilot-image-dialog" aria-label="Vista ampliada"><button type="button" id="copilot-image-close">Cerrar</button><img alt="Imagen adjunta ampliada"></dialog>
+  <p class="copilot-help">La voz sigue escuchando durante las pausas. Detener o decir «terminar conversación» envía el dictado sin la frase de comando. El navegador puede usar un servicio externo de voz.</p>
+  </details>
+  <p id="copilot-status" role="status"></p>
+  <div id="copilot-preview" class="copilot-preview" hidden><h2>Revisa antes de confirmar</h2><p></p><button type="button" class="copilot-send" id="copilot-confirm">Confirmar cambio</button><button type="button" id="copilot-cancel">Cancelar</button></div>
+  {% if shops %}<details id="copilot-manual" hidden><summary>Preparar una promoción</summary><form id="copilot-proposal"><label>Negocio<select name="rid">{% for s in shops %}<option value="{{ s.id }}">{{ s.name }}</option>{% endfor %}</select></label><label>Texto promocional<input name="text" required maxlength="200"></label><button class="copilot-send">Preparar propuesta</button></form></details>{% endif %}
+  <button type="button" id="copilot-new" class="copilot-reset" hidden>Nueva conversación</button>
+  </div>
+  </section>
+  <aside class="saas-panel copilot-workspace"><details id="copilot-workspace-details" open><summary>Tu espacio de trabajo</summary>
+  <fieldset class="copilot-modes"><legend>Acceso del asistente</legend><label><input type="radio" name="copilot-mode" value="basic" checked> Básico</label><label><input type="radio" name="copilot-mode" value="full"> Acceso completo</label></fieldset>
+  <p id="copilot-mode-help" class="copilot-help">Básico: consultar y navegar, sin modificar datos.</p>
+  <p>El modo básico consulta y navega. Los cambios sensibles requieren revisión y confirmación antes de aplicarse.</p>
+  <nav class="copilot-shortcuts" aria-label="Accesos rápidos"><a href="{{ url_for('recommendations.index') }}">Recomendaciones</a><a href="{{ url_for('market.orders') }}">Mis pedidos</a>{% if shops %}<a href="{{ url_for('intelligence.dashboard') }}">Inteligencia empresarial</a>{% endif %}</nav>
+   </details></aside></div>
+  <p id="copilot-layout-status" class="copilot-help" role="status"></p>
+</section>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static',filename='js/copilot.js') }}" defer></script><script src="{{ url_for('static',filename='js/copilot-ui.js') }}" defer></script>{% endblock %}

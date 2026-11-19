@@ -1,8 +1,9 @@
 {% extends "market/base.html" %}
 {% from "market/base.html" import token with context %}
+{% block extra_head %}{{ super() }}<link rel="stylesheet" href="{{ url_for('static',filename='css/communication.css') }}"><script src="{{ url_for('static',filename='js/communication.js') }}" defer></script>{% endblock %}
 {% block market %}
-<nav class="market-inline" aria-label="Comunicación"><a href="{{ url_for('comunicacion.inbox') }}">Mensajes</a>
-<a href="{{ url_for('comunicacion.cases') }}">Reclamos</a>
-<a href="{{ url_for('comunicacion.notifications') }}">Notificaciones</a></nav>
-{% block communication %}{% endblock %}
+<nav class="market-inline saas-tabs" aria-label="Comunicación"><a href="{{ url_for('comunicacion.inbox') }}" {% if request.endpoint in ['comunicacion.inbox', 'comunicacion.thread'] %}aria-current="page"{% endif %}>Mensajes</a>
+<a href="{{ url_for('comunicacion.cases') }}" {% if request.endpoint in ['comunicacion.cases', 'comunicacion.case_detail'] %}aria-current="page"{% endif %}>Reclamos</a>
+<a href="{{ url_for('comunicacion.notifications') }}" {% if request.endpoint == 'comunicacion.notifications' %}aria-current="page"{% endif %}>Notificaciones</a></nav>
+<div class="comm-workspace">{% block communication %}{% endblock %}</div>
 {% endblock %}

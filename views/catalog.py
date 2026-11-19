@@ -152,7 +152,7 @@ def import_preview(rid):
     return jsonify(success=True,**{'import':row})
 
 
-@bp.post('/owner/api/catalog/<int:rid>/imports/<int:import_id>/confirm')
+@bp.post('/owner/api/catalog/<int:rid>/imports/<import_id>/confirm')
 @owner
 @action
 def import_confirm(rid,import_id):

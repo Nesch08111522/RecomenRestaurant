@@ -1,1 +1,99 @@
-{% extends 'base.html' %}{% from 'management_parts.html' import metric,period with context %}{% block extra_head %}<link rel="stylesheet" href="{{ url_for('static',filename='css/management.css') }}">{% endblock %}{% block content %}<section class="mgr mgr-admin"><header class="mgr-hero"><div><p>Inteligencia empresarial</p><h1>Entiende tu negocio.<br>Prepara lo que sigue.</h1><p>Ventas pagadas y entregadas, costos declarados y señales reales.</p></div></header><form method="get" class="mgr-filter">{{ period(start,end) }}<label>Negocio<select name="rid"><option value="">Todos mis negocios</option>{% for s in shops %}<option value="{{ s.id }}" {% if request.args.get('rid')==s.id|string %}selected{% endif %}>{{ s.name }}</option>{% endfor %}</select></label><button>Aplicar</button></form><dl class="mgr-metrics">{{ metric('Ventas',data.income|soles) }}{{ metric('Pedidos confirmados',data.orders) }}{{ metric('Costos conocidos',data.known_costs|soles,'Cobertura: ' ~ (data.cost_coverage|string if data.cost_coverage is not none else 'sin datos') ~ '%') }}{{ metric('Margen',data.margin|soles if data.margin is not none else 'Sin costos completos') }}{{ metric('Clientes del período',data.customers) }}{{ metric('Clientes nuevos',data.new_customers) }}{{ metric('Clientes recurrentes',data.frequent_customers) }}{{ metric('Sin compras en el período',data.inactive_customers) }}{{ metric('Vistas de sitio',data.website_views,'Conteo de cargas, no visitantes únicos') }}{{ metric('Ofertas publicadas',data.published_offers) }}{{ metric('Sesiones de mesa',data.service.sessions) }}{{ metric('Permanencia media',(data.service.average_minutes|string ~ ' min') if data.service.average_minutes is not none else 'Sin datos') }}{{ metric('Rotación por mesa/día',data.service.rotation_per_table_day if data.service.rotation_per_table_day is not none else 'Sin datos') }}{{ metric('Espera mediana',(data.service.median_wait_minutes|string ~ ' min') if data.service.median_wait_minutes is not none else 'Sin datos') }}</dl><p>Ventas del período anterior: {{ data.previous_income|soles }}. Variación: {{ (data.income_change|string ~ '%') if data.income_change is not none else 'sin base de comparación' }}.</p><div class="mgr-dashboard-charts">{% for title,rows in [('Ventas por día',data.daily),('Pedidos por hora',data.hours),('Platos más vendidos',data.top_products),('Platos menos vendidos',data.least_products)] %}<section class="mgr-card"><h2>{{ title }}</h2>{% if rows and rows|map(attribute=1)|sum %}<div class="mgr-canvas-wrap"><canvas data-admin-chart='{{ rows|tojson }}' data-money="{{ 'true' if loop.first else 'false' }}" data-chart-kind="{{ 'line' if loop.first else 'bar' }}" role="img" aria-label="{{ title }}"></canvas></div>{% set is_money=loop.first %}<details><summary>Ver valores</summary><ul>{% for name,value in rows %}<li>{{ name }}: {{ value|soles if is_money else value }}</li>{% endfor %}</ul></details>{% else %}<p>Sin actividad registrada.</p>{% endif %}</section>{% endfor %}<section class="mgr-card"><h2>Demanda estimada para los próximos días</h2><p>{{ data.forecast_method }}</p>{% if data.forecast %}<table><thead><tr><th>Fecha</th><th>Pedidos estimados</th><th>Rango</th><th>Días comparables</th></tr></thead><tbody>{% for f in data.forecast %}<tr><td>{{ f.day }}</td><td>{{ f.orders }}</td><td>{{ f.low }}–{{ f.high }}</td><td>{{ f.sample_days }}</td></tr>{% endfor %}</tbody></table>{% endif %}</section><section class="mgr-card"><h2>Merma registrada</h2>{% for w in data.waste %}<p>Negocio #{{ w.rid }} · {{ w.name }}: {{ w.quantity }} {{ w.unit }}</p>{% else %}<p>Sin movimientos de merma en el período.</p>{% endfor %}<h2>Embudo de recomendaciones</h2><p>{{ data.recommendation_funnel.views }} vistas · {{ data.recommendation_funnel.clicks }} clics · {{ data.recommendation_funnel.orders }} conversiones registradas.</p><h2>Ingredientes críticos</h2>{% for item in data.critical_ingredients %}<p>Negocio #{{ item.rid }}: {{ item.name }}</p>{% else %}<p>Sin ingredientes críticos registrados.</p>{% endfor %}</section></div><details><summary>Alcance de estos indicadores</summary><p>Ventas, precios y costos están en céntimos de sol. Las predicciones son una referencia histórica; no son compromisos de venta. Revisa días sin operación y cambios de carta antes de planificar.</p>{% for note in data.missing_metrics %}<p>{{ note }}</p>{% endfor %}<p>Los conteos de campañas miden entregas registradas; no prueban ventas causadas por la campaña.</p></details></section>{% endblock %}{% block scripts %}<script src="{{ url_for('static',filename='js/admin-dashboard.js') }}" defer></script>{% endblock %}
+{% extends 'base.html' %}
+{% from 'management_parts.html' import metric, period with context %}
+{% block extra_head %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/management.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/intelligence-dashboard.css') }}">
+{% endblock %}
+{% block content %}
+{% set is_owner = session.user.role == 'business_owner' %}
+{% set finance_rows = [('Ventas', data.income), ('Costos conocidos', data.known_costs)] + ([('Margen', data.margin)] if data.margin is not none else []) %}
+<section class="mgr intelligence-page {{ 'intelligence-owner' if is_owner else 'intelligence-admin' }}">
+  <header class="mgr-hero intelligence-hero">
+    <div>
+      <p>{{ 'Inteligencia para tu empresa' if is_owner else 'Inteligencia de plataforma' }}</p>
+      <h1>Inteligencia empresarial</h1>
+      <p>Ventas pagadas y entregadas, costos declarados y señales registradas durante el período seleccionado.</p>
+    </div>
+    <a href="{{ url_for('copilot.page') }}">Consultar al asistente IA</a>
+  </header>
+
+  <form method="get" class="mgr-filter intelligence-filter" aria-label="Filtros del informe">
+    {{ period(start, end) }}
+    <label>Negocio
+      <select name="rid">
+        <option value="">{{ 'Todos mis negocios' if is_owner else 'Todos los negocios' }}</option>
+        {% for s in shops %}<option value="{{ s.id }}" {% if request.args.get('rid') == s.id|string %}selected{% endif %}>{{ s.name }}</option>{% endfor %}
+      </select>
+    </label>
+    <button>Aplicar filtros</button>
+  </form>
+
+  <section aria-labelledby="intelligence-summary-title">
+    <div class="intelligence-section-heading">
+      <div><p>Resumen del período</p><h2 id="intelligence-summary-title">Decisiones a primera vista</h2></div>
+      <small>{{ start.strftime('%d/%m/%Y') }} — {{ end.strftime('%d/%m/%Y') }}</small>
+    </div>
+    <dl class="mgr-metrics intelligence-primary-metrics">
+      {{ metric('Ventas', data.income|soles, ('Variación ' ~ data.income_change|string ~ '%' if data.income_change is not none else 'Sin período comparable')) }}
+      {{ metric('Pedidos confirmados', data.orders, 'Entregados y pagados') }}
+      {{ metric('Costos conocidos', data.known_costs|soles, 'Cobertura: ' ~ (data.cost_coverage|string if data.cost_coverage is not none else 'sin datos') ~ '%') }}
+      {{ metric('Margen', data.margin|soles if data.margin is not none else 'Sin costos completos', 'Se calcula solo con cobertura total') }}
+    </dl>
+  </section>
+
+  <section class="intelligence-analysis-grid" aria-label="Proyección y alertas">
+    <article class="mgr-card intelligence-chart-card intelligence-forecast">
+      <div class="intelligence-card-heading"><div><p>Inteligencia y proyecciones</p><h2>Demanda estimada para los próximos días</h2></div><span class="intelligence-badge">Histórica</span></div>
+      {% if data.forecast %}
+        <div class="intelligence-canvas"><canvas data-intelligence-chart="forecast" data-chart-series='{{ data.forecast|tojson }}' role="img" aria-label="Proyección de pedidos con rango histórico"></canvas></div>
+        <p class="intelligence-chart-note">El rango expresa la variación de días comparables; no es una promesa de venta.</p>
+        <details class="intelligence-values"><summary>Consultar valores de la proyección</summary><div class="table-responsive"><table><thead><tr><th>Fecha</th><th>Estimación</th><th>Rango</th><th>Muestra</th></tr></thead><tbody>{% for f in data.forecast %}<tr><td>{{ f.day }}</td><td>{{ f.orders }}</td><td>{{ f.low }}–{{ f.high }}</td><td>{{ f.sample_days }} días</td></tr>{% endfor %}</tbody></table></div></details>
+      {% else %}
+        <div class="intelligence-empty"><strong>Aún no hay proyección confiable.</strong><p>{{ data.forecast_method }}</p></div>
+      {% endif %}
+    </article>
+    <aside class="intelligence-side-stack">
+      <article class="mgr-card intelligence-finance-card">
+        <div class="intelligence-card-heading"><div><p>Rentabilidad</p><h2>Ingresos, costos y margen</h2></div></div>
+        <div class="intelligence-canvas intelligence-canvas-compact"><canvas data-intelligence-chart="finance" data-chart-series='{{ finance_rows|tojson }}' role="img" aria-label="Comparación de ventas, costos conocidos y margen"></canvas></div>
+        <p>{{ 'El margen se muestra cuando todos los platos vendidos tienen costos declarados.' if data.margin is none else 'Margen basado en los costos declarados del período.' }}</p>
+      </article>
+      <article class="mgr-card intelligence-watch-card">
+        <div class="intelligence-card-heading"><div><p>Atención prioritaria</p><h2>Ingredientes y operación</h2></div><a href="{{ url_for('catalog.dashboard') }}">Gestionar</a></div>
+        {% if data.critical_ingredients %}<ul class="intelligence-watch-list">{% for item in data.critical_ingredients[:4] %}<li><span>{{ item.name }}</span><small>Negocio #{{ item.rid }}</small></li>{% endfor %}</ul>{% else %}<p class="intelligence-positive">No hay ingredientes críticos registrados.</p>{% endif %}
+        {% if data.waste %}<p class="intelligence-alert">{{ data.waste|length }} ingrediente(s) con merma registrada en el período.</p>{% endif %}
+      </article>
+    </aside>
+  </section>
+
+  <section aria-labelledby="intelligence-operation-title">
+    <div class="intelligence-section-heading"><div><p>Operación y clientes</p><h2 id="intelligence-operation-title">Señales que explican el resultado</h2></div></div>
+    <dl class="mgr-metrics intelligence-secondary-metrics">
+      {{ metric('Clientes del período', data.customers) }}{{ metric('Clientes nuevos', data.new_customers) }}{{ metric('Clientes recurrentes', data.frequent_customers) }}{{ metric('Sin compras en el período', data.inactive_customers) }}
+      {{ metric('Vistas de sitio', data.website_views, 'Cargas, no visitantes únicos') }}{{ metric('Ofertas publicadas', data.published_offers) }}{{ metric('Sesiones de mesa', data.service.sessions) }}{{ metric('Permanencia media', (data.service.average_minutes|string ~ ' min') if data.service.average_minutes is not none else 'Sin datos') }}
+      {{ metric('Rotación por mesa/día', data.service.rotation_per_table_day if data.service.rotation_per_table_day is not none else 'Sin datos') }}{{ metric('Espera mediana', (data.service.median_wait_minutes|string ~ ' min') if data.service.median_wait_minutes is not none else 'Sin datos') }}
+    </dl>
+  </section>
+
+  <section class="intelligence-detail-grid" aria-label="Detalle comercial">
+    {% for title, rows, chart_kind, money in [('Ventas por día', data.daily, 'line', true), ('Pedidos por hora', data.hours, 'bar', false), ('Platos más vendidos', data.top_products, 'bar', false), ('Platos con menor movimiento', data.least_products, 'bar', false)] %}
+      <article class="mgr-card intelligence-detail-card">
+        <div class="intelligence-card-heading"><h2>{{ title }}</h2><span>{{ 'S/.' if money else 'Unidades' }}</span></div>
+        {% if rows and rows|map(attribute=1)|sum %}
+          <div class="intelligence-canvas intelligence-canvas-detail"><canvas data-intelligence-chart="{{ chart_kind }}" data-chart-money="{{ 'true' if money else 'false' }}" data-chart-series='{{ rows|tojson }}' role="img" aria-label="{{ title }}"></canvas></div>
+          <details class="intelligence-values"><summary>Ver detalle</summary><ul>{% for label, value in rows %}<li><span>{{ label }}</span><strong>{{ value|soles if money else value }}</strong></li>{% endfor %}</ul></details>
+        {% else %}<div class="intelligence-empty"><p>Sin actividad registrada en el período.</p></div>{% endif %}
+      </article>
+    {% endfor %}
+  </section>
+
+  <section class="mgr-card intelligence-recommendations" aria-labelledby="intelligence-actions-title">
+    <div><p>Asistencia con IA</p><h2 id="intelligence-actions-title">Convierte las señales en una próxima acción</h2><p>El asistente analiza solo la información a la que tienes acceso. Cualquier cambio sensible requiere tu confirmación.</p></div>
+    <a class="sr-button" href="{{ url_for('copilot.page') }}">Abrir asistente con contexto</a>
+  </section>
+
+  <details class="intelligence-scope"><summary>Alcance de estos indicadores</summary><p>Ventas, precios y costos están expresados en céntimos de sol. Las predicciones son una referencia histórica; revisa días sin operación y cambios de carta antes de planificar.</p>{% for note in data.missing_metrics %}<p>{{ note }}</p>{% endfor %}<p>Los conteos de campañas miden entregas registradas; no prueban ventas causadas por una campaña.</p></details>
+</section>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/intelligence-dashboard.js') }}" defer></script>{% endblock %}

@@ -1,0 +1,63 @@
+/* Business intelligence: scoped to the authenticated intelligence module. */
+.intelligence-page { --intelligence-gap: clamp(.8rem, 1.6vw, 1.25rem); display: grid; gap: var(--intelligence-gap); }
+.intelligence-page .mgr-hero { margin: 0; }
+.intelligence-hero { min-height: 13rem; }
+.intelligence-hero h1 { max-width: 18ch; }
+.intelligence-filter { margin: 0; padding: .85rem; border: 1px solid var(--theme-border); border-radius: 1rem; background: var(--theme-elevated); }
+.intelligence-section-heading { display: flex; align-items: end; justify-content: space-between; gap: 1rem; }
+.intelligence-section-heading > div > p, .intelligence-card-heading p, .intelligence-recommendations > div > p { margin: 0 0 .28rem; color: var(--theme-muted); font-size: .8rem; font-weight: 700; }
+.intelligence-section-heading h2 { margin: 0; }
+.intelligence-section-heading > small { color: var(--theme-muted); white-space: nowrap; }
+.intelligence-primary-metrics { grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 0; }
+.intelligence-primary-metrics .mgr-metric { min-block-size: 9.6rem; }
+.intelligence-primary-metrics .mgr-metric dd { font-size: clamp(1.45rem, 2.4vw, 2.2rem); }
+.intelligence-analysis-grid { display: grid; grid-template-columns: minmax(0, 1.75fr) minmax(18rem, .9fr); gap: var(--intelligence-gap); align-items: stretch; }
+.intelligence-side-stack { display: grid; grid-template-rows: minmax(0, 1fr) minmax(0, 1fr); gap: var(--intelligence-gap); }
+.intelligence-chart-card, .intelligence-finance-card, .intelligence-watch-card { display: flex; min-width: 0; flex-direction: column; }
+.intelligence-card-heading { display: flex; align-items: start; justify-content: space-between; gap: .75rem; }
+.intelligence-card-heading h2 { margin: 0; font-size: clamp(1rem, 1.5vw, 1.25rem); }
+.intelligence-card-heading > span { flex: 0 0 auto; color: var(--theme-muted); font-size: .76rem; font-weight: 700; }
+.intelligence-card-heading > a { color: var(--theme-accent); font-size: .82rem; font-weight: 800; }
+.intelligence-badge { padding: .35rem .55rem; border-radius: 999px; background: var(--theme-info-bg); color: var(--theme-info); font-size: .75rem; font-weight: 800; }
+.intelligence-canvas { position: relative; min-block-size: 17rem; margin-top: .85rem; }
+.intelligence-canvas-compact { min-block-size: 8.5rem; }
+.intelligence-canvas-detail { min-block-size: 11rem; }
+.intelligence-canvas canvas { display: block; max-inline-size: 100%; }
+.intelligence-chart-note, .intelligence-finance-card > p { margin: .75rem 0 0; color: var(--theme-muted); font-size: .84rem; line-height: 1.45; }
+.intelligence-values { margin-top: .75rem; border-top: 1px solid var(--theme-border); padding-top: .65rem; }
+.intelligence-values summary { cursor: pointer; color: var(--theme-text); font-size: .85rem; font-weight: 800; }
+.intelligence-values ul { display: grid; gap: .45rem; margin: .75rem 0 0; padding: 0; list-style: none; }
+.intelligence-values li { display: flex; justify-content: space-between; gap: .75rem; color: var(--theme-muted); font-size: .85rem; }
+.intelligence-values strong { color: var(--theme-text); }
+.intelligence-empty { display: grid; min-block-size: 8rem; place-content: center start; gap: .45rem; padding: 1rem 0; color: var(--theme-muted); }
+.intelligence-empty :is(strong, p) { margin: 0; }
+.intelligence-watch-list { display: grid; gap: .15rem; margin: .8rem 0 0; padding: 0; list-style: none; }
+.intelligence-watch-list li { display: flex; justify-content: space-between; gap: .75rem; padding: .52rem 0; border-bottom: 1px solid var(--theme-border); }
+.intelligence-watch-list small { color: var(--theme-muted); }
+.intelligence-positive { color: var(--theme-success); }
+.intelligence-alert { margin: auto 0 0; padding-top: .65rem; color: var(--theme-warning); font-size: .84rem; }
+.intelligence-secondary-metrics { grid-template-columns: repeat(5, minmax(0, 1fr)); margin: 0; }
+.intelligence-secondary-metrics .mgr-metric { min-block-size: 7.4rem; padding: .85rem; }
+.intelligence-secondary-metrics .mgr-metric dd { font-size: clamp(1.1rem, 1.6vw, 1.55rem); }
+.intelligence-detail-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--intelligence-gap); }
+.intelligence-detail-card { min-block-size: 15rem; }
+.intelligence-recommendations { display: flex; align-items: center; justify-content: space-between; gap: 1rem; background: var(--theme-accent-bg); }
+.intelligence-recommendations h2 { margin: 0; }
+.intelligence-recommendations > div > p:last-child { max-width: 75ch; color: var(--theme-muted); font-weight: 500; }
+.intelligence-recommendations .sr-button { flex: 0 0 auto; white-space: nowrap; }
+.intelligence-scope { padding: .9rem 1rem; border: 1px solid var(--theme-border); border-radius: .8rem; color: var(--theme-muted); }
+.intelligence-scope summary { color: var(--theme-text); cursor: pointer; font-weight: 800; }
+
+@media (max-width: 1100px) { .intelligence-primary-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); } .intelligence-secondary-metrics { grid-template-columns: repeat(3, minmax(0, 1fr)); } .intelligence-analysis-grid { grid-template-columns: minmax(0, 1fr); } .intelligence-side-stack { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: auto; } }
+@media (max-width: 700px) { .intelligence-section-heading { align-items: start; flex-direction: column; } .intelligence-section-heading > small { white-space: normal; } .intelligence-primary-metrics, .intelligence-secondary-metrics, .intelligence-detail-grid, .intelligence-side-stack { grid-template-columns: 1fr; } .intelligence-filter > button { min-block-size: 2.75rem; } .intelligence-canvas { min-block-size: 14rem; } .intelligence-canvas-compact { min-block-size: 10rem; } .intelligence-recommendations { align-items: stretch; flex-direction: column; } .intelligence-recommendations .sr-button { text-align: center; } }
+.intelligence-page .mgr-card, .intelligence-page .mgr-metric, .intelligence-filter { border-radius: 8px; box-shadow: none; }
+.intelligence-page :is(dd, td, strong) { font-variant-numeric: tabular-nums; }
+.intelligence-page .intelligence-hero { min-height: auto; }
+.intelligence-page .intelligence-hero h1 { max-width: none; font-size: 22px; }
+.intelligence-page .intelligence-canvas { height: 17rem; min-height: 0; }
+.intelligence-page .intelligence-canvas-compact { height: 10rem; }
+.intelligence-page .intelligence-canvas-detail { height: 14rem; }
+.intelligence-filter > label { min-width: 0; }
+.intelligence-filter select { max-width: 100%; }
+@media (max-width: 700px) { .intelligence-filter { display: grid; grid-template-columns: minmax(0, 1fr); } .intelligence-filter :is(input, select, button) { width: 100%; min-width: 0; } }
+@media (prefers-reduced-motion: reduce) { .intelligence-page * { scroll-behavior: auto; animation: none !important; transition: none !important; } }

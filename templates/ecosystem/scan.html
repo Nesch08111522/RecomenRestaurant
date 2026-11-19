@@ -1,1 +1,27 @@
-{% extends "market/base.html" %}{% from "market/base.html" import token with context %}{% block market %}<h1>SmartScan</h1><form class="market-form" method="post" enctype="multipart/form-data">{{ token() }}<label>Fotografía del plato<input required type="file" name="photo" accept="image/jpeg,image/png,image/webp" capture="environment"></label><p>La imagen se envía al proveedor de visión configurado al pulsar Analizar.</p><button>Analizar y buscar</button></form>{% if draft %}<p>{{ draft.quality }}</p>{% if draft.vision %}<h2>Posible identificación</h2><p>{{ draft.name }} · {{ draft.description }}</p><p>Confirma ingredientes y alérgenos con el negocio.</p>{% else %}<p>La identificación no está disponible. Puedes buscar por el nombre del plato.</p>{% endif %}{% include "ecosystem/options.html" %}{% endif %}{% endblock %}
+{% extends "market/base.html" %}
+{% from "market/base.html" import token with context %}
+{% block extra_head %}{{ super() }}<link rel="stylesheet" href="{{ url_for('static', filename='css/scan.css') }}">{% endblock %}
+{% block scripts %}{{ super() }}<script src="{{ url_for('static', filename='js/scan.js') }}" defer></script>{% endblock %}
+{% block market %}
+<div class="smartscan" id="smartScan">
+<header class="saas-view-heading"><div><h1>SmartScan</h1><p>Identifica un plato y revisa opciones disponibles.</p></div></header>
+<div class="saas-copilot-grid">
+<section class="saas-panel"><h2>Fotografía del plato</h2>
+<form id="scanForm" class="market-form" method="post" enctype="multipart/form-data">{{ token() }}
+<label>Subir imagen desde biblioteca<input id="scanLibrary" type="file" name="photo" accept="image/jpeg,image/png,image/webp" aria-describedby="scanHelp"></label>
+<label>Tomar foto con el dispositivo<input id="scanCapture" type="file" accept="image/*" capture="environment" aria-describedby="scanHelp"></label>
+<p id="scanHelp">JPEG, PNG o WebP, hasta 8 MB. Si tu dispositivo entrega HEIC, conviértelo a JPEG. La captura nativa depende del navegador.</p>
+<button id="scanOpenCamera" type="button" hidden>Usar cámara del navegador</button>
+<section id="scanCamera" hidden aria-label="Cámara"><video id="scanVideo" autoplay muted playsinline></video><button id="scanTake" type="button">Capturar foto</button><button id="scanCloseCamera" type="button">Cerrar cámara</button></section>
+<img id="scanPreview" alt="Fotografía seleccionada para analizar" hidden>
+<p id="scanStatus" role="status" aria-live="polite"></p>
+<button id="scanSubmit" type="submit">Analizar y buscar</button></form></section>
+<aside class="saas-panel"><h2>Antes de analizar</h2><p>La imagen se envía al proveedor de visión configurado al pulsar Analizar.</p><p>La identificación es orientativa. Confirma ingredientes y alérgenos con el negocio.</p></aside>
+</div>
+{% if draft %}<section class="saas-panel"><p>{{ draft.quality }}</p>
+{% if draft.vision %}<h2>Posible identificación</h2><p>{{ draft.name }} · {{ draft.description }}</p><p>Confirma ingredientes y alérgenos con el negocio.</p>
+{% else %}<p>La identificación no está disponible. Puedes buscar por el nombre del plato.</p>{% endif %}
+{% include "ecosystem/options.html" %}</section>{% endif %}
+<div id="scanResult" aria-live="polite"></div>
+</div>
+{% endblock %}

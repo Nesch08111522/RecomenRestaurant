@@ -91,6 +91,9 @@
             window.addEventListener('pagehide', () => clearInterval(timer), {once:true});
         }
 
+        // Private navigation owns its drawer lifecycle and compact rail.
+        if (document.body.classList.contains('sr-saas-private')) return;
+
         // ===== MENÚ / DRAWER =====
         const menu = document.getElementById('sr-navigation');
         const trigger = document.querySelector('.sr-menu-button');

@@ -140,32 +140,57 @@ def account_security():
     return render_template("auth/security.html", result=result, recovery=False)
 
 
+@auth_bp.after_request
+def private_account_response(response):
+    if request.endpoint in ('auth.recover', 'auth.profile', 'auth.account_security', 'auth.profile_photo'):
+        response.headers['Cache-Control'] = 'no-store, private'
+        response.headers['Referrer-Policy'] = 'no-referrer'
+    return response
+
+
 @auth_bp.route("/recuperar", methods=["GET", "POST"])
 def recover():
-    if request.method == "POST":
-        username = normalize_text(request.form.get("username"), max_length=80)
-        if not protection.allow_attempt("recover", username, request.remote_addr or ""):
-            flash("Demasiados intentos. Vuelve en diez minutos.", "warning")
-            return render_template("auth/recovery.html", result={}, recovery=True), 429
-        if request.form.get("action") == "send_code":
-            from utils.password_codes import issue
-            from utils.security_delivery import DeliveryUnavailable
-            try:
-                session['password_challenge'] = issue(username, request.form.get('channel','email'),session.get('password_challenge'))
-                flash("Si la cuenta tiene ese contacto asociado, recibirá un código. Revisa también correo no deseado.", "success")
-            except DeliveryUnavailable:
-                flash("El envío de códigos aún no está configurado. Puedes usar tu código de recuperación guardado o contactar con soporte.", "warning")
-            return render_template("auth/recovery.html", result={}, recovery=True)
-        password = request.form.get("password", "")
-        if not protection.password_valid(password):
-            flash("Usa entre 8 y 256 caracteres, con letras y números.", "warning")
-        elif _reset_with_code(username, request.form.get("code", ""), password):
-            session.clear()
-            flash("Contraseña actualizada. Inicia sesión y renueva tu protección.", "success")
-            return redirect(url_for("auth.login"))
-        else:
-            flash("Revisa el usuario y el código de recuperación.", "warning")
-    return render_template("auth/recovery.html", result={}, recovery=True)
+    from utils import password_codes
+    from utils.security_delivery import DeliveryUnavailable
+    state = session.get('password_recovery') or {}
+    if request.method == 'POST':
+        action = request.form.get('action', 'backup')
+        username = state.get('username', '') if action in ('verify_code', 'reset_password') else normalize_text(request.form.get('username'), max_length=80)
+        if not protection.allow_attempt('recover', username, request.remote_addr or ''):
+            flash('Demasiados intentos. Vuelve en diez minutos.', 'warning')
+            return render_template('auth/recovery.html', state=state), 429
+        if action == 'send_code':
+            channel = request.form.get('channel', 'email')
+            if channel not in ('email', 'sms'):
+                flash('Selecciona correo o celular.', 'warning')
+            else:
+                try:
+                    challenge = password_codes.issue(username, channel, state.get('challenge') if state.get('username') == username else None)
+                    state = {'username': username, 'challenge': challenge, 'step': 'code', 'channel': channel}
+                    session['password_recovery'] = state
+                    flash('Si la cuenta tiene ese contacto asociado, recibira un codigo. Revisa correo no deseado. La entrega depende del proveedor.', 'success')
+                except DeliveryUnavailable:
+                    flash('El canal no esta disponible. Usa tu clave guardada o contacta con soporte.', 'warning')
+        elif action == 'verify_code' and state.get('step') == 'code':
+            token = password_codes.verify(username, state.get('challenge'), request.form.get('code', ''))
+            if token:
+                state = {**state, 'step': 'password', 'token': token}
+                session['password_recovery'] = state
+                flash('Codigo verificado. Puedes cambiar tu contrasena durante cinco minutos.', 'success')
+            else:
+                flash('Codigo no valido o vencido. Solicita otro si agotaste los cinco intentos.', 'warning')
+        elif action in ('reset_password', 'backup'):
+            password = request.form.get('password', '')
+            if password != request.form.get('password_confirm', password) or not protection.password_valid(password):
+                flash('Las contrasenas deben coincidir: 8 a 256 caracteres, letras y numeros.', 'warning')
+            elif (action == 'reset_password' and state.get('step') == 'password' and password_codes.complete(username, state.get('challenge'), state.get('token'), password)) or (action == 'backup' and protection.reset_password(username, request.form.get('code', ''), password)):
+                session.clear()
+                flash('Contrasena actualizada. Inicia sesion de nuevo.', 'success')
+                return redirect(url_for('auth.login'))
+            else:
+                flash('Autorizacion no valida o vencida. Solicita otro codigo.', 'warning')
+        return redirect(url_for('auth.recover'))
+    return render_template('auth/recovery.html', state=state)
 
 
 @auth_bp.post('/logout')
@@ -247,10 +272,28 @@ def favorites():
                          restaurants=favorite_restaurants,
                          total=len(favorite_restaurants))
 
+@auth_bp.get('/profile/photo/<kind>')
+def profile_photo(kind):
+    from flask import current_app, send_from_directory, abort
+    from pathlib import Path
+    from utils.security import fresh_session_user
+    identity = fresh_session_user()
+    if not identity:
+        abort(401)
+    if kind not in ('avatar', 'background'):
+        abort(404)
+    user = UserModel.get_by_id(identity['id'])
+    filename = (user.get('profile') or {}).get(kind, '')
+    if not re.fullmatch(r'[a-f0-9]{48}\.jpg', filename):
+        abort(404)
+    return send_from_directory(Path(current_app.instance_path) / 'profile_images' / str(identity['id']), filename, mimetype='image/jpeg')
+
+
 @auth_bp.route('/profile/update', methods=['POST'])
 def update_profile():
     """Actualizar perfil del usuario"""
-    user = session.get('user')
+    from utils.security import fresh_session_user
+    user = fresh_session_user()
     if not user:
         flash('Debes iniciar sesión para actualizar tu perfil', 'warning')
         return redirect(url_for('auth.login'))
@@ -275,6 +318,7 @@ def update_profile():
         payload = {
             'name': request.form.get('name', profile.get('name')),
             'email': request.form.get('email', profile.get('email')),
+            'phone': request.form.get('phone', profile.get('phone', '')),
             'preferences': request.form.getlist('preferences'),
             'restrictions': request.form.getlist('restrictions'),
             'addresses': request.form.get('addresses', '').splitlines(),
@@ -295,13 +339,25 @@ def update_profile():
     except ValueError as error:
         flash(str(error), 'error')
         return redirect(url_for('auth.profile'))
-    if changes.get('email') != profile.get('email'):
+    if not protection.allow_attempt('profile', str(user_id), request.remote_addr or ''):
+        return 'Demasiados intentos.', 429
+    if changes.get('email') != profile.get('email') or changes.get('phone') != profile.get('phone', ''):
         try:
-            result=protection.configure(user_id,request.form.get('current_password',''),'contacts',request.form.get('otp',''),email=changes['email'],phone=profile.get('phone',''))
+            result=protection.configure(user_id,request.form.get('current_password',''),'contacts',request.form.get('otp',''),email=changes['email'],phone=changes['phone'])
+            profile = dict((UserModel.get_by_id(user_id) or {}).get('profile') or {})
             session['auth_epoch']=result['epoch']
         except ValueError:
             flash('Para cambiar el correo, confirma la contraseña actual y el código del autenticador si está activo.','warning')
             return redirect(url_for('auth.profile'))
+    try:
+        from core.profile import save_profile_image
+        for kind in ('avatar', 'background'):
+            upload = request.files.get(kind)
+            if upload and upload.filename:
+                changes[kind] = save_profile_image(upload, user_id, kind)
+    except ValueError as error:
+        flash(str(error), 'warning')
+        return redirect(url_for('auth.profile'))
     profile.update(changes)
     profile['promotions_opt_in'] = profile.get('notification_preferences', {}).get('marketing', False)
 

@@ -5,6 +5,8 @@ a archivos. Los cambios de esquema siguen siendo explícitos.
 """
 from __future__ import annotations
 
+import os
+import re
 from contextlib import contextmanager
 from typing import Iterator
 from urllib.parse import parse_qs, parse_qsl, urlencode, urlsplit, urlunsplit
@@ -28,6 +30,31 @@ class DatabaseConfigurationError(RuntimeError):
 
 class DatabaseConnectionError(RuntimeError):
     """La base no es accesible; mensaje seguro sin credenciales del driver."""
+
+
+def test_schema():
+    schema = os.environ.get('SMARTRESTO_TEST_SCHEMA', '')
+    if schema and not re.fullmatch(r'smartresto_qa_[a-f0-9]{32}', schema):
+        raise DatabaseConfigurationError('Esquema de prueba no autorizado.')
+    return schema
+
+
+def isolated_query(query, conn):
+    schema = test_schema()
+    if not schema:
+        return query
+    if not isinstance(query, str):
+        from psycopg.sql import Composable
+        if isinstance(query, Composable):
+            query = query.as_string(conn)
+        else:
+            raise DatabaseConfigurationError('Consulta no verificable en aislamiento.')
+    # Legacy qualified tables must never bypass the test search_path.
+    query = re.sub(r'\bpublic\.(app_records(?:_id_seq)?|sr_[a-z_]+|ai_decisions(?:_id_seq)?)\b',
+                   lambda match: schema + '.' + match.group(1), query)
+    if re.search(r'\bpublic\b|\b(DROP|TRUNCATE|COPY|ALTER\s+SYSTEM)\b', query, re.I):
+        raise DatabaseConfigurationError('Consulta bloqueada por aislamiento de pruebas.')
+    return query
 
 
 def _libpq_dsn(dsn: str) -> str:
@@ -84,6 +111,8 @@ def require_postgres(*, require_enabled: bool = True) -> None:
 def connection(*, autocommit: bool = False, require_enabled: bool = True) -> Iterator[object]:
     """Lease a bounded connection; always rollback unfinished work before reuse."""
     require_postgres(require_enabled=require_enabled)
+    if test_schema() and autocommit:
+        raise DatabaseConfigurationError('Autocommit no permitido durante pruebas aisladas.')
     # Supabase requiere SSL. Psycopg prepara consultas automáticamente después
     # de varias ejecuciones; se desactiva para que también funcione con el
     # pooler en modo transacción (puerto 6543).
@@ -95,6 +124,9 @@ def connection(*, autocommit: bool = False, require_enabled: bool = True) -> Ite
     }
     requested_sslmode = parse_qs(urlsplit(Config.DATABASE_URL).query).get("sslmode", [None])[-1]
     options["sslmode"] = requested_sslmode or getattr(Config, "DATABASE_SSLMODE", "require")
+    schema = test_schema()
+    if schema:
+        options['options'] = '-c search_path=' + schema + ',pg_catalog'
     dsn = _libpq_dsn(Config.DATABASE_URL)
     def connect():
         start = perf_counter()
@@ -172,7 +204,8 @@ def check_application_schema() -> None:
             )
         cur.execute(
             """SELECT column_name FROM information_schema.columns
-               WHERE table_schema = 'public' AND table_name = 'app_records'"""
+               WHERE table_schema = %s AND table_name = 'app_records'""",
+            (test_schema() or 'public',)
         )
         actual_columns = {column["column_name"] for column in cur.fetchall()}
         required_columns = {"collection", "id", "payload", "created_at", "updated_at"}

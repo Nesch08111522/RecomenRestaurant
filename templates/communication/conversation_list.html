@@ -1,0 +1,10 @@
+<aside class="comm-list" aria-label="Conversaciones">
+  <h2>Conversaciones</h2>
+  <form method="get" action="{{ url_for('comunicacion.inbox') }}" class="comm-search"><label>Buscar conversaciones<input type="search" name="q" value="{{ q|default('') }}" placeholder="Asunto, negocio o pedido"></label><button>Buscar</button></form>
+  {% for t in threads %}
+  <a class="comm-row" href="{{ url_for('comunicacion.thread',tid=t.id) }}" {% if thread is defined and thread.id == t.id %}aria-current="page"{% endif %}>
+    <span class="comm-initial" aria-hidden="true">{{ t.business[:1]|upper }}</span><span><strong>{{ t.subject }}</strong><small>{{ 'Soporte' if t.support else t.business }}{% if t.oid %} · Pedido #{{ t.oid }}{% endif %}</small><time datetime="{{ t.updated }}">{{ t.updated[:16]|replace('T',' ') }}</time>{% if pending(t,uid) %}<small>Sin leer</small>{% endif %}</span>
+  </a>
+  {% else %}<p>{{ 'No se encontraron conversaciones.' if q|default('') else 'Todavía no tienes conversaciones.' }}</p>{% endfor %}
+  <a class="comm-row" href="{{ url_for('comunicacion.inbox') }}">Iniciar conversación</a>
+</aside>

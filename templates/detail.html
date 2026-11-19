@@ -72,6 +72,10 @@
                     <div class="ia-content">
                         <h3>🧠 Análisis de SmartResto</h3>
 
+                        <p>Restricciones: {{ user_profile.restrictions|join(', ') or 'No registradas' }}.<br>
+                        Preferencias: {{ user_profile.preferences|join(', ') or 'No registradas' }}.</p>
+                        <button type="button" class="reserve-btn" id="analyzeProfile" data-url="{{ url_for('main.api_analyze_restaurant', restaurant_id=restaurant.id) }}">Analizar con IA mi perfil actual</button>
+                        <p id="profileAnalysis" role="status" aria-live="polite"></p>
                         {% if explanation %}
                             {% if explanation is string %}
                                 <p>{{ explanation }}</p>
@@ -80,7 +84,7 @@
                                     {% if explanation.compatible %}
                                         <div class="ia-status compatible">
                                             <i class="fas fa-check-circle"></i>
-                                            <span>✅ Restaurante compatible con tus preferencias</span>
+                                            <span>Coincide con las opciones declaradas; confirma tus restricciones</span>
                                         </div>
                                     {% else %}
                                         <div class="ia-status incompatible">
@@ -124,7 +128,7 @@
                                                 <span class="dietary-tag gluten-free">🌾 Sin gluten</span>
                                             {% endif %}
                                             {% if not explanation.dietary_options.vegan and not explanation.dietary_options.vegetarian and not explanation.dietary_options.gluten_free %}
-                                                <span class="dietary-tag none">Sin restricciones específicas</span>
+                                                <span class="dietary-tag none">No hay opciones dieteticas declaradas</span>
                                             {% endif %}
                                         </div>
                                     </div>
@@ -269,6 +273,7 @@
                     {% endif %}
                 </div>
 
+                <button type="button" class="reserve-btn fav-btn" data-restaurant-id="{{ restaurant.id }}" onclick="toggleFavorite({{ restaurant.id }}, event)" aria-pressed="false"><i class="far fa-heart"></i><span data-favorite-label>Guardar favorito</span></button>
                 <a class="reserve-btn" href="{{ url_for('market.browse', negocio=restaurant.id) }}">Ver porciones y pedir</a>
                 {% for review in verified_reviews %}<p><strong>Compra verificada · {{ review.rating }} / 5</strong><br>{{ review.comment }}</p>{% endfor %}
                 {% if is_logged_in and table_service %}
@@ -793,6 +798,26 @@ document.addEventListener('DOMContentLoaded', function () {
         statusEl.textContent = isOpen ? 'Abierto' : 'Cerrado';
         statusEl.classList.add(isOpen ? 'is-open' : 'is-closed');
     }
+
+    const analyze = document.getElementById('analyzeProfile');
+    analyze?.addEventListener('click', async () => {
+        const output = document.getElementById('profileAnalysis');
+        analyze.disabled = true;
+        output.textContent = 'Analizando los datos de tu perfil...';
+        try {
+            const response = await fetch(analyze.dataset.url, {method: 'POST', headers: {
+                'X-CSRFToken': document.querySelector('meta[name="csrf-token"]')?.content || ''
+            }});
+            if (response.status === 401) {
+                window.location.href = {{ login_url|tojson }};
+                return;
+            }
+            const data = await response.json();
+            output.textContent = data.explanation?.ai_text || data.error || 'No se pudo obtener el analisis.';
+        } catch (error) {
+            output.textContent = 'No se pudo conectar. Puedes volver a intentarlo.';
+        } finally { analyze.disabled = false; }
+    });
 
     // Modal de reserva
     const modal = document.getElementById('reserveModal');

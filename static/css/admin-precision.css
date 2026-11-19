@@ -1,0 +1,78 @@
+/* Final ADMIN layer. Public, owner and intelligence views are excluded. */
+.sr-admin-precision { font-variant-numeric: tabular-nums; }
+.sr-admin-precision #main-content { min-width: 0; }
+.sr-admin-precision #main-content > * { min-width: 0; }
+.sr-admin-precision :is(.admin-container,.cat-admin,.sr-info) { width: 100%; max-width: 1280px; margin: 0 auto; padding: 0; background: transparent; }
+.sr-admin-precision :is(.admin-header,.cat-head,.radar-section-heading,.chart-header,.activity-header) { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+.sr-admin-precision :is(.admin-header,.cat-head) { margin: 0 0 20px; padding: 0 0 16px; border-bottom: 1px solid var(--theme-border); }
+.sr-admin-precision :is(.stats-grid,.charts-grid,.mgr-grid,.radar-bottom-grid,.market-grid,.moderation-grid) { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 16px; }
+.sr-admin-precision :is(.stats-grid,.mgr-metrics) { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,220px),1fr)); gap: 16px; }
+.sr-admin-precision .mgr-metrics > dl { display: contents; }
+.sr-admin-precision :is(.chart-card,.recent-activity,.cat-form,.ai-import,.um-modal,.card,.site-settings-form,.radar-control,.radar-territory,.radar-inbox,.moderation-card,.review-card,.moderation-section) { background: var(--theme-surface) !important; border: 1px solid var(--theme-border) !important; border-radius: 8px !important; padding: 16px 20px; min-width: 0; }
+.sr-admin-precision :is(.chart-card,.stat-card,.mgr-card,.radar-candidate) { transform: none !important; }
+.sr-admin-precision :is(.stat-info h3,.um-stat-num,.radar-counts strong) { font-size: 26px !important; line-height: 1.4; font-weight: 600; }
+.sr-admin-precision :is(.stat-icon,.activity-icon,.radar-emblem) { display: none; }
+.sr-admin-precision :is(.stat-card,.um-stat) { display: flex; align-items: center; gap: 12px; }
+.sr-admin-precision .stat-change { color: var(--theme-muted); font-size: 11px; }
+.sr-admin-precision :is(.chart-full,.mgr-dashboard-charts [data-layout-span='2x1']) { grid-column: 1 / -1; }
+.sr-admin-precision :is(.mgr-dashboard-charts,.radar-candidates) { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 16px; }
+.sr-admin-precision :is(.mgr-canvas-wrap,.chart-plot) { position: relative; width: 100%; height: 260px; min-width: 0; }
+.sr-admin-precision .chart-plot canvas { max-width: 100%; }
+.sr-admin-precision :is(.table-container,.cat-table-wrap,.mgr-table,.mgr-chart-values,.admin-scroll) { max-width: 100%; overflow-x: auto; overscroll-behavior-inline: contain; scrollbar-gutter: stable; }
+.sr-admin-precision .admin-scroll { border: 1px solid var(--theme-border); border-radius: 8px; background: var(--theme-surface); }
+.sr-admin-precision table { min-width: 580px; }
+.sr-admin-precision .mgr-chart-values table { min-width: 300px; }
+.sr-admin-precision td { overflow-wrap: anywhere; max-width: 340px; vertical-align: middle; }
+.sr-admin-precision :is(.admin-filters,.um-toolbar,.cat-grid,.form-row,.site-settings-form,.radar-filters) { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,240px),1fr)); gap: 16px; min-width: 0; }
+.sr-admin-precision :is(.form-group,.um-field,.mgr-settings label,.site-settings-form label) { display: grid; gap: 6px; min-width: 0; }
+.sr-admin-precision .admin-form { border: 1px solid var(--theme-border); border-radius: 8px; background: var(--theme-surface); overflow: hidden; }
+.sr-admin-precision .admin-form .form-section { display: grid; grid-template-columns: minmax(180px,1fr) minmax(0,3fr); gap: 24px; margin: 0; padding: 20px; border: 0; border-bottom: 1px solid var(--theme-border); background: transparent; border-radius: 0; }
+.sr-admin-precision .admin-form .form-section > :not(.create-section-copy):not(.create-section-panel):not(.section-title) { grid-column: 2; }
+.sr-admin-precision .admin-form .form-section > .section-title { grid-row: 1 / span 8; }
+.sr-admin-precision :is(.service-mode-options,.radar-workspace) { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; }
+.sr-admin-precision .radar-workspace { grid-template-columns: minmax(0,3fr) minmax(240px,1fr); }
+.sr-admin-precision :is(.form-actions,.radar-candidate-actions,.header-right,.um-stats,.time-group) { display: flex; flex-wrap: wrap; gap: 8px; min-width: 0; }
+.sr-admin-precision .time-group > input { flex: 1 1 120px; }
+.sr-admin-precision :is(.service-mode-card,.tag-box,.um-search-box) { background: var(--theme-elevated) !important; border: 1px solid var(--theme-border); border-radius: 6px; }
+.sr-admin-precision :is(.role-badge,.cat-count,.um-chip,.chart-badge,.activity-count) { border: 1px solid var(--theme-border); border-radius: 999px; background: var(--theme-elevated); color: var(--theme-text); padding: 2px 8px; font-size: 11px; }
+.sr-admin-precision :is(.mgr-ledger li,.activity-item,.radar-source,.radar-run,.radar-claim) { padding: 12px 0; border-bottom: 1px solid var(--theme-border); display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.sr-admin-precision :is(.mgr-ledger li,.activity-item) > :first-child { flex: 1 1 180px; }
+.sr-admin-precision .site-settings-form > :is(p,button) { grid-column: 1 / -1; }
+.sr-admin-precision :is(.mgr-settings,.cat-form) { display: grid; gap: 16px; }
+.sr-admin-precision :is(.um-modal,dialog) { max-width: min(560px,calc(100vw - 32px)); max-height: calc(100dvh - 32px); overflow-y: auto; color: var(--theme-text); background: var(--theme-surface); border: 1px solid var(--theme-border); border-radius: 8px; }
+.sr-admin-precision :is(button,select,input,textarea,.btn-primary,.btn-secondary) { transition: border-color 140ms ease, background-color 140ms ease, color 140ms ease; }
+.sr-admin-precision :is(button,select):hover { border-color: var(--theme-accent); }
+.sr-admin-precision :is(button,.btn-primary,.btn-secondary):active { transform: translateY(1px); }
+.sr-admin-precision :is(a,button,input,select,textarea,summary,[tabindex]):focus-visible { outline: 2px solid var(--theme-focus); outline-offset: 2px; }
+.sr-admin-precision .admin-scroll:focus-visible { outline-offset: -2px; }
+.sr-admin-precision .admin-chart-empty { padding: 32px 16px; color: var(--theme-muted); text-align: center; }
+.sr-admin-precision #main-content { animation: admin-page-enter 180ms ease-out; }
+@keyframes admin-page-enter { from { transform: translateY(4px); } to { transform: translateY(0); } }
+@media (max-width: 900px) {
+  .sr-admin-precision :is(.radar-workspace,.admin-form .form-section) { grid-template-columns: minmax(0,1fr); }
+  .sr-admin-precision .admin-form .form-section > * { grid-column: 1 !important; grid-row: auto !important; }
+}
+@media (max-width: 600px) {
+  .sr-admin-precision :is(.charts-grid,.mgr-grid,.mgr-dashboard-charts,.radar-candidates,.radar-bottom-grid,.market-grid,.moderation-grid,.service-mode-options) { grid-template-columns: minmax(0,1fr); }
+  .sr-admin-precision :is(.chart-card,.cat-form,.ai-import,.site-settings-form,.radar-control,.radar-inbox,.admin-form .form-section) { padding: 16px; }
+  .sr-admin-precision .sr-top .theme-toggle { width: 32px; padding: 4px; }
+  .sr-admin-precision .sr-logo { min-width: 0; font-size: 13px; }
+  .sr-admin-precision .sr-top { gap: 6px; }
+  .sr-admin-precision .mgr-canvas-wrap { height: 220px; }
+}
+.sr-admin-precision .mod { max-width: 1280px; margin: 0 auto; padding: 0; }
+.sr-admin-precision :is(.m-head,.m-toolbar-row,.m-section-head,.m-actions) { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.sr-admin-precision :is(.m-stats,.stats-row,.m-grid) { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,240px),1fr)); gap: 16px; }
+.sr-admin-precision :is(.m-stat,.m-section,.m-toolbar,.m-card,.m-row,.m-status-note) { padding: 16px; border: 1px solid var(--theme-border); border-radius: 8px; background: var(--theme-surface) !important; min-width: 0; }
+.sr-admin-precision .m-stat b { font-size: 26px; }
+.sr-admin-precision .m-stat-icon { display: none; }
+.sr-admin-precision .m-tabs { display: flex; flex-wrap: wrap; gap: 12px; border-bottom: 1px solid var(--theme-border); }
+.sr-admin-precision .m-tabs button { border: 0; border-bottom: 2px solid transparent; border-radius: 0; background: transparent; }
+.sr-admin-precision .m-tabs button.active { border-bottom-color: var(--theme-accent); }
+.sr-admin-precision .admin-chart-values { margin-top: 12px; }
+.sr-admin-precision .admin-chart-values dl { display: grid; grid-template-columns: minmax(0,3fr) minmax(0,1fr); gap: 8px; }
+.sr-admin-precision .admin-chart-values dd { margin: 0; overflow-wrap: anywhere; text-align: right; }
+.sr-admin-precision *, .sr-admin-precision *::before, .sr-admin-precision *::after { box-shadow: none !important; text-shadow: none !important; background-image: none !important; }
+@media (prefers-reduced-motion: reduce) {
+  .sr-admin-precision *, .sr-admin-precision *::before, .sr-admin-precision *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}

@@ -37,17 +37,9 @@ def require_user():
 
 
 def is_staff(rid):
-    actor = user()
-    if not actor.get("id"):
-        return False
-    if actor.get("role") == "admin":
-        return True
-    restaurant = RestaurantModel.get_by_id(rid)
-    if not restaurant:
-        return False
-    if actor.get("role") == "business_owner" and restaurant.get("owner_id") == actor["id"]:
-        return True
-    return actor["id"] in ((kitchen(rid) or {}).get("team") or [])
+    from models.membership import authorized
+    from utils.security import fresh_session_user
+    return authorized(fresh_session_user(), rid, 'tables.service')
 
 
 def require_staff(rid):

@@ -110,8 +110,13 @@ def start():
 @bp.get("/mensajes/<int:tid>")
 def thread(tid):
     thread = fetch_thread(tid)
+    user = identity()
+    threads = records("threads", participants=[user["id"]])
+    if user["role"] == "admin":
+        threads += records("threads", support=True)
+    threads = sorted({t["id"]: t for t in threads}.values(), key=lambda t: t["updated"], reverse=True)
     return render_template("communication/thread.html", thread=thread, messages=records("thread_messages",tid=tid),
-                           uid=identity()["id"], pending=pending)
+                            threads=threads, uid=user["id"], pending=pending)
 
 
 @bp.post("/mensajes/<int:tid>/responder")

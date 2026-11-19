@@ -1,5 +1,233 @@
 {% extends 'base.html' %}
-{% block content %}<section class="sr-campaign"><header class="sr-offers-hero"><div><p>El gusto de encontrar algo especial</p><h1>Mira tus ofertas.<br>Elige tu próximo antojo.</h1><p>Explora promociones publicadas por los negocios y filtra según tu distrito y presupuesto.</p><a class="sr-button" href="#filtrar-ofertas">Encontrar una oferta</a><small>Consulta las condiciones y disponibilidad en cada ficha.</small></div><div class="sr-editorial-slides" data-editorial-slides='{{ [editorial_images.offers,"/static/images/auth/ceviche.webp","/static/images/auth/dessert.webp"]|tojson }}'><img src="{{ editorial_images.offers }}" alt="Inspiración gastronómica para descubrir ofertas" width="600" height="600"><span>Imagen editorial ilustrativa · IA</span><button type="button" data-slide-next>Otro plato</button><button type="button" data-slide-pause>Pausar</button></div></header>
-<form id="filtrar-ofertas" method="get" class="market-filters sr-offer-filters"><label>Restaurante o plato<input name="q" data-search-history data-search-history-changes-only value="{{ request.args.get('q','') }}" placeholder="¿Qué te apetece?"></label><label>Distrito<select name="district"><option value="">Todos</option>{% for d in districts %}<option {% if request.args.district==d %}selected{% endif %}>{{ d }}</option>{% endfor %}</select></label><label>Máximo por persona (S/)<input type="number" min="0" step=".01" name="max_price" value="{{ request.args.get('max_price','') }}"></label><button>Filtrar ofertas</button><a href="{{ url_for('main.offers') }}">Limpiar</a></form>
-<p role="status">{{ total }} negocios con promoción</p><div class="sr-offer-grid">{% for r in restaurants %}{% include 'partials/restaurant_card.html' %}{% else %}<p>No hay promociones publicadas con estas condiciones.</p>{% endfor %}</div>
-{% if pages>1 %}<nav class="sr-pagination" aria-label="Páginas de ofertas">{% if page>1 %}<a href="{{ url_for('main.offers',page=page-1,**page_args) }}">Anterior</a>{% endif %}<span>Página {{ page }} de {{ pages }}</span>{% if page<pages %}<a href="{{ url_for('main.offers',page=page+1,**page_args) }}">Siguiente</a>{% endif %}</nav>{% endif %}</section>{% endblock %}
+
+{% block page_styles %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/offers-premium.css') }}">
+{% endblock %}
+
+{% block content %}
+<section class="sr-campaign sr-offers-page" aria-labelledby="offers-title">
+
+    <!-- HERO EDITORIAL -->
+    <header class="sr-offers-hero">
+
+        <div class="sr-offers-copy">
+            <p class="sr-offers-eyebrow">
+                <span></span>
+                EL GUSTO DE ENCONTRAR ALGO ESPECIAL
+            </p>
+
+            <h1 id="offers-title">
+                Grandes antojos.<br>
+                Mejores oportunidades.
+            </h1>
+
+            <p class="sr-offers-description">
+                Descubre promociones de restaurantes locales, encuentra
+                nuevos sabores y disfruta opciones que se adaptan a tu presupuesto.
+            </p>
+
+            <div class="sr-offers-actions">
+                <a class="sr-button" href="#filtrar-ofertas">
+                    <span>Explorar ofertas</span>
+                    <i class="fas fa-arrow-right" aria-hidden="true"></i>
+                </a>
+                <small>Promociones publicadas por los negocios.</small>
+            </div>
+        </div>
+
+        <div class="sr-editorial-slides"
+             data-editorial-slides='{{ [editorial_images.offers, "/static/images/auth/ceviche.webp", "/static/images/auth/dessert.webp"]|tojson }}'>
+
+            <img
+                src="{{ editorial_images.offers }}"
+                alt="Inspiración gastronómica para descubrir ofertas"
+                width="600"
+                height="600"
+                loading="eager"
+            >
+
+            <span class="sr-editorial-caption">
+                <i class="fas fa-utensils" aria-hidden="true"></i>
+                Inspiración gastronómica
+            </span>
+
+            <div class="sr-editorial-controls">
+                <button type="button"
+                        data-slide-pause
+                        aria-label="Pausar presentación">
+                    <i class="fas fa-pause" aria-hidden="true"></i>
+                    <span>Pausar</span>
+                </button>
+
+                <button type="button"
+                        data-slide-next
+                        aria-label="Mostrar otra imagen">
+                    <span>Otro plato</span>
+                    <i class="fas fa-arrow-right" aria-hidden="true"></i>
+                </button>
+            </div>
+        </div>
+
+    </header>
+
+    <!-- FILTROS -->
+    <form id="filtrar-ofertas"
+          method="get"
+          class="market-filters sr-offer-filters"
+          role="search"
+          aria-label="Filtrar promociones">
+
+        <label class="sr-filter-search">
+            <span>
+                <i class="fas fa-search" aria-hidden="true"></i>
+                Restaurante o plato
+            </span>
+
+            <input
+                type="search"
+                name="q"
+                data-search-history
+                data-search-history-changes-only
+                value="{{ request.args.get('q', '') }}"
+                placeholder="¿Qué te gustaría encontrar?"
+            >
+        </label>
+
+        <label>
+            <span>
+                <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
+                Distrito
+            </span>
+
+            <select name="district">
+                <option value="">Todos los distritos</option>
+
+                {% for d in districts %}
+                    <option value="{{ d }}"
+                        {% if request.args.get('district') == d %}selected{% endif %}>
+                        {{ d }}
+                    </option>
+                {% endfor %}
+            </select>
+        </label>
+
+        <label>
+            <span>
+                <i class="fas fa-wallet" aria-hidden="true"></i>
+                Presupuesto por persona
+            </span>
+
+            <div class="sr-price-input">
+                <span>S/</span>
+                <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    name="max_price"
+                    value="{{ request.args.get('max_price', '') }}"
+                    placeholder="Sin límite"
+                >
+            </div>
+        </label>
+
+        <button type="submit" class="sr-filter-submit">
+            <i class="fas fa-sliders-h" aria-hidden="true"></i>
+            <span>Aplicar filtros</span>
+        </button>
+
+        <a href="{{ url_for('main.offers') }}" class="sr-filter-reset">
+            <i class="fas fa-undo-alt" aria-hidden="true"></i>
+            Limpiar
+        </a>
+
+    </form>
+
+    <!-- RESULTADOS -->
+    <div class="sr-offers-results">
+
+        <div class="sr-offers-heading">
+            <div>
+                <p class="sr-offers-overline">SELECCIÓN PARA DESCUBRIR</p>
+                <h2>Ofertas para disfrutar</h2>
+                <p class="sr-offers-subtitle">
+                    Encuentra promociones interesantes cerca de ti.
+                </p>
+            </div>
+
+            <div class="sr-offers-count" role="status" aria-live="polite">
+                <span class="sr-count-number">{{ total }}</span>
+                <span>negocios con promoción</span>
+            </div>
+        </div>
+
+        <div class="sr-offer-grid">
+
+            {% for r in restaurants %}
+                {% include 'partials/restaurant_card.html' %}
+            {% else %}
+                <div class="sr-offers-empty">
+                    <div class="sr-empty-icon">
+                        <i class="fas fa-search" aria-hidden="true"></i>
+                    </div>
+
+                    <h3>No encontramos promociones</h3>
+
+                    <p>
+                        Prueba cambiando el distrito, ampliando tu presupuesto
+                        o utilizando otro término de búsqueda.
+                    </p>
+
+                    <a href="{{ url_for('main.offers') }}">
+                        Ver todas las ofertas
+                        <i class="fas fa-arrow-right" aria-hidden="true"></i>
+                    </a>
+                </div>
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+    <!-- PAGINACIÓN -->
+    {% if pages > 1 %}
+        <nav class="sr-pagination" aria-label="Páginas de ofertas">
+
+            {% if page > 1 %}
+                <a class="sr-page-control"
+                   href="{{ url_for('main.offers', page=page-1, **page_args) }}"
+                   rel="prev">
+                    <i class="fas fa-arrow-left" aria-hidden="true"></i>
+                    Anterior
+                </a>
+            {% else %}
+                <span class="sr-page-control is-disabled">
+                    <i class="fas fa-arrow-left" aria-hidden="true"></i>
+                    Anterior
+                </span>
+            {% endif %}
+
+            <span class="sr-page-indicator">
+                <strong>{{ page }}</strong>
+                <span>de</span>
+                {{ pages }}
+            </span>
+
+            {% if page < pages %}
+                <a class="sr-page-control"
+                   href="{{ url_for('main.offers', page=page+1, **page_args) }}"
+                   rel="next">
+                    Siguiente
+                    <i class="fas fa-arrow-right" aria-hidden="true"></i>
+                </a>
+            {% else %}
+                <span class="sr-page-control is-disabled">
+                    Siguiente
+                    <i class="fas fa-arrow-right" aria-hidden="true"></i>
+                </span>
+            {% endif %}
+
+        </nav>
+    {% endif %}
+
+</section>
+{% endblock %}

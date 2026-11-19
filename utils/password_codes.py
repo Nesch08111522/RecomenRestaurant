@@ -45,6 +45,51 @@ def issue(username,channel,existing_challenge=None):
         record_event('PASSWORD_CODE_SENT',resource_type='cuenta',resource_id=uid,metadata={'channel':channel})
     return challenge
 
+def verify(username, challenge, code):
+    if not re.fullmatch(r'[0-9]{6}', code or '') or not challenge or len(challenge) > 128:
+        return None
+    user = UserModel.get_by_username(username)
+    if not UserModel.is_active(user):
+        return None
+    uid = user['id']
+    with document_transaction():
+        account = Repo.get_by_id('users', uid, for_update=True)
+        row = Repo.get_by_id(COLLECTION, uid, for_update=True)
+        if not UserModel.is_active(account) or not row or row.get('used') or not row.get('delivered') or row.get('attempts', 0) >= 5 or row.get('until', 0) <= time.time() or row['challenge'] != challenge or row.get('epoch') != account.get('auth_epoch', 0):
+            return None
+        if not hmac.compare_digest(row.get('contact_hash', ''), digest('otp-contact', contact(account, row['channel'])).hex()):
+            return None
+        Repo.update(COLLECTION, uid, {'attempts': row['attempts'] + 1})
+        if not hmac.compare_digest(row['hash'], digest('password-otp', str(uid)+':'+challenge+':'+code).hex()):
+            return None
+        token = secrets.token_urlsafe(32)
+        profile = dict(account.get('profile') or {})
+        profile['phone_verified' if row['channel'] == 'sms' else 'email_verified'] = True
+        Repo.update('users', uid, {'profile': profile})
+        Repo.update(COLLECTION, uid, {'hash': '', 'reset_hash': digest('password-reset', token).hex(), 'reset_until': time.time()+300})
+        return token
+
+
+def complete(username, challenge, token, password):
+    if not password_valid(password) or not token or len(token) > 128:
+        return False
+    user = UserModel.get_by_username(username)
+    if not UserModel.is_active(user):
+        return False
+    uid = user['id']
+    with document_transaction():
+        account = Repo.get_by_id('users', uid, for_update=True)
+        row = Repo.get_by_id(COLLECTION, uid, for_update=True)
+        if not UserModel.is_active(account) or not row or row.get('used') or row.get('reset_until', 0) <= time.time() or row.get('challenge') != challenge or row.get('epoch') != account.get('auth_epoch', 0):
+            return False
+        if not hmac.compare_digest(row.get('reset_hash', ''), digest('password-reset', token).hex()) or not hmac.compare_digest(row.get('contact_hash', ''), digest('otp-contact', contact(account, row['channel'])).hex()):
+            return False
+        Repo.update('users', uid, {'password': generate_password_hash(password), 'auth_epoch': account.get('auth_epoch', 0)+1})
+        Repo.update(COLLECTION, uid, {'used': True, 'hash': '', 'reset_hash': ''})
+        record_event('PASSWORD_CHANGED_BY_CODE', resource_type='cuenta', resource_id=uid, actor_user_id=uid)
+        return True
+
+
 def consume(username,challenge,code,password):
     if not password_valid(password) or not re.fullmatch(r'[0-9]{6}',code or '') or len(challenge or '')>128:return False
     user=UserModel.get_by_username(username)

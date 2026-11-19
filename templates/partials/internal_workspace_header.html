@@ -1,0 +1,33 @@
+{% set workspace_user = session.get('user', {}) %}
+{% set owner_space = workspace_user.get('role') == 'business_owner' %}
+{% set workspace_titles = {
+  'admin.dashboard': 'Centro de control', 'owner.dashboard': 'Resumen de mi empresa',
+  'admin.analytics_page': 'Analítica', 'intelligence.dashboard': 'Inteligencia empresarial',
+  'admin.operations': 'Pedidos y pagos', 'admin.restaurants': 'Restaurantes',
+  'admin.new_restaurant': 'Registrar restaurante', 'admin.edit_restaurant': 'Editar restaurante',
+  'admin.categories': 'Categorías', 'admin.users': 'Usuarios y roles',
+  'admin.moderation_dashboard': 'Moderación', 'admin.controls': 'Configuración y auditoría',
+  'admin.website_settings': 'Configuración del sitio web', 'trust_center.dashboard': 'Seguridad y confianza',
+  'catalog.dashboard': 'Catálogo e inventario', 'salon.manage_default': 'Salón y mesas',
+  'sites.editor': 'Mi sitio y marca', 'owner.menu_management': 'Gestión de carta',
+  'owner.menu_import_preview': 'Revisión de carta', 'copilot.page': 'SmartResto Copilot',
+  'ecosystem.groups': 'Comer en grupo', 'ecosystem.group': 'Detalle del grupo',
+  'ecosystem.rewards': 'Mis recompensas', 'ecosystem.scan': 'SmartScan',
+  'comunicacion.inbox': 'Mensajes', 'comunicacion.thread': 'Conversación',
+  'comunicacion.notifications': 'Notificaciones', 'comunicacion.cases': 'Reclamos',
+  'auth.profile': 'Mi perfil', 'auth.profile_owner': 'Mi perfil', 'auth.account_security': 'Seguridad', 'discovery.owner_space': 'Negocios reclamados'
+} %}
+{% set workspace_title = workspace_titles.get(request.endpoint, 'Espacio de trabajo') %}
+<header class="sr-workspace-header">
+  <div>
+    <nav class="sr-workspace-crumbs" aria-label="Ruta de navegación">
+      <span>SmartResto</span><span aria-hidden="true">/</span><span>{{ 'Mi empresa' if owner_space else 'Administración' if workspace_user.get('role') == 'admin' else 'Personal' }}</span><span aria-hidden="true">/</span><strong>{{ workspace_title }}</strong>
+    </nav>
+    <p class="sr-workspace-kicker">{{ 'OPERACIÓN COMERCIAL' if owner_space else 'OPERACIÓN DE PLATAFORMA' }}</p>
+  </div>
+  <div class="sr-workspace-tools" aria-label="Acciones rápidas">
+    <a href="{{ url_for('copilot.page') }}">Asistente IA</a>
+    <a href="{{ url_for('comunicacion.notifications') }}">Notificaciones</a>
+    <a class="sr-workspace-avatar" href="{{ url_for('auth.profile') }}" aria-label="Abrir mi perfil">{{ (workspace_user.get('profile', {}).get('name') or workspace_user.get('username') or 'U')[0]|upper }}</a>
+  </div>
+</header>

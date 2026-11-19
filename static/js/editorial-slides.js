@@ -4,8 +4,20 @@
    let items; try { items = JSON.parse(host.dataset.editorialSlides); } catch { return; }
    items = items.filter(x => typeof x === 'string' && x.startsWith('/static/images/'));
    const photo = host.querySelector('img'), pause = host.querySelector('[data-slide-pause]');
+   const pauseContext = (pause.getAttribute('aria-label') || 'Pausar presentación').replace(/^Pausar\s+/i, '') || 'presentación';
+   const pauseLabel = pause.querySelector('[data-slide-pause-label], span');
    let index = 0, paused = motion.matches, visible = false;
-   const update = () => { pause.textContent = paused ? 'Reanudar' : 'Pausar'; pause.setAttribute('aria-pressed', String(paused)); };
+   const update = () => {
+     const label = paused ? 'Reanudar' : 'Pausar';
+     if (pauseLabel) pauseLabel.textContent = label;
+     else {
+       const textNode = Array.from(pause.childNodes).find(node => node.nodeType === Node.TEXT_NODE && node.textContent.trim());
+       if (textNode) textNode.textContent = label;
+       else pause.append(document.createTextNode(label));
+     }
+     pause.setAttribute('aria-label', `${label} ${pauseContext}`);
+     pause.setAttribute('aria-pressed', String(paused));
+   };
    const next = () => { if (!items.length) return; index=(index+1)%items.length; photo.src=items[index]; };
    host.querySelector('[data-slide-next]').addEventListener('click',next);
    pause.addEventListener('click',()=>{paused=!paused;update();});

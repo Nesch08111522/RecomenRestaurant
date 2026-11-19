@@ -16,7 +16,7 @@ class FavoriteModel(DataModel):
 
     @classmethod
     def get_by_user(cls, user_id):
-        return [item for item in cls.all() if item.get("user_id") == user_id]
+        return [item for item in cls.all() if str(item.get("user_id")) == str(user_id)]
 
     @classmethod
     def get_by_user_and_restaurant(cls, user_id, restaurant_id):
@@ -53,8 +53,9 @@ class FavoriteModel(DataModel):
             existing = cur.fetchone()
             if existing:
                 cur.execute(
-                    "DELETE FROM public.app_records WHERE collection = %s AND id = %s",
-                    (cls.collection, existing["id"]),
+                    """DELETE FROM public.app_records WHERE collection = %s
+                       AND payload->>'user_id' = %s AND payload->>'restaurant_id' = %s""",
+                    (cls.collection, str(user_id), str(restaurant_id)),
                 )
                 conn.commit()
                 return False

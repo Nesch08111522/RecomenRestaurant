@@ -44,9 +44,13 @@ def health():
                 "database": database_ready,
                 "openrouter": ai_configured,
                 "csrf": True,
-                "audit": True,
+                "audit": database_ready,
             },
-            "checks": {"database": "live", "openrouter": "configuration_only"},
+            "checks": {
+                "database": "live" if database_ready else "unavailable",
+                "openrouter": "configuration_only",
+                "audit": "available" if database_ready else "unavailable",
+            },
         }
     ), 200 if database_ready else 503
 

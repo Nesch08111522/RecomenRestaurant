@@ -29,7 +29,7 @@
             <div class="stat-info">
                 <h3>{{ total_restaurants }}</h3>
                 <p>Restaurantes</p>
-                <span class="stat-change positive">+{{ (total_restaurants * 0.12)|int }}%</span>
+                <span class="stat-change">Sin comparación histórica</span>
             </div>
         </div>
         <div class="stat-card">
@@ -37,7 +37,7 @@
             <div class="stat-info">
                 <h3>{{ total_users }}</h3>
                 <p>Usuarios</p>
-                <span class="stat-change positive">+{{ (total_users * 0.08)|int }}%</span>
+                <span class="stat-change">Sin comparación histórica</span>
             </div>
         </div>
         <div class="stat-card">
@@ -45,7 +45,7 @@
             <div class="stat-info">
                 <h3>{{ avg_rating }}</h3>
                 <p>Rating Promedio</p>
-                <span class="stat-change positive">+0.2</span>
+                <span class="stat-change">Calificación registrada</span>
             </div>
         </div>
         <div class="stat-card">
@@ -53,7 +53,7 @@
             <div class="stat-info">
                 <h3>{{ total_favorites }}</h3>
                 <p>Favoritos</p>
-                <span class="stat-change positive">+{{ (total_favorites * 0.15)|int }}%</span>
+                <span class="stat-change">Total registrado</span>
             </div>
         </div>
     </div>
@@ -65,28 +65,28 @@
                 <h3>Distribución por Categoría</h3>
                 <span class="chart-badge">Barras</span>
             </div>
-            <canvas id="categoryChart"></canvas>
+            <div class="chart-plot"><canvas id="categoryChart" role="img" aria-label="Restaurantes por categoría"></canvas></div>
         </div>
         <div class="chart-card">
             <div class="chart-header">
                 <h3>Distribución por Distrito</h3>
                 <span class="chart-badge">Dona</span>
             </div>
-            <canvas id="districtChart"></canvas>
+            <div class="chart-plot"><canvas id="districtChart" role="img" aria-label="Restaurantes por distrito"></canvas></div>
         </div>
         <div class="chart-card chart-full">
             <div class="chart-header">
                 <h3>Precio vs Rating</h3>
                 <span class="chart-badge">Dispersión</span>
             </div>
-            <canvas id="priceRatingChart"></canvas>
+            <div class="chart-plot"><canvas id="priceRatingChart" role="img" aria-label="Precio registrado frente a calificación"></canvas></div>
         </div>
         <div class="chart-card">
             <div class="chart-header">
                 <h3>Promociones Activas</h3>
                 <span class="chart-badge">Pastel</span>
             </div>
-            <canvas id="promoChart"></canvas>
+            <div class="chart-plot"><canvas id="promoChart" role="img" aria-label="Negocios con y sin promoción"></canvas></div>
         </div>
     </div>
 
@@ -549,9 +549,20 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Cargar datos de analytics
-        fetch('/admin/api/analytics')
-            .then(response => response.json())
+        fetch({{ url_for('admin.analytics_api')|tojson }})
+            .then(response => { if (!response.ok) throw new Error('Datos no disponibles'); return response.json(); })
             .then(data => {
+                document.querySelectorAll('.chart-card canvas').forEach(canvas => {
+                    const values = canvas.id === 'categoryChart' ? Object.values(data.categories || {}) : canvas.id === 'districtChart' ? Object.values(data.districts || {}) : canvas.id === 'priceRatingChart' ? data.price_rating || [] : Object.values(data.promotions || {});
+                    if (!window.Chart || !values.some(value => typeof value === 'object' || Number(value) > 0)) {
+                        canvas.hidden = true;
+                        const empty = document.createElement('p');
+                        empty.className = 'admin-chart-empty';
+                        empty.textContent = window.Chart ? 'Sin registros disponibles para este gráfico.' : 'Gráfico no disponible. Las métricas superiores conservan sus valores registrados.';
+                        canvas.before(empty);
+                    }
+                });
+                if (!window.Chart) return;
                 // Colores
                 const colors = [window.SRTheme.color('danger'), window.SRTheme.color('info'), window.SRTheme.color('warning'), window.SRTheme.color('info'), window.SRTheme.color('danger'), window.SRTheme.color('text'), window.SRTheme.color('info'), window.SRTheme.color('success'), window.SRTheme.color('danger'), window.SRTheme.color('info')];
 

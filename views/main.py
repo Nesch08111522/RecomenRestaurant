@@ -71,7 +71,8 @@ def get_user_profile():
     user_profile = {}
     user_data = session.get("user")
     if user_data:
-        profile = getattr(g, "account_record", user_data).get("profile") or {}
+        account = getattr(g, "account_record", None) or UserModel.get_by_id(user_data.get('id')) or {}
+        profile = account.get("profile") or {}
         user_profile = {field: profile.get(field, []) for field in ("restrictions", "preferences")}
         if "id" not in user_profile:
             user_profile["id"] = user_data.get("id", 999)
@@ -221,42 +222,8 @@ def detail(restaurant_id):
             )
             restaurant["distance_km"] = round(distance, 2)
 
-        # Evaluar con el motor lógico
-        explanation = None
-        if recommender:
-            try:
-                explanation = recommender.explain(restaurant, user_profile)
-            except Exception as e:
-                logger.error(f"Error en explain para restaurante {restaurant_id}: {e}")
-                is_compatible, justifications = evaluate_restaurant_safe(
-                    restaurant, user_profile
-                )
-                explanation = {
-                    "compatible": is_compatible,
-                    "reasons": justifications,
-                    "exclusions": [],
-                    "dietary_options": {
-                        "vegan": "vegano" in restaurant.get("dietary_restrictions", []),
-                        "vegetarian": "vegetariano"
-                        in restaurant.get("dietary_restrictions", []),
-                        "gluten_free": "sin gluten"
-                        in restaurant.get("dietary_restrictions", []),
-                    },
-                }
-        else:
-            explanation = {
-                "compatible": True,
-                "reasons": ["Restaurante disponible para tus preferencias"],
-                "exclusions": [],
-                "dietary_options": {
-                    "vegan": "vegano" in restaurant.get("dietary_restrictions", []),
-                    "vegetarian": "vegetariano"
-                    in restaurant.get("dietary_restrictions", []),
-                    "gluten_free": "sin gluten"
-                    in restaurant.get("dietary_restrictions", []),
-                },
-            }
-
+        from logic.hybrid_recommender import explain_detail
+        explanation = explain_detail(restaurant, user_profile, dishes)
         return render_template(
             "detail.html",
             restaurant=restaurant,
@@ -525,25 +492,31 @@ def api_evaluate_restaurant(restaurant_id):
 
         user_profile = get_user_profile()
 
-        if recommender:
-            try:
-                explanation = recommender.explain(restaurant, user_profile)
-                return jsonify(
-                    {
-                        "restaurant_id": restaurant_id,
-                        "explanation": explanation,
-                        "user_profile": user_profile,
-                    }
-                )
-            except Exception as e:
-                logger.error(f"Error evaluando restaurante {restaurant_id}: {e}")
-                return jsonify({"error": "Error interno del servidor."}), 500
-        else:
-            return jsonify({"error": "Sistema de recomendación no disponible"}), 503
+        from logic.hybrid_recommender import explain_detail
+        explanation = explain_detail(restaurant, user_profile, [])
+        return jsonify(restaurant_id=restaurant_id, explanation=explanation)
 
     except Exception as e:
         logger.error(f"Error en api_evaluate_restaurant: {e}")
         return jsonify({"error": "Error interno del servidor."}), 500
+
+
+@main_bp.post('/api/restaurant/<int:restaurant_id>/analyze')
+def api_analyze_restaurant(restaurant_id):
+    if not session.get('user'):
+        return jsonify(error='Inicia sesion para analizar tu perfil.'), 401
+    restaurant = RestaurantModel.get_by_id(restaurant_id)
+    if not restaurant or not restaurant.get('verified') or restaurant.get('status') in {'suspended', 'archived'}:
+        return jsonify(error='Restaurante no disponible.'), 404
+    from logic.hybrid_recommender import explain_detail
+    profile = get_user_profile()
+    dishes = [d for d in load_dishes(restaurant_id) if published_menu_dish(d, datetime.now(LIMA_TIMEZONE).date())]
+    try:
+        explanation = explain_detail(restaurant, profile, dishes, use_ai=True)
+    except Exception:
+        explanation = explain_detail(restaurant, profile, dishes)
+        return jsonify(explanation=explanation, error='IA no disponible. Se mantiene el analisis de datos registrados.'), 503
+    return jsonify(explanation=explanation)
 
 
 @main_bp.route("/api/categories", methods=["GET"])
@@ -647,16 +620,20 @@ def save_location():
             lat, lng = coordinates
             session["user_lat"] = lat
             session["user_lng"] = lng
+            forecast = None
             if data.get("context_consent") is True:
                 from logic.market import now
                 from datetime import timedelta
                 session["food_context"] = {**(session.get("food_context") or {}), "weather": True,
                                            "until": (now()+timedelta(hours=4)).isoformat()}
+                from utils.weather import conditions
+                forecast = conditions(lat, lng)
             logger.info("Ubicación válida guardada en sesión")
             return jsonify(
                 {
                     "success": True,
                     "message": "Ubicación guardada correctamente",
+                    "weather": forecast,
                     "location": {"lat": lat, "lng": lng},
                 }
             )

@@ -1,2 +1,14 @@
-{% extends "market/base.html" %}{% block market %}<h1>Mis recompensas</h1><p>Un punto por cada S/ 10 de un pedido pagado y entregado. Los canjes se aplican en el negocio que financia la recompensa.</p><h2>Mis descubrimientos</h2><p>{{ purchases }} de 5 compras para «Cliente habitual» · {{ shops }} de 3 negocios para «Explorador local» · {{ dishes }} platos distintos.</p>{% if purchases>=5 %}<p>Insignia conseguida · Cliente habitual</p>{% endif %}{% if shops>=3 %}<p>Insignia conseguida · Explorador local</p>{% endif %}
-{% for b in balances %}<article class="market-panel"><h2>{{ b.name }}</h2><p>{{ b.points }} puntos disponibles.{% if b.benefit %} Cada diez puntos permiten descontar {{ b.benefit|soles }} en el carrito.{% else %} Este negocio todavía no habilitó el canje.{% endif %}</p><a href="{{ url_for('market.browse',negocio=b.rid) }}">Ver porciones</a></article>{% else %}<p>Tus compras completadas iniciarán tu historial de recompensas.</p>{% endfor %}{% endblock %}
+{% extends "market/base.html" %}
+{% block market %}
+<header class="saas-view-heading"><div><h1>Mis recompensas</h1><p>Consulta tu progreso y los puntos disponibles por negocio.</p></div></header>
+<div class="saas-kpi-grid" aria-label="Mis descubrimientos">
+<article class="saas-panel"><h2>Compras completadas</h2><strong class="saas-kpi">{{ purchases }} / 5</strong><p>Cliente habitual</p>{% if purchases>=5 %}<span class="saas-badge">Insignia conseguida</span>{% endif %}</article>
+<article class="saas-panel"><h2>Negocios descubiertos</h2><strong class="saas-kpi">{{ shops }} / 3</strong><p>Explorador local</p>{% if shops>=3 %}<span class="saas-badge">Insignia conseguida</span>{% endif %}</article>
+<article class="saas-panel"><h2>Platos distintos</h2><strong class="saas-kpi">{{ dishes }}</strong><p>Tu historial gastronómico</p></article>
+</div>
+<p class="saas-info-banner">Un punto por cada S/ 10 de un pedido pagado y entregado. Los canjes se aplican en el negocio que financia la recompensa.</p>
+<section class="saas-panel"><h2>Puntos por negocio</h2>
+{% for b in balances %}<article class="saas-list-row"><div><h3>{{ b.name }}</h3><p>{{ b.points }} puntos disponibles.{% if b.benefit %} Cada diez puntos permiten descontar {{ b.benefit|soles }} en el carrito.{% else %} Este negocio todavía no habilitó el canje.{% endif %}</p></div><a href="{{ url_for('market.browse',negocio=b.rid) }}">Ver porciones</a></article>
+{% else %}<p>Tus compras completadas iniciarán tu historial de recompensas.</p>{% endfor %}
+</section>
+{% endblock %}

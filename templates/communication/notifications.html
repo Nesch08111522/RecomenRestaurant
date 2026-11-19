@@ -1,7 +1,14 @@
 {% extends "communication/base.html" %}{% block communication %}
 <h1>Notificaciones</h1>
 {% if rows %}<form method="post" action="{{ url_for('comunicacion.read_notifications') }}">{{ token() }}<button>Marcar todas como leídas</button></form>{% endif %}
-{% for n in rows %}<article class="market-panel"><h2>{{ n.title }}</h2><p>{{ n.message }}</p><time>{{ n.timestamp[:16]|replace('T',' ') }}</time>
-{% if n.link and n.link.startswith('/') and not n.link.startswith('//') and '\\' not in n.link %}<a href="{{ n.link }}">Ver detalle</a>{% endif %}
-{% if not n.read %}<form method="post" action="{{ url_for('comunicacion.read_notifications') }}">{{ token() }}<input type="hidden" name="nid" value="{{ n.id }}"><button>Marcar como leída</button></form>{% endif %}
-</article>{% else %}<p>No tienes notificaciones.</p>{% endfor %}{% endblock %}
+<div class="comm-split" data-mailbox>
+<aside class="comm-list" aria-label="Lista de notificaciones">
+<label>Buscar notificaciones<input type="search" data-mail-search></label>
+<label>Lectura<select data-mail-filter><option value="">Todas</option><option value="unread">Sin leer</option><option value="read">Leídas</option></select></label>
+<p role="status" data-mail-status></p>
+{% for n in rows %}<button type="button" class="comm-row" data-mail-item="notification-{{ n.id }}" data-state="{{ 'read' if n.read else 'unread' }}" aria-controls="notification-{{ n.id }}" aria-expanded="false"><span><strong>{{ n.title }}</strong><small>{{ n.message }}</small><time>{{ n.timestamp[:16]|replace('T',' ') }}</time><small>{{ 'Leída' if n.read else 'Sin leer' }}</small></span></button>{% else %}<p>No tienes notificaciones.</p>{% endfor %}
+</aside><section class="comm-detail" aria-label="Detalle de notificación">
+{% for n in rows %}<article id="notification-{{ n.id }}" data-mail-detail {% if not loop.first %}hidden{% endif %}><h2>{{ n.title }}</h2><p>{{ n.message }}</p><time>{{ n.timestamp[:16]|replace('T',' ') }}</time>
+{% if n.link and n.link.startswith('/') and not n.link.startswith('//') and '\\' not in n.link %}<p><a href="{{ n.link }}">Ver detalle</a></p>{% endif %}
+{% if not n.read %}<form method="post" action="{{ url_for('comunicacion.read_notifications') }}">{{ token() }}<input type="hidden" name="nid" value="{{ n.id }}"><button>Marcar como leída</button></form>{% endif %}</article>{% endfor %}
+</section></div>{% endblock %}

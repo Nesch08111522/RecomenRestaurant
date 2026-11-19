@@ -21,6 +21,8 @@ EXPECTED_SHEETS = {
     "Inventario",
     "Mesas",
     "Instrucciones",
+    "Restaurantes",
+    "Ejemplos",
 }
 
 

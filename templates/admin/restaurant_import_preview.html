@@ -1,0 +1,21 @@
+{% extends 'owner/base.html' %}
+{% block owner_content %}
+<h1>Confirmar carga Excel</h1>
+<p>No se ha guardado ninguna fila. Preview válido durante 15 minutos. Nuevos restaurantes y sucursales requieren moderación administrativa.</p>
+<p>Estado: {{ preview.status }}. Filas: {{ preview.counts.total }}.</p>
+{% for issue in preview.errors %}<p role="alert">{{ issue.sheet }} / {{ issue.row }} / {{ issue.field }}: {{ issue.message }}</p>{% endfor %}
+{% for issue in preview.warnings %}<p>{{ issue.sheet }} / {{ issue.row }}: {{ issue.message }}</p>{% endfor %}
+<div style="overflow:auto;max-height:60vh"><table><thead><tr><th>Hoja</th><th>Fila</th><th>Datos propuestos</th></tr></thead><tbody>
+{% for row in preview.rows %}<tr><td>{{ row.sheet }}</td><td>{{ row.row }}</td><td>{{ row.data|tojson }}</td></tr>{% endfor %}
+</tbody></table></div>
+{% if preview.status == 'pending' %}
+<form method="POST" action="{{ url_for('admin.restaurant_excel_import') }}">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+<input type="hidden" name="token" value="{{ preview.token }}">
+{% if rid is not none %}<input type="hidden" name="restaurant_id" value="{{ rid }}">{% endif %}
+<label><input type="checkbox" name="confirm" value="yes" required> Revisé todas las filas, ingredientes, alérgenos y derechos del contenido.</label>
+<button type="submit">Confirmar carga transaccional</button>
+</form>
+{% endif %}
+<a href="{{ url_for('admin.new_restaurant') }}">Cancelar y volver</a>
+{% endblock %}

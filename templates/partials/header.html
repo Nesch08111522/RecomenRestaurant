@@ -49,14 +49,30 @@
   <div class="sr-top">
     <button class="sr-icon sr-menu-button" type="button" aria-controls="sr-navigation" aria-expanded="false" aria-label="Abrir navegación">{{ glyph('bars') }}</button>
     <a class="sr-logo" href="{{ url_for('main.index') }}" aria-label="{{ website.brand }}, inicio"><span class="sr-mark" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3v5m3-5v5m3-5v5M5 7q0 5 3 5t3-5M8 12v9M18 3c-4 4-4 9 0 9V3zm0 9v9"/></svg></span>{{ website.brand }}</a>
+    {% if sr_saas_private %}
+    <a class="saas-context" href="{{ url_for('auth.profile') }}">{{ 'Mi empresa' if user.role == 'business_owner' else 'Administración' if user.role == 'admin' else 'Personal' }} <span aria-hidden="true">⌄</span></a>
+    <nav class="saas-global-links" aria-label="Navegación global"><a href="{{ url_for('main.index') }}">Ver sitio web</a><a href="{{ url_for('comunicacion.inbox') }}">Mensajes</a></nav>
+    {% else %}
     <nav class="sr-public-links" aria-label="Descubrir"><a href="{{ url_for('main.index') }}" {% if request.endpoint=='main.index' %}aria-current="page"{% endif %}>Descubrir</a><a href="{{ url_for('main.index', _anchor='explorar') }}">Restaurantes</a><a href="{{ url_for('recommendations.index') }}" {% if request.endpoint=='recommendations.index' %}aria-current="page"{% endif %}>Para ti</a><a href="{{ url_for('main.offers') }}" {% if request.endpoint=='main.offers' %}aria-current="page"{% endif %}>Ofertas</a><a href="{{ url_for('main.business_plans') }}" {% if request.endpoint=='main.business_plans' %}aria-current="page"{% endif %}>Para negocios</a></nav>
+    {% endif %}
     <div class="sr-actions" {% if user %}data-counts-url="{{ url_for('comunicacion.unread_counts') }}"{% endif %}>
       <a class="sr-icon sr-favorites-link" href="{{ url_for('auth.favorites') if user else url_for('auth.login', next=url_for('auth.favorites')) }}" aria-label="Mis favoritos" title="Mis favoritos">{{ glyph('heart') }}</a>
       <button id="themeToggle" type="button" class="theme-toggle" data-theme-toggle aria-label="Tema oscuro" aria-pressed="true"><span aria-hidden="true" data-theme-icon>☀</span><span data-theme-label>Usar tema claro</span></button>
       {% if user %}
       <a class="sr-icon" href="{{ url_for('comunicacion.notifications') }}" aria-label="Notificaciones" title="Notificaciones">{{ glyph('bell') }}<span class="sr-count" data-count="notificaciones" hidden></span></a>
       <a class="sr-icon sr-message-link" href="{{ url_for('comunicacion.inbox') }}" aria-label="Mensajes" title="Mensajes">{{ glyph('comment') }}<span class="sr-count" data-count="mensajes" hidden></span></a>
+      {% if sr_saas_private %}
+      <div class="private-account">
+        <button type="button" class="sr-account" data-account-toggle aria-expanded="false" aria-controls="private-account-menu" aria-label="Abrir opciones de cuenta">{{ (user.profile.name or user.username or 'U')[0]|upper }}</button>
+        <div id="private-account-menu" class="private-account-menu" hidden>
+          <a href="{{ url_for('auth.profile') }}">Mi perfil</a>
+          <a href="{{ url_for('auth.account_security') }}">Configuración y seguridad</a>
+          <a href="{{ url_for('admin.dashboard' if user.role == 'admin' else 'owner.dashboard' if user.role == 'business_owner' else 'market.orders') }}">Ir al sistema</a>
+        </div>
+      </div>
+      {% else %}
       <a class="sr-account user-dropdown" href="{{ url_for('auth.profile') }}" aria-label="Mi perfil" title="Mi perfil">{{ (user.profile.name or user.username or 'U')[0]|upper }}</a>
+      {% endif %}
       {% else %}
       <a class="sr-login" href="{{ url_for('auth.login') }}">Ingresar</a><a class="sr-button sr-signup" href="{{ url_for('auth.register') }}">Crear cuenta</a>
       {% endif %}
@@ -98,9 +114,9 @@
     {{ navsection('Moderación','shield-halved',[
       ('admin.moderation_dashboard','Moderación','shield-halved'),
       ('ecosystem.publications','Publicaciones','shield-halved'),
-      ('discovery.dashboard','Radar gastronómico','compass')]) }}
-    {{ navlink('admin.users','Usuarios y roles','users') }}
-    {{ navlink('admin.operations','Pedidos y pagos','receipt') }}
+      ('discovery.dashboard','Radar gastronómico','compass'),
+      ('admin.users','Usuarios y roles','users'),
+      ('admin.operations','Pedidos y pagos','receipt')]) }}
     {{ navsection('Reportes','chart-line',[
       ('admin.analytics_page','Analítica','chart-line'),
       ('ecosystem.city','Inteligencia de ciudad','chart-line')]) }}
@@ -165,10 +181,12 @@
   {% endif %}
 
   {% if user %}
+    {% if sr_saas_private %}<div class="saas-sidebar-footer">{% endif %}
     <form method="post" action="{{ url_for('auth.logout') }}">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <button type="submit" title="Cerrar sesión">{{ glyph('arrow-right-from-bracket') }}<span>Cerrar sesión</span></button>
     </form>
+    {% if sr_saas_private %}</div>{% endif %}
   {% else %}
     {{ navlink('auth.login','Iniciar sesión','user') }}
     {{ navlink('auth.register','Crear cuenta','user-plus') }}
