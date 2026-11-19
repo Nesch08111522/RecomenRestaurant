@@ -135,7 +135,10 @@
 (function () {
     'use strict';
 
-const STYLE_URL = 'https://tiles.openfreemap.org/styles/positron';
+const LIGHT_STYLE_URL = 'https://tiles.openfreemap.org/styles/positron';
+    // Liberty conserva calles y rótulos legibles sobre la interfaz oscura.
+    const DARK_STYLE_URL = 'https://tiles.openfreemap.org/styles/liberty';
+    const styleUrlForTheme = () => document.documentElement.dataset.theme === 'dark' ? DARK_STYLE_URL : LIGHT_STYLE_URL;
     const COLOR = (typeof APP_CONFIG !== 'undefined' && APP_CONFIG.primaryColor) || window.SRTheme.color('danger');
     const DEFAULT_CENTER = [-79.03, -8.11]; // [lng, lat] Trujillo
 
@@ -218,7 +221,7 @@ const STYLE_URL = 'https://tiles.openfreemap.org/styles/positron';
 
         const map = new maplibregl.Map({
             container,
-            style: STYLE_URL,
+            style: styleUrlForTheme(),
             center: centerLL,
             zoom: 12,
             minZoom: 8,
@@ -229,6 +232,31 @@ const STYLE_URL = 'https://tiles.openfreemap.org/styles/positron';
             if (container.isConnected && container.clientWidth > 0 && container.clientHeight > 0) map.resize();
         });
         mapResizeObserver.observe(container);
+        let activeStyleUrl = styleUrlForTheme();
+        document.addEventListener('themechange', () => {
+            const nextStyleUrl = styleUrlForTheme();
+            if (nextStyleUrl === activeStyleUrl) return;
+            activeStyleUrl = nextStyleUrl;
+            map.setStyle(nextStyleUrl, {
+                diff: false,
+                transformStyle: (previousStyle, nextStyle) => {
+                    if (!previousStyle) return nextStyle;
+                    const sources = { ...nextStyle.sources };
+                    if (previousStyle.sources?.restaurants) sources.restaurants = previousStyle.sources.restaurants;
+                    const existingIds = new Set(nextStyle.layers.map(layer => layer.id));
+                    const restaurantLayers = previousStyle.layers.filter(layer => layer.id.startsWith('rm-') && !existingIds.has(layer.id));
+                    return { ...nextStyle, sources, layers: [...nextStyle.layers, ...restaurantLayers] };
+                }
+            });
+        });
+        const syncMapThemeContrast = () => {
+            const textColor = window.SRTheme.color('text');
+            const infoColor = window.SRTheme.color('info');
+            [['rm-clusters', 'circle-stroke-color', textColor], ['rm-points', 'circle-stroke-color', textColor], ['rm-cluster-count', 'text-color', textColor], ['rm-point-labels', 'text-color', infoColor], ['rm-point-labels', 'text-halo-color', textColor]].forEach(([layer, property, value]) => {
+                if (map.getLayer(layer)) map.setPaintProperty(layer, property, value);
+            });
+        };
+        map.on('style.load', syncMapThemeContrast);
         map.on('error', (e) => {
     console.error('❌ Error MapLibre:', {
         message: e.error?.message,
